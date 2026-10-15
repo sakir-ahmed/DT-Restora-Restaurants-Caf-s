@@ -46,6 +46,7 @@ class RoleSeeder extends Seeder
         'journals.post',
         'vouchers.manage',
         'periods.lock',
+        'expenses.manage',
         'customers.view',
         'customers.manage',
         'loyalty.manage',
@@ -65,17 +66,18 @@ class RoleSeeder extends Seeder
             'orders.view', 'orders.create', 'orders.void', 'discounts.override',
             'inventory.view', 'inventory.manage', 'stock.adjust', 'purchases.manage',
             'recipes.manage', 'wastage.log', 'wastage.approve', 'transfers.manage',
-            'employees.manage', 'shifts.manage', 'payments.manage',
+            'employees.manage', 'shifts.manage', 'payments.manage', 'expenses.manage',
             'pos.access', 'kds.access',
             'reports.view', 'dashboard.view', 'customers.view', 'customers.manage',
             'loyalty.manage', 'delivery.dispatch', 'riders.manage', 'sync.resolve',
         ],
         'cashier' => [
             'admin.access', 'branches.view', 'menu.view', 'orders.view', 'orders.create',
-            'pos.access', 'shifts.manage', 'customers.view', 'loyalty.manage',
+            'pos.access', 'shifts.manage', 'customers.view', 'loyalty.manage', 'dashboard.view',
         ],
         'waiter' => [
             'admin.access', 'branches.view', 'menu.view', 'orders.view', 'orders.create',
+            'dashboard.view',
         ],
         'kitchen-manager' => [
             'admin.access', 'branches.view', 'menu.view', 'orders.view', 'kds.access',
@@ -84,7 +86,7 @@ class RoleSeeder extends Seeder
         ],
         'accountant' => [
             'admin.access', 'branches.view', 'reports.view', 'dashboard.view',
-            'accounting.view', 'journals.post', 'vouchers.manage', 'periods.lock',
+            'accounting.view', 'journals.post', 'vouchers.manage', 'periods.lock', 'expenses.manage',
         ],
         'rider' => [
             'admin.access', 'branches.view',

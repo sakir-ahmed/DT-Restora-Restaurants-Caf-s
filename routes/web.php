@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\BranchSwitchController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\IngredientController;
 use App\Http\Controllers\Admin\KdsController;
 use App\Http\Controllers\Admin\MenuController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Admin\PosController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\ReceiptController;
 use App\Http\Controllers\Admin\RecipeController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ShiftController;
 use App\Http\Controllers\Admin\StockCountController;
 use App\Http\Controllers\Admin\StockTransferController;
@@ -123,4 +125,11 @@ Route::prefix('admin')
         Route::post('shifts/{shift}/close', [ShiftController::class, 'close'])->name('shifts.close')->middleware('permission:shifts.manage');
 
         Route::get('kds', [KdsController::class, 'index'])->name('kds.index')->middleware('permission:kds.access');
+
+        Route::get('expenses', [ExpenseController::class, 'index'])->name('expenses.index')->middleware('permission:expenses.manage');
+        Route::post('expenses', [ExpenseController::class, 'store'])->name('expenses.store')->middleware('permission:expenses.manage');
+        Route::delete('expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy')->middleware('permission:expenses.manage');
+
+        Route::get('reports', [ReportController::class, 'index'])->name('reports.index')->middleware('permission:reports.view');
+        Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export')->middleware('permission:reports.view');
     });

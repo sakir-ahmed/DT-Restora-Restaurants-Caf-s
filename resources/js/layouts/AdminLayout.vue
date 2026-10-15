@@ -77,6 +77,7 @@ const nav = computed(() => {
             items: [
                 { label: t('nav.accounting'), href: '/admin/accounting', icon: 'scale-balanced', permission: 'accounting.view' },
                 { label: t('nav.reports'), href: '/admin/reports', icon: 'chart-column', permission: 'reports.view' },
+                { label: t('expenses.title'), href: '/admin/expenses', icon: 'wallet', permission: 'expenses.manage' },
             ],
         },
         {
