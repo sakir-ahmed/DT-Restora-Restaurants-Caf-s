@@ -4,9 +4,16 @@ use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\BranchSwitchController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\IngredientController;
 use App\Http\Controllers\Admin\MenuController;
+use App\Http\Controllers\Admin\PurchaseController;
+use App\Http\Controllers\Admin\RecipeController;
+use App\Http\Controllers\Admin\StockCountController;
+use App\Http\Controllers\Admin\StockTransferController;
+use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\UiKitController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\WastageController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\LocaleController;
@@ -55,4 +62,35 @@ Route::prefix('admin')
         Route::post('staff/users', [UserController::class, 'store'])->name('staff.users.store')->middleware('permission:staff.manage');
         Route::put('staff/users/{user}', [UserController::class, 'update'])->name('staff.users.update')->middleware('permission:staff.manage');
         Route::delete('staff/users/{user}', [UserController::class, 'destroy'])->name('staff.users.destroy')->middleware('permission:staff.manage');
+
+        Route::get('ingredients', [IngredientController::class, 'index'])->name('ingredients.index')->middleware('permission:inventory.view');
+        Route::post('ingredients', [IngredientController::class, 'store'])->name('ingredients.store')->middleware('permission:inventory.manage');
+        Route::put('ingredients/{ingredient}', [IngredientController::class, 'update'])->name('ingredients.update')->middleware('permission:inventory.manage');
+        Route::delete('ingredients/{ingredient}', [IngredientController::class, 'destroy'])->name('ingredients.destroy')->middleware('permission:inventory.manage');
+
+        Route::get('suppliers', [SupplierController::class, 'index'])->name('suppliers.index')->middleware('permission:inventory.view');
+        Route::post('suppliers', [SupplierController::class, 'store'])->name('suppliers.store')->middleware('permission:inventory.manage');
+        Route::put('suppliers/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update')->middleware('permission:inventory.manage');
+        Route::delete('suppliers/{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy')->middleware('permission:inventory.manage');
+
+        Route::get('purchases', [PurchaseController::class, 'index'])->name('purchases.index')->middleware('permission:purchases.manage');
+        Route::post('purchases', [PurchaseController::class, 'store'])->name('purchases.store')->middleware('permission:purchases.manage');
+        Route::post('purchases/{purchase}/receive', [PurchaseController::class, 'receive'])->name('purchases.receive')->middleware('permission:purchases.manage');
+
+        Route::get('recipes', [RecipeController::class, 'index'])->name('recipes.index')->middleware('permission:recipes.manage');
+        Route::post('recipes', [RecipeController::class, 'store'])->name('recipes.store')->middleware('permission:recipes.manage');
+        Route::get('recipes/{item}/cost', [RecipeController::class, 'cost'])->name('recipes.cost')->middleware('permission:recipes.manage');
+
+        Route::get('wastage', [WastageController::class, 'index'])->name('wastage.index')->middleware('permission:inventory.view');
+        Route::post('wastage', [WastageController::class, 'store'])->name('wastage.store')->middleware('permission:wastage.log');
+
+        Route::get('stock-counts', [StockCountController::class, 'index'])->name('stock-counts.index')->middleware('permission:inventory.view');
+        Route::post('stock-counts', [StockCountController::class, 'store'])->name('stock-counts.store')->middleware('permission:inventory.manage');
+        Route::put('stock-counts/{count}/items', [StockCountController::class, 'updateCounts'])->name('stock-counts.update')->middleware('permission:inventory.manage');
+        Route::post('stock-counts/{count}/close', [StockCountController::class, 'close'])->name('stock-counts.close')->middleware('permission:inventory.manage');
+
+        Route::get('stock-transfers', [StockTransferController::class, 'index'])->name('stock-transfers.index')->middleware('permission:transfers.manage');
+        Route::post('stock-transfers', [StockTransferController::class, 'store'])->name('stock-transfers.store')->middleware('permission:transfers.manage');
+        Route::post('stock-transfers/{transfer}/approve', [StockTransferController::class, 'approve'])->name('stock-transfers.approve')->middleware('permission:transfers.manage');
+        Route::post('stock-transfers/{transfer}/receive', [StockTransferController::class, 'receive'])->name('stock-transfers.receive')->middleware('permission:transfers.manage');
     });

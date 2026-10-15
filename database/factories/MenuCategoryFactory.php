@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Models\Branch;
 use App\Models\MenuCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,6 +23,7 @@ class MenuCategoryFactory extends Factory
         return [
             'name' => ucfirst($name),
             'name_bn' => null,
+            'branch_id' => Branch::factory(),
             'sort_order' => fake()->numberBetween(1, 50),
             'is_active' => true,
         ];

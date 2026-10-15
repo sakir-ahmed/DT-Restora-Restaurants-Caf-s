@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -23,6 +24,7 @@ class MenuItemFactory extends Factory
             'name' => ucfirst($name),
             'name_bn' => null,
             'description' => fake()->optional()->sentence(),
+            'menu_category_id' => MenuCategory::factory(),
             'base_price' => fake()->randomFloat(2, 60, 900),
             'is_available' => true,
             'is_vegetarian' => fake()->boolean(30),

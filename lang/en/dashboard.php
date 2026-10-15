@@ -11,6 +11,10 @@ return [
     'food_cost' => 'Food Cost',
     'wastage' => 'Wastage',
     'orders' => 'Orders',
+    'alerts' => [
+        'low_stock_count' => ':count ingredients are at or below the reorder level.',
+        'wastage_spike' => 'Wastage is above the 7-day average.',
+    ],
     'empty_title' => 'No data yet',
     'setup' => [
         'title' => 'Setup checklist',

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class MenuItem extends Model
 {
@@ -50,6 +51,12 @@ class MenuItem extends Model
     public function addOns(): HasMany
     {
         return $this->hasMany(MenuItemAddOn::class)->orderBy('sort_order');
+    }
+
+    /** @return HasOne<Recipe, $this> */
+    public function recipe()
+    {
+        return $this->hasOne(Recipe::class);
     }
 
     public function scopeAvailable(Builder $builder): Builder
