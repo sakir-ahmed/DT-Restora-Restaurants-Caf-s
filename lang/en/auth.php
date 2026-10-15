@@ -13,6 +13,7 @@ return [
     'google_login' => 'Continue with Google',
     'google_not_configured' => 'Google login is not configured. Contact your administrator.',
     'google_no_account' => 'No staff account exists for this Google email. Ask your manager to create one.',
+    'inactive' => 'This account is inactive.',
     'login_success' => 'Signed in successfully.',
     'logout_success' => 'Signed out.',
     'failed' => 'These credentials do not match our records.',

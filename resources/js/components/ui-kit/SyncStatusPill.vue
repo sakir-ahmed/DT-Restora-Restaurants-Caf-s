@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { outboxCount } from '@/lib/offline';
+import { outboxCount, pushOutbox } from '@/lib/offline';
 import { t } from '@/lib/i18n';
 import AppIcon from '@/components/AppIcon.vue';
 
@@ -20,13 +20,29 @@ async function refreshPending() {
     }
 }
 
-function updateOnline() {
+async function updateOnline() {
     online.value = navigator.onLine;
+
+    if (! online.value) {
+        return;
+    }
+
+    syncing.value = true;
+
+    try {
+        await pushOutbox();
+    } catch {
+        // The outbox stays until the next successful push.
+    }
+
+    syncing.value = false;
+    await refreshPending();
 }
 
 onMounted(() => {
     window.addEventListener('online', updateOnline);
     window.addEventListener('offline', updateOnline);
+    window.addEventListener('outbox-changed', refreshPending);
     refreshPending();
     setInterval(refreshPending, 10000);
 });
@@ -34,7 +50,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
     window.removeEventListener('online', updateOnline);
     window.removeEventListener('offline', updateOnline);
+    window.removeEventListener('outbox-changed', refreshPending);
 });
+
+const waiting = computed(() => props.pendingCount + localPending.value);
 
 const meta = computed(() => {
     if (syncing.value) {
@@ -56,8 +75,8 @@ const meta = computed(() => {
         <AppIcon :name="meta.icon" size="10" :spin="syncing" />
         {{ meta.label }}
 
-        <span v-if="pendingCount + localPending > 0" class="rounded-full bg-background/60 px-1 tabular-nums">
-            {{ pendingCount }}
+        <span v-if="waiting > 0" class="rounded-full bg-background/60 px-1 tabular-nums">
+            {{ waiting }}
         </span>
     </span>
 </template>

@@ -86,6 +86,12 @@ class ReportController extends Controller
             'food-cost' => $this->foodCostReport($branchId, $from, $to),
             'branch-pl' => $this->branchPlReport($from, $to),
             'item-sales' => $this->itemSalesReport($branchId, $from, $to),
+            'channel' => $this->channelReport($branchId, $from, $to),
+            'payment-method' => $this->paymentMethodReport($branchId, $from, $to),
+            'cashier' => $this->cashierReport($branchId, $from, $to),
+            'discount-void' => $this->discountVoidReport($branchId, $from, $to),
+            'delivery' => $this->deliveryReport($branchId, $from, $to),
+            'loyalty' => $this->loyaltyReport($branchId, $from, $to),
             default => $this->salesReport($branchId, $from, $to),
         };
     }
@@ -263,6 +269,116 @@ class ReportController extends Controller
                 ['key' => 'salary_cost', 'label' => __('reports.salary_cost'), 'type' => 'money'],
                 ['key' => 'expenses', 'label' => __('reports.expenses'), 'type' => 'money'],
                 ['key' => 'net_profit', 'label' => __('reports.net_profit'), 'type' => 'money'],
+            ],
+            [],
+        ];
+    }
+
+    private function channelReport(?int $branchId, CarbonImmutable $from, CarbonImmutable $to): array
+    {
+        $rows = $this->metrics->salesByChannel($branchId, $from, $to);
+
+        return [
+            __('reports.types.channel'),
+            __('reports.descriptions.channel'),
+            $rows,
+            [
+                ['key' => 'channel', 'label' => __('reports.channel'), 'type' => 'text'],
+                ['key' => 'orders', 'label' => __('reports.orders'), 'type' => 'number'],
+                ['key' => 'total', 'label' => __('reports.grand_total'), 'type' => 'money'],
+            ],
+            [
+                ['label' => __('reports.orders'), 'value' => (string) array_sum(array_column($rows, 'orders'))],
+            ],
+        ];
+    }
+
+    private function paymentMethodReport(?int $branchId, CarbonImmutable $from, CarbonImmutable $to): array
+    {
+        $rows = $this->metrics->salesByPaymentMethod($branchId, $from, $to);
+
+        return [
+            __('reports.types.payment_method'),
+            __('reports.descriptions.payment_method'),
+            $rows,
+            [
+                ['key' => 'method', 'label' => __('reports.method'), 'type' => 'text'],
+                ['key' => 'payments', 'label' => __('reports.payments'), 'type' => 'number'],
+                ['key' => 'amount', 'label' => __('reports.amount'), 'type' => 'money'],
+            ],
+            [],
+        ];
+    }
+
+    private function cashierReport(?int $branchId, CarbonImmutable $from, CarbonImmutable $to): array
+    {
+        $rows = $this->metrics->salesByCashier($branchId, $from, $to);
+
+        return [
+            __('reports.types.cashier'),
+            __('reports.descriptions.cashier'),
+            $rows,
+            [
+                ['key' => 'cashier', 'label' => __('reports.cashier'), 'type' => 'text'],
+                ['key' => 'orders', 'label' => __('reports.orders'), 'type' => 'number'],
+                ['key' => 'gross', 'label' => __('reports.gross_sales'), 'type' => 'money'],
+                ['key' => 'discount', 'label' => __('reports.discount'), 'type' => 'money'],
+            ],
+            [],
+        ];
+    }
+
+    private function discountVoidReport(?int $branchId, CarbonImmutable $from, CarbonImmutable $to): array
+    {
+        $rows = $this->metrics->discountsAndVoids($branchId, $from, $to);
+
+        return [
+            __('reports.types.discount_void'),
+            __('reports.descriptions.discount_void'),
+            $rows,
+            [
+                ['key' => 'kind', 'label' => __('reports.kind'), 'type' => 'text'],
+                ['key' => 'reference', 'label' => __('reports.reference'), 'type' => 'text'],
+                ['key' => 'amount', 'label' => __('reports.amount'), 'type' => 'money'],
+                ['key' => 'reason', 'label' => __('reports.reason'), 'type' => 'text'],
+            ],
+            [
+                ['label' => __('reports.entries'), 'value' => (string) count($rows)],
+            ],
+        ];
+    }
+
+    private function deliveryReport(?int $branchId, CarbonImmutable $from, CarbonImmutable $to): array
+    {
+        $rows = $this->metrics->deliveryPerformance($branchId, $from, $to);
+
+        return [
+            __('reports.types.delivery'),
+            __('reports.descriptions.delivery'),
+            $rows,
+            [
+                ['key' => 'rider', 'label' => __('reports.rider'), 'type' => 'text'],
+                ['key' => 'deliveries', 'label' => __('reports.deliveries'), 'type' => 'number'],
+                ['key' => 'delivered', 'label' => __('reports.delivered'), 'type' => 'number'],
+                ['key' => 'failed', 'label' => __('reports.failed'), 'type' => 'number'],
+                ['key' => 'avg_minutes', 'label' => __('reports.avg_minutes'), 'type' => 'number'],
+            ],
+            [],
+        ];
+    }
+
+    private function loyaltyReport(?int $branchId, CarbonImmutable $from, CarbonImmutable $to): array
+    {
+        $rows = $this->metrics->loyaltySummary($branchId, $from, $to);
+
+        return [
+            __('reports.types.loyalty'),
+            __('reports.descriptions.loyalty'),
+            $rows,
+            [
+                ['key' => 'type', 'label' => __('reports.entry_type'), 'type' => 'text'],
+                ['key' => 'entries', 'label' => __('reports.entries'), 'type' => 'number'],
+                ['key' => 'points', 'label' => __('reports.points'), 'type' => 'number'],
             ],
             [],
         ];

@@ -15,6 +15,7 @@ use App\Models\MenuItem;
 use App\Models\Order;
 use App\Models\Recipe;
 use App\Models\RestaurantTable;
+use App\Models\Setting;
 use App\Models\Shift;
 use App\Models\User;
 use App\Services\CouponService;
@@ -81,7 +82,9 @@ class CreateOrderAction
                     ? (float) $discount['value']
                     : 100.0; // fixed amounts checked after subtotal below
 
-                if ($percentEquivalent > 10 && ($cashier === null || ! $cashier->can('discounts.override'))) {
+                $limit = (float) Setting::current()->discount_limit_percent;
+
+                if ($percentEquivalent > $limit && ($cashier === null || ! $cashier->can('discounts.override'))) {
                     throw ValidationException::withMessages([
                         'discount' => __('orders.discount_limit_exceeded'),
                     ]);
@@ -94,9 +97,11 @@ class CreateOrderAction
 
             $subtotal = round($items->sum(fn (array $item) => (float) $item['line_total']), 2);
 
-            // Fixed discounts above 10 percent of the subtotal also need approval.
+            // Fixed discounts above the configured percent of the subtotal also need approval.
             if ($discount !== null && $discount['type'] === 'fixed' && $subtotal > 0) {
-                if (((float) $discount['value'] / $subtotal * 100) > 10 && ($cashier === null || ! $cashier->can('discounts.override'))) {
+                $limit = (float) Setting::current()->discount_limit_percent;
+
+                if (((float) $discount['value'] / $subtotal * 100) > $limit && ($cashier === null || ! $cashier->can('discounts.override'))) {
                     throw ValidationException::withMessages([
                         'discount' => __('orders.discount_limit_exceeded'),
                     ]);

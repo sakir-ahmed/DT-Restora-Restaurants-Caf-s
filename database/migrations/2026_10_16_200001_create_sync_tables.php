@@ -13,7 +13,7 @@ return new class extends Migration
         Schema::create('sync_items', function (Blueprint $table): void {
             $table->id();
             $table->string('client_id', 40)->unique();
-            $table->string('type', 30); // order | payment | shift | wastage | stock_count | attendance
+            $table->string('type', 30); // order | payment | shift | wastage | stock_count
             $table->json('payload');
             $table->unsignedBigInteger('data_version')->nullable();
             $table->string('status', 20)->default('accepted'); // accepted | duplicate | conflict

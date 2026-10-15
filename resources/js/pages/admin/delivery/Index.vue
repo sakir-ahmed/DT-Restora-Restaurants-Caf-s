@@ -38,14 +38,14 @@ const rows = computed(() => props.deliveries.map((delivery) => ({
 })));
 
 function assign(order, riderId) {
-    router.post(route('delivery.assign', order.id), { rider_id: riderId }, {
+    router.post(route('admin.delivery.assign', order.id), { rider_id: riderId }, {
         preserveState: true,
         onSuccess: () => notify.success(t('delivery.assigned')),
     });
 }
 
 function reconcile(delivery) {
-    router.post(route('delivery.reconcile-cod', delivery.id), {}, {
+    router.post(route('admin.delivery.reconcile-cod', delivery.id), {}, {
         preserveState: true,
         onSuccess: () => notify.success(t('delivery.cod_reconciled')),
     });
@@ -105,7 +105,7 @@ function riderLabel(rider) {
                 type="button"
                 class="h-7 rounded-full border px-2.5 text-xs font-medium"
                 :class="(statusFilter ?? '') === status ? 'border-accent bg-accent/15 text-accent-foreground' : 'border-border bg-surface text-muted'"
-                @click="router.get(route('delivery.index'), { status }, { preserveState: true })"
+                @click="router.get(route('admin.delivery.index'), { status }, { preserveState: true })"
             >
                 {{ status === '' ? t('common.status') : t('status.' + status, {}) === 'status.' + status ? status : t('status.' + status) }}
             </button>

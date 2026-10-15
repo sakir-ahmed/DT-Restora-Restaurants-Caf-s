@@ -130,7 +130,7 @@ function save() {
                 <aside class="h-full w-full max-w-md overflow-y-auto border-l border-border bg-surface p-4">
                     <h2 class="text-base font-semibold">{{ editingId === null ? t('coupons.add') : t('coupons.edit') }}</h2>
 
-                    <form class="mt-4 space-y-3" @submit.prevent="save">
+                    <form novalidate class="mt-4 space-y-3" @submit.prevent="save">
                         <div class="grid grid-cols-2 gap-x-4 gap-y-3">
                             <FormField :label="t('coupons.code')" required :error="form.errors.code">
                                 <template #default="{ id }">
@@ -169,13 +169,13 @@ function save() {
 
                             <FormField :label="t('coupons.limit_total')">
                                 <template #default="{ id }">
-                                    <input :id="id" v-model="form.usage_limit_total" type="number" min="1" placeholder="\u221E" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-right text-[13px] tabular-nums">
+                                    <input :id="id" v-model="form.usage_limit_total" type="number" min="1" :placeholder="t('coupons.no_limit')" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-right text-[13px] tabular-nums">
                                 </template>
                             </FormField>
 
                             <FormField :label="t('coupons.limit_per_customer')">
                                 <template #default="{ id }">
-                                    <input :id="id" v-model="form.usage_limit_per_customer" type="number" min="1" placeholder="\u221E" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-right text-[13px] tabular-nums">
+                                    <input :id="id" v-model="form.usage_limit_per_customer" type="number" min="1" :placeholder="t('coupons.no_limit')" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-right text-[13px] tabular-nums">
                                 </template>
                             </FormField>
 

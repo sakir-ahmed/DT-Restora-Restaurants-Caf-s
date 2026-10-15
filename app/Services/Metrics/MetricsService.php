@@ -6,9 +6,14 @@ namespace App\Services\Metrics;
 
 use App\Enums\OrderStatus;
 use App\Models\Branch;
+use App\Models\Delivery;
 use App\Models\Employee;
 use App\Models\Expense;
+use App\Models\LoyaltyEntry;
 use App\Models\Order;
+use App\Models\Payment;
+use App\Models\Setting;
+use App\Models\VoidRequest;
 use App\Models\Wastage;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
@@ -202,8 +207,9 @@ class MetricsService
         ])->all();
     }
 
-    public function wastageSpike(?int $branchId, float $thresholdMultiplier = 1.5): ?array
+    public function wastageSpike(?int $branchId, ?float $thresholdMultiplier = null): ?array
     {
+        $thresholdMultiplier ??= (float) Setting::current()->wastage_spike_multiplier;
         $todayFrom = now()->startOfDay();
         $todayTo = now()->endOfDay();
 
@@ -256,6 +262,155 @@ class MetricsService
             'net' => number_format((float) $row->net_sum, 2, '.', ''),
             'vat' => number_format((float) $row->vat_sum, 2, '.', ''),
             'total' => number_format((float) $row->gross, 2, '.', ''),
+        ])->all();
+    }
+
+    /**
+     * @return array<int, array{method: string, amount: string, payments: int}>
+     */
+    public function salesByPaymentMethod(?int $branchId, CarbonInterface $from, CarbonInterface $to): array
+    {
+        $rows = DB::table('payments')
+            ->join('orders', 'orders.id', '=', 'payments.order_id')
+            ->where('payments.status', Payment::STATUS_COMPLETED)
+            ->where('orders.status', '!=', OrderStatus::Void->value)
+            ->when($branchId, fn ($query) => $query->where('orders.branch_id', $branchId))
+            ->whereBetween('payments.created_at', [$from->copy()->startOfDay(), $to->copy()->endOfDay()])
+            ->groupBy('payments.method')
+            ->orderBy('payments.method')
+            ->selectRaw('payments.method as method')
+            ->selectRaw('SUM(payments.amount) as amount')
+            ->selectRaw('COUNT(*) as payments_count')
+            ->get();
+
+        return $rows->map(fn ($row) => [
+            'method' => (string) $row->method,
+            'amount' => number_format((float) $row->amount, 2, '.', ''),
+            'payments' => (int) $row->payments_count,
+        ])->all();
+    }
+
+    /**
+     * @return array<int, array{cashier: string, orders: int, gross: string, discount: string}>
+     */
+    public function salesByCashier(?int $branchId, CarbonInterface $from, CarbonInterface $to): array
+    {
+        $rows = DB::table('orders')
+            ->leftJoin('users', 'users.id', '=', 'orders.cashier_id')
+            ->where('orders.status', '!=', OrderStatus::Void->value)
+            ->when($branchId, fn ($query) => $query->where('orders.branch_id', $branchId))
+            ->whereBetween('orders.created_at', [$from->copy()->startOfDay(), $to->copy()->endOfDay()])
+            ->groupBy('orders.cashier_id', 'users.name')
+            ->orderBy('users.name')
+            ->selectRaw('COALESCE(users.name, ?) as cashier', [__('reports.unassigned')])
+            ->selectRaw('COUNT(*) as orders_count')
+            ->selectRaw('SUM(orders.total) as gross')
+            ->selectRaw('SUM(orders.discount_amount) as discount_sum')
+            ->get();
+
+        return $rows->map(fn ($row) => [
+            'cashier' => (string) $row->cashier,
+            'orders' => (int) $row->orders_count,
+            'gross' => number_format((float) $row->gross, 2, '.', ''),
+            'discount' => number_format((float) $row->discount_sum, 2, '.', ''),
+        ])->all();
+    }
+
+    /**
+     * @return array<int, array{kind: string, reference: string, amount: string, reason: string}>
+     */
+    public function discountsAndVoids(?int $branchId, CarbonInterface $from, CarbonInterface $to): array
+    {
+        $fromAt = $from->copy()->startOfDay();
+        $toAt = $to->copy()->endOfDay();
+
+        $discounts = Order::query()
+            ->when($branchId, fn ($query) => $query->where('branch_id', $branchId))
+            ->where('status', '!=', OrderStatus::Void)
+            ->where('discount_amount', '>', 0)
+            ->whereBetween('created_at', [$fromAt, $toAt])
+            ->get()
+            ->map(fn (Order $order) => [
+                'kind' => __('reports.discount'),
+                'reference' => $order->invoice_no,
+                'amount' => number_format((float) $order->discount_amount, 2, '.', ''),
+                'reason' => (string) ($order->discount_type ?? ''),
+            ]);
+
+        $voids = VoidRequest::query()
+            ->with('order:id,invoice_no,branch_id,total')
+            ->where('status', 'approved')
+            ->whereBetween('decided_at', [$fromAt, $toAt])
+            ->get()
+            ->filter(fn (VoidRequest $request) => $branchId === null || $request->order?->branch_id === $branchId)
+            ->map(function (VoidRequest $request): array {
+                $order = $request->order;
+
+                return [
+                    'kind' => __('reports.void'),
+                    'reference' => $order->invoice_no,
+                    'amount' => number_format((float) $order->total, 2, '.', ''),
+                    'reason' => (string) $request->reason_code,
+                ];
+            });
+
+        return $discounts->concat($voids)->values()->all();
+    }
+
+    /**
+     * @return array<int, array{rider: string, deliveries: int, delivered: int, failed: int, avg_minutes: string}>
+     */
+    public function deliveryPerformance(?int $branchId, CarbonInterface $from, CarbonInterface $to): array
+    {
+        $deliveries = Delivery::query()
+            ->with('rider.user:id,name')
+            ->whereBetween('created_at', [$from->copy()->startOfDay(), $to->copy()->endOfDay()])
+            ->whereHas('order', function ($query) use ($branchId): void {
+                if ($branchId !== null) {
+                    $query->where('branch_id', $branchId);
+                }
+            })
+            ->get()
+            ->groupBy(fn (Delivery $delivery) => (string) ($delivery->rider_id ?? '0'));
+
+        return $deliveries->map(function ($group): array {
+            $minutes = $group
+                ->filter(fn (Delivery $delivery) => $delivery->delivered_at !== null && $delivery->assigned_at !== null)
+                ->map(fn (Delivery $delivery) => $delivery->assigned_at->diffInMinutes($delivery->delivered_at));
+
+            $rider = $group->first()?->rider?->user->name ?? __('reports.unassigned');
+
+            return [
+                'rider' => $rider,
+                'deliveries' => $group->count(),
+                'delivered' => $group->where('status', Delivery::STATUS_DELIVERED)->count(),
+                'failed' => $group->where('status', Delivery::STATUS_FAILED)->count(),
+                'avg_minutes' => $minutes->isEmpty() ? '0' : number_format($minutes->avg(), 0, '.', ''),
+            ];
+        })->values()->all();
+    }
+
+    /**
+     * @return array<int, array{type: string, entries: int, points: int}>
+     */
+    public function loyaltySummary(?int $branchId, CarbonInterface $from, CarbonInterface $to): array
+    {
+        $rows = LoyaltyEntry::query()
+            ->when($branchId !== null, function ($query) use ($branchId): void {
+                $query->whereHas('order', fn ($order) => $order->where('branch_id', $branchId));
+            })
+            ->whereBetween('created_at', [$from->copy()->startOfDay(), $to->copy()->endOfDay()])
+            ->selectRaw('type')
+            ->selectRaw('COUNT(*) as entries_count')
+            ->selectRaw('SUM(points) as points_sum')
+            ->groupBy('type')
+            ->orderBy('type')
+            ->get();
+
+        return $rows->map(fn (LoyaltyEntry $row): array => [
+            'type' => (string) $row->getAttribute('type'),
+            'entries' => (int) $row->getAttribute('entries_count'),
+            'points' => (int) $row->getAttribute('points_sum'),
         ])->all();
     }
 }

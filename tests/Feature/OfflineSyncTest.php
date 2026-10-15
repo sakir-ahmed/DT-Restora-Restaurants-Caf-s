@@ -10,9 +10,12 @@ use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\Order;
 use App\Models\Recipe;
+use App\Models\Shift;
+use App\Models\StockCount;
 use App\Models\SyncItem;
 use App\Models\Unit;
 use App\Models\User;
+use App\Models\Wastage;
 use Database\Seeders\ChartOfAccountsSeeder as ChartOfAccountsSeederAlias;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\UnitSeeder;
@@ -161,4 +164,152 @@ it('keeps the invoice series per offline terminal without collisions', function 
 
     expect($invoices)->toHaveCount(2)
         ->and($invoices->unique()->count())->toBe(2);
+});
+
+it('rejects a sync push that has neither a staff session nor a token', function (): void {
+    $this->postJson('/api/v1/sync/push', [
+        'items' => [[
+            'client_id' => '01H-GUEST',
+            'type' => 'order',
+            'payload' => ['branch_id' => $this->branch->id],
+        ]],
+    ])->assertUnauthorized();
+});
+
+it('accepts a sync push from the logged-in staff session', function (): void {
+    $this->post('/login', [
+        'login' => $this->cashier->username,
+        'password' => 'password',
+    ])->assertRedirect();
+
+    $this->withHeader('Origin', 'http://localhost')
+        ->postJson('/api/v1/sync/push', [
+            'items' => [[
+                'client_id' => '01H-SESSION',
+                'type' => 'order',
+                'payload' => [
+                    'branch_id' => $this->branch->id,
+                    'order_type' => 'takeaway',
+                    'terminal' => 'T02',
+                    'tendered' => 200,
+                    'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+                ],
+            ]],
+        ])
+        ->assertOk()
+        ->assertJsonPath('data.results.0.status', SyncItem::STATUS_ACCEPTED);
+});
+
+it('syncs a shift open and close once each', function (): void {
+    $token = $this->cashier->createToken('pos', ['staff'])->plainTextToken;
+
+    $open = $this->withToken($token)->postJson('/api/v1/sync/push', ['items' => [[
+        'client_id' => '01H-SHIFT-OPEN',
+        'type' => 'shift',
+        'payload' => [
+            'action' => 'open',
+            'branch_id' => $this->branch->id,
+            'opening_cash' => '500.00',
+            'terminal' => 'T02',
+        ],
+    ]]]);
+
+    $open->assertOk()->assertJsonPath('data.results.0.status', SyncItem::STATUS_ACCEPTED);
+
+    $this->withToken($token)->postJson('/api/v1/sync/push', ['items' => [[
+        'client_id' => '01H-SHIFT-OPEN',
+        'type' => 'shift',
+        'payload' => ['action' => 'open', 'branch_id' => $this->branch->id, 'opening_cash' => '500.00'],
+    ]]])->assertJsonPath('data.results.0.status', SyncItem::STATUS_DUPLICATE);
+
+    expect(Shift::query()->count())->toBe(1);
+
+    $this->withToken($token)->postJson('/api/v1/sync/push', ['items' => [[
+        'client_id' => '01H-SHIFT-CLOSE',
+        'type' => 'shift',
+        'payload' => [
+            'action' => 'close',
+            'branch_id' => $this->branch->id,
+            'counted_cash' => '500.00',
+        ],
+    ]]])->assertJsonPath('data.results.0.status', SyncItem::STATUS_ACCEPTED);
+
+    expect(Shift::query()->first()->closed_at)->not->toBeNull()
+        ->and((string) Shift::query()->first()->difference)->toBe('0.00');
+});
+
+it('syncs wastage and a stock count for a kitchen manager', function (): void {
+    $kitchen = User::factory()->role('kitchen-manager', $this->branch->id)->create();
+    $token = $kitchen->createToken('pos', ['staff'])->plainTextToken;
+    $gram = Unit::query()->where('symbol', 'g')->firstOrFail();
+    $ingredient = Ingredient::factory()->create(['unit_id' => $gram->id]);
+
+    IngredientStock::query()->create([
+        'branch_id' => $this->branch->id,
+        'ingredient_id' => $ingredient->id,
+        'stock_qty' => 1000,
+        'avg_cost' => 0.1,
+    ]);
+
+    $this->withToken($token)->postJson('/api/v1/sync/push', ['items' => [[
+        'client_id' => '01H-WASTE',
+        'type' => 'wastage',
+        'payload' => [
+            'branch_id' => $this->branch->id,
+            'ingredient_id' => $ingredient->id,
+            'unit_id' => $gram->id,
+            'qty' => 100,
+            'reason_code' => 'spoiled',
+        ],
+    ]]])->assertJsonPath('data.results.0.status', SyncItem::STATUS_ACCEPTED);
+
+    expect(Wastage::query()->count())->toBe(1)
+        ->and((float) IngredientStock::query()->where('ingredient_id', $ingredient->id)->value('stock_qty'))->toBe(900.0);
+
+    $this->withToken($token)->postJson('/api/v1/sync/push', ['items' => [[
+        'client_id' => '01H-COUNT',
+        'type' => 'stock_count',
+        'payload' => [
+            'action' => 'close',
+            'branch_id' => $this->branch->id,
+            'items' => [['ingredient_id' => $ingredient->id, 'counted_qty' => 800]],
+        ],
+    ]]])->assertJsonPath('data.results.0.status', SyncItem::STATUS_ACCEPTED);
+
+    expect(StockCount::query()->first()->status)->toBe(StockCount::STATUS_CLOSED)
+        ->and((float) IngredientStock::query()->where('ingredient_id', $ingredient->id)->value('stock_qty'))->toBe(800.0);
+
+    expect($this->cashier->can('wastage.log'))->toBeFalse();
+
+    $this->app['auth']->forgetGuards();
+
+    $this->withToken($this->cashier->createToken('pos', ['staff'])->plainTextToken)
+        ->postJson('/api/v1/sync/push', ['items' => [[
+            'client_id' => '01H-WASTE-CASHIER',
+            'type' => 'wastage',
+            'payload' => [
+                'branch_id' => $this->branch->id,
+                'ingredient_id' => $ingredient->id,
+                'unit_id' => $gram->id,
+                'qty' => 10,
+                'reason_code' => 'spoiled',
+            ],
+        ]]])->assertJsonPath('data.results.0.status', SyncItem::STATUS_CONFLICT);
+
+    expect(Wastage::query()->count())->toBe(1);
+});
+
+it('rejects attendance sync items because clock-in is not supported', function (): void {
+    $token = $this->cashier->createToken('pos', ['staff'])->plainTextToken;
+
+    $this->withToken($token)->postJson('/api/v1/sync/push', [
+        'items' => [[
+            'client_id' => '01H-ATT',
+            'type' => 'attendance',
+            'payload' => ['note' => 'clock in'],
+        ]],
+    ])->assertUnprocessable()
+        ->assertJsonPath('success', false)
+        ->assertJsonPath('error.code', 'VALIDATION_FAILED')
+        ->assertJsonStructure(['error' => ['details' => ['items.0.type']]]);
 });

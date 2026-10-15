@@ -6,6 +6,7 @@ namespace App\Http\Middleware;
 
 use App\Models\Branch;
 use App\Models\User;
+use App\Services\Metrics\MetricsService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -17,6 +18,7 @@ class HandleInertiaRequests extends Middleware
         $customer = $request->user('customer');
 
         return [
+            ...parent::share($request),
             'appName' => config('app.name'),
             'locale' => app()->getLocale(),
             'translations' => flat_translations(app()->getLocale()),
@@ -50,6 +52,7 @@ class HandleInertiaRequests extends Middleware
                     ->all()
                 : [],
             'currentBranchId' => $user ? $this->currentBranchId($user) : null,
+            'notifications' => $user ? $this->notifications($user) : [],
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
@@ -74,5 +77,41 @@ class HandleInertiaRequests extends Middleware
         $first = Branch::query()->orderBy('id')->value('id');
 
         return $first !== null ? (int) $first : null;
+    }
+
+    /**
+     * @return array<int, array{id: string, icon: string, title: string, body: string, href: string}>
+     */
+    private function notifications(User $user): array
+    {
+        $metrics = app(MetricsService::class);
+        $branchId = $this->currentBranchId($user);
+        $items = [];
+
+        $lowStock = $metrics->lowStock($branchId);
+
+        if ($lowStock !== []) {
+            $items[] = [
+                'id' => 'low-stock',
+                'icon' => 'boxes-stacked',
+                'title' => __('dashboard.alerts.low_stock_count', ['count' => count($lowStock)]),
+                'body' => $lowStock[0]['name'],
+                'href' => '/admin/ingredients',
+            ];
+        }
+
+        $spike = $metrics->wastageSpike($branchId);
+
+        if ($spike !== null) {
+            $items[] = [
+                'id' => 'wastage-spike',
+                'icon' => 'trash',
+                'title' => __('dashboard.alerts.wastage_spike'),
+                'body' => $spike['today'],
+                'href' => '/admin/wastage',
+            ];
+        }
+
+        return $items;
     }
 }

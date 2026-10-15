@@ -128,7 +128,7 @@ async function remove(expense) {
         </DataTable>
 
         <SlideOver :open="slideOverOpen" :title="t('expenses.add')" @close="slideOverOpen = false">
-            <form class="space-y-3" @submit.prevent="save">
+            <form novalidate class="space-y-3" @submit.prevent="save">
                 <div class="grid grid-cols-2 gap-x-4 gap-y-3">
                     <FormField :label="t('expenses.date')" required :error="form.errors.expense_date">
                         <template #default="{ id }">

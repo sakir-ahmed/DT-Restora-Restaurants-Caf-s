@@ -66,7 +66,28 @@ class ApproveOrderVoidAction
         });
     }
 
-    private function restoreStock(Order $order, User $approver): void
+    /**
+     * A customer may cancel only before the kitchen accepts the order.
+     */
+    public function cancelPending(Order $order): Order
+    {
+        return DB::transaction(function () use ($order): Order {
+            $order = Order::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
+
+            if ($order->status !== OrderStatus::Pending) {
+                throw ValidationException::withMessages([
+                    'order' => __('orders.invalid_status'),
+                ]);
+            }
+
+            $order->update(['status' => OrderStatus::Void->value]);
+            $this->restoreStock($order, null);
+
+            return $order;
+        });
+    }
+
+    private function restoreStock(Order $order, ?User $approver): void
     {
         $recipes = Recipe::query()
             ->with('items')
@@ -88,7 +109,7 @@ class ApproveOrderVoidAction
                     baseQtyDelta: (float) $line->qty * $orderItem->quantity,
                     movementType: 'sale',
                     reference: $order,
-                    userId: $approver->id,
+                    userId: $approver?->id,
                     allowNegative: true,
                 );
             }

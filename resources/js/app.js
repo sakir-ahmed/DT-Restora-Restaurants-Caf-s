@@ -6,6 +6,8 @@ import { createApp, defineComponent, h } from 'vue';
 import { Toaster } from 'vue-sonner';
 import { ZiggyVue, route as routeFn } from 'ziggy-js';
 import ConfirmHost from './components/ui-kit/ConfirmHost.vue';
+import UpdatePrompt from './components/ui-kit/UpdatePrompt.vue';
+import { registerSW } from 'virtual:pwa-register';
 import { Ziggy } from './ziggy';
 
 createInertiaApp({
@@ -21,6 +23,7 @@ createInertiaApp({
                 return () => [
                     h(App, props),
                     h(ConfirmHost),
+                    h(UpdatePrompt),
                     h(Toaster, {
                         position: 'top-right',
                         duration: 3000,
@@ -45,11 +48,14 @@ createInertiaApp({
     },
 });
 
-// PWA service worker registration (no reload mid-order: prompt type).
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(() => {
-            // offline mode unavailable; the app still works online
-        });
+// Prompt before applying a new service worker. Nothing reloads until the cashier chooses.
+if (import.meta.env.PROD) {
+    const updateSW = registerSW({
+        immediate: true,
+        onNeedRefresh() {
+            window.dispatchEvent(new CustomEvent('pwa-update', {
+                detail: { apply: () => updateSW(true) },
+            }));
+        },
     });
 }

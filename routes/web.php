@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\Admin\AccountingController;
+use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\AggregatorController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\BranchSwitchController;
 use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DeliveryController;
 use App\Http\Controllers\Admin\EmployeeController;
@@ -21,6 +23,7 @@ use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\ReceiptController;
 use App\Http\Controllers\Admin\RecipeController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ShiftController;
 use App\Http\Controllers\Admin\StockCountController;
 use App\Http\Controllers\Admin\StockTransferController;
@@ -39,7 +42,9 @@ use App\Http\Controllers\Web\AccountController;
 use App\Http\Controllers\Web\AggregatorWebhookController;
 use App\Http\Controllers\Web\CheckoutController;
 use App\Http\Controllers\Web\CustomerAuthController;
+use App\Http\Controllers\Web\CustomerGoogleController;
 use App\Http\Controllers\Web\HomeController;
+use App\Http\Controllers\Web\ItemController;
 use App\Http\Controllers\Web\MenuController;
 use App\Http\Controllers\Web\TrackController;
 use App\Http\Controllers\Web\WebPaymentController;
@@ -47,6 +52,7 @@ use App\Models\Branch;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('web.home');
+Route::get('/menu/{branchCode}/items/{item}', [ItemController::class, 'show'])->name('web.item');
 Route::get('/menu/{branchCode?}', MenuController::class)->name('web.menu');
 Route::get('/checkout', [CheckoutController::class, 'show'])->name('web.checkout');
 Route::post('/checkout', [CheckoutController::class, 'place'])->name('web.checkout.place');
@@ -61,11 +67,14 @@ Route::get('/customer/login', [CustomerAuthController::class, 'showLogin'])->nam
 Route::post('/customer/otp/send', [CustomerAuthController::class, 'sendOtp'])->name('web.customer.otp.send');
 Route::post('/customer/otp/verify', [CustomerAuthController::class, 'verifyOtp'])->name('web.customer.otp.verify');
 Route::post('/customer/logout', [CustomerAuthController::class, 'logout'])->name('web.customer.logout');
+Route::get('/customer/auth/google/redirect', [CustomerGoogleController::class, 'redirect'])->name('web.customer.google.redirect');
+Route::get('/customer/auth/google/callback', [CustomerGoogleController::class, 'callback'])->name('web.customer.google.callback');
 
 Route::middleware('auth:customer')->group(function (): void {
     Route::get('/account', AccountController::class)->name('web.account');
     Route::post('/account/addresses', [AccountController::class, 'storeAddress'])->name('web.account.addresses.store');
     Route::delete('/account/addresses/{address}', [AccountController::class, 'destroyAddress'])->name('web.account.addresses.destroy');
+    Route::delete('/account', [AccountController::class, 'destroy'])->name('web.account.destroy');
 });
 
 // Rider web view (staff guard, rider role only, mobile-first).
@@ -210,6 +219,10 @@ Route::prefix('admin')
         Route::post('delivery/{delivery}/reconcile-cod', [DeliveryController::class, 'reconcileCod'])->name('delivery.reconcile-cod')->middleware('permission:delivery.dispatch');
 
         Route::get('accounting', [AccountingController::class, 'index'])->name('accounting.index')->middleware('permission:accounting.view');
+        Route::put('accounting/accounts/{account}', [AccountingController::class, 'updateAccount'])->name('accounting.accounts.update')->middleware('permission:journals.post');
+        Route::post('accounting/vouchers', [AccountingController::class, 'storeVoucher'])->name('accounting.vouchers.store')->middleware('permission:vouchers.manage');
+        Route::post('accounting/statements', [AccountingController::class, 'storeStatement'])->name('accounting.statements.store')->middleware('permission:journals.post');
+        Route::post('accounting/statements/{line}/match', [AccountingController::class, 'matchStatement'])->name('accounting.statements.match')->middleware('permission:journals.post');
         Route::post('accounting/journals', [AccountingController::class, 'storeManual'])->name('accounting.journals.store')->middleware('permission:journals.post');
         Route::post('accounting/journals/{journal}/approve', [AccountingController::class, 'approve'])->name('accounting.journals.approve')->middleware('permission:journals.post');
         Route::post('accounting/journals/{journal}/reverse', [AccountingController::class, 'reverse'])->name('accounting.journals.reverse')->middleware('permission:journals.post');
@@ -227,6 +240,13 @@ Route::prefix('admin')
         Route::get('sync-conflicts', [SyncConflictController::class, 'index'])->name('sync.conflicts')->middleware('permission:sync.resolve');
         Route::post('sync-conflicts/{item}/discard', [SyncConflictController::class, 'discard'])->name('sync.discard')->middleware('permission:sync.resolve');
         Route::post('sync-conflicts/{item}/retry', [SyncConflictController::class, 'retry'])->name('sync.retry')->middleware('permission:sync.resolve');
+
+        Route::get('customers', [CustomerController::class, 'index'])->name('customers.index')->middleware('permission:customers.view');
+
+        Route::get('settings', [SettingController::class, 'index'])->name('settings.index')->middleware('permission:settings.manage');
+        Route::put('settings', [SettingController::class, 'update'])->name('settings.update')->middleware('permission:settings.manage');
+
+        Route::get('activity-log', [ActivityLogController::class, 'index'])->name('activity.index')->middleware('permission:activity.view');
 
         Route::get('reports', [ReportController::class, 'index'])->name('reports.index')->middleware('permission:reports.view');
         Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export')->middleware('permission:reports.view');

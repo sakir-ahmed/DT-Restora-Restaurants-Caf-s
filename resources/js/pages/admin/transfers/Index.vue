@@ -77,7 +77,11 @@ function save() {
             slideOverOpen.value = false;
             notify.success(t('inventory.transfer_requested'));
         },
-        onError: () => notify.error(t('inventory.transfer_same_branch')),
+        onError: (errors) => {
+            if (errors.to_branch_id) {
+                notify.error(errors.to_branch_id);
+            }
+        },
     });
 }
 
@@ -142,7 +146,7 @@ function receive(transfer) {
         </DataTable>
 
         <SlideOver :open="slideOverOpen" :title="t('inventory.new_transfer')" wide @close="slideOverOpen = false">
-            <form class="space-y-3" @submit.prevent="save">
+            <form novalidate class="space-y-3" @submit.prevent="save">
                 <div class="grid grid-cols-2 gap-x-4 gap-y-3">
                     <FormField :label="t('inventory.from_branch')" required :error="form.errors.from_branch_id">
                         <template #default="{ id }">

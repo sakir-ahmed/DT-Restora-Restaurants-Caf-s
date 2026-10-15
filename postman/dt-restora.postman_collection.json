@@ -1,0 +1,1548 @@
+{
+    "info": {
+        "name": "DT Restora API",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost/api"
+        },
+        {
+            "key": "token",
+            "value": ""
+        }
+    ],
+    "item": [
+        {
+            "name": "GET /v1/health",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/health"
+            }
+        },
+        {
+            "name": "GET /user",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/user"
+            }
+        },
+        {
+            "name": "GET /v1/accounting/accounts",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/accounting/accounts"
+            }
+        },
+        {
+            "name": "POST /v1/accounting/accounts",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/accounting/accounts"
+            }
+        },
+        {
+            "name": "PUT /v1/accounting/accounts/{account}",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/accounting/accounts/{account}"
+            }
+        },
+        {
+            "name": "GET /v1/accounting/journals",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/accounting/journals"
+            }
+        },
+        {
+            "name": "POST /v1/accounting/journals",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/accounting/journals"
+            }
+        },
+        {
+            "name": "POST /v1/accounting/journals/{journal}/approve",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/accounting/journals/{journal}/approve"
+            }
+        },
+        {
+            "name": "POST /v1/accounting/journals/{journal}/reverse",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/accounting/journals/{journal}/reverse"
+            }
+        },
+        {
+            "name": "GET /v1/accounting/vouchers",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/accounting/vouchers"
+            }
+        },
+        {
+            "name": "POST /v1/accounting/vouchers",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/accounting/vouchers"
+            }
+        },
+        {
+            "name": "GET /v1/accounting/payables",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/accounting/payables"
+            }
+        },
+        {
+            "name": "POST /v1/accounting/periods/{period}/lock",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/accounting/periods/{period}/lock"
+            }
+        },
+        {
+            "name": "GET /v1/accounting/reports/{statement}",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/accounting/reports/{statement}"
+            }
+        },
+        {
+            "name": "POST /v1/auth/login",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/auth/login"
+            }
+        },
+        {
+            "name": "POST /v1/auth/google",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/auth/google"
+            }
+        },
+        {
+            "name": "POST /v1/auth/logout",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/auth/logout"
+            }
+        },
+        {
+            "name": "GET /v1/auth/me",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/auth/me"
+            }
+        },
+        {
+            "name": "GET /v1/track/{token}",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/track/{token}"
+            }
+        },
+        {
+            "name": "GET /v1/customer/branches",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/customer/branches"
+            }
+        },
+        {
+            "name": "GET /v1/customer/branches/{branch}/menu",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/customer/branches/{branch}/menu"
+            }
+        },
+        {
+            "name": "POST /v1/customer/delivery/quote",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/customer/delivery/quote"
+            }
+        },
+        {
+            "name": "GET /v1/customer/me",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/customer/me"
+            }
+        },
+        {
+            "name": "PATCH /v1/customer/me",
+            "request": {
+                "method": "PATCH",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/customer/me"
+            }
+        },
+        {
+            "name": "GET /v1/customer/addresses",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/customer/addresses"
+            }
+        },
+        {
+            "name": "POST /v1/customer/addresses",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/customer/addresses"
+            }
+        },
+        {
+            "name": "PUT /v1/customer/addresses/{address}",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/customer/addresses/{address}"
+            }
+        },
+        {
+            "name": "DELETE /v1/customer/addresses/{address}",
+            "request": {
+                "method": "DELETE",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/customer/addresses/{address}"
+            }
+        },
+        {
+            "name": "GET /v1/customer/orders",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/customer/orders"
+            }
+        },
+        {
+            "name": "POST /v1/customer/orders",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/customer/orders"
+            }
+        },
+        {
+            "name": "GET /v1/customer/orders/{order}",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/customer/orders/{order}"
+            }
+        },
+        {
+            "name": "POST /v1/customer/orders/{order}/cancel",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/customer/orders/{order}/cancel"
+            }
+        },
+        {
+            "name": "POST /v1/customer/orders/{order}/pay",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/customer/orders/{order}/pay"
+            }
+        },
+        {
+            "name": "GET /v1/customer/orders/{order}/tracking",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/customer/orders/{order}/tracking"
+            }
+        },
+        {
+            "name": "GET /v1/customer/loyalty",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/customer/loyalty"
+            }
+        },
+        {
+            "name": "POST /v1/customer/coupons/validate",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/customer/coupons/validate"
+            }
+        },
+        {
+            "name": "POST /v1/customer/devices",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/customer/devices"
+            }
+        },
+        {
+            "name": "DELETE /v1/customer/devices/{token}",
+            "request": {
+                "method": "DELETE",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/customer/devices/{token}"
+            }
+        },
+        {
+            "name": "POST /v1/auth/otp/send",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/auth/otp/send"
+            }
+        },
+        {
+            "name": "POST /v1/auth/otp/verify",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/auth/otp/verify"
+            }
+        },
+        {
+            "name": "POST /v1/payments/bkash/create",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/payments/bkash/create"
+            }
+        },
+        {
+            "name": "POST /v1/payments/sslcommerz/init",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/payments/sslcommerz/init"
+            }
+        },
+        {
+            "name": "Deliveries assigned to the authenticated rider only",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/rider/deliveries"
+            }
+        },
+        {
+            "name": "POST /v1/rider/deliveries/{delivery}/status",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/rider/deliveries/{delivery}/status"
+            }
+        },
+        {
+            "name": "GPS sharing: throttled to one write per 5 seconds per rider and\nbroadcast to the tracking channels of all active deliveries",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/rider/location"
+            }
+        },
+        {
+            "name": "POST /v1/rider/deliveries/{delivery}/verify-otp",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/rider/deliveries/{delivery}/verify-otp"
+            }
+        },
+        {
+            "name": "GET /v1/rider/cod-summary",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/rider/cod-summary"
+            }
+        },
+        {
+            "name": "GET /v1/dashboard",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/dashboard"
+            }
+        },
+        {
+            "name": "GET /v1/reports/{type}",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/reports/{type}"
+            }
+        },
+        {
+            "name": "GET /v1/customers",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/customers"
+            }
+        },
+        {
+            "name": "POST /v1/orders/{order}/loyalty/redeem",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/orders/{order}/loyalty/redeem"
+            }
+        },
+        {
+            "name": "POST /v1/loyalty/adjust",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/loyalty/adjust"
+            }
+        },
+        {
+            "name": "GET /v1/coupons",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/coupons"
+            }
+        },
+        {
+            "name": "POST /v1/coupons",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/coupons"
+            }
+        },
+        {
+            "name": "PUT /v1/coupons/{coupon}",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/coupons/{coupon}"
+            }
+        },
+        {
+            "name": "POST /v1/coupons/validate",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/coupons/validate"
+            }
+        },
+        {
+            "name": "GET /v1/recipes",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/recipes"
+            }
+        },
+        {
+            "name": "POST /v1/recipes",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/recipes"
+            }
+        },
+        {
+            "name": "PUT /v1/recipes/{recipe}",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/recipes/{recipe}"
+            }
+        },
+        {
+            "name": "GET /v1/recipes/{recipe}/cost",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/recipes/{recipe}/cost"
+            }
+        },
+        {
+            "name": "POST /v1/stock-transfers",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/stock-transfers"
+            }
+        },
+        {
+            "name": "POST /v1/stock-transfers/{transfer}/approve",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/stock-transfers/{transfer}/approve"
+            }
+        },
+        {
+            "name": "POST /v1/stock-transfers/{transfer}/receive",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/stock-transfers/{transfer}/receive"
+            }
+        },
+        {
+            "name": "POST /v1/shifts/{shift}/close",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/shifts/{shift}/close"
+            }
+        },
+        {
+            "name": "POST /v1/deliveries/{delivery}/assign",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/deliveries/{delivery}/assign"
+            }
+        },
+        {
+            "name": "POST /v1/void-requests/{voidRequest}/approve",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/void-requests/{voidRequest}/approve"
+            }
+        },
+        {
+            "name": "GET /v1/aggregators/channels",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/aggregators/channels"
+            }
+        },
+        {
+            "name": "PUT /v1/aggregators/channels/{channel}",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/aggregators/channels/{channel}"
+            }
+        },
+        {
+            "name": "POST /v1/aggregators/orders/{order}/accept",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/aggregators/orders/{order}/accept"
+            }
+        },
+        {
+            "name": "POST /v1/aggregators/orders/{order}/reject",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/aggregators/orders/{order}/reject"
+            }
+        },
+        {
+            "name": "POST /v1/aggregators/menu-sync",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/aggregators/menu-sync"
+            }
+        },
+        {
+            "name": "GET /v1/branches/{branch}/menu",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/branches/{branch}/menu"
+            }
+        },
+        {
+            "name": "GET /v1/branches/{branch}/orders",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/branches/{branch}/orders"
+            }
+        },
+        {
+            "name": "POST /v1/branches/{branch}/orders",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/branches/{branch}/orders"
+            }
+        },
+        {
+            "name": "GET /v1/branches/{branch}/orders/{order}",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/branches/{branch}/orders/{order}"
+            }
+        },
+        {
+            "name": "PATCH /v1/branches/{branch}/orders/{order}/status",
+            "request": {
+                "method": "PATCH",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/branches/{branch}/orders/{order}/status"
+            }
+        },
+        {
+            "name": "POST /v1/branches/{branch}/orders/{order}/payments",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/branches/{branch}/orders/{order}/payments"
+            }
+        },
+        {
+            "name": "POST /v1/branches/{branch}/orders/{order}/void-requests",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/branches/{branch}/orders/{order}/void-requests"
+            }
+        },
+        {
+            "name": "GET /v1/branches/{branch}/inventory/stock",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/branches/{branch}/inventory/stock"
+            }
+        },
+        {
+            "name": "POST /v1/branches/{branch}/inventory/wastage",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/branches/{branch}/inventory/wastage"
+            }
+        },
+        {
+            "name": "GET /v1/branches/{branch}/purchases",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/branches/{branch}/purchases"
+            }
+        },
+        {
+            "name": "POST /v1/branches/{branch}/purchases",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/branches/{branch}/purchases"
+            }
+        },
+        {
+            "name": "GET /v1/branches/{branch}/employees",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/branches/{branch}/employees"
+            }
+        },
+        {
+            "name": "POST /v1/branches/{branch}/employees",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/branches/{branch}/employees"
+            }
+        },
+        {
+            "name": "POST /v1/branches/{branch}/shifts/open",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/branches/{branch}/shifts/open"
+            }
+        },
+        {
+            "name": "GET /v1/branches/{branch}/deliveries",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/branches/{branch}/deliveries"
+            }
+        },
+        {
+            "name": "POST /v1/branches/{branch}/orders/manual-aggregator",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/branches/{branch}/orders/manual-aggregator"
+            }
+        },
+        {
+            "name": "Full reference data for a fresh device cache",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/sync/bootstrap"
+            }
+        },
+        {
+            "name": "Delta updates since a data version",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/sync/changes"
+            }
+        },
+        {
+            "name": "Push queued offline writes. Each item gets its own result:\naccepted, duplicate or conflict with a reason code",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": "{{baseUrl}}/v1/sync/push"
+            }
+        }
+    ]
+}

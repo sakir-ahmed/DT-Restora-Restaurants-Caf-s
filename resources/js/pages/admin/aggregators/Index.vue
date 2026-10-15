@@ -75,9 +75,9 @@ function saveChannel() {
     };
 
     if (editingChannelId.value === null) {
-        channelForm.post(route('aggregators.channels.store'), { ...options, data: payload });
+        channelForm.post(route('admin.aggregators.channels.store'), { ...options, data: payload });
     } else {
-        channelForm.put(route('aggregators.channels.update', editingChannelId.value), { ...options, data: payload });
+        channelForm.put(route('admin.aggregators.channels.update', editingChannelId.value), { ...options, data: payload });
     }
 }
 
@@ -104,7 +104,7 @@ function addLine() {
 }
 
 function saveOrder() {
-    orderForm.post(route('aggregators.orders.manual'), {
+    orderForm.post(route('admin.aggregators.orders.manual'), {
         onSuccess: () => {
             orderOpen.value = false;
             notify.success(t('aggregators.order_created'));
@@ -130,7 +130,7 @@ function now() {
 }
 
 function savePayout() {
-    router.post(route('aggregators.payouts', payoutChannel.value.id), payoutForm.data(), {
+    router.post(route('admin.aggregators.payouts', payoutChannel.value.id), payoutForm.data(), {
         onSuccess: () => {
             payoutOpen.value = false;
             notify.success(t('aggregators.payout_recorded'));
@@ -139,13 +139,13 @@ function savePayout() {
 }
 
 function syncMenu(channel) {
-    router.post(route('aggregators.menu-sync', channel.id), {}, {
+    router.post(route('admin.aggregators.menu-sync', channel.id), {}, {
         onSuccess: () => notify.success(t('aggregators.menu_synced', { count: 0 })),
     });
 }
 
 function decide(order, decision) {
-    router.post(route('aggregators.orders.decision', order.id), { decision }, {
+    router.post(route('admin.aggregators.orders.decision', order.id), { decision }, {
         onSuccess: () => notify.success(t('aggregators.decision_pushed')),
     });
 }
@@ -205,7 +205,7 @@ function decide(order, decision) {
 
         <!-- Channel dialog -->
         <SlideOver :open="channelOpen" :title="editingChannelId === null ? t('aggregators.add_channel') : t('common.edit')" @close="channelOpen = false">
-            <form class="space-y-3" @submit.prevent="saveChannel">
+            <form novalidate class="space-y-3" @submit.prevent="saveChannel">
                 <div class="grid grid-cols-2 gap-x-4 gap-y-3">
                     <FormField v-if="editingChannelId === null" :label="t('aggregators.channel_key')" required :error="channelForm.errors.key" :helper="t('aggregators.channel_key_helper')">
                         <template #default="{ id }">
@@ -241,7 +241,7 @@ function decide(order, decision) {
 
         <!-- Manual order dialog -->
         <SlideOver :open="orderOpen" :title="t('aggregators.manual_order')" :subtitle="t('aggregators.manual_order_hint')" wide @close="orderOpen = false">
-            <form class="space-y-3" @submit.prevent="saveOrder">
+            <form novalidate class="space-y-3" @submit.prevent="saveOrder">
                 <div class="grid grid-cols-2 gap-x-4 gap-y-3">
                     <FormField :label="t('aggregators.channel_label')" required :error="orderForm.errors.aggregator_channel_id">
                         <template #default="{ id }">

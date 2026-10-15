@@ -123,22 +123,23 @@ function toggleAddOn(addOn) {
             <h2 v-if="activeCategory === null" class="text-base font-semibold">{{ category.name }}</h2>
 
             <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                <button
+                <div
                     v-for="item in (activeCategory === null || activeCategory === category.id) ? category.items : []"
                     :key="item.id"
-                    type="button"
                     class="flex flex-col rounded-xl border border-border bg-surface p-3 text-left transition-shadow hover:shadow-md"
-                    @click="openItem(item)"
                 >
-                    <span class="line-clamp-2 text-sm font-medium">{{ item.name }}</span>
+                    <button type="button" class="text-left" @click="openItem(item)">
+                        <span class="line-clamp-2 text-sm font-medium">{{ item.name }}</span>
+                    </button>
+                    <Link :href="route('web.item', { branchCode: branch.code.toLowerCase(), item: item.id })" class="mt-1 text-xs text-accent">{{ t('web.item_details') }}</Link>
                     <span v-if="item.is_vegetarian" class="mt-1 w-fit rounded bg-success/10 px-1.5 py-0.5 text-[10px] font-medium text-success">{{ t('menu.is_vegetarian') }}</span>
-                    <span class="mt-auto flex items-center justify-between pt-2">
+                    <button type="button" class="mt-auto flex w-full items-center justify-between pt-2" @click="openItem(item)">
                         <span class="text-sm font-bold tabular-nums">{{ formatMoney(item.base_price) }}</span>
                         <span class="flex h-7 w-7 items-center justify-center rounded-full bg-accent text-accent-foreground">
                             <AppIcon name="plus" size="12" />
                         </span>
-                    </span>
-                </button>
+                    </button>
+                </div>
             </div>
         </section>
 

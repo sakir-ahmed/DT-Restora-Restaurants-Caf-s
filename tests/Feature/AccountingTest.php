@@ -10,8 +10,11 @@ use App\Actions\Sales\CreateOrderAction;
 use App\Actions\Sales\PayOrderAction;
 use App\Actions\Sales\RequestOrderVoidAction;
 use App\Enums\OrderType;
+use App\Models\Account;
+use App\Models\BankStatementLine;
 use App\Models\Branch;
 use App\Models\Customer;
+use App\Models\Employee;
 use App\Models\FiscalYear;
 use App\Models\Ingredient;
 use App\Models\IngredientStock;
@@ -23,10 +26,15 @@ use App\Models\Recipe;
 use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\User;
+use App\Models\Voucher;
+use App\Services\Accounting\AccountingService;
 use App\Services\Accounting\ReportService;
+use App\Services\Metrics\MetricsService;
 use Database\Seeders\ChartOfAccountsSeeder;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\UnitSeeder;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 beforeEach(function (): void {
@@ -194,4 +202,138 @@ it('exports the trial balance and profit and loss as PDF', function (): void {
     $this->actingAs($this->accountant, 'staff')->get('/admin/accounting/export/trial-balance')->assertOk();
     $this->actingAs($this->accountant, 'staff')->get('/admin/accounting/export/profit-loss')->assertOk();
     $this->actingAs($this->accountant, 'staff')->get('/admin/accounting/export/balance-sheet')->assertOk();
+});
+
+it('posts daily salary once and matches the owner dashboard profit', function (): void {
+    Employee::query()->create([
+        'branch_id' => $this->branch->id,
+        'name' => 'Chef One',
+        'designation' => 'Chef',
+        'monthly_salary' => '30000.00',
+        'is_active' => true,
+    ]);
+
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::Takeaway,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        cashier: $this->cashier,
+    );
+
+    app(PayOrderAction::class)->executeCash($order, 500);
+
+    $accounting = app(AccountingService::class);
+    $accounting->postDailySalary(now());
+    $accounting->postDailySalary(now());
+
+    expect(Journal::query()->where('reference', 'like', 'SAL-%')->count())->toBe(1);
+
+    $from = now()->startOfDay();
+    $to = now()->endOfDay();
+    $dashboard = app(MetricsService::class)->summary(null, $from, $to);
+    $profit = app(ReportService::class)->profitAndLoss($from->toDateString(), $to->toDateString());
+
+    expect($profit['net_profit'])->toBe($dashboard['net_profit']);
+});
+
+it('keeps the balance sheet closed with retained earnings', function (): void {
+    app(PostJournalEntryAction::class)->execute(
+        entryDate: '2026-02-01',
+        lines: [
+            ['account_code' => '1100', 'debit' => 500],
+            ['account_code' => '4000', 'credit' => 500],
+        ],
+    );
+
+    $sheet = app(ReportService::class)->balanceSheet('2026-02-28');
+
+    expect($sheet['total_assets'])->toBe('500.00')
+        ->and($sheet['total_liabilities_equity'])->toBe('500.00');
+});
+
+it('shows a ledger, cash flow, aged payables, vouchers and a matched statement', function (): void {
+    Storage::fake('local');
+
+    app(PostJournalEntryAction::class)->execute(
+        entryDate: now()->toDateString(),
+        lines: [
+            ['account_code' => '1100', 'debit' => 500],
+            ['account_code' => '4000', 'credit' => 500],
+        ],
+        reference: 'CASH-1',
+    );
+
+    $ledger = app(ReportService::class)->ledger('1100', now()->startOfMonth()->toDateString(), now()->toDateString());
+    $flow = app(ReportService::class)->cashFlow(now()->startOfMonth()->toDateString(), now()->toDateString());
+
+    expect($ledger[0]['balance'])->toBe('500.00')
+        ->and($flow['inflow'])->toBe('500.00')
+        ->and($flow['net'])->toBe('500.00');
+
+    $supplier = Supplier::factory()->create();
+
+    Purchase::query()->create([
+        'branch_id' => $this->branch->id,
+        'supplier_id' => $supplier->id,
+        'purchased_at' => now()->subDays(10)->toDateString(),
+        'total' => '1000.00',
+        'status' => Purchase::STATUS_RECEIVED,
+    ]);
+
+    $this->actingAs($this->accountant, 'staff')->post('/admin/accounting/vouchers', [
+        'type' => 'payment',
+        'amount' => '400.00',
+        'entry_date' => now()->toDateString(),
+        'pay_from_code' => '1100',
+        'supplier_id' => $supplier->id,
+        'attachment' => UploadedFile::fake()->create('bill.pdf', 20, 'application/pdf'),
+    ])->assertRedirect();
+
+    $aging = app(ReportService::class)->payablesAging();
+
+    expect($aging)->toHaveCount(1)
+        ->and($aging[0]['total'])->toBe('600.00')
+        ->and($aging[0]['current'])->toBe('600.00')
+        ->and(Voucher::query()->first()->journal_id)->not->toBeNull()
+        ->and(Storage::disk('local')->allFiles('vouchers'))->not->toBeEmpty();
+
+    $cash = Account::query()->where('code', '1100')->firstOrFail();
+
+    $this->actingAs($this->accountant, 'staff')->put('/admin/accounting/accounts/'.$cash->id, [
+        'name' => 'Cash drawer',
+        'is_active' => true,
+        'code' => '9999',
+    ])->assertRedirect();
+
+    expect($cash->fresh()->code)->toBe('1100')
+        ->and($cash->fresh()->name)->toBe('Cash drawer');
+
+    $this->actingAs($this->accountant, 'staff')->put('/admin/accounting/accounts/'.$cash->id, [
+        'name' => 'Cash drawer',
+        'is_active' => false,
+    ])->assertSessionHasErrors('is_active');
+
+    $journal = Journal::query()->where('reference', 'CASH-1')->firstOrFail();
+
+    $this->actingAs($this->accountant, 'staff')->post('/admin/accounting/statements', [
+        'account_code' => '1100',
+        'occurred_on' => now()->toDateString(),
+        'amount' => '500.00',
+        'description' => 'Morning deposit',
+    ])->assertRedirect();
+
+    $line = BankStatementLine::query()->firstOrFail();
+
+    $this->actingAs($this->accountant, 'staff')->post('/admin/accounting/statements/'.$line->id.'/match', [
+        'journal_id' => $journal->id,
+    ])->assertRedirect();
+
+    expect($line->fresh()->journal_id)->toBe($journal->id);
+
+    $this->actingAs($this->cashier, 'staff')->post('/admin/accounting/vouchers', [
+        'type' => 'expense',
+        'amount' => '10.00',
+        'entry_date' => now()->toDateString(),
+        'pay_from_code' => '1100',
+    ])->assertForbidden();
 });

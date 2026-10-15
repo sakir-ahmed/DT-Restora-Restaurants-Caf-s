@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Offline outbox</title>
+</head>
+<body>
+    <button id="queue" type="button">Queue</button>
+    <span id="count">0</span>
+    <script type="module">
+        import { outboxCount, queueOutbox } from '../../resources/js/lib/offline.js';
+
+        document.getElementById('queue').addEventListener('click', async () => {
+            await queueOutbox('order', {
+                branch_id: 1,
+                order_type: 'takeaway',
+                items: [{ menu_item_id: 1, quantity: 1 }],
+            });
+            document.getElementById('count').textContent = String(await outboxCount());
+        });
+    </script>
+</body>
+</html>

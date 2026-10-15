@@ -243,7 +243,7 @@ async function deactivateUser(user) {
 
         <!-- Employee dialog -->
         <SlideOver :open="employeeOpen" :title="editingEmployeeId === null ? t('staff.add_employee') : t('staff.edit_employee')" @close="employeeOpen = false">
-            <form class="space-y-3" @submit.prevent="saveEmployee">
+            <form novalidate class="space-y-3" @submit.prevent="saveEmployee">
                 <div class="grid grid-cols-2 gap-x-4 gap-y-3">
                     <FormField :label="t('staff.name')" required :error="employeeForm.errors.name">
                         <template #default="{ id }">
@@ -290,7 +290,7 @@ async function deactivateUser(user) {
 
         <!-- User dialog -->
         <SlideOver :open="userOpen" :title="editingUserId === null ? t('staff.add_user') : t('staff.edit_user')" :subtitle="t('staff.user_form_hint')" @close="userOpen = false">
-            <form class="space-y-3" @submit.prevent="saveUser">
+            <form novalidate class="space-y-3" @submit.prevent="saveUser">
                 <div class="grid grid-cols-2 gap-x-4 gap-y-3">
                     <FormField :label="t('staff.name')" required :error="userForm.errors.name">
                         <template #default="{ id }">

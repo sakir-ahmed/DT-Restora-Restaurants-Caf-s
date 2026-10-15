@@ -33,6 +33,22 @@ function saveAddress() {
     });
 }
 
+async function deleteAccount() {
+    const result = await confirm({
+        variant: 'danger',
+        level: 'simple',
+        title: t('web.delete_account_title'),
+        message: t('web.delete_account_message'),
+        confirmText: t('web.delete_account'),
+    });
+
+    if (! result.confirmed) {
+        return;
+    }
+
+    router.delete(route('web.account.destroy'));
+}
+
 async function removeAddress(address) {
     const result = await confirm({
         variant: 'danger',
@@ -163,6 +179,10 @@ function logout() {
                 </button>
             </form>
         </div>
+
+        <button type="button" class="mt-6 text-sm text-danger" @click="deleteAccount">
+            {{ t('web.delete_account') }}
+        </button>
     </div>
 </template>
 

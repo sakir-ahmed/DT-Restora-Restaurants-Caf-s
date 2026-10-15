@@ -4,16 +4,25 @@ declare(strict_types=1);
 
 namespace App\Services\Sync;
 
+use App\Actions\Inventory\CloseStockCountAction;
+use App\Actions\Inventory\LogWastageAction;
+use App\Actions\Sales\CloseShiftAction;
 use App\Actions\Sales\CreateOrderAction;
+use App\Actions\Sales\OpenShiftAction;
 use App\Actions\Sales\PayOrderAction;
 use App\Enums\OrderType;
 use App\Exceptions\InsufficientStockException;
 use App\Models\Branch;
 use App\Models\DataVersion;
+use App\Models\Ingredient;
+use App\Models\IngredientStock;
 use App\Models\MenuCategory;
 use App\Models\Order;
 use App\Models\RestaurantTable;
+use App\Models\Shift;
+use App\Models\StockCount;
 use App\Models\SyncItem;
+use App\Models\Unit;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -29,6 +38,10 @@ class SyncService
     public function __construct(
         private readonly CreateOrderAction $orders,
         private readonly PayOrderAction $payments,
+        private readonly OpenShiftAction $openShifts,
+        private readonly CloseShiftAction $closeShifts,
+        private readonly LogWastageAction $wastage,
+        private readonly CloseStockCountAction $closeCounts,
     ) {}
 
     /**
@@ -100,6 +113,18 @@ class SyncService
                     $this->applyPayment($user, $payload);
                     break;
 
+                case 'shift':
+                    $this->applyShift($user, $payload);
+                    break;
+
+                case 'wastage':
+                    $this->applyWastage($user, $payload);
+                    break;
+
+                case 'stock_count':
+                    $this->applyStockCount($user, $payload);
+                    break;
+
                 default:
                     throw ValidationException::withMessages(['type' => 'Unknown sync type.']);
             }
@@ -159,6 +184,162 @@ class SyncService
     /**
      * @param  array<string, mixed>  $payload
      */
+    private function applyShift(User $user, array $payload): void
+    {
+        $this->assertCan($user, 'shifts.manage');
+
+        $branch = $this->branchFor($user, $payload);
+        $action = (string) ($payload['action'] ?? 'open');
+
+        if ($action === 'close') {
+            $shift = Shift::query()
+                ->where('branch_id', $branch->id)
+                ->where('user_id', $user->id)
+                ->whereNull('closed_at')
+                ->first();
+
+            if ($shift === null) {
+                throw ValidationException::withMessages([
+                    'shift' => __('orders.shift_already_closed'),
+                ]);
+            }
+
+            $this->closeShifts->execute($shift, (float) ($payload['counted_cash'] ?? 0));
+
+            return;
+        }
+
+        $this->openShifts->execute(
+            branch: $branch,
+            cashier: $user,
+            openingCash: (float) ($payload['opening_cash'] ?? 0),
+            terminalCode: (string) ($payload['terminal'] ?? 'T01'),
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function applyWastage(User $user, array $payload): void
+    {
+        $this->assertCan($user, 'wastage.log');
+
+        $branch = $this->branchFor($user, $payload);
+        $ingredient = Ingredient::query()->findOrFail((int) ($payload['ingredient_id'] ?? 0));
+        $unit = Unit::query()->findOrFail((int) ($payload['unit_id'] ?? 0));
+
+        $this->wastage->execute(
+            branch: $branch,
+            ingredient: $ingredient,
+            unit: $unit,
+            qty: (float) ($payload['qty'] ?? 0),
+            reasonCode: (string) ($payload['reason_code'] ?? ''),
+            note: isset($payload['note']) ? (string) $payload['note'] : null,
+            user: $user,
+        );
+    }
+
+    /**
+     * Opens a count when none is open, records counted quantities, and
+     * closes it unless the device asked only to open.
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    private function applyStockCount(User $user, array $payload): void
+    {
+        $this->assertCan($user, 'inventory.manage');
+
+        $branch = $this->branchFor($user, $payload);
+        $action = (string) ($payload['action'] ?? 'close');
+
+        $count = StockCount::query()
+            ->where('branch_id', $branch->id)
+            ->where('status', StockCount::STATUS_OPEN)
+            ->first();
+
+        if ($count === null) {
+            $count = StockCount::query()->create([
+                'branch_id' => $branch->id,
+                'status' => StockCount::STATUS_OPEN,
+                'note' => isset($payload['note']) ? (string) $payload['note'] : null,
+                'user_id' => $user->id,
+            ]);
+
+            $stocks = IngredientStock::query()
+                ->where('branch_id', $branch->id)
+                ->get();
+
+            foreach ($stocks as $stock) {
+                $count->items()->create([
+                    'ingredient_id' => $stock->ingredient_id,
+                    'system_qty' => $stock->stock_qty,
+                ]);
+            }
+        }
+
+        foreach ((array) ($payload['items'] ?? []) as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $ingredientId = (int) ($item['ingredient_id'] ?? 0);
+            $counted = $item['counted_qty'] ?? null;
+
+            if ($ingredientId < 1 || $counted === null || $counted === '') {
+                continue;
+            }
+
+            $line = $count->items()->where('ingredient_id', $ingredientId)->first();
+
+            if ($line === null) {
+                $systemQty = IngredientStock::query()
+                    ->where('branch_id', $branch->id)
+                    ->where('ingredient_id', $ingredientId)
+                    ->value('stock_qty') ?? 0;
+
+                $count->items()->create([
+                    'ingredient_id' => $ingredientId,
+                    'system_qty' => $systemQty,
+                    'counted_qty' => $counted,
+                ]);
+            } else {
+                $line->update(['counted_qty' => $counted]);
+            }
+        }
+
+        if ($action === 'close') {
+            $this->closeCounts->execute($count, $user);
+        }
+    }
+
+    private function assertCan(User $user, string $permission): void
+    {
+        if (! $user->can($permission)) {
+            throw ValidationException::withMessages([
+                'type' => __('sync.forbidden'),
+            ]);
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function branchFor(User $user, array $payload): Branch
+    {
+        $branchId = (int) ($payload['branch_id'] ?? $user->branch_id ?? 0);
+
+        if ($user->branch_id !== null && $branchId !== (int) $user->branch_id) {
+            throw ValidationException::withMessages([
+                'branch_id' => __('sync.branch_mismatch'),
+            ]);
+        }
+
+        return Branch::query()->findOrFail($branchId);
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
     private function applyPayment(User $user, array $payload): void
     {
         $order = Order::query()->findOrFail((int) ($payload['order_id'] ?? 0));
@@ -176,6 +357,10 @@ class SyncService
             $messages = collect($exception->errors())->flatten()->all();
 
             return $messages[0] ?? 'VALIDATION_FAILED';
+        }
+
+        if ($exception instanceof \InvalidArgumentException) {
+            return $exception->getMessage();
         }
 
         return 'SERVER_ERROR';

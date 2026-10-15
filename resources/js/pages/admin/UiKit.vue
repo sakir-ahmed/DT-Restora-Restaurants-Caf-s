@@ -180,7 +180,7 @@ const chartRows = [
         <section class="rounded-lg border border-border bg-surface p-4">
             <h2 class="mb-3 text-sm font-semibold text-foreground">{{ t('ui_kit.form') }}</h2>
 
-            <form class="grid max-w-2xl grid-cols-2 gap-x-4 gap-y-3" @submit.prevent>
+            <form novalidate class="grid max-w-2xl grid-cols-2 gap-x-4 gap-y-3" @submit.prevent>
                 <FormField :label="t('ui_kit.text_label')" required :helper="t('ui_kit.text_helper')" :error="textValue === 'error' ? t('ui_kit.text_error') : ''">
                     <template #default="{ id }">
                         <input

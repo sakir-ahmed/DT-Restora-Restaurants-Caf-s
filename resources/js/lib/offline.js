@@ -67,6 +67,10 @@ export async function queueOutbox(type, payload) {
 
     await db.outbox.add(item);
 
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('outbox-changed'));
+    }
+
     return item;
 }
 

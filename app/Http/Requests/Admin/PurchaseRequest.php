@@ -31,4 +31,33 @@ class PurchaseRequest extends FormRequest
             'items.*.unit_cost' => ['required', 'numeric', 'min:0'],
         ];
     }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'items.*.ingredient_id.required' => __('inventory.line_ingredient_required'),
+            'items.*.unit_id.required' => __('inventory.line_unit_required'),
+            'items.*.qty.required' => __('inventory.line_qty_required'),
+            'items.*.qty.gt' => __('inventory.line_qty_required'),
+            'items.*.unit_cost.required' => __('inventory.line_cost_required'),
+            'items.required' => __('inventory.line_ingredient_required'),
+            'items.min' => __('inventory.line_ingredient_required'),
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'items.*.ingredient_id' => __('inventory.ingredient'),
+            'items.*.unit_id' => __('inventory.unit'),
+            'items.*.qty' => __('inventory.qty'),
+            'items.*.unit_cost' => __('inventory.unit_cost'),
+        ];
+    }
 }

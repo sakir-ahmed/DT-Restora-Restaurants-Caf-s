@@ -56,12 +56,8 @@ const foodCostPercent = computed(() => {
     return net > 0 ? ((Number(props.summary.food_cost) / net) * 100).toFixed(1) : '0.0';
 });
 
-function setPeriod(from, to, preset) {
-    router.get(route('admin.dashboard'), { period: preset, from, to }, { preserveState: true });
-}
-
-function applyCustom(from, to) {
-    router.get(route('admin.dashboard'), { period: 'custom', from, to }, { preserveState: true });
+function setRange({ from, to, preset }) {
+    router.get(route('admin.dashboard'), { period: preset, from, to }, { preserveState: true, preserveScroll: true });
 }
 
 const chartColors = {
@@ -154,7 +150,7 @@ const profitLines = computed(() => ([
         <PageHeader :title="t('dashboard.title')" :description="t('dashboard.subtitle')">
             <template #default>
                 <div class="mt-2">
-                    <DateRangePicker :from="from" :to="to" @update:from="applyCustom($event, to)" @update:to="applyCustom(from, $event)" />
+                    <DateRangePicker :from="from" :to="to" :active="period" @change="setRange" />
                 </div>
             </template>
         </PageHeader>

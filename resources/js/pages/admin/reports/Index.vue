@@ -30,6 +30,12 @@ const reportTypes = [
     { key: 'stock-valuation', label: t('reports.types.stock_valuation') },
     { key: 'food-cost', label: t('reports.types.food_cost') },
     { key: 'branch-pl', label: t('reports.types.branch_pl') },
+    { key: 'channel', label: t('reports.types.channel') },
+    { key: 'payment-method', label: t('reports.types.payment_method') },
+    { key: 'cashier', label: t('reports.types.cashier') },
+    { key: 'discount-void', label: t('reports.types.discount_void') },
+    { key: 'delivery', label: t('reports.types.delivery') },
+    { key: 'loyalty', label: t('reports.types.loyalty') },
 ];
 
 const tableColumns = computed(() => props.columns.map((column) => ({
@@ -102,7 +108,7 @@ function exportReport(format) {
                 <option v-for="reportType in reportTypes" :key="reportType.key" :value="reportType.key">{{ reportType.label }}</option>
             </select>
 
-            <DateRangePicker :from="from" :to="to" @update:from="apply({ from: $event })" @update:to="apply({ to: $event })" />
+            <DateRangePicker :from="from" :to="to" @change="({ from, to }) => apply({ from, to })" />
 
             <select
                 v-if="branchId !== undefined"

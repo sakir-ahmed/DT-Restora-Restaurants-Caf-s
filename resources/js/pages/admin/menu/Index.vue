@@ -315,7 +315,7 @@ function reload() {
 
         <!-- Category dialog -->
         <SlideOver :open="categoryOpen" :title="editingCategoryId === null ? t('menu.add_category') : t('menu.edit_category')" @close="categoryOpen = false">
-            <form class="space-y-3" @submit.prevent="saveCategory">
+            <form novalidate class="space-y-3" @submit.prevent="saveCategory">
                 <FormField :label="t('menu.category_name')" required :error="categoryForm.errors.name">
                     <template #default="{ id }">
                         <input :id="id" v-model="categoryForm.name" type="text" class="h-7 w-full rounded-md border bg-surface px-2 text-[13px] text-foreground outline-none focus:ring-2 focus:ring-accent/40" :class="categoryForm.errors.name ? 'border-danger' : 'border-border focus:border-accent'">
@@ -348,7 +348,7 @@ function reload() {
 
         <!-- Item dialog -->
         <SlideOver :open="itemOpen" :title="editingItemId === null ? t('menu.add_item') : t('menu.edit_item')" wide @close="itemOpen = false">
-            <form class="space-y-3" @submit.prevent="saveItem">
+            <form novalidate class="space-y-3" @submit.prevent="saveItem">
                 <div class="grid grid-cols-2 gap-x-4 gap-y-3">
                     <FormField :label="t('menu.category')" required :error="itemForm.errors.menu_category_id">
                         <template #default="{ id }">

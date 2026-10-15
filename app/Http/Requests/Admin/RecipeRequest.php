@@ -26,4 +26,29 @@ class RecipeRequest extends FormRequest
             'lines.*.qty' => ['required', 'numeric', 'gt:0'],
         ];
     }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'lines.*.ingredient_id.required' => __('inventory.line_ingredient_required'),
+            'lines.*.qty.required' => __('inventory.line_qty_required'),
+            'lines.*.qty.gt' => __('inventory.line_qty_required'),
+            'lines.required' => __('inventory.line_ingredient_required'),
+            'lines.min' => __('inventory.line_ingredient_required'),
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'lines.*.ingredient_id' => __('inventory.ingredient'),
+            'lines.*.qty' => __('inventory.qty'),
+        ];
+    }
 }

@@ -23,6 +23,9 @@ class AppServiceProvider extends ServiceProvider
             return $user instanceof User && $user->hasRole('super-admin') ? true : null;
         });
 
+        // OpenAPI is the contract for the mobile apps, including on a deployed server.
+        Gate::define('viewApiDocs', fn (?User $user = null): bool => true);
+
         // OpenAPI docs are served at /api-docs (see docs/api.md).
         Scramble::configure()->expose(ui: 'api-docs', document: 'api-docs.json');
     }

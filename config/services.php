@@ -63,6 +63,15 @@ return [
         'mode' => env('SSLCOMMERZ_MODE', 'sandbox'),
     ],
 
+    'fcm' => [
+        'server_key' => env('FCM_SERVER_KEY'),
+    ],
+
+    'maps' => [
+        'tiles_url' => env('MAP_TILES_URL', 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'),
+        'attribution' => env('MAP_TILES_ATTRIBUTION', 'OpenStreetMap contributors'),
+    ],
+
     'turnstile' => [
         'site_key' => env('TURNSTILE_SITE_KEY'),
         'secret_key' => env('TURNSTILE_SECRET_KEY'),

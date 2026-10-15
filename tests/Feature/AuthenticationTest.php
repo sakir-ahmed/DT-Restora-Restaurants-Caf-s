@@ -57,6 +57,19 @@ it('logs in with a mobile number in any common format', function (string $login)
     'bare country code' => ['8801711000001'],
 ]);
 
+it('returns field errors for an Inertia login instead of a server error page', function (): void {
+    $response = $this->withHeader('X-Inertia', 'true')
+        ->from('/login')
+        ->post('/login', [
+            'login' => '',
+            'password' => '',
+        ]);
+
+    $response->assertRedirect('/login');
+    $response->assertSessionHasErrors(['login', 'password']);
+    expect($response->status())->not->toBe(500);
+});
+
 it('rejects a wrong password', function (): void {
     User::factory()->create(['username' => 'cashier01', 'password' => 'Secret123']);
 

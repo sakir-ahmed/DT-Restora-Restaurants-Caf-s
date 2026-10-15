@@ -8,14 +8,17 @@ use App\Events\DeliveryAssigned;
 use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\Rider;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class AssignRiderAction
 {
-    public function execute(Order $order, Rider $rider, ?User $manager = null, bool $withOtp = true): Delivery
+    public function execute(Order $order, Rider $rider, ?User $manager = null, ?bool $withOtp = null): Delivery
     {
+        $withOtp ??= (bool) Setting::current()->delivery_otp_enabled;
+
         return DB::transaction(function () use ($order, $rider, $manager, $withOtp): Delivery {
             $delivery = Delivery::query()->where('order_id', $order->id)->lockForUpdate()->first();
 

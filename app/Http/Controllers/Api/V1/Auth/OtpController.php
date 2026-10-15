@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Http\Controllers\Api\Controller;
+use App\Models\Customer;
 use App\Services\OtpService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -45,6 +46,21 @@ class OtpController extends Controller
             return $this->error('UNAUTHENTICATED', __('api.otp_invalid'), 401);
         }
 
-        return $this->success(['verified' => true, 'mobile' => $mobile], __('api.otp_verified'));
+        $customer = Customer::query()->firstOrCreate(
+            ['mobile' => $mobile],
+            ['name' => __('web.customer_default_name'), 'mobile_verified_at' => now(), 'is_active' => true],
+        );
+
+        if ($customer->mobile_verified_at === null) {
+            $customer->forceFill(['mobile_verified_at' => now()])->save();
+        }
+
+        $token = $customer->createToken('customer-otp', ['customer']);
+
+        return $this->success([
+            'verified' => true,
+            'mobile' => $mobile,
+            'token' => $token->plainTextToken,
+        ], __('api.otp_verified'));
     }
 }

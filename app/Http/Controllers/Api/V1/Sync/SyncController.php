@@ -41,7 +41,7 @@ class SyncController extends Controller
         $validated = $request->validate([
             'items' => ['required', 'array', 'max:200'],
             'items.*.client_id' => ['required', 'string', 'max:40'],
-            'items.*.type' => ['required', 'in:order,payment,shift,wastage,stock_count,attendance'],
+            'items.*.type' => ['required', 'in:'.implode(',', SyncItem::TYPES)],
             'items.*.payload' => ['required', 'array'],
             'items.*.created_at_device' => ['nullable', 'date'],
             'items.*.data_version' => ['nullable', 'integer'],

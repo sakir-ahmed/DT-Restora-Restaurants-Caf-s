@@ -162,7 +162,7 @@ async function remove(branch) {
             :subtitle="t('branches.form_hint')"
             @close="slideOverOpen = false"
         >
-            <form class="space-y-3" @submit.prevent="save">
+            <form novalidate class="space-y-3" @submit.prevent="save">
                 <div class="grid grid-cols-2 gap-x-4 gap-y-3">
                     <FormField :label="t('branches.name')" required :error="form.errors.name">
                         <template #default="{ id }">

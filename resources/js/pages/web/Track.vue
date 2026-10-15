@@ -1,11 +1,43 @@
 <script setup>
 import { Head } from '@inertiajs/vue3';
+import { onMounted, onBeforeUnmount } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/format';
 
-defineProps({
+const props = defineProps({
     order: { type: Object, required: true },
+    map: { type: Object, default: () => ({}) },
+});
+
+let mapInstance = null;
+
+onMounted(async () => {
+    const location = props.order.rider_location;
+
+    if (! location) {
+        return;
+    }
+
+    const leaflet = await import('leaflet');
+    await import('leaflet/dist/leaflet.css');
+    const L = leaflet.default;
+    const node = document.getElementById('rider-map');
+
+    if (! node) {
+        return;
+    }
+
+    const lat = Number(location.latitude);
+    const lng = Number(location.longitude);
+    mapInstance = L.map(node).setView([lat, lng], 15);
+    L.tileLayer(props.map.tiles, { attribution: props.map.attribution }).addTo(mapInstance);
+    L.marker([lat, lng]).addTo(mapInstance);
+});
+
+onBeforeUnmount(() => {
+    mapInstance?.remove();
+    mapInstance = null;
 });
 
 const steps = [
@@ -59,6 +91,8 @@ function activeIndex(status) {
                     </div>
                 </li>
             </ol>
+
+            <div v-if="order.rider_location" id="rider-map" class="mt-4 h-56 overflow-hidden rounded-lg border border-border" />
 
             <div class="mt-4 border-t border-border pt-3">
                 <p class="text-sm font-semibold">{{ t('web.order_summary') }}</p>

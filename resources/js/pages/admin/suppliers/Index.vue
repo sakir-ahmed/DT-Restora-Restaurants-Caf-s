@@ -127,7 +127,7 @@ async function remove(supplier) {
         </DataTable>
 
         <SlideOver :open="slideOverOpen" :title="editingId === null ? t('inventory.add_supplier') : t('inventory.edit_supplier')" @close="slideOverOpen = false">
-            <form class="space-y-3" @submit.prevent="save">
+            <form novalidate class="space-y-3" @submit.prevent="save">
                 <div class="grid grid-cols-2 gap-x-4 gap-y-3">
                     <FormField :label="t('inventory.supplier')" required :error="form.errors.name">
                         <template #default="{ id }">

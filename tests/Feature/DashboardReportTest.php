@@ -142,6 +142,12 @@ it('renders the reports page and exports in all formats', function (): void {
     $this->actingAs($this->owner, 'staff')->get('/admin/reports?type=stock-valuation')->assertOk();
     $this->actingAs($this->owner, 'staff')->get('/admin/reports?type=food-cost')->assertOk();
     $this->actingAs($this->owner, 'staff')->get('/admin/reports?type=branch-pl')->assertOk();
+    $this->actingAs($this->owner, 'staff')->get('/admin/reports?type=channel')->assertOk();
+    $this->actingAs($this->owner, 'staff')->get('/admin/reports?type=payment-method')->assertOk();
+    $this->actingAs($this->owner, 'staff')->get('/admin/reports?type=cashier')->assertOk();
+    $this->actingAs($this->owner, 'staff')->get('/admin/reports?type=discount-void')->assertOk();
+    $this->actingAs($this->owner, 'staff')->get('/admin/reports?type=delivery')->assertOk();
+    $this->actingAs($this->owner, 'staff')->get('/admin/reports?type=loyalty')->assertOk();
 
     $pdf = $this->actingAs($this->owner, 'staff')->get('/admin/reports/export?type=sales&format=pdf');
     $pdf->assertOk();
@@ -235,6 +241,14 @@ it('raises low stock and wastage spike alerts', function (): void {
 
     expect($spike)->not->toBeNull()
         ->and($spike['today'])->toBe('500.00');
+
+    $notifications = $this->actingAs($this->owner, 'staff')
+        ->get('/admin')
+        ->viewData('page')['props']['notifications'];
+
+    expect(collect($notifications)->pluck('id')->all())
+        ->toContain('low-stock')
+        ->toContain('wastage-spike');
 });
 
 it('scopes the dashboard for a branch manager', function (): void {

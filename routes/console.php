@@ -2,8 +2,10 @@
 
 use App\Jobs\SendSmsJob;
 use App\Models\User;
+use App\Services\Accounting\AccountingService;
 use App\Services\LoyaltyService;
 use App\Services\Metrics\MetricsService;
+use App\Services\SmsCampaignService;
 use Illuminate\Support\Facades\Schedule;
 
 // Loyalty points expiry (FIFO, idempotent).
@@ -24,6 +26,18 @@ Schedule::call(function (): void {
         }
     }
 })->dailyAt('21:00');
+
+// Daily salary allocation so the ledger matches the owner dashboard.
+Schedule::call(fn () => app(AccountingService::class)->postDailySalary(now()))
+    ->dailyAt('23:50')
+    ->name('salary-allocation')
+    ->withoutOverlapping();
+
+Schedule::call(function (): void {
+    $campaigns = app(SmsCampaignService::class);
+    $campaigns->sendBirthdayOffers();
+    $campaigns->sendWinBack();
+})->dailyAt('10:00')->name('sms-campaigns')->withoutOverlapping();
 
 // Daily database backup; clean old backups weekly.
 Schedule::command('backup:clean')->weekly()->sundays()->at('01:00');

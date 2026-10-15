@@ -62,6 +62,10 @@ class TrackController extends Controller
                 'delivery_status' => $delivery?->status,
                 'rider_location' => $latestLocation,
             ],
+            'map' => [
+                'tiles' => config('services.maps.tiles_url'),
+                'attribution' => config('services.maps.attribution'),
+            ],
         ]);
     }
 }

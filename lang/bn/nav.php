@@ -14,6 +14,8 @@ return [
     'recipes' => 'রেসিপি',
     'purchases' => 'ক্রয়',
     'wastage' => 'অপচয়',
+    'stock_counts' => 'স্টক গণনা',
+    'transfers' => 'স্থানান্তর',
     'people' => 'মানুষ',
     'customers' => 'গ্রাহক',
     'staff' => 'স্টাফ',

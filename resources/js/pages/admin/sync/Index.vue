@@ -43,13 +43,13 @@ async function discard(item) {
         return;
     }
 
-    router.post(route('sync.discard', item.id), {}, {
+    router.post(route('admin.sync.discard', item.id), {}, {
         onSuccess: () => notify.success(t('sync_conflicts.conflict_discarded')),
     });
 }
 
 function retry(item) {
-    router.post(route('sync.retry', item.id), {}, {
+    router.post(route('admin.sync.retry', item.id), {}, {
         onSuccess: () => notify.success(t('sync_conflicts.retried')),
         onError: () => notify.error(t('sync_conflicts.retry_failed')),
     });

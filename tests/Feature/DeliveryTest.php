@@ -15,6 +15,7 @@ use App\Models\Delivery;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\Rider;
+use App\Models\Setting;
 use App\Models\User;
 use Database\Seeders\ChartOfAccountsSeeder;
 use Database\Seeders\RoleSeeder;
@@ -64,6 +65,14 @@ it('assigns a rider with COD amount and delivery OTP', function (): void {
         ->and($delivery->assigned_at)->toBeTruthy();
 
     Event::assertDispatched(DeliveryAssigned::class);
+});
+
+it('skips the delivery OTP when the setting is off', function (): void {
+    Setting::current()->update(['delivery_otp_enabled' => false]);
+
+    $delivery = app(AssignRiderAction::class)->execute($this->order, $this->rider, $this->manager);
+
+    expect($delivery->otp_code)->toBeNull();
 });
 
 it('prevents double assignment', function (): void {

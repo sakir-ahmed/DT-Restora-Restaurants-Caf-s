@@ -9,9 +9,6 @@ use Illuminate\Http\JsonResponse;
 
 abstract class Controller extends BaseController
 {
-    /**
-     * @param  array<string, mixed>|array<int, mixed>  $data
-     */
     protected function success(mixed $data = null, ?string $message = null, int $status = 200): JsonResponse
     {
         $payload = ['success' => true, 'data' => $data];

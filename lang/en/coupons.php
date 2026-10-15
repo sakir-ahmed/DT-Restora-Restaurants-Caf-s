@@ -18,6 +18,7 @@ return [
     'total' => 'Total',
     'limit_total' => 'Total limit',
     'limit_per_customer' => 'Per customer limit',
+    'no_limit' => 'No limit',
     'channels' => 'Channels',
     'channels_helper' => 'Leave empty for every channel',
     'empty' => 'No coupons yet',

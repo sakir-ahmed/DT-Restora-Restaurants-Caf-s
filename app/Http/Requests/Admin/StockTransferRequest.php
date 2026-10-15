@@ -28,4 +28,34 @@ class StockTransferRequest extends FormRequest
             'items.*.qty' => ['required', 'numeric', 'gt:0'],
         ];
     }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'items.*.ingredient_id.required' => __('inventory.line_ingredient_required'),
+            'items.*.unit_id.required' => __('inventory.line_unit_required'),
+            'items.*.qty.required' => __('inventory.line_qty_required'),
+            'items.*.qty.gt' => __('inventory.line_qty_required'),
+            'items.required' => __('inventory.line_ingredient_required'),
+            'items.min' => __('inventory.line_ingredient_required'),
+            'to_branch_id.different' => __('inventory.transfer_same_branch'),
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'items.*.ingredient_id' => __('inventory.ingredient'),
+            'items.*.unit_id' => __('inventory.unit'),
+            'items.*.qty' => __('inventory.qty'),
+            'to_branch_id' => __('inventory.to_branch'),
+            'from_branch_id' => __('inventory.from_branch'),
+        ];
+    }
 }

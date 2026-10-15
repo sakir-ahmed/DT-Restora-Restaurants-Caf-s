@@ -13,6 +13,8 @@ const props = defineProps({
     error: { type: String, default: '' },
     searchable: { type: Boolean, default: false },
     searchPlaceholder: { type: String, default: '' },
+    initialSearch: { type: String, default: '' },
+    filterLocally: { type: Boolean, default: true },
     rowKey: { type: String, default: 'id' },
     perPage: { type: Number, default: 25 },
     emptyTitle: { type: String, default: '' },
@@ -22,9 +24,9 @@ const props = defineProps({
     clickable: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['row-click', 'empty-action']);
+const emit = defineEmits(['row-click', 'empty-action', 'search']);
 
-const search = ref('');
+const search = ref(props.initialSearch);
 const sortKey = ref(null);
 const sortDir = ref('asc');
 const page = ref(1);
@@ -33,8 +35,18 @@ watch([search, () => props.rows.length], () => {
     page.value = 1;
 });
 
+watch(() => props.initialSearch, (value) => {
+    if (value !== search.value) {
+        search.value = value;
+    }
+});
+
+function emitSearch() {
+    emit('search', search.value);
+}
+
 const filtered = computed(() => {
-    if (! props.searchable || ! search.value.trim()) {
+    if (! props.searchable || ! props.filterLocally || ! search.value.trim()) {
         return props.rows;
     }
 
@@ -71,7 +83,7 @@ const totalPages = computed(() => Math.max(1, Math.ceil(sorted.value.length / pr
 
 const paged = computed(() => sorted.value.slice((page.value - 1) * props.perPage, page.value * props.perPage));
 
-const rangeStart = computed(() => (page.value - 1) * props.perPage + 1);
+const rangeStart = computed(() => (sorted.value.length === 0 ? 0 : (page.value - 1) * props.perPage + 1));
 
 const rangeEnd = computed(() => Math.min(page.value * props.perPage, sorted.value.length));
 
@@ -119,6 +131,8 @@ function cellDisplay(row, column) {
                     type="search"
                     :placeholder="searchPlaceholder || t('common.search')"
                     class="w-full border-0 bg-transparent text-[13px] text-foreground outline-none placeholder:text-muted/60"
+                    @input="emitSearch"
+                    @search="emitSearch"
                 >
             </div>
 

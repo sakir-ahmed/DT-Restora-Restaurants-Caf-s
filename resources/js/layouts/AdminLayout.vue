@@ -62,6 +62,8 @@ const nav = computed(() => {
                 { label: t('nav.recipes'), href: '/admin/recipes', icon: 'list-check', permission: 'recipes.manage' },
                 { label: t('nav.purchases'), href: '/admin/purchases', icon: 'truck-fast', permission: 'purchases.manage' },
                 { label: t('nav.wastage'), href: '/admin/wastage', icon: 'trash', permission: 'inventory.view' },
+                { label: t('nav.stock_counts'), href: '/admin/stock-counts', icon: 'clipboard-list', permission: 'inventory.view' },
+                { label: t('nav.transfers'), href: '/admin/stock-transfers', icon: 'right-left', permission: 'transfers.manage' },
             ],
         },
         {
@@ -86,7 +88,6 @@ const nav = computed(() => {
             label: t('nav.settings_group'),
             items: [
                 { label: t('nav.branches'), href: '/admin/branches', icon: 'building', permission: 'branches.view' },
-                { label: t('nav.accounting'), href: '/admin/accounting', icon: 'scale-balanced', permission: 'accounting.view' },
                 { label: t('aggregators.title'), href: '/admin/aggregators', icon: 'motorcycle', permission: 'aggregators.manage' },
                 { label: t('nav.settings'), href: '/admin/settings', icon: 'gear', permission: 'settings.manage' },
                 { label: t('sync_conflicts.title'), href: '/admin/sync-conflicts', icon: 'rotate', permission: 'sync.resolve' },
@@ -133,6 +134,10 @@ function switchBranch(event) {
 
 function logout() {
     router.post('/logout');
+}
+
+function openCommandPalette() {
+    window.dispatchEvent(new CustomEvent('command-palette'));
 }
 </script>
 
@@ -231,7 +236,7 @@ function logout() {
                     type="button"
                     class="ml-auto hidden h-7 items-center gap-1.5 rounded-md border border-border bg-background px-2 text-[13px] text-muted hover:text-foreground md:flex"
                     :aria-label="t('common.command_hint')"
-                    @click="$root"
+                    @click="openCommandPalette"
                 >
                     <AppIcon name="magnifying-glass" size="12" />
                     <span class="text-xs">{{ t('common.search') }}</span>
@@ -240,7 +245,7 @@ function logout() {
 
                 <div class="ml-auto flex items-center gap-1 md:ml-0">
                     <SyncStatusPill />
-                    <NotificationBell />
+                    <NotificationBell :notifications="page.props.notifications ?? []" />
                     <LanguageSwitch />
                     <ThemeToggle />
 

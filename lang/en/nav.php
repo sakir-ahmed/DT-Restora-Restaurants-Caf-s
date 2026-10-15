@@ -14,6 +14,8 @@ return [
     'recipes' => 'Recipes',
     'purchases' => 'Purchases',
     'wastage' => 'Wastage',
+    'stock_counts' => 'Stock counts',
+    'transfers' => 'Transfers',
     'people' => 'People',
     'customers' => 'Customers',
     'staff' => 'Staff',

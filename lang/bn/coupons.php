@@ -18,6 +18,7 @@ return [
     'total' => 'মোট',
     'limit_total' => 'মোট সীমা',
     'limit_per_customer' => 'প্রতি গ্রাহক সীমা',
+    'no_limit' => 'সীমা নেই',
     'channels' => 'চ্যানেল',
     'channels_helper' => 'সব চ্যানেলের জন্য খালি রাখুন',
     'empty' => 'এখনো কোনো কুপন নেই',

@@ -33,6 +33,10 @@ function run(command) {
     open.value = false;
 }
 
+function openPalette() {
+    open.value = true;
+}
+
 function onKeydown(event) {
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
@@ -67,8 +71,14 @@ watch(open, (value) => {
     }
 });
 
-onMounted(() => window.addEventListener('keydown', onKeydown));
-onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
+onMounted(() => {
+    window.addEventListener('keydown', onKeydown);
+    window.addEventListener('command-palette', openPalette);
+});
+onBeforeUnmount(() => {
+    window.removeEventListener('keydown', onKeydown);
+    window.removeEventListener('command-palette', openPalette);
+});
 </script>
 
 <template>

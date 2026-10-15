@@ -23,6 +23,7 @@ class ChartOfAccountsSeeder extends Seeder
             // Liabilities
             ['code' => '2100', 'name' => 'VAT payable', 'type' => 'liability', 'subtype' => 'vat'],
             ['code' => '2200', 'name' => 'Supplier payables', 'type' => 'liability', 'subtype' => 'payable'],
+            ['code' => '2300', 'name' => 'Accrued salaries', 'type' => 'liability', 'subtype' => 'salary'],
             // Equity
             ['code' => '3100', 'name' => 'Owner capital', 'type' => 'equity', 'subtype' => null],
             // Income

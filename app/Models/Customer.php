@@ -15,12 +15,13 @@ class Customer extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
-        'name', 'mobile', 'email', 'google_id', 'password', 'locale', 'is_active', 'mobile_verified_at',
+        'name', 'mobile', 'email', 'google_id', 'password', 'locale', 'is_active', 'mobile_verified_at', 'birthday',
     ];
 
     protected $casts = [
         'email_verified_at' => 'datetime',
         'mobile_verified_at' => 'datetime',
+        'birthday' => 'date',
         'is_active' => 'boolean',
         'password' => 'hashed',
     ];

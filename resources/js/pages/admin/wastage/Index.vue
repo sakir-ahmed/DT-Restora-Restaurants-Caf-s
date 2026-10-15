@@ -108,7 +108,7 @@ function save() {
         </DataTable>
 
         <SlideOver :open="slideOverOpen" :title="t('inventory.log_wastage')" @close="slideOverOpen = false">
-            <form class="space-y-3" @submit.prevent="save">
+            <form novalidate class="space-y-3" @submit.prevent="save">
                 <FormField :label="t('inventory.ingredient')" required :error="form.errors.ingredient_id">
                     <template #default="{ id }">
                         <select :id="id" v-model="form.ingredient_id" class="h-7 w-full rounded-md border bg-surface px-2 text-[13px] text-foreground outline-none focus:ring-2 focus:ring-accent/40" :class="form.errors.ingredient_id ? 'border-danger' : 'border-border focus:border-accent'">

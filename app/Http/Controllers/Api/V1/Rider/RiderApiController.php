@@ -115,6 +115,18 @@ class RiderApiController extends Controller
         return $this->success(['broadcast_to' => count($activeOrderIds)]);
     }
 
+    public function verifyOtp(Request $request, Delivery $delivery, UpdateDeliveryStatusAction $action): JsonResponse
+    {
+        $rider = $this->rider($request);
+        abort_unless($delivery->rider_id === $rider->id, 404);
+
+        $validated = $request->validate(['otp' => ['required', 'digits:4']]);
+
+        $action->execute($delivery, 'delivered', $validated['otp'], null, $request->user());
+
+        return $this->success(['status' => $delivery->fresh()->status]);
+    }
+
     public function codSummary(Request $request): JsonResponse
     {
         $rider = $this->rider($request);

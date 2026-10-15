@@ -9,6 +9,7 @@ use App\Models\CustomerAddress;
 use App\Models\Order;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -70,5 +71,31 @@ class AccountController extends Controller
         $address->delete();
 
         return back()->with('success', __('web.address_deleted'));
+    }
+
+    /**
+     * Anonymize the account. Orders stay, personal fields do not.
+     */
+    public function destroy(Request $request): RedirectResponse
+    {
+        $customer = $request->user('customer');
+
+        $customer->addresses()->delete();
+        $customer->tokens()->delete();
+
+        $customer->forceFill([
+            'name' => __('customers.anonymized_name'),
+            'email' => null,
+            'google_id' => null,
+            'mobile' => null,
+            'password' => null,
+            'birthday' => null,
+            'is_active' => false,
+        ])->save();
+
+        Auth::guard('customer')->logout();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('web.home')->with('success', __('customers.deleted'));
     }
 }

@@ -67,6 +67,10 @@ function verify() {
                 </template>
             </FormField>
 
+            <a :href="route('web.customer.google.redirect')" class="flex h-10 w-full items-center justify-center rounded-lg border border-border text-sm font-medium">
+                {{ t('web.continue_google') }}
+            </a>
+
             <button
                 v-if="sent"
                 type="button"

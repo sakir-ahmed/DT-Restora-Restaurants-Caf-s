@@ -133,7 +133,7 @@ function save() {
         </DataTable>
 
         <SlideOver :open="slideOverOpen" :title="t('inventory.recipes') + ': ' + (editingItem?.name ?? '')" wide @close="slideOverOpen = false">
-            <form class="space-y-3" @submit.prevent="save">
+            <form novalidate class="space-y-3" @submit.prevent="save">
                 <div class="border-b border-border pb-3">
                     <div class="mb-2 flex items-center justify-between">
                         <h3 class="text-xs font-semibold uppercase tracking-wider text-muted" :class="$page.props.locale === 'bn' ? 'normal-case tracking-normal' : ''">{{ t('inventory.lines') }}</h3>

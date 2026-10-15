@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace App\Services\Accounting;
 
 use App\Actions\Accounting\PostJournalEntryAction;
+use App\Models\Branch;
+use App\Models\Employee;
 use App\Models\Expense;
 use App\Models\Journal;
 use App\Models\Order;
 use App\Models\Purchase;
+use App\Models\Scopes\BranchScope;
 use App\Models\User;
+use App\Models\Voucher;
 use App\Models\Wastage;
 
 /**
@@ -37,12 +41,23 @@ class AccountingService
         'cogs' => '5000',
         'wastage' => '5100',
         'salary' => '5200',
+        'salary_payable' => '2300',
         'commission' => '5300',
         'other_expense' => '5400',
         'payable' => '2200',
     ];
 
     public function __construct(private readonly PostJournalEntryAction $poster) {}
+
+    /**
+     * Account codes used by automatic postings. Names may change; these codes may not.
+     *
+     * @return list<string>
+     */
+    public static function postingCodes(): array
+    {
+        return array_values(self::CODES);
+    }
 
     /**
      * Post a paid order: revenue, VAT, COGS and the payment lines.
@@ -171,6 +186,93 @@ class AccountingService
             source: $wastage,
             user: $user,
         );
+    }
+
+    /**
+     * Allocate one day of active salaries per branch. Idempotent by reference.
+     */
+    public function postDailySalary(\DateTimeInterface $date, ?User $user = null): void
+    {
+        $day = $date->format('Y-m-d');
+
+        Branch::query()->where('is_active', true)->orderBy('id')->each(function (Branch $branch) use ($day, $user): void {
+            $reference = 'SAL-'.$branch->code.'-'.str_replace('-', '', $day);
+
+            $already = Journal::query()
+                ->where('reference', $reference)
+                ->where('status', '!=', Journal::STATUS_REVERSED)
+                ->exists();
+
+            if ($already) {
+                return;
+            }
+
+            $monthly = (float) Employee::query()
+                ->withoutGlobalScope(BranchScope::class)
+                ->where('branch_id', $branch->id)
+                ->where('is_active', true)
+                ->sum('monthly_salary');
+
+            $amount = round($monthly / 30, 2);
+
+            if ($amount <= 0) {
+                return;
+            }
+
+            $this->poster->execute(
+                entryDate: $day,
+                lines: [
+                    $this->line('salary', debit: $amount),
+                    $this->line('salary_payable', credit: $amount),
+                ],
+                reference: $reference,
+                note: __('accounting.salary_note', ['branch' => $branch->code, 'date' => $day]),
+                user: $user,
+            );
+        });
+    }
+
+    /**
+     * Expense voucher debits an expense account. Payment voucher reduces supplier payables.
+     */
+    public function postVoucher(Voucher $voucher, ?User $user = null): void
+    {
+        $already = Journal::query()
+            ->where('source_type', $voucher->getMorphClass())
+            ->where('source_id', $voucher->id)
+            ->where('status', '!=', Journal::STATUS_REVERSED)
+            ->exists();
+
+        if ($already) {
+            return;
+        }
+
+        $amount = (float) $voucher->amount;
+
+        if ($amount <= 0) {
+            return;
+        }
+
+        $lines = $voucher->type === Voucher::TYPE_PAYMENT
+            ? [
+                $this->line('payable', debit: $amount),
+                ['account_code' => $voucher->pay_from_code, 'debit' => 0, 'credit' => $amount],
+            ]
+            : [
+                ['account_code' => $voucher->expense_account_code ?: self::CODES['other_expense'], 'debit' => $amount, 'credit' => 0],
+                ['account_code' => $voucher->pay_from_code, 'debit' => 0, 'credit' => $amount],
+            ];
+
+        $journal = $this->poster->execute(
+            entryDate: $voucher->entry_date->toDateString(),
+            lines: $lines,
+            reference: 'VCH-'.$voucher->id,
+            note: $voucher->note ?: __('accounting.voucher_note', ['id' => $voucher->id]),
+            source: $voucher,
+            user: $user,
+        );
+
+        $voucher->update(['journal_id' => $journal->id]);
     }
 
     /**
