@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             BranchSeeder::class,
             RootAdminSeeder::class,
             DemoStaffSeeder::class,
+            DemoMenuSeeder::class,
         ]);
     }
 }

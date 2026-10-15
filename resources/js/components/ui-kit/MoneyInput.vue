@@ -6,6 +6,7 @@ const props = defineProps({
     modelValue: { type: [String, Number], default: '' },
     disabled: { type: Boolean, default: false },
     readOnly: { type: Boolean, default: false },
+    prefix: { type: String, default: '\u09F3' },
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -35,7 +36,7 @@ function onInput(event) {
 
 <template>
     <div class="flex h-7 items-stretch overflow-hidden rounded-md border border-border bg-surface focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/40">
-        <span class="flex items-center bg-background px-2 text-[13px] text-muted" aria-hidden="true">&#2547;</span>
+        <span v-if="prefix" class="flex items-center bg-background px-2 text-[13px] text-muted" aria-hidden="true">{{ prefix }}</span>
 
         <input
             type="text"

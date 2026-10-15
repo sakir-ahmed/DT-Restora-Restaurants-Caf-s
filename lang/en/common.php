@@ -29,6 +29,7 @@ return [
     'or' => 'or',
     'sign_in' => 'Sign in',
     'total' => 'Total',
+    'status' => 'Status',
     'table' => 'Table',
     'yes' => 'Yes',
     'no' => 'No',

@@ -1,0 +1,34 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'title' => 'Branches',
+    'subtitle' => 'Locations, tax and service settings.',
+    'add' => 'Add branch',
+    'edit' => 'Edit branch',
+    'name' => 'Branch name',
+    'name_bn' => 'Name (Bangla)',
+    'code' => 'Code',
+    'code_helper' => 'Short code used in invoice numbers, for example BR01.',
+    'phone' => 'Phone',
+    'address' => 'Address',
+    'city' => 'City',
+    'receipt_footer' => 'Receipt footer',
+    'settings_group' => 'Branch settings',
+    'vat_percent' => 'VAT percent',
+    'vat_inclusive' => 'Prices include VAT',
+    'service_charge' => 'Service charge percent',
+    'allow_negative_stock' => 'Allow negative stock',
+    'online_ordering_enabled' => 'Online ordering enabled',
+    'is_active' => 'Active',
+    'created' => 'Branch created.',
+    'updated' => 'Branch updated.',
+    'deleted' => 'Branch deleted.',
+    'delete_not_empty' => 'This branch still has menu items or staff and cannot be deleted.',
+    'delete_title' => 'Delete branch :code?',
+    'delete_message' => 'The branch will be removed. This cannot be undone.',
+    'delete_confirm' => 'Delete branch',
+    'empty' => 'No branches yet',
+    'empty_hint' => 'Add your first branch to start configuring the menu and staff.',
+];
