@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Auth\OtpController;
 use App\Http\Controllers\Api\V1\Rider\RiderApiController;
+use App\Http\Controllers\Api\V1\Sync\SyncController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,12 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
             Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
             Route::get('/me', [AuthController::class, 'me'])->name('me');
         });
+    });
+
+    Route::prefix('sync')->name('sync.')->middleware('auth:sanctum')->group(function (): void {
+        Route::get('/bootstrap', [SyncController::class, 'bootstrap'])->name('bootstrap');
+        Route::get('/changes', [SyncController::class, 'changes'])->name('changes');
+        Route::post('/push', [SyncController::class, 'push'])->name('push');
     });
 
     Route::prefix('rider')->name('rider.')->middleware('auth:sanctum')->group(function (): void {

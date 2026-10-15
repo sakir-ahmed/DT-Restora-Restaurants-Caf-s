@@ -44,3 +44,12 @@ createInertiaApp({
         app.mount(el);
     },
 });
+
+// PWA service worker registration (no reload mid-order: prompt type).
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {
+            // offline mode unavailable; the app still works online
+        });
+    });
+}

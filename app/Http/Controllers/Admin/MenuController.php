@@ -45,6 +45,8 @@ class MenuController extends Controller
             'branch_id' => $branch->id,
         ]);
 
+        DataVersion::bump();
+
         return back()->with('success', __('menu.category_created'));
     }
 
@@ -83,6 +85,8 @@ class MenuController extends Controller
                 'menu_category_id' => $category->id,
             ]);
 
+            DataVersion::bump();
+
             $this->syncRelations($item, $request);
         });
 
@@ -96,6 +100,8 @@ class MenuController extends Controller
 
             $this->syncRelations($item, $request);
         });
+
+        DataVersion::bump();
 
         activity()->performedOn($item)->causedBy($request->user('staff'))->log('menu.item_updated');
 

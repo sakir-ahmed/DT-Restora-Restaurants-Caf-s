@@ -24,6 +24,9 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, HasRoles, LogsActivity, Notifiable;
 
+    /** Staff always authenticate through the staff guard. */
+    protected $guard_name = 'staff';
+
     protected $casts = [
         'email_verified_at' => 'datetime',
         'is_active' => 'boolean',

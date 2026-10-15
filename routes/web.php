@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\ShiftController;
 use App\Http\Controllers\Admin\StockCountController;
 use App\Http\Controllers\Admin\StockTransferController;
 use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\Admin\SyncConflictController;
 use App\Http\Controllers\Admin\UiKitController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WastageController;
@@ -221,6 +222,10 @@ Route::prefix('admin')
         Route::post('aggregators/orders/{order}/decision', [AggregatorController::class, 'decide'])->name('aggregators.orders.decision')->middleware('permission:aggregators.manage');
         Route::post('aggregators/channels/{channel}/payouts', [AggregatorController::class, 'reconcilePayout'])->name('aggregators.payouts')->middleware('permission:aggregators.manage');
         Route::post('aggregators/channels/{channel}/menu-sync', [AggregatorController::class, 'syncMenu'])->name('aggregators.menu-sync')->middleware('permission:aggregators.manage');
+
+        Route::get('sync-conflicts', [SyncConflictController::class, 'index'])->name('sync.conflicts')->middleware('permission:sync.resolve');
+        Route::post('sync-conflicts/{item}/discard', [SyncConflictController::class, 'discard'])->name('sync.discard')->middleware('permission:sync.resolve');
+        Route::post('sync-conflicts/{item}/retry', [SyncConflictController::class, 'retry'])->name('sync.retry')->middleware('permission:sync.resolve');
 
         Route::get('reports', [ReportController::class, 'index'])->name('reports.index')->middleware('permission:reports.view');
         Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export')->middleware('permission:reports.view');

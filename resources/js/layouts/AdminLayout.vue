@@ -89,6 +89,7 @@ const nav = computed(() => {
                 { label: t('nav.accounting'), href: '/admin/accounting', icon: 'scale-balanced', permission: 'accounting.view' },
                 { label: t('aggregators.title'), href: '/admin/aggregators', icon: 'motorcycle', permission: 'aggregators.manage' },
                 { label: t('nav.settings'), href: '/admin/settings', icon: 'gear', permission: 'settings.manage' },
+                { label: t('sync_conflicts.title'), href: '/admin/sync-conflicts', icon: 'rotate', permission: 'sync.resolve' },
                 { label: t('nav.activity_log'), href: '/admin/activity-log', icon: 'clock', permission: 'activity.view' },
             ],
         },
