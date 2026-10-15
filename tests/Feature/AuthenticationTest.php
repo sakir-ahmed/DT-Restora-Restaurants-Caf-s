@@ -141,6 +141,60 @@ it('allows the admin panel for a staff member with access permission', function 
     $response->assertOk();
 });
 
+it('hides one-click demo login unless demo mode is on outside production', function (): void {
+    $user = User::factory()->create();
+
+    config(['app.is_demo' => false]);
+
+    $this->get('/login')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('demoUsers', []));
+
+    $this->post('/login/demo', ['user_id' => $user->id])->assertNotFound();
+    expect(auth('staff')->user())->toBeNull();
+});
+
+it('hides one-click demo login in production even when demo mode is on', function (): void {
+    config(['app.is_demo' => true]);
+    $this->app['env'] = 'production';
+
+    $user = User::factory()->create();
+
+    $this->get('/login')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('demoUsers', []));
+
+    $this->post('/login/demo', [
+        'user_id' => $user->id,
+        '_token' => csrf_token(),
+    ])->assertNotFound();
+    expect(auth('staff')->user())->toBeNull();
+});
+
+it('logs in an active demo user from the login table', function (): void {
+    config(['app.is_demo' => true]);
+
+    $cashier = User::factory()->role('cashier')->create([
+        'name' => 'Rifat Hasan',
+        'username' => 'cashier',
+    ]);
+    User::factory()->create([
+        'username' => 'gone',
+        'is_active' => false,
+    ]);
+
+    $this->get('/login')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('demoUsers', 1)
+            ->where('demoUsers.0.name', 'Rifat Hasan')
+            ->where('demoUsers.0.username', 'cashier')
+            ->where('demoUsers.0.role', 'cashier'));
+
+    $this->post('/login/demo', ['user_id' => $cashier->id])->assertRedirect('/admin');
+    expect(auth('staff')->id())->toBe($cashier->id);
+});
+
 it('shows only the branches the user can access in shared props', function (): void {
     $branchA = Branch::factory()->create(['code' => 'BR01']);
     Branch::factory()->create(['code' => 'BR02']);

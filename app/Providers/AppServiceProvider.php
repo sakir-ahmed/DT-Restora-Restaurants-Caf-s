@@ -8,6 +8,7 @@ use App\Models\User;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Inertia\Inertia;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,6 +23,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::before(function ($user, string $ability) {
             return $user instanceof User && $user->hasRole('super-admin') ? true : null;
         });
+
+        // Server-side render only the public, indexable pages. The back office, POS, checkout and account stay client-side.
+        Inertia::withoutSsr(['admin', 'admin/*', 'rider', 'rider/*', 'login', 'checkout', 'account', 'customer/*', 'track/*', 'pay/*']);
 
         // OpenAPI is the contract for the mobile apps, including on a deployed server.
         Gate::define('viewApiDocs', fn (?User $user = null): bool => true);

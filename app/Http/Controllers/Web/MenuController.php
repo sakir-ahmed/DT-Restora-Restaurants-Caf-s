@@ -8,12 +8,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\MenuCategory;
 use App\Models\RestaurantTable;
+use App\Services\SeoBuilder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class MenuController extends Controller
 {
+    public function __construct(private readonly SeoBuilder $seo) {}
+
     public function __invoke(Request $request, ?string $branchCode = null): Response
     {
         $branch = Branch::query()
@@ -43,30 +47,60 @@ class MenuController extends Controller
         session(['web_branch_id' => $branch->id]);
 
         return Inertia::render('web/Menu', [
-            'branch' => $branch->only(['id', 'name', 'name_bn', 'code', 'address', 'phone', 'opening_hours']),
+            'branch' => $branch->only(['id', 'name', 'name_bn', 'code', 'address', 'phone', 'opening_hours']) + ['slug' => $branch->publicSlug()],
             'categories' => $categories,
             'table' => $table?->only(['id', 'name']),
-        ])->withViewData(['seo' => $this->seo($branch)]);
+            'seo' => $this->seoData($branch, $categories, $table !== null),
+        ]);
     }
 
     /**
+     * @param  Collection<int, MenuCategory>  $categories
      * @return array<string, mixed>
      */
-    private function seo(Branch $branch): array
+    private function seoData(Branch $branch, Collection $categories, bool $isTableOrder): array
     {
-        return [
-            'title' => $branch->displayName('en').' - '.__('web.seo_menu_title'),
-            'description' => __('web.seo_menu_description', ['branch' => $branch->name]),
-            'canonical' => route('web.menu', ['branchCode' => strtolower($branch->code)]),
-            'jsonLd' => [
-                '@context' => 'https://schema.org',
+        $locale = app()->getLocale();
+        $canonical = route('web.menu', ['branchCode' => strtolower($branch->code)]);
+
+        $sections = $categories->map(fn (MenuCategory $category): array => [
+            '@type' => 'MenuSection',
+            'name' => $category->displayName($locale),
+            'hasMenuItem' => $category->items->take(40)->map(fn ($item): array => array_filter([
+                '@type' => 'MenuItem',
+                'name' => $item->name,
+                'description' => $item->description,
+                'url' => route('web.item', ['branchCode' => strtolower($branch->code), 'item' => $item->id]),
+                'suitableForDiet' => $item->is_vegetarian ? 'https://schema.org/VegetarianDiet' : null,
+                'offers' => [
+                    '@type' => 'Offer',
+                    'price' => (string) $item->base_price,
+                    'priceCurrency' => 'BDT',
+                ],
+            ]))->all(),
+        ])->all();
+
+        $seo = $this->seo->page(
+            title: __('site.seo_menu_page_title', ['branch' => $branch->displayName($locale)]),
+            description: __('site.seo_menu_page_description', ['branch' => $branch->displayName($locale)]),
+            canonical: $canonical,
+            jsonLd: [[
                 '@type' => 'Menu',
                 'name' => $branch->name.' Menu',
-                'hasMenuSection' => $branch->menuCategories->map(fn ($category) => [
-                    '@type' => 'MenuSection',
-                    'name' => $category->name,
-                ])->all(),
+                'url' => $canonical,
+                'inLanguage' => $locale === 'bn' ? 'bn-BD' : 'en-BD',
+                'hasMenuSection' => $sections,
+            ]],
+            breadcrumbs: [
+                ['name' => __('site.nav_home'), 'url' => url('/')],
+                ['name' => __('site.nav_menu'), 'url' => route('web.menu')],
+                ['name' => $branch->displayName($locale), 'url' => $canonical],
             ],
-        ];
+        );
+
+        // Table QR links are per-table duplicates of the same menu.
+        $seo['noindex'] = $isTableOrder;
+
+        return $seo;
     }
 }

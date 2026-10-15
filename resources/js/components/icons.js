@@ -91,6 +91,8 @@ import {
     faCrown,
     faPhone,
     faEnvelope,
+    faEye,
+    faEyeSlash,
     faLocationDot,
     faSpinner,
     faTriangleExclamation as faWarning,
@@ -193,6 +195,8 @@ export const icons = {
     crown: faCrown,
     phone: faPhone,
     envelope: faEnvelope,
+    eye: faEye,
+    'eye-slash': faEyeSlash,
     'location-dot': faLocationDot,
     spinner: faSpinner,
 };

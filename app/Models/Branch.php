@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 /** @use HasMany<User, $this> */
 class Branch extends Model
@@ -60,5 +61,26 @@ class Branch extends Model
     public function displayName(string $locale): string
     {
         return $locale === 'bn' && $this->name_bn ? $this->name_bn : $this->name;
+    }
+
+    /**
+     * Readable URL segment for public location pages (falls back to the branch code).
+     */
+    public function publicSlug(): string
+    {
+        $slug = Str::slug($this->name);
+
+        return $slug !== '' ? $slug : strtolower($this->code);
+    }
+
+    /**
+     * Resolve an active branch from its public slug or, for older links, its code.
+     */
+    public static function findByPublicSlug(string $slug): ?self
+    {
+        return static::query()
+            ->where('is_active', true)
+            ->get()
+            ->first(fn (self $branch): bool => $branch->publicSlug() === $slug || strtolower($branch->code) === $slug);
     }
 }

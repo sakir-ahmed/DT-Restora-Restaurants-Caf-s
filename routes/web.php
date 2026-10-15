@@ -38,20 +38,30 @@ use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Payments\GatewayCallbackController;
 use App\Http\Controllers\Rider\RiderController;
 use App\Http\Controllers\Rider\RiderLocationWebController;
+use App\Http\Controllers\Web\AboutController;
 use App\Http\Controllers\Web\AccountController;
 use App\Http\Controllers\Web\AggregatorWebhookController;
 use App\Http\Controllers\Web\CheckoutController;
+use App\Http\Controllers\Web\ContactController;
 use App\Http\Controllers\Web\CustomerAuthController;
 use App\Http\Controllers\Web\CustomerGoogleController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\ItemController;
+use App\Http\Controllers\Web\LegalController;
+use App\Http\Controllers\Web\LocationController;
 use App\Http\Controllers\Web\MenuController;
+use App\Http\Controllers\Web\RobotsController;
+use App\Http\Controllers\Web\SitemapController;
 use App\Http\Controllers\Web\TrackController;
 use App\Http\Controllers\Web\WebPaymentController;
 use App\Models\Branch;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('web.home');
+Route::get('/about', AboutController::class)->name('web.about');
+Route::get('/contact', ContactController::class)->name('web.contact');
+Route::get('/locations', [LocationController::class, 'index'])->name('web.locations.index');
+Route::get('/locations/{slug}', [LocationController::class, 'show'])->name('web.locations.show');
 Route::get('/menu/{branchCode}/items/{item}', [ItemController::class, 'show'])->name('web.item');
 Route::get('/menu/{branchCode?}', MenuController::class)->name('web.menu');
 Route::get('/checkout', [CheckoutController::class, 'show'])->name('web.checkout');
@@ -85,20 +95,11 @@ Route::prefix('rider')->name('rider.')->middleware(['auth'])->group(function ():
     Route::post('location', [RiderLocationWebController::class, 'store'])->name('location');
 });
 
-Route::inertia('/privacy', 'web/Privacy')->name('web.privacy');
-Route::inertia('/terms', 'web/Terms')->name('web.terms');
+Route::get('/privacy', [LegalController::class, 'privacy'])->name('web.privacy');
+Route::get('/terms', [LegalController::class, 'terms'])->name('web.terms');
 
-Route::get('/sitemap.xml', function () {
-    $entries = collect([route('web.home'), route('web.privacy'), route('web.terms')]);
-
-    foreach (Branch::query()->where('is_active', true)->pluck('code') as $code) {
-        $entries->push(route('web.menu', ['branchCode' => strtolower($code)]));
-    }
-
-    $body = $entries->map(fn (string $url) => '<url><loc>'.$url.'</loc></url>')->join('');
-
-    return response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'.$body.'</urlset>', 200, ['Content-Type' => 'application/xml']);
-})->name('web.sitemap');
+Route::get('/sitemap.xml', SitemapController::class)->name('web.sitemap');
+Route::get('/robots.txt', RobotsController::class)->name('web.robots');
 
 Route::post('/locale', LocaleController::class)->name('locale.switch');
 
@@ -111,8 +112,9 @@ Route::post('/payments/sslcommerz/ipn', [GatewayCallbackController::class, 'sslc
 Route::get('/payments/sslcommerz/return', [GatewayCallbackController::class, 'sslcommerzReturn'])->name('payments.sslcommerz.return');
 
 Route::middleware('guest')->group(function (): void {
-    Route::inertia('/login', 'auth/Login')->name('login');
+    Route::get('/login', [LoginController::class, 'create'])->name('login');
     Route::post('/login', [LoginController::class, 'store'])->name('login.attempt');
+    Route::post('/login/demo', [LoginController::class, 'demo'])->name('login.demo');
 
     Route::get('/auth/google/redirect', [GoogleController::class, 'redirect'])->name('google.redirect');
     Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');

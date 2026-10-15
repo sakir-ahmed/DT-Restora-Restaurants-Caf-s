@@ -51,6 +51,7 @@ class HandleInertiaRequests extends Middleware
                     ])
                     ->all()
                 : [],
+            'site' => fn () => $request->routeIs('web.*') ? $this->siteData() : null,
             'currentBranchId' => $user ? $this->currentBranchId($user) : null,
             'notifications' => $user ? $this->notifications($user) : [],
             'flash' => [
@@ -113,5 +114,31 @@ class HandleInertiaRequests extends Middleware
         }
 
         return $items;
+    }
+
+    /**
+     * Branch contact details shown in the public header, footer and menus.
+     *
+     * @return array<string, mixed>
+     */
+    private function siteData(): array
+    {
+        return [
+            'branches' => Branch::query()
+                ->where('is_active', true)
+                ->orderBy('code')
+                ->get()
+                ->map(fn (Branch $branch): array => [
+                    'name' => $branch->name,
+                    'name_bn' => $branch->name_bn,
+                    'code' => $branch->code,
+                    'slug' => $branch->publicSlug(),
+                    'address' => $branch->address,
+                    'city' => $branch->city,
+                    'phone' => $branch->phone,
+                ])
+                ->values()
+                ->all(),
+        ];
     }
 }
