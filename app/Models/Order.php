@@ -24,6 +24,7 @@ class Order extends Model
         'status', 'subtotal', 'discount_type', 'discount_value', 'discount_amount',
         'service_charge', 'vat_amount', 'delivery_fee', 'rounding', 'total',
         'food_cost', 'client_id', 'note', 'paid_at', 'paid_via_payment_id',
+        'delivery_zone_id', 'delivery_address', 'scheduled_for', 'tracking_token',
     ];
 
     protected $casts = [
@@ -40,6 +41,7 @@ class Order extends Model
         'total' => 'decimal:2',
         'food_cost' => 'decimal:4',
         'paid_at' => 'datetime',
+        'scheduled_for' => 'datetime',
     ];
 
     /** @return HasMany<OrderItem, $this> */
@@ -88,6 +90,18 @@ class Order extends Model
     public function shift(): BelongsTo
     {
         return $this->belongsTo(Shift::class);
+    }
+
+    /** @return BelongsTo<Customer, $this> */
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    /** @return BelongsTo<DeliveryZone, $this> */
+    public function deliveryZone(): BelongsTo
+    {
+        return $this->belongsTo(DeliveryZone::class);
     }
 
     public function isPaid(): bool

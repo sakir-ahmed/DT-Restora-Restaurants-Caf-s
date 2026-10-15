@@ -4,7 +4,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{ config('app.name', 'DT Restora') }}</title>
+    <title>{{ $seo['title'] ?? config('app.name', 'DT Restora') }}</title>
+
+    @if ($seo ?? null)
+        <meta name="description" content="{{ $seo['description'] ?? '' }}">
+        <link rel="canonical" href="{{ $seo['canonical'] ?? url()->current() }}">
+        <meta property="og:title" content="{{ $seo['title'] ?? '' }}">
+        <meta property="og:description" content="{{ $seo['description'] ?? '' }}">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ $seo['canonical'] ?? url()->current() }}">
+        <script type="application/ld+json">{{ json_encode($seo['jsonLd'] ?? []) }}</script>
+    @endif
 
     <link rel="preconnect" href="{{ url('/') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">

@@ -14,12 +14,19 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user('staff');
+        $customer = $request->user('customer');
 
         return [
             'appName' => config('app.name'),
             'locale' => app()->getLocale(),
             'translations' => flat_translations(app()->getLocale()),
             'auth' => [
+                'customer' => $customer ? [
+                    'id' => $customer->id,
+                    'name' => $customer->name,
+                    'mobile' => $customer->mobile,
+                    'email' => $customer->email,
+                ] : null,
                 'user' => $user ? [
                     'id' => $user->id,
                     'name' => $user->name,

@@ -55,6 +55,10 @@ class CreateOrderAction
         ?string $clientId = null,
         ?Shift $shift = null,
         ?string $terminalCode = 'T01',
+        ?float $deliveryFee = null,
+        ?int $deliveryZoneId = null,
+        ?string $deliveryAddress = null,
+        ?\DateTimeInterface $scheduledFor = null,
     ): Order {
         if ($clientId !== null) {
             $existing = Order::query()->where('client_id', $clientId)->first();
@@ -66,7 +70,7 @@ class CreateOrderAction
 
         $lines = collect($lines);
 
-        return DB::transaction(function () use ($branch, $type, $lines, $cashier, $waiter, $tableId, $customer, $discount, $note, $channel, $clientId, $shift, $terminalCode): Order {
+        return DB::transaction(function () use ($branch, $type, $lines, $cashier, $waiter, $tableId, $customer, $discount, $note, $channel, $clientId, $shift, $terminalCode, $deliveryFee, $deliveryZoneId, $deliveryAddress, $scheduledFor): Order {
             $branch = Branch::query()->whereKey($branch->id)->lockForUpdate()->firstOrFail();
 
             // Discount rule: above the limit needs the override permission.
@@ -109,9 +113,11 @@ class CreateOrderAction
                 ? round($vatBase - ($vatBase * 100 / (100 + (float) $branch->vat_percent)), 2)
                 : round($vatBase * ((float) $branch->vat_percent) / 100, 2);
 
-            $rawTotal = $branch->vat_inclusive
+            $fee = $type === OrderType::Delivery ? round((float) ($deliveryFee ?? 0), 2) : 0.0;
+
+            $rawTotal = ($branch->vat_inclusive
                 ? $vatBase
-                : round($vatBase + $vatAmount, 2);
+                : round($vatBase + $vatAmount, 2)) + $fee;
 
             $total = (int) round($rawTotal);
             $rounding = round($total - $rawTotal, 2);
@@ -135,11 +141,16 @@ class CreateOrderAction
                 'discount_amount' => $discountAmount,
                 'service_charge' => $serviceCharge,
                 'vat_amount' => $vatAmount,
+                'delivery_fee' => $fee,
                 'rounding' => $rounding,
                 'total' => $total,
                 'food_cost' => $foodCost,
                 'client_id' => $clientId,
                 'note' => $note,
+                'delivery_zone_id' => $type === OrderType::Delivery ? $deliveryZoneId : null,
+                'delivery_address' => $type === OrderType::Delivery ? $deliveryAddress : null,
+                'scheduled_for' => $scheduledFor,
+                'tracking_token' => bin2hex(random_bytes(20)),
             ]);
 
             foreach ($items as $item) {

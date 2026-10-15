@@ -51,6 +51,12 @@ class Branch extends Model
         return $this->hasMany(MenuItem::class);
     }
 
+    /** @return HasMany<DeliveryZone, $this> */
+    public function zones(): HasMany
+    {
+        return $this->hasMany(DeliveryZone::class);
+    }
+
     public function displayName(string $locale): string
     {
         return $locale === 'bn' && $this->name_bn ? $this->name_bn : $this->name;

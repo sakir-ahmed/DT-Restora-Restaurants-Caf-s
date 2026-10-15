@@ -7,7 +7,7 @@ use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\IngredientController;
 use App\Http\Controllers\Admin\KdsController;
-use App\Http\Controllers\Admin\MenuController;
+use App\Http\Controllers\Admin\MenuController as AdminMenuController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\PosController;
@@ -26,9 +26,51 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Payments\GatewayCallbackController;
+use App\Http\Controllers\Web\AccountController;
+use App\Http\Controllers\Web\CheckoutController;
+use App\Http\Controllers\Web\CustomerAuthController;
+use App\Http\Controllers\Web\HomeController;
+use App\Http\Controllers\Web\MenuController;
+use App\Http\Controllers\Web\TrackController;
+use App\Http\Controllers\Web\WebPaymentController;
+use App\Models\Branch;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'welcome/Welcome')->name('home');
+Route::get('/', HomeController::class)->name('web.home');
+Route::get('/menu/{branchCode?}', MenuController::class)->name('web.menu');
+Route::get('/checkout', [CheckoutController::class, 'show'])->name('web.checkout');
+Route::post('/checkout', [CheckoutController::class, 'place'])->name('web.checkout.place');
+Route::get('/track/{token}', [TrackController::class, 'show'])->name('web.track');
+Route::get('/pay/{order}/{gateway}', [WebPaymentController::class, 'start'])->name('web.payment.start');
+
+// QR table ordering: scanning the code opens the menu for that table.
+Route::get('/q/{table}', fn (string $table) => redirect()->route('web.menu', ['table' => $table]))->name('web.qr');
+
+Route::get('/customer/login', [CustomerAuthController::class, 'showLogin'])->name('web.customer.login');
+Route::post('/customer/otp/send', [CustomerAuthController::class, 'sendOtp'])->name('web.customer.otp.send');
+Route::post('/customer/otp/verify', [CustomerAuthController::class, 'verifyOtp'])->name('web.customer.otp.verify');
+Route::post('/customer/logout', [CustomerAuthController::class, 'logout'])->name('web.customer.logout');
+
+Route::middleware('auth:customer')->group(function (): void {
+    Route::get('/account', AccountController::class)->name('web.account');
+    Route::post('/account/addresses', [AccountController::class, 'storeAddress'])->name('web.account.addresses.store');
+    Route::delete('/account/addresses/{address}', [AccountController::class, 'destroyAddress'])->name('web.account.addresses.destroy');
+});
+
+Route::inertia('/privacy', 'web/Privacy')->name('web.privacy');
+Route::inertia('/terms', 'web/Terms')->name('web.terms');
+
+Route::get('/sitemap.xml', function () {
+    $entries = collect([route('web.home'), route('web.privacy'), route('web.terms')]);
+
+    foreach (Branch::query()->where('is_active', true)->pluck('code') as $code) {
+        $entries->push(route('web.menu', ['branchCode' => strtolower($code)]));
+    }
+
+    $body = $entries->map(fn (string $url) => '<url><loc>'.$url.'</loc></url>')->join('');
+
+    return response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'.$body.'</urlset>', 200, ['Content-Type' => 'application/xml']);
+})->name('web.sitemap');
 
 Route::post('/locale', LocaleController::class)->name('locale.switch');
 
@@ -61,13 +103,13 @@ Route::prefix('admin')
         Route::put('branches/{branch}', [BranchController::class, 'update'])->name('branches.update')->middleware('permission:branches.manage');
         Route::delete('branches/{branch}', [BranchController::class, 'destroy'])->name('branches.destroy')->middleware('permission:branches.manage');
 
-        Route::get('menu', [MenuController::class, 'index'])->name('menu.index')->middleware('permission:menu.view');
-        Route::post('menu/categories', [MenuController::class, 'storeCategory'])->name('menu.categories.store')->middleware('permission:menu.manage');
-        Route::put('menu/categories/{category}', [MenuController::class, 'updateCategory'])->name('menu.categories.update')->middleware('permission:menu.manage');
-        Route::delete('menu/categories/{category}', [MenuController::class, 'destroyCategory'])->name('menu.categories.destroy')->middleware('permission:menu.manage');
-        Route::post('menu/items', [MenuController::class, 'storeItem'])->name('menu.items.store')->middleware('permission:menu.manage');
-        Route::put('menu/items/{item}', [MenuController::class, 'updateItem'])->name('menu.items.update')->middleware('permission:menu.manage');
-        Route::delete('menu/items/{item}', [MenuController::class, 'destroyItem'])->name('menu.items.destroy')->middleware('permission:menu.manage');
+        Route::get('menu', [AdminMenuController::class, 'index'])->name('menu.index')->middleware('permission:menu.view');
+        Route::post('menu/categories', [AdminMenuController::class, 'storeCategory'])->name('menu.categories.store')->middleware('permission:menu.manage');
+        Route::put('menu/categories/{category}', [AdminMenuController::class, 'updateCategory'])->name('menu.categories.update')->middleware('permission:menu.manage');
+        Route::delete('menu/categories/{category}', [AdminMenuController::class, 'destroyCategory'])->name('menu.categories.destroy')->middleware('permission:menu.manage');
+        Route::post('menu/items', [AdminMenuController::class, 'storeItem'])->name('menu.items.store')->middleware('permission:menu.manage');
+        Route::put('menu/items/{item}', [AdminMenuController::class, 'updateItem'])->name('menu.items.update')->middleware('permission:menu.manage');
+        Route::delete('menu/items/{item}', [AdminMenuController::class, 'destroyItem'])->name('menu.items.destroy')->middleware('permission:menu.manage');
 
         Route::get('staff', [EmployeeController::class, 'index'])->name('staff.index')->middleware('permission:staff.view');
         Route::post('staff/employees', [EmployeeController::class, 'store'])->name('staff.employees.store')->middleware('permission:employees.manage');
