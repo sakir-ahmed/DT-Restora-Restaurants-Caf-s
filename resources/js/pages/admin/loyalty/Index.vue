@@ -13,13 +13,18 @@ import SwitchField from '@/components/ui-kit/SwitchField.vue';
 import { t } from '@/lib/i18n';
 import { notify } from '@/lib/notify';
 
-defineProps({
+const props = defineProps({
     settings: { type: Object, required: true },
     lookup: { type: Object, default: null },
     totals: { type: Object, required: true },
 });
 
-const settingsForm = useForm({});
+const form = useForm({
+    earn_rate: props.settings.earn_rate,
+    point_value: props.settings.point_value,
+    expiry_days: props.settings.expiry_days,
+    is_enabled: Boolean(props.settings.is_enabled),
+});
 
 const mobile = ref('');
 
@@ -42,8 +47,9 @@ function saveAdjust() {
     });
 }
 
-function saveSettings(settings) {
-    router.put(route('admin.loyalty.settings'), settings, {
+function saveSettings() {
+    form.put(route('admin.loyalty.settings'), {
+        preserveScroll: true,
         onSuccess: () => notify.success(t('loyalty.settings_saved')),
     });
 }
@@ -67,30 +73,54 @@ function saveSettings(settings) {
             <section class="rounded-lg border border-border bg-surface p-4">
                 <h2 class="text-sm font-semibold text-foreground">{{ t('loyalty.settings_title') }}</h2>
 
-                <form class="mt-3" @submit.prevent="saveSettings(settings)">
+                <form novalidate class="mt-3" @submit.prevent="saveSettings">
                     <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-                        <FormField :label="t('loyalty.earn_rate')" :helper="t('loyalty.earn_rate_helper')">
+                        <FormField :label="t('loyalty.earn_rate')" :helper="t('loyalty.earn_rate_helper')" :error="form.errors.earn_rate" required>
                             <template #default="{ id }">
-                                <input :id="id" v-model.number="settings.earn_rate" type="number" min="0" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-right text-[13px] tabular-nums">
+                                <input
+                                    :id="id"
+                                    v-model="form.earn_rate"
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    class="h-7 w-full rounded-md border bg-surface px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:ring-2 focus:ring-accent/40"
+                                    :class="form.errors.earn_rate ? 'border-danger' : 'border-border focus:border-accent'"
+                                >
                             </template>
                         </FormField>
 
-                        <FormField :label="t('loyalty.point_value')" :helper="t('loyalty.point_value_helper')">
-                            <MoneyInput v-model="settings.point_value" />
+                        <FormField :label="t('loyalty.point_value')" :helper="t('loyalty.point_value_helper')" :error="form.errors.point_value" required>
+                            <MoneyInput v-model="form.point_value" />
                         </FormField>
 
-                        <FormField :label="t('loyalty.expiry_days')">
+                        <FormField :label="t('loyalty.expiry_days')" :error="form.errors.expiry_days" required>
                             <template #default="{ id }">
-                                <input :id="id" v-model.number="settings.expiry_days" type="number" min="1" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-right text-[13px] tabular-nums">
+                                <input
+                                    :id="id"
+                                    v-model="form.expiry_days"
+                                    type="number"
+                                    min="1"
+                                    max="3650"
+                                    class="h-7 w-full rounded-md border bg-surface px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:ring-2 focus:ring-accent/40"
+                                    :class="form.errors.expiry_days ? 'border-danger' : 'border-border focus:border-accent'"
+                                >
                             </template>
                         </FormField>
-
-                        <div class="flex items-end pb-1">
-                            <SwitchField v-model="settings.is_enabled" :label="t('branches.is_active')" />
-                        </div>
                     </div>
 
-                    <button type="submit" class="mt-3 h-7 rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground">{{ t('common.save') }}</button>
+                    <div class="mt-3 border-t border-border pt-3">
+                        <SwitchField v-model="form.is_enabled" :label="t('branches.is_active')" />
+                    </div>
+
+                    <div class="mt-3 flex justify-end">
+                        <button
+                            type="submit"
+                            class="inline-flex h-7 items-center rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                            :disabled="form.processing"
+                        >
+                            {{ t('common.save') }}
+                        </button>
+                    </div>
                 </form>
             </section>
 

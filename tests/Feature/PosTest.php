@@ -313,6 +313,18 @@ it('drives the whole flow through the controller endpoints', function (): void {
     expect($order->fresh()->status)->toBe(OrderStatus::Void);
 });
 
+it('unlocks the POS only with the staff PIN', function (): void {
+    $this->cashier->update(['pin' => '1234']);
+
+    $this->actingAs($this->cashier, 'staff')->postJson('/admin/pos/unlock', [
+        'pin' => '0000',
+    ])->assertUnprocessable()->assertJsonValidationErrors('pin');
+
+    $this->actingAs($this->cashier, 'staff')->postJson('/admin/pos/unlock', [
+        'pin' => '1234',
+    ])->assertOk()->assertJsonPath('ok', true);
+});
+
 it('rejects POS access for roles without the permission', function (): void {
     $rider = User::factory()->role('rider', $this->branch->id)->create();
 

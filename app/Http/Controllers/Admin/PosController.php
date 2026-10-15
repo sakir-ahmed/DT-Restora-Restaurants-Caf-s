@@ -8,8 +8,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\MenuCategory;
 use App\Models\RestaurantTable;
+use App\Models\Setting;
 use App\Models\Shift;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -46,7 +50,27 @@ class PosController extends Controller
             'openShift' => $openShift,
             'canOverrideDiscount' => $user->can('discounts.override'),
             'canVoid' => $user->can('orders.void'),
+            'posPinMinutes' => Setting::current()->pos_pin_minutes,
         ]);
+    }
+
+    public function unlock(Request $request): JsonResponse
+    {
+        $this->authorize('pos.access');
+
+        $validated = $request->validate([
+            'pin' => ['required', 'string', 'min:4', 'max:12'],
+        ]);
+
+        $user = $request->user('staff');
+
+        if ($user->pin === null || ! Hash::check($validated['pin'], $user->pin)) {
+            throw ValidationException::withMessages([
+                'pin' => __('orders.pin_invalid'),
+            ]);
+        }
+
+        return response()->json(['ok' => true]);
     }
 
     private function currentBranch(Request $request): Branch

@@ -21,6 +21,8 @@ return [
     'shift_closed' => 'Shift closed. Expected: :expected, difference: :difference',
     'open_shift' => 'Open shift',
     'open_shift_hint' => 'Count the cash in the drawer to start your shift.',
+    'shift_needed' => 'Open a shift before sending an order.',
+    'shift_open_status' => 'Shift is open',
     'opening_cash' => 'Opening cash',
     'void_requested' => 'Void request sent to the manager.',
     'void_already_pending' => 'A void request is already pending for this order.',
@@ -63,4 +65,8 @@ return [
         'delivery' => 'Delivery',
     ],
     'walk_in_customer' => 'Walk-in customer',
+    'pos_locked' => 'POS locked',
+    'pos_locked_hint' => 'Enter your staff PIN to continue. The open order stays on this screen.',
+    'unlock' => 'Unlock',
+    'pin_invalid' => 'That PIN is not correct.',
 ];

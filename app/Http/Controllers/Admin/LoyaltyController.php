@@ -67,7 +67,12 @@ class LoyaltyController extends Controller
             'earn_rate' => ['required', 'integer', 'min:0', 'max:100'],
             'point_value' => ['required', 'numeric', 'min:0'],
             'expiry_days' => ['required', 'integer', 'min:1', 'max:3650'],
-            'is_enabled' => ['boolean'],
+            'is_enabled' => ['required', 'boolean'],
+        ], [], [
+            'earn_rate' => __('loyalty.earn_rate'),
+            'point_value' => __('loyalty.point_value'),
+            'expiry_days' => __('loyalty.expiry_days'),
+            'is_enabled' => __('branches.is_active'),
         ]);
 
         LoyaltySetting::current()->update($validated);

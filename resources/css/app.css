@@ -42,6 +42,7 @@
     --color-border: oklch(0.279 0.041 260);
     --color-primary: oklch(0.984 0.003 248);
     --color-primary-foreground: oklch(0.21 0.034 265);
+    --color-accent-foreground: oklch(0.97 0.02 85);
 }
 
 html {

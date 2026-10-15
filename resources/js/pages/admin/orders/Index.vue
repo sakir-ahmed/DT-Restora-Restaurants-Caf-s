@@ -11,6 +11,7 @@ import { useConfirm } from '@/components/ui-kit/useConfirm.js';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/format';
 import { notify } from '@/lib/notify';
+import { printUrl } from '@/lib/print';
 
 const props = defineProps({
     orders: { type: Array, required: true },
@@ -112,14 +113,14 @@ async function approveVoid(order) {
 }
 
 function approvePayment(payment) {
-    router.post(route('payments.approve', payment.id), {}, {
+    router.post(route('admin.payments.approve', payment.id), {}, {
         preserveState: true,
         onSuccess: () => notify.success(t('payments.manual_approved')),
     });
 }
 
 function printReceipt(order) {
-    window.open(route('admin.orders.receipt', order.id), '_blank', 'width=380,height=640');
+    printUrl(route('admin.orders.receipt', order.id));
 }
 
 function pay(order) {

@@ -1,5 +1,6 @@
 import {
     faArrowDown,
+    faArrowRight,
     faArrowUp,
     faBell,
     faBookOpen,
@@ -27,6 +28,7 @@ import {
     faLanguage,
     faLock,
     faMagnifyingGlass,
+    faMinus,
     faMobileScreen,
     faMoneyBillWave,
     faMoon,
@@ -101,6 +103,7 @@ import {
 export const icons = {
     'arrow-up': faArrowUp,
     'arrow-down': faArrowDown,
+    'right-left': faArrowRight,
     'trend-up': faArrowTrendUp,
     'trend-down': faArrowTrendDown,
     bell: faBell,
@@ -130,6 +133,7 @@ export const icons = {
     language: faLanguage,
     lock: faLock,
     'magnifying-glass': faMagnifyingGlass,
+    minus: faMinus,
     'mobile-screen': faMobileScreen,
     'money-bill-wave': faMoneyBillWave,
     moon: faMoon,
