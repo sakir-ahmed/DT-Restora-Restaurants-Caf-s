@@ -106,6 +106,12 @@ class Order extends Model
         return $this->belongsTo(DeliveryZone::class);
     }
 
+    /** @return HasOne<Delivery, $this> */
+    public function delivery()
+    {
+        return $this->hasOne(Delivery::class);
+    }
+
     public function isPaid(): bool
     {
         return $this->status === OrderStatus::Paid;

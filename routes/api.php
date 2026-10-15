@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Auth\OtpController;
+use App\Http\Controllers\Api\V1\Rider\RiderApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,8 +23,11 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
         });
     });
 
-    Route::middleware('auth:sanctum')->group(function (): void {
-        //
+    Route::prefix('rider')->name('rider.')->middleware('auth:sanctum')->group(function (): void {
+        Route::get('/deliveries', [RiderApiController::class, 'deliveries'])->name('deliveries');
+        Route::post('/deliveries/{delivery}/status', [RiderApiController::class, 'updateStatus'])->name('status');
+        Route::post('/location', [RiderApiController::class, 'location'])->name('location');
+        Route::get('/cod-summary', [RiderApiController::class, 'codSummary'])->name('cod-summary');
     });
 });
 

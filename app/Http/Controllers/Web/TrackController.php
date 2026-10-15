@@ -20,8 +20,29 @@ class TrackController extends Controller
     {
         $order = Order::query()
             ->where('tracking_token', $token)
-            ->with(['items:id,order_id,name,quantity,line_total', 'branch:id,name,phone'])
+            ->with(['items:id,order_id,name,quantity,line_total', 'branch:id,name,phone', 'delivery.rider.locations'])
             ->firstOrFail();
+
+        // Tracking links expire one hour after delivery.
+        $delivery = $order->delivery;
+
+        if ($delivery?->delivered_at !== null && $delivery->delivered_at->copy()->addHour()->isPast()) {
+            abort(404);
+        }
+
+        $latestLocation = null;
+
+        if ($delivery !== null && in_array($delivery->status, ['picked_up', 'on_the_way'], true)) {
+            $location = $delivery->rider?->latestLocation();
+
+            if ($location !== null && $location->recorded_at->gt(now()->subMinutes(15))) {
+                $latestLocation = [
+                    'latitude' => (string) $location->latitude,
+                    'longitude' => (string) $location->longitude,
+                    'recorded_at' => $location->recorded_at->toIso8601String(),
+                ];
+            }
+        }
 
         return Inertia::render('web/Track', [
             'order' => [
@@ -38,6 +59,8 @@ class TrackController extends Controller
                     'line_total' => (string) $item->line_total,
                 ]),
                 'branch' => $order->branch?->only(['name', 'phone']),
+                'delivery_status' => $delivery?->status,
+                'rider_location' => $latestLocation,
             ],
         ]);
     }
