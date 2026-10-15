@@ -16,11 +16,12 @@ use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\Rider;
 use App\Models\User;
+use Database\Seeders\ChartOfAccountsSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Validation\ValidationException;
 
 beforeEach(function (): void {
-    $this->seed(RoleSeeder::class);
+    $this->seed([ChartOfAccountsSeeder::class, RoleSeeder::class]);
 
     $this->branch = Branch::factory()->create(['code' => 'BR01']);
     $this->manager = User::factory()->role('branch-manager', $this->branch->id)->create();

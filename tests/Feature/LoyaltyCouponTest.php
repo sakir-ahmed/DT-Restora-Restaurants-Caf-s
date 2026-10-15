@@ -18,11 +18,12 @@ use App\Models\Order;
 use App\Models\User;
 use App\Services\CouponService;
 use App\Services\LoyaltyService;
+use Database\Seeders\ChartOfAccountsSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Validation\ValidationException;
 
 beforeEach(function (): void {
-    $this->seed(RoleSeeder::class);
+    $this->seed([ChartOfAccountsSeeder::class, RoleSeeder::class]);
 
     $this->branch = Branch::factory()->create(['code' => 'BR01', 'vat_percent' => '0.00', 'service_charge_percent' => '0.00']);
     $this->owner = User::factory()->role('owner')->create();

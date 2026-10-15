@@ -15,11 +15,12 @@ use App\Models\MenuItem;
 use App\Models\Order;
 use App\Models\RestaurantTable;
 use App\Services\OtpService;
+use Database\Seeders\ChartOfAccountsSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Event;
 
 beforeEach(function (): void {
-    $this->seed(RoleSeeder::class);
+    $this->seed([ChartOfAccountsSeeder::class, RoleSeeder::class]);
 
     $this->branch = Branch::factory()->create([
         'code' => 'BR01',

@@ -8,6 +8,7 @@ use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\RestaurantTable;
+use App\Services\Accounting\AccountingService;
 use App\Services\LoyaltyService;
 use App\Services\Payments\BkashService;
 use App\Services\Payments\SslcommerzService;
@@ -59,6 +60,7 @@ class CompleteGatewayPaymentAction
                     }
                 }
 
+                app(AccountingService::class)->postOrderPaid($order->fresh());
                 app(LoyaltyService::class)->earnForOrder($order);
 
                 activity()->performedOn($order)->log('order.paid_'.$payment->gateway);

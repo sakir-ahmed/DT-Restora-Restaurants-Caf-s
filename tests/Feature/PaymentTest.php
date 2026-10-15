@@ -13,12 +13,13 @@ use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\Payment;
 use App\Models\User;
+use Database\Seeders\ChartOfAccountsSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 
 beforeEach(function (): void {
-    $this->seed(RoleSeeder::class);
+    $this->seed([ChartOfAccountsSeeder::class, RoleSeeder::class]);
 
     config(['services.bkash.app_key' => 'test-key', 'services.bkash.app_secret' => 'test-secret',
         'services.bkash.username' => 'test-user', 'services.bkash.password' => 'test-pass',

@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Expense;
+use App\Services\Accounting\AccountingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -47,11 +48,13 @@ class ExpenseController extends Controller
             'amount' => ['required', 'numeric', 'gt:0'],
         ]);
 
-        Expense::query()->create([
+        $expense = Expense::query()->create([
             ...$validated,
             'branch_id' => $branch->id,
             'user_id' => $request->user('staff')?->id,
         ]);
+
+        app(AccountingService::class)->postExpense($expense, $request->user('staff'));
 
         return back()->with('success', __('expenses.recorded'));
     }

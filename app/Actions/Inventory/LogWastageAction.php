@@ -10,6 +10,7 @@ use App\Models\IngredientStock;
 use App\Models\Unit;
 use App\Models\User;
 use App\Models\Wastage;
+use App\Services\Accounting\AccountingService;
 use App\Services\StockService;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -74,6 +75,8 @@ class LogWastageAction
                 unitCost: (float) ($stock->avg_cost ?? 0),
                 userId: $user?->id,
             );
+
+            app(AccountingService::class)->postWastage($wastage->fresh(), $user);
 
             activity()
                 ->performedOn($wastage)

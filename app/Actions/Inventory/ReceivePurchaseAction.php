@@ -7,6 +7,7 @@ namespace App\Actions\Inventory;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use App\Models\User;
+use App\Services\Accounting\AccountingService;
 use App\Services\StockService;
 use Illuminate\Support\Facades\DB;
 use LogicException;
@@ -58,6 +59,8 @@ class ReceivePurchaseAction
                 'received_at' => now(),
                 'total' => $purchase->items->sum(fn (PurchaseItem $item) => (float) $item->line_total),
             ]);
+
+            app(AccountingService::class)->postPurchaseReceived($purchase->fresh(), $user);
 
             activity()
                 ->performedOn($purchase)

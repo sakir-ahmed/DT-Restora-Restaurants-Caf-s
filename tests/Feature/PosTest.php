@@ -22,12 +22,13 @@ use App\Models\Unit;
 use App\Models\User;
 use App\Services\InvoiceNumberService;
 use App\Services\StockService;
+use Database\Seeders\ChartOfAccountsSeeder;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\UnitSeeder;
 use Illuminate\Validation\ValidationException;
 
 beforeEach(function (): void {
-    $this->seed([RoleSeeder::class, UnitSeeder::class]);
+    $this->seed([ChartOfAccountsSeeder::class, RoleSeeder::class, UnitSeeder::class]);
 
     $this->branch = Branch::factory()->create([
         'code' => 'BR01',

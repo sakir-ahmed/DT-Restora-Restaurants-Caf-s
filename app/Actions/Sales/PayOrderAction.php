@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\RestaurantTable;
 use App\Models\User;
+use App\Services\Accounting\AccountingService;
 use App\Services\LoyaltyService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -69,6 +70,7 @@ class PayOrderAction
                     ->update(['status' => 'free']);
             }
 
+            app(AccountingService::class)->postOrderPaid($order->fresh(), $user);
             app(LoyaltyService::class)->earnForOrder($order);
 
             activity()

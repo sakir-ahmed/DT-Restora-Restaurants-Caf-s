@@ -13,11 +13,12 @@ use App\Models\StockTransfer;
 use App\Models\Unit;
 use App\Models\User;
 use App\Models\Wastage;
+use Database\Seeders\ChartOfAccountsSeeder;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\UnitSeeder;
 
 beforeEach(function (): void {
-    $this->seed([RoleSeeder::class, UnitSeeder::class]);
+    $this->seed([ChartOfAccountsSeeder::class, RoleSeeder::class, UnitSeeder::class]);
 
     $this->branch = Branch::factory()->create(['code' => 'BR01']);
     $this->kitchen = User::factory()->role('kitchen-manager', $this->branch->id)->create();

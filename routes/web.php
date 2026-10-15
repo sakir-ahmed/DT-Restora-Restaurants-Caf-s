@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AccountingController;
 use App\Http\Controllers\Admin\AggregatorController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\BranchSwitchController;
@@ -205,6 +206,13 @@ Route::prefix('admin')
         Route::get('delivery', [DeliveryController::class, 'index'])->name('delivery.index')->middleware('permission:delivery.dispatch');
         Route::post('delivery/orders/{order}/assign', [DeliveryController::class, 'assign'])->name('delivery.assign')->middleware('permission:delivery.dispatch');
         Route::post('delivery/{delivery}/reconcile-cod', [DeliveryController::class, 'reconcileCod'])->name('delivery.reconcile-cod')->middleware('permission:delivery.dispatch');
+
+        Route::get('accounting', [AccountingController::class, 'index'])->name('accounting.index')->middleware('permission:accounting.view');
+        Route::post('accounting/journals', [AccountingController::class, 'storeManual'])->name('accounting.journals.store')->middleware('permission:journals.post');
+        Route::post('accounting/journals/{journal}/approve', [AccountingController::class, 'approve'])->name('accounting.journals.approve')->middleware('permission:journals.post');
+        Route::post('accounting/journals/{journal}/reverse', [AccountingController::class, 'reverse'])->name('accounting.journals.reverse')->middleware('permission:journals.post');
+        Route::post('accounting/fiscal-years/{year}/lock', [AccountingController::class, 'lockYear'])->name('accounting.years.lock')->middleware('permission:periods.lock');
+        Route::get('accounting/export/{statement}', [AccountingController::class, 'export'])->name('accounting.export')->middleware('permission:accounting.view');
 
         Route::get('aggregators', [AggregatorController::class, 'index'])->name('aggregators.index')->middleware('permission:aggregators.manage');
         Route::post('aggregators/channels', [AggregatorController::class, 'storeChannel'])->name('aggregators.channels.store')->middleware('permission:aggregators.manage');
