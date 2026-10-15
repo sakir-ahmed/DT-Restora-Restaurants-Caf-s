@@ -35,6 +35,7 @@ class MetricsService
             ->selectRaw('COALESCE(SUM(vat_amount), 0) as vat_sum')
             ->selectRaw('COALESCE(SUM(service_charge), 0) as service_sum')
             ->selectRaw('COALESCE(SUM(food_cost), 0) as food_cost_sum')
+            ->selectRaw('COALESCE(SUM(commission_amount), 0) as commission_sum')
             ->first();
 
         $orderItems = (int) Order::query()
@@ -66,7 +67,7 @@ class MetricsService
         $gross = (float) ($orderRow->gross_sales ?? 0);
         $net = (float) ($orderRow->subtotal_sum ?? 0) - (float) ($orderRow->discount_sum ?? 0);
         $foodCost = (float) ($orderRow->food_cost_sum ?? 0);
-        $commission = 0.0; // aggregator commission arrives in Phase 9
+        $commission = (float) ($orderRow->commission_sum ?? 0);
 
         $netProfit = $net - $foodCost - $wastageCost - $salaryCost - $expenses - $commission;
 

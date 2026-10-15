@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AggregatorController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\BranchSwitchController;
 use App\Http\Controllers\Admin\CouponController;
@@ -33,6 +34,7 @@ use App\Http\Controllers\Payments\GatewayCallbackController;
 use App\Http\Controllers\Rider\RiderController;
 use App\Http\Controllers\Rider\RiderLocationWebController;
 use App\Http\Controllers\Web\AccountController;
+use App\Http\Controllers\Web\AggregatorWebhookController;
 use App\Http\Controllers\Web\CheckoutController;
 use App\Http\Controllers\Web\CustomerAuthController;
 use App\Http\Controllers\Web\HomeController;
@@ -88,6 +90,9 @@ Route::get('/sitemap.xml', function () {
 })->name('web.sitemap');
 
 Route::post('/locale', LocaleController::class)->name('locale.switch');
+
+// Aggregator webhooks: public, one per channel, CSRF-excluded.
+Route::post('/webhooks/aggregators/{key}', AggregatorWebhookController::class)->name('aggregators.webhook');
 
 // Gateway callbacks and IPN are public web routes (CSRF-excluded).
 Route::get('/payments/bkash/callback', [GatewayCallbackController::class, 'bkashCallback'])->name('payments.bkash.callback');
@@ -200,6 +205,14 @@ Route::prefix('admin')
         Route::get('delivery', [DeliveryController::class, 'index'])->name('delivery.index')->middleware('permission:delivery.dispatch');
         Route::post('delivery/orders/{order}/assign', [DeliveryController::class, 'assign'])->name('delivery.assign')->middleware('permission:delivery.dispatch');
         Route::post('delivery/{delivery}/reconcile-cod', [DeliveryController::class, 'reconcileCod'])->name('delivery.reconcile-cod')->middleware('permission:delivery.dispatch');
+
+        Route::get('aggregators', [AggregatorController::class, 'index'])->name('aggregators.index')->middleware('permission:aggregators.manage');
+        Route::post('aggregators/channels', [AggregatorController::class, 'storeChannel'])->name('aggregators.channels.store')->middleware('permission:aggregators.manage');
+        Route::put('aggregators/channels/{channel}', [AggregatorController::class, 'updateChannel'])->name('aggregators.channels.update')->middleware('permission:aggregators.manage');
+        Route::post('aggregators/orders/manual', [AggregatorController::class, 'manualOrder'])->name('aggregators.orders.manual')->middleware('permission:aggregators.manage');
+        Route::post('aggregators/orders/{order}/decision', [AggregatorController::class, 'decide'])->name('aggregators.orders.decision')->middleware('permission:aggregators.manage');
+        Route::post('aggregators/channels/{channel}/payouts', [AggregatorController::class, 'reconcilePayout'])->name('aggregators.payouts')->middleware('permission:aggregators.manage');
+        Route::post('aggregators/channels/{channel}/menu-sync', [AggregatorController::class, 'syncMenu'])->name('aggregators.menu-sync')->middleware('permission:aggregators.manage');
 
         Route::get('reports', [ReportController::class, 'index'])->name('reports.index')->middleware('permission:reports.view');
         Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export')->middleware('permission:reports.view');

@@ -26,6 +26,7 @@ class Order extends Model
         'food_cost', 'client_id', 'note', 'paid_at', 'paid_via_payment_id',
         'delivery_zone_id', 'delivery_address', 'scheduled_for', 'tracking_token',
         'coupon_id', 'points_redeemed',
+        'aggregator_channel_id', 'aggregator_order_id', 'commission_amount',
     ];
 
     protected $casts = [
@@ -44,6 +45,7 @@ class Order extends Model
         'paid_at' => 'datetime',
         'scheduled_for' => 'datetime',
         'points_redeemed' => 'integer',
+        'commission_amount' => 'decimal:2',
     ];
 
     /** @return HasMany<OrderItem, $this> */
@@ -110,6 +112,12 @@ class Order extends Model
     public function delivery()
     {
         return $this->hasOne(Delivery::class);
+    }
+
+    /** @return BelongsTo<AggregatorChannel, $this> */
+    public function aggregatorChannel(): BelongsTo
+    {
+        return $this->belongsTo(AggregatorChannel::class);
     }
 
     public function isPaid(): bool

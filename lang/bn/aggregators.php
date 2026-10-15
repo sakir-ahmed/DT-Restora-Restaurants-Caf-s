@@ -1,0 +1,35 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'title' => 'অ্যাগ্রিগেটর চ্যানেল',
+    'subtitle' => 'ডেলিভারি প্ল্যাটফর্ম, কমিশন ও পেআউট মিলানো।',
+    'add_channel' => 'চ্যানেল যোগ করুন',
+    'channel_label' => 'চ্যানেল',
+    'channel_key' => 'কী',
+    'channel_key_helper' => 'ওয়েবহুক ঠিকানায় ব্যবহৃত হয়, যেমন foodpanda।',
+    'channel_name' => 'চ্যানেলের নাম',
+    'commission' => 'কমিশন',
+    'commission_percent' => 'কমিশন শতাংশ',
+    'commission_month' => 'এই মাসের কমিশন',
+    'webhook_secret' => 'ওয়েবহুক সিক্রেট',
+    'webhook_secret_helper' => 'প্রতিটি আসা ওয়েবহুকে যাচাই করা হয়।',
+    'channel_created' => 'চ্যানেল তৈরি হয়েছে।',
+    'channel_updated' => 'চ্যানেল হালনাগাদ হয়েছে।',
+    'manual_order' => 'ম্যানুয়াল অর্ডার',
+    'manual_order_hint' => 'API সংযোগ ছাড়াই যেকোনো প্ল্যাটফর্মের অর্ডার লিখুন।',
+    'platform_order_id' => 'প্ল্যাটফর্ম অর্ডার আইডি',
+    'order_created' => 'অ্যাগ্রিগেটর অর্ডার তৈরি হয়েছে।',
+    'decision_pushed' => 'সিদ্ধান্ত লিপিবদ্ধ ও প্ল্যাটফর্মে পাঠানো হয়েছে।',
+    'accept' => 'গ্রহণ',
+    'reject' => 'প্রত্যাখ্যান',
+    'payout' => 'পেআউট',
+    'payout_recorded' => 'পেআউট লিপিবদ্ধ হয়েছে।',
+    'period_from' => 'থেকে',
+    'period_to' => 'পর্যন্ত',
+    'received_amount' => 'গৃহীত পরিমাণ',
+    'sync_menu' => 'মেনু সিঙ্ক',
+    'menu_synced' => 'মেনু সিঙ্ক হয়েছে: :countটি আইটেম।',
+    'no_orders' => 'এখনো কোনো অ্যাগ্রিগেটর অর্ডার নেই',
+];

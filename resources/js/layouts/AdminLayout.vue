@@ -86,6 +86,7 @@ const nav = computed(() => {
             label: t('nav.settings_group'),
             items: [
                 { label: t('nav.branches'), href: '/admin/branches', icon: 'building', permission: 'branches.view' },
+                { label: t('aggregators.title'), href: '/admin/aggregators', icon: 'motorcycle', permission: 'aggregators.manage' },
                 { label: t('nav.settings'), href: '/admin/settings', icon: 'gear', permission: 'settings.manage' },
                 { label: t('nav.activity_log'), href: '/admin/activity-log', icon: 'clock', permission: 'activity.view' },
             ],

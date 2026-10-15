@@ -36,6 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->validateCsrfTokens(except: [
             'payments/sslcommerz/ipn',
+            'webhooks/aggregators/*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

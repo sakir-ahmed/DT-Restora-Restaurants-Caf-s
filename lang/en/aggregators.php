@@ -1,0 +1,35 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'title' => 'Aggregator channels',
+    'subtitle' => 'Delivery platforms, commission and payout reconciliation.',
+    'add_channel' => 'Add channel',
+    'channel_label' => 'Channel',
+    'channel_key' => 'Key',
+    'channel_key_helper' => 'Used in the webhook URL, for example foodpanda.',
+    'channel_name' => 'Channel name',
+    'commission' => 'Commission',
+    'commission_percent' => 'Commission percent',
+    'commission_month' => 'Commission this month',
+    'webhook_secret' => 'Webhook secret',
+    'webhook_secret_helper' => 'Verified on every incoming webhook.',
+    'channel_created' => 'Channel created.',
+    'channel_updated' => 'Channel updated.',
+    'manual_order' => 'Manual order',
+    'manual_order_hint' => 'Enter an order from any platform even without an API connection.',
+    'platform_order_id' => 'Platform order ID',
+    'order_created' => 'Aggregator order created.',
+    'decision_pushed' => 'Decision recorded and pushed to the platform.',
+    'accept' => 'Accept',
+    'reject' => 'Reject',
+    'payout' => 'Payout',
+    'payout_recorded' => 'Payout recorded.',
+    'period_from' => 'From',
+    'period_to' => 'To',
+    'received_amount' => 'Received amount',
+    'sync_menu' => 'Sync menu',
+    'menu_synced' => 'Menu synced: :count items.',
+    'no_orders' => 'No aggregator orders yet',
+];
