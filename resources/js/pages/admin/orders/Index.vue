@@ -17,6 +17,7 @@ const props = defineProps({
     filters: { type: Object, default: () => ({}) },
     canVoid: { type: Boolean, default: false },
     canApproveVoid: { type: Boolean, default: false },
+    canApprovePayments: { type: Boolean, default: false },
 });
 
 const confirm = useConfirm();
@@ -110,6 +111,13 @@ async function approveVoid(order) {
     });
 }
 
+function approvePayment(payment) {
+    router.post(route('payments.approve', payment.id), {}, {
+        preserveState: true,
+        onSuccess: () => notify.success(t('payments.manual_approved')),
+    });
+}
+
 function printReceipt(order) {
     window.open(route('admin.orders.receipt', order.id), '_blank', 'width=380,height=640');
 }
@@ -184,6 +192,15 @@ function pay(order) {
                         @click="printReceipt(row)"
                     >
                         <AppIcon name="print" size="12" />
+                    </button>
+                    <button
+                        v-if="canApprovePayments && (row.payments ?? []).some((p) => p.status === 'pending_verification')"
+                        type="button"
+                        class="flex h-6 items-center gap-1 rounded border border-warning/60 px-1.5 text-[11px] text-warning hover:bg-warning/10"
+                        @click="approvePayment((row.payments ?? []).find((p) => p.status === 'pending_verification'))"
+                    >
+                        <AppIcon name="user-shield" size="10" />
+                        {{ t('payments.verify') }}
                     </button>
                     <button
                         v-if="canVoid && row.raw_status !== 'void'"

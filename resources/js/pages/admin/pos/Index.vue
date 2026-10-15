@@ -31,7 +31,11 @@ const cart = ref([]);
 const discount = ref({ type: 'percent', value: 0 });
 const heldOrders = ref([]);
 const payDialogOpen = ref(false);
+const payMode = ref('cash'); // cash | split | wallet
 const tendered = ref('');
+const splitLines = ref([]);
+const walletTrxId = ref('');
+const walletMethod = ref('bkash');
 const shiftDialogOpen = ref(false);
 const openingCash = ref('0.00');
 const lastPayment = ref(null);
@@ -175,7 +179,11 @@ function submitOrder() {
                 latestOrder.value = order;
                 lastPayment.value = null;
                 payDialogOpen.value = true;
+                payMode.value = 'cash';
                 tendered.value = String(order.total);
+                walletTrxId.value = '';
+                walletMethod.value = 'bkash';
+                splitLines.value = [];
             }
         },
         onError: (errors) => {
@@ -303,6 +311,66 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 
 function quickAmount(amount) {
     tendered.value = String(amount);
+}
+
+function startSplit() {
+    const remaining = Number(latestOrder.value?.total ?? total.value);
+    splitLines.value = [
+        { method: 'cash', amount: Math.ceil(remaining / 2), reference: '' },
+        { method: 'bkash', amount: remaining - Math.ceil(remaining / 2), reference: '' },
+    ];
+    payMode.value = 'split';
+}
+
+function splitTotal() {
+    return splitLines.value.reduce((sum, line) => sum + Number(line.amount || 0), 0);
+}
+
+function paySplit() {
+    const order = latestOrder.value;
+
+    if (! order) {
+        return;
+    }
+
+    router.post(route('payments.split', order.id), {
+        lines: splitLines.value.map((line) => ({
+            method: line.method,
+            amount: line.amount,
+            reference: line.reference || null,
+        })),
+    }, {
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: () => {
+            payDialogOpen.value = false;
+            lastPayment.value = { order_id: order.id, invoice_no: order.invoice_no, change_due: 0 };
+            notify.success(t('payments.split_completed'));
+        },
+        onError: (errors) => notify.error(Object.values(errors)[0] ?? t('payments.split_mismatch')),
+    });
+}
+
+function payWalletManual() {
+    const order = latestOrder.value;
+
+    if (! order) {
+        return;
+    }
+
+    router.post(route('payments.manual', order.id), {
+        method: walletMethod.value,
+        amount: Number(latestOrder.value?.total ?? total.value),
+        reference: walletTrxId.value,
+    }, {
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: () => {
+            payDialogOpen.value = false;
+            notify.success(t('payments.manual_recorded'));
+        },
+        onError: (errors) => notify.error(Object.values(errors)[0] ?? t('common.error_occurred')),
+    });
 }
 
 const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (latestOrder.value ? Number(latestOrder.value.total) : total.value)));
@@ -511,44 +579,124 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
         <!-- Pay dialog -->
         <Teleport to="body">
             <div v-if="payDialogOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                <div class="w-full max-w-sm rounded-xl border border-border bg-surface p-4">
+                <div class="w-full max-w-md rounded-xl border border-border bg-surface p-4">
                     <h2 class="text-lg font-semibold text-foreground">{{ t('orders.take_payment') }}</h2>
                     <p class="mt-0.5 text-sm text-muted">{{ latestOrder?.invoice_no }}</p>
 
                     <p class="mt-3 text-3xl font-bold tabular-nums text-foreground">{{ formatMoney(latestOrder?.total ?? total) }}</p>
 
-                    <div class="mt-3">
-                        <FormField :label="t('orders.tendered')" required>
-                            <MoneyInput v-model="tendered" />
-                        </FormField>
-                    </div>
-
-                    <div class="mt-2 flex flex-wrap gap-1.5">
+                    <!-- Method tabs -->
+                    <div class="mt-3 grid grid-cols-3 gap-1.5">
                         <button
-                            v-for="amount in [total, 100, 500, 1000, 2000]"
-                            :key="amount"
+                            v-for="mode in ['cash', 'split', 'wallet']"
+                            :key="mode"
                             type="button"
-                            class="h-9 rounded-md border border-border px-3 text-sm font-medium text-foreground hover:bg-background"
-                            @click="quickAmount(amount)"
+                            class="flex h-9 items-center justify-center gap-1 rounded-md border text-sm font-medium"
+                            :class="payMode === mode ? 'border-accent bg-accent/15 text-accent-foreground' : 'border-border text-muted'"
+                            @click="mode === 'split' ? startSplit() : (payMode = mode)"
                         >
-                            {{ amount === total ? t('orders.exact') : formatMoney(amount, { decimals: 0 }) }}
+                            <AppIcon :name="mode === 'cash' ? 'money-bill-wave' : mode === 'split' ? 'layer-group' : 'mobile-screen'" size="12" />
+                            {{ mode === 'cash' ? t('payment_method.cash') : mode === 'split' ? t('payment_method.split') : t('payments.wallet') }}
                         </button>
                     </div>
 
-                    <div class="mt-3 flex items-center justify-between rounded-lg bg-success/10 px-3 py-2">
-                        <span class="text-sm font-medium text-foreground">{{ t('receipt.change') }}</span>
-                        <span class="text-xl font-bold tabular-nums text-success">{{ formatMoney(changeDue) }}</span>
+                    <!-- Cash -->
+                    <div v-if="payMode === 'cash'">
+                        <div class="mt-3">
+                            <FormField :label="t('orders.tendered')" required>
+                                <MoneyInput v-model="tendered" />
+                            </FormField>
+                        </div>
+
+                        <div class="mt-2 flex flex-wrap gap-1.5">
+                            <button
+                                v-for="amount in [total, 100, 500, 1000, 2000]"
+                                :key="amount"
+                                type="button"
+                                class="h-9 rounded-md border border-border px-3 text-sm font-medium text-foreground hover:bg-background"
+                                @click="quickAmount(amount)"
+                            >
+                                {{ amount === total ? t('orders.exact') : formatMoney(amount, { decimals: 0 }) }}
+                            </button>
+                        </div>
+
+                        <div class="mt-3 flex items-center justify-between rounded-lg bg-success/10 px-3 py-2">
+                            <span class="text-sm font-medium text-foreground">{{ t('receipt.change') }}</span>
+                            <span class="text-xl font-bold tabular-nums text-success">{{ formatMoney(changeDue) }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Split -->
+                    <div v-else-if="payMode === 'split'">
+                        <div v-for="(line, index) in splitLines" :key="index" class="mt-2 grid grid-cols-[90px_1fr_1fr] items-end gap-2">
+                            <select v-model="line.method" class="h-9 rounded-md border border-border bg-background px-1.5 text-sm text-foreground">
+                                <option value="cash">{{ t('payment_method.cash') }}</option>
+                                <option value="bkash">{{ t('payment_method.bkash') }}</option>
+                                <option value="nagad">{{ t('payment_method.nagad') }}</option>
+                                <option value="card">{{ t('payment_method.card') }}</option>
+                            </select>
+                            <FormField :label="t('payments.amount')">
+                                <MoneyInput v-model="line.amount" />
+                            </FormField>
+                            <FormField v-if="line.method !== 'cash' && line.method !== 'card'" :label="t('payments.trxid')">
+                                <template #default="{ id }">
+                                    <input :id="id" v-model="line.reference" type="text" class="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground">
+                                </template>
+                            </FormField>
+                        </div>
+
+                        <div class="mt-2 flex items-center justify-between text-sm" :class="Math.abs(splitTotal() - Number(latestOrder?.total ?? total)) < 0.01 ? 'text-success' : 'text-danger'">
+                            <span>{{ t('common.total') }}</span>
+                            <span class="tabular-nums font-semibold">{{ formatMoney(splitTotal()) }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Manual wallet -->
+                    <div v-else>
+                        <div class="mt-3 grid grid-cols-2 gap-2">
+                            <FormField :label="t('payments.wallet_type')">
+                                <select v-model="walletMethod" class="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground">
+                                    <option value="bkash">{{ t('payment_method.bkash') }}</option>
+                                    <option value="nagad">{{ t('payment_method.nagad') }}</option>
+                                </select>
+                            </FormField>
+                            <FormField :label="t('payments.trxid')" required>
+                                <template #default="{ id }">
+                                    <input :id="id" v-model="walletTrxId" type="text" placeholder="8N7D5XYZ" class="h-9 w-full rounded-md border border-border bg-background px-2 text-sm tabular-nums text-foreground">
+                                </template>
+                            </FormField>
+                        </div>
+                        <p class="mt-2 text-xs text-muted">{{ t('payments.manual_hint') }}</p>
                     </div>
 
                     <div class="mt-4 flex justify-end gap-2">
                         <button type="button" class="h-9 rounded-md border border-border px-3 text-sm text-foreground hover:bg-background" @click="payDialogOpen = false">{{ t('common.cancel') }}</button>
                         <button
+                            v-if="payMode === 'cash'"
                             type="button"
                             class="inline-flex h-9 items-center gap-1.5 rounded-lg bg-success px-4 text-sm font-semibold text-white hover:opacity-90"
                             @click="payNow"
                         >
                             <AppIcon name="money-bill-wave" size="14" />
                             {{ t('orders.confirm_payment') }}
+                        </button>
+                        <button
+                            v-else-if="payMode === 'split'"
+                            type="button"
+                            :disabled="Math.abs(splitTotal() - Number(latestOrder?.total ?? total)) > 0.01"
+                            class="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                            @click="paySplit"
+                        >
+                            {{ t('orders.confirm_payment') }}
+                        </button>
+                        <button
+                            v-else
+                            type="button"
+                            :disabled="! walletTrxId"
+                            class="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                            @click="payWalletManual"
+                        >
+                            {{ t('payments.record_manual') }}
                         </button>
                     </div>
                 </div>

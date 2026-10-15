@@ -19,11 +19,15 @@ class Payment extends Model
 
     public const STATUS_REFUNDED = 'refunded';
 
+    public const STATUS_PENDING_VERIFICATION = 'pending_verification';
+
     use HasFactory;
 
     protected $fillable = [
         'order_id', 'method', 'amount', 'tendered', 'change_due',
         'reference', 'status', 'user_id',
+        'gateway', 'gateway_payment_id', 'gateway_trx_id',
+        'idempotency_key', 'verified_at',
     ];
 
     protected $casts = [
@@ -31,6 +35,7 @@ class Payment extends Model
         'amount' => 'decimal:2',
         'tendered' => 'decimal:2',
         'change_due' => 'decimal:2',
+        'verified_at' => 'datetime',
     ];
 
     /** @return BelongsTo<Order, $this> */

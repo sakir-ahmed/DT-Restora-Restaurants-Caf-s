@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\IngredientController;
 use App\Http\Controllers\Admin\KdsController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\PosController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\ReceiptController;
@@ -22,11 +23,17 @@ use App\Http\Controllers\Admin\WastageController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\Payments\GatewayCallbackController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome/Welcome')->name('home');
 
 Route::post('/locale', LocaleController::class)->name('locale.switch');
+
+// Gateway callbacks and IPN are public web routes (CSRF-excluded).
+Route::get('/payments/bkash/callback', [GatewayCallbackController::class, 'bkashCallback'])->name('payments.bkash.callback');
+Route::post('/payments/sslcommerz/ipn', [GatewayCallbackController::class, 'sslcommerzIpn'])->name('payments.sslcommerz.ipn');
+Route::get('/payments/sslcommerz/return', [GatewayCallbackController::class, 'sslcommerzReturn'])->name('payments.sslcommerz.return');
 
 Route::middleware('guest')->group(function (): void {
     Route::inertia('/login', 'auth/Login')->name('login');
@@ -103,6 +110,10 @@ Route::prefix('admin')
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index')->middleware('permission:orders.view');
         Route::post('orders', [OrderController::class, 'store'])->name('orders.store')->middleware('permission:orders.create');
         Route::post('orders/{order}/pay', [OrderController::class, 'pay'])->name('orders.pay')->middleware('permission:orders.create');
+        Route::post('orders/{order}/gateway-payment', [PaymentController::class, 'startGateway'])->name('payments.gateway')->middleware('permission:orders.create');
+        Route::post('orders/{order}/split', [PaymentController::class, 'split'])->name('payments.split')->middleware('permission:orders.create');
+        Route::post('orders/{order}/manual-payment', [PaymentController::class, 'recordManual'])->name('payments.manual')->middleware('permission:orders.create');
+        Route::post('payments/{payment}/approve', [PaymentController::class, 'approveManual'])->name('payments.approve')->middleware('permission:payments.manage');
         Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status')->middleware('permission:orders.create');
         Route::post('orders/{order}/void-request', [OrderController::class, 'requestVoid'])->name('orders.void-request')->middleware('permission:orders.create');
         Route::post('orders/{order}/approve-void', [OrderController::class, 'approveVoid'])->name('orders.approve-void')->middleware('permission:orders.void');

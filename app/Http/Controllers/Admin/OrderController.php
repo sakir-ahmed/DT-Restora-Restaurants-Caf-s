@@ -34,7 +34,7 @@ class OrderController extends Controller
 
         $orders = Order::query()
             ->where('branch_id', $branch->id)
-            ->with(['table:id,name', 'waiter:id,name', 'cashier:id,name', 'items:id,order_id,name,quantity,line_total', 'voidRequest'])
+            ->with(['table:id,name', 'waiter:id,name', 'cashier:id,name', 'items:id,order_id,name,quantity,line_total', 'voidRequest', 'payments'])
             ->when($request->string('status')->toString(), fn ($query, $status) => $query->where('status', $status))
             ->when($request->string('search')->toString(), function ($query, $search): void {
                 $query->where('invoice_no', 'like', "%{$search}%");
@@ -48,6 +48,7 @@ class OrderController extends Controller
             'filters' => $request->only(['status', 'search']),
             'canVoid' => $request->user('staff')?->can('orders.void'),
             'canApproveVoid' => $request->user('staff')?->can('orders.void'),
+            'canApprovePayments' => $request->user('staff')?->can('payments.manage'),
         ]);
     }
 
