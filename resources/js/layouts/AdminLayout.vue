@@ -68,6 +68,8 @@ const nav = computed(() => {
             label: t('nav.people'),
             items: [
                 { label: t('nav.customers'), href: '/admin/customers', icon: 'users', permission: 'customers.view' },
+                { label: t('loyalty.title'), href: '/admin/loyalty', icon: 'gift', permission: 'loyalty.manage' },
+                { label: t('coupons.title'), href: '/admin/coupons', icon: 'ticket', permission: 'coupons.manage' },
                 { label: t('nav.staff'), href: '/admin/staff', icon: 'user-shield', permission: 'staff.view' },
                 { label: t('nav.delivery'), href: '/admin/delivery', icon: 'motorcycle', permission: 'delivery.dispatch' },
             ],

@@ -36,4 +36,10 @@ class Customer extends Authenticatable
     {
         return $this->hasMany(Order::class);
     }
+
+    /** @return HasMany<LoyaltyEntry, $this> */
+    public function loyaltyEntries(): HasMany
+    {
+        return $this->hasMany(LoyaltyEntry::class);
+    }
 }

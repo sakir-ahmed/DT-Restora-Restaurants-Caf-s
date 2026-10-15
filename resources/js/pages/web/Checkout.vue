@@ -30,14 +30,56 @@ const guestOtp = ref('');
 const otpSent = ref(false);
 const paymentMethod = ref('cod');
 const scheduledFor = ref('');
+const couponCode = ref('');
+const couponDiscount = ref(0);
+const couponChecking = ref(false);
+
+async function checkCoupon() {
+    if (! couponCode.value.trim()) {
+        return;
+    }
+
+    couponChecking.value = true;
+
+    try {
+        const token = document.querySelector('meta[name=csrf-token]')?.content ?? '';
+        const response = await fetch(route('web.coupons.validate'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': token,
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ code: couponCode.value, subtotal: cartSubtotal() }),
+        });
+
+        const payload = await response.json();
+
+        if (payload.success) {
+            couponDiscount.value = Number(payload.data.discount);
+            notify.success(t('coupons.applied', { discount: payload.data.discount }));
+        } else {
+            couponDiscount.value = 0;
+            notify.error(payload.error?.message ?? t('coupons.not_found'));
+        }
+    } catch {
+        notify.error(t('common.error_occurred'));
+    } finally {
+        couponChecking.value = false;
+    }
+}
 const submitting = ref(false);
 const errors = ref({});
 
 const selectedZone = computed(() => props.zones.find((zone) => zone.id === Number(zoneId.value)));
 
-const serviceCharge = computed(() => (cartSubtotal() * Number(props.branch.service_charge_percent)) / 100);
+const discountedSubtotal = computed(() => Math.max(0, cartSubtotal() - couponDiscount.value));
 
-const vatBase = computed(() => cartSubtotal() + serviceCharge.value);
+const serviceCharge = computed(() => (discountedSubtotal.value * Number(props.branch.service_charge_percent)) / 100);
+
+const vatBase = computed(() => discountedSubtotal.value + serviceCharge.value);
 
 const vatAmount = computed(() => props.branch.vat_inclusive
     ? vatBase.value - (vatBase.value * 100 / (100 + Number(props.branch.vat_percent)))
@@ -80,6 +122,7 @@ function submit() {
         scheduled_for: scheduledFor.value || null,
         table_id: orderType.value === 'dine_in' ? props.table?.id : null,
         payment_method: paymentMethod.value,
+        coupon_code: couponCode.value || null,
         turnstile_token: window.turnstileToken ?? null,
         items: cart.lines.map((line) => ({
             menu_item_id: line.itemId,
@@ -236,6 +279,10 @@ function submit() {
                     <span>{{ t('receipt.subtotal') }}</span>
                     <span class="tabular-nums">{{ formatMoney(cartSubtotal()) }}</span>
                 </div>
+                <div v-if="couponDiscount > 0" class="flex justify-between text-muted">
+                    <span>{{ t('receipt.discount') }} ({{ couponCode.toUpperCase() }})</span>
+                    <span class="tabular-nums">-{{ formatMoney(couponDiscount) }}</span>
+                </div>
                 <div v-if="serviceCharge > 0" class="flex justify-between text-muted">
                     <span>{{ t('receipt.service_charge') }}</span>
                     <span class="tabular-nums">{{ formatMoney(serviceCharge) }}</span>
@@ -263,6 +310,13 @@ function submit() {
                 <AppIcon v-if="submitting" name="spinner" spin />
                 {{ t('web.place_order') }}
             </button>
+
+            <div class="mt-2 flex gap-1.5">
+                <input v-model="couponCode" type="text" :placeholder="t('coupons.code')" class="h-8 flex-1 rounded-md border border-border bg-background px-2 text-sm font-mono uppercase">
+                <button type="button" :disabled="couponChecking" class="h-8 rounded-md border border-border px-2.5 text-xs font-medium" @click="checkCoupon">
+                    {{ t('common.apply') }}
+                </button>
+            </div>
 
             <p v-if="selectedZone && cartSubtotal() < Number(selectedZone.min_order)" class="text-center text-xs text-danger">
                 {{ t('web.min_order_not_met', { min: selectedZone.min_order }) }}

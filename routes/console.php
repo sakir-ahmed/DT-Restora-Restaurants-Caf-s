@@ -2,8 +2,12 @@
 
 use App\Jobs\SendSmsJob;
 use App\Models\User;
+use App\Services\LoyaltyService;
 use App\Services\Metrics\MetricsService;
 use Illuminate\Support\Facades\Schedule;
+
+// Loyalty points expiry (FIFO, idempotent).
+Schedule::call(fn () => app(LoyaltyService::class)->expireDue())->dailyAt('02:00');
 
 // Owner daily sales summary by SMS.
 Schedule::call(function (): void {

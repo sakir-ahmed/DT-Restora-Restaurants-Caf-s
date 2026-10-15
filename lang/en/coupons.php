@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'title' => 'Coupons',
+    'subtitle' => 'Discount codes with limits, channels and branch rules.',
+    'add' => 'Add coupon',
+    'edit' => 'Edit coupon',
+    'code' => 'Code',
+    'type_label' => 'Type',
+    'value_label' => 'Value',
+    'min_order_label' => 'Min order',
+    'starts' => 'Starts',
+    'ends' => 'Ends',
+    'used' => 'Used',
+    'limit' => 'Limits',
+    'total' => 'Total',
+    'limit_total' => 'Total limit',
+    'limit_per_customer' => 'Per customer limit',
+    'channels' => 'Channels',
+    'channels_helper' => 'Leave empty for every channel',
+    'empty' => 'No coupons yet',
+    'created' => 'Coupon created.',
+    'updated' => 'Coupon updated.',
+    'deactivated' => 'Coupon deactivated.',
+    'not_found' => 'This coupon code is not valid.',
+    'not_started' => 'This coupon is not active yet.',
+    'expired' => 'This coupon has expired.',
+    'min_order' => 'The minimum order for this coupon is Tk :min.',
+    'wrong_channel' => 'This coupon cannot be used on this channel.',
+    'wrong_branch' => 'This coupon is not valid at this branch.',
+    'exhausted' => 'This coupon has reached its usage limit.',
+    'customer_limit_reached' => 'You have already used this coupon.',
+    'applied' => 'Coupon applied: Tk :discount off.',
+];

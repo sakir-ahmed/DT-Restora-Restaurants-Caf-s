@@ -17,6 +17,7 @@ use App\Models\Recipe;
 use App\Models\RestaurantTable;
 use App\Models\Shift;
 use App\Models\User;
+use App\Services\CouponService;
 use App\Services\InvoiceNumberService;
 use App\Services\StockService;
 use Illuminate\Support\Collection;
@@ -59,6 +60,7 @@ class CreateOrderAction
         ?int $deliveryZoneId = null,
         ?string $deliveryAddress = null,
         ?\DateTimeInterface $scheduledFor = null,
+        ?string $couponCode = null,
     ): Order {
         if ($clientId !== null) {
             $existing = Order::query()->where('client_id', $clientId)->first();
@@ -70,7 +72,7 @@ class CreateOrderAction
 
         $lines = collect($lines);
 
-        return DB::transaction(function () use ($branch, $type, $lines, $cashier, $waiter, $tableId, $customer, $discount, $note, $channel, $clientId, $shift, $terminalCode, $deliveryFee, $deliveryZoneId, $deliveryAddress, $scheduledFor): Order {
+        return DB::transaction(function () use ($branch, $type, $lines, $cashier, $waiter, $tableId, $customer, $discount, $note, $channel, $clientId, $shift, $terminalCode, $deliveryFee, $deliveryZoneId, $deliveryAddress, $scheduledFor, $couponCode): Order {
             $branch = Branch::query()->whereKey($branch->id)->lockForUpdate()->firstOrFail();
 
             // Discount rule: above the limit needs the override permission.
@@ -101,7 +103,23 @@ class CreateOrderAction
                 }
             }
 
-            $discountAmount = $this->discountAmount($discount, $subtotal);
+            $manualDiscount = $this->discountAmount($discount, $subtotal);
+
+            $coupon = null;
+            $couponDiscount = 0.0;
+
+            if ($couponCode !== null && $couponCode !== '') {
+                $result = app(CouponService::class)->validate(
+                    $couponCode,
+                    round($subtotal - $manualDiscount, 2),
+                    ['channel' => $channel->value, 'branch_id' => $branch->id, 'customer_id' => $customer?->id],
+                );
+
+                $coupon = $result['coupon'];
+                $couponDiscount = $result['discount'];
+            }
+
+            $discountAmount = round($manualDiscount + $couponDiscount, 2);
 
             $afterDiscount = round($subtotal - $discountAmount, 2);
 
@@ -138,6 +156,7 @@ class CreateOrderAction
                 'subtotal' => $subtotal,
                 'discount_type' => $discount['type'] ?? null,
                 'discount_value' => $discount['value'] ?? 0,
+                'coupon_id' => $coupon?->id,
                 'discount_amount' => $discountAmount,
                 'service_charge' => $serviceCharge,
                 'vat_amount' => $vatAmount,
@@ -166,6 +185,10 @@ class CreateOrderAction
                     'line_total' => $item['line_total'],
                     'line_cost' => $item['line_cost'],
                 ]);
+            }
+
+            if ($coupon !== null) {
+                app(CouponService::class)->redeem($coupon, $order);
             }
 
             if ($type === OrderType::DineIn && $tableId !== null) {

@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\RestaurantTable;
 use App\Models\User;
+use App\Services\LoyaltyService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -67,6 +68,8 @@ class PayOrderAction
                     ->whereKey($order->restaurant_table_id)
                     ->update(['status' => 'free']);
             }
+
+            app(LoyaltyService::class)->earnForOrder($order);
 
             activity()
                 ->performedOn($order)

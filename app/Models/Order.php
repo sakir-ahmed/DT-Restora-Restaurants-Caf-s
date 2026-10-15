@@ -25,6 +25,7 @@ class Order extends Model
         'service_charge', 'vat_amount', 'delivery_fee', 'rounding', 'total',
         'food_cost', 'client_id', 'note', 'paid_at', 'paid_via_payment_id',
         'delivery_zone_id', 'delivery_address', 'scheduled_for', 'tracking_token',
+        'coupon_id', 'points_redeemed',
     ];
 
     protected $casts = [
@@ -42,6 +43,7 @@ class Order extends Model
         'food_cost' => 'decimal:4',
         'paid_at' => 'datetime',
         'scheduled_for' => 'datetime',
+        'points_redeemed' => 'integer',
     ];
 
     /** @return HasMany<OrderItem, $this> */

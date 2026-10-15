@@ -2,11 +2,14 @@
 
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\BranchSwitchController;
+use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\IngredientController;
 use App\Http\Controllers\Admin\KdsController;
+use App\Http\Controllers\Admin\LoyaltyController;
+use App\Http\Controllers\Admin\LoyaltyRedemptionController;
 use App\Http\Controllers\Admin\MenuController as AdminMenuController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PaymentController;
@@ -40,6 +43,7 @@ Route::get('/', HomeController::class)->name('web.home');
 Route::get('/menu/{branchCode?}', MenuController::class)->name('web.menu');
 Route::get('/checkout', [CheckoutController::class, 'show'])->name('web.checkout');
 Route::post('/checkout', [CheckoutController::class, 'place'])->name('web.checkout.place');
+Route::post('/coupons/validate', [CheckoutController::class, 'validateCoupon'])->name('web.coupons.validate')->middleware('throttle:20,1');
 Route::get('/track/{token}', [TrackController::class, 'show'])->name('web.track');
 Route::get('/pay/{order}/{gateway}', [WebPaymentController::class, 'start'])->name('web.payment.start');
 
@@ -171,6 +175,16 @@ Route::prefix('admin')
         Route::get('expenses', [ExpenseController::class, 'index'])->name('expenses.index')->middleware('permission:expenses.manage');
         Route::post('expenses', [ExpenseController::class, 'store'])->name('expenses.store')->middleware('permission:expenses.manage');
         Route::delete('expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy')->middleware('permission:expenses.manage');
+
+        Route::get('loyalty', [LoyaltyController::class, 'index'])->name('loyalty.index')->middleware('permission:loyalty.manage');
+        Route::put('loyalty/settings', [LoyaltyController::class, 'updateSettings'])->name('loyalty.settings')->middleware('permission:loyalty.manage');
+        Route::post('loyalty/adjust', [LoyaltyController::class, 'adjust'])->name('loyalty.adjust')->middleware('permission:loyalty.manage');
+        Route::post('loyalty/redeem', [LoyaltyRedemptionController::class, 'store'])->name('loyalty.redeem')->middleware('permission:loyalty.manage');
+
+        Route::get('coupons', [CouponController::class, 'index'])->name('coupons.index')->middleware('permission:coupons.manage');
+        Route::post('coupons', [CouponController::class, 'store'])->name('coupons.store')->middleware('permission:coupons.manage');
+        Route::put('coupons/{coupon}', [CouponController::class, 'update'])->name('coupons.update')->middleware('permission:coupons.manage');
+        Route::delete('coupons/{coupon}', [CouponController::class, 'destroy'])->name('coupons.destroy')->middleware('permission:coupons.manage');
 
         Route::get('reports', [ReportController::class, 'index'])->name('reports.index')->middleware('permission:reports.view');
         Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export')->middleware('permission:reports.view');

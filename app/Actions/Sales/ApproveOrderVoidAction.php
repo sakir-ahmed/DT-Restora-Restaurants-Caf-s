@@ -10,6 +10,7 @@ use App\Models\Recipe;
 use App\Models\RestaurantTable;
 use App\Models\User;
 use App\Models\VoidRequest;
+use App\Services\LoyaltyService;
 use App\Services\StockService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -45,6 +46,7 @@ class ApproveOrderVoidAction
             $order->update(['status' => OrderStatus::Void->value]);
 
             $this->restoreStock($order, $approver);
+            app(LoyaltyService::class)->reverseForOrder($order);
 
             if ($order->restaurant_table_id !== null) {
                 RestaurantTable::query()

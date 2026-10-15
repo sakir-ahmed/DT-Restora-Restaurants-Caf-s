@@ -14,6 +14,7 @@ use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\DeliveryZone;
 use App\Models\RestaurantTable;
+use App\Services\CouponService;
 use App\Services\OtpService;
 use App\Services\TurnstileService;
 use Illuminate\Http\RedirectResponse;
@@ -53,6 +54,42 @@ class CheckoutController extends Controller
         ]);
     }
 
+    /**
+     * Validate a coupon code against the cart for the checkout page.
+     */
+    public function validateCoupon(Request $request, CouponService $coupons)
+    {
+        $validated = $request->validate([
+            'code' => ['required', 'string', 'max:40'],
+            'subtotal' => ['required', 'numeric', 'min:0'],
+        ]);
+
+        $branchId = (int) session('web_branch_id', 0);
+
+        try {
+            $result = $coupons->validate($validated['code'], (float) $validated['subtotal'], [
+                'channel' => 'website',
+                'branch_id' => $branchId > 0 ? $branchId : null,
+                'customer_id' => $request->user('customer')?->id,
+            ]);
+        } catch (ValidationException $exception) {
+            return response()->json([
+                'success' => false,
+                'error' => ['code' => 'VALIDATION_FAILED', 'message' => collect($exception->errors())->flatten()->first()],
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'code' => $result['coupon']->code,
+                'type' => $result['coupon']->type,
+                'value' => (string) $result['coupon']->value,
+                'discount' => number_format($result['discount'], 2, '.', ''),
+            ],
+        ]);
+    }
+
     public function place(Request $request, CreateOrderAction $action, TurnstileService $turnstile): RedirectResponse
     {
         $validated = $request->validate([
@@ -64,6 +101,7 @@ class CheckoutController extends Controller
             'scheduled_for' => ['nullable', 'date', 'after:now'],
             'table_id' => ['nullable', 'integer', 'exists:restaurant_tables,id'],
             'payment_method' => ['required', 'in:cod,cash,bkash,sslcommerz'],
+            'coupon_code' => ['nullable', 'string', 'max:40'],
             'guest_otp' => ['nullable', 'string', 'digits:6'],
             'turnstile_token' => ['nullable', 'string'],
             'items' => ['required', 'array', 'min:1'],
@@ -152,6 +190,7 @@ class CheckoutController extends Controller
             deliveryAddress: $validated['delivery_address'] ?? null,
             scheduledFor: isset($validated['scheduled_for']) ? new \DateTimeImmutable((string) $validated['scheduled_for']) : null,
             tableId: $type === OrderType::DineIn ? ($validated['table_id'] ?? session('web_table')) : null,
+            couponCode: $validated['coupon_code'] ?? null,
         );
 
         // Minimum order check against the real server-side subtotal.
