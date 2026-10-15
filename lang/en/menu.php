@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 return [
     'title' => 'Menu',
+    'all_items' => 'All items',
     'subtitle' => 'Categories, items, variants and add-ons.',
     'search_items' => 'Search items by name or barcode',
     'add_category' => 'Add category',

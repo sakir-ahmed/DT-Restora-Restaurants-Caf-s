@@ -10,6 +10,7 @@ use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\MenuItemAddOn;
 use App\Models\MenuItemVariant;
+use App\Models\RestaurantTable;
 use Illuminate\Database\Seeder;
 
 class DemoMenuSeeder extends Seeder
@@ -96,6 +97,14 @@ class DemoMenuSeeder extends Seeder
                     );
                 }
             }
+        }
+
+        // Restaurant tables for dine-in at BR01.
+        foreach (range(1, 8) as $number) {
+            RestaurantTable::query()->updateOrCreate(
+                ['branch_id' => $branch->id, 'name' => 'T'.$number],
+                ['seats' => $number <= 4 ? 4 : 6, 'area' => $number <= 4 ? 'Ground floor' : 'Rooftop', 'status' => 'free', 'is_active' => true],
+            );
         }
 
         foreach (['Head Chef' => 45000, 'Sous Chef' => 30000, 'Kitchen Helper' => 15000, 'Cleaner' => 12000] as $designation => $salary) {

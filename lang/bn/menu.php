@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 return [
     'title' => 'মেনু',
+    'all_items' => 'সব আইটেম',
     'subtitle' => 'ক্যাটাগরি, আইটেম, ভ্যারিয়েন্ট ও অ্যাড-অন।',
     'search_items' => 'নাম বা বারকোড দিয়ে আইটেম খুঁজুন',
     'add_category' => 'ক্যাটাগরি যোগ করুন',

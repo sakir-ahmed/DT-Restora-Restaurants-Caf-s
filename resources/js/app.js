@@ -4,7 +4,9 @@ import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, defineComponent, h } from 'vue';
 import { Toaster } from 'vue-sonner';
+import { ZiggyVue, route as routeFn } from 'ziggy-js';
 import ConfirmHost from './components/ui-kit/ConfirmHost.vue';
+import { Ziggy } from './ziggy';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${import.meta.env.VITE_APP_NAME ?? 'DT Restora'}` : import.meta.env.VITE_APP_NAME ?? 'DT Restora'),
@@ -31,7 +33,13 @@ createInertiaApp({
 
         const app = createApp(Root);
 
+        window.Ziggy = { ...Ziggy, url: window.location.origin };
+        window.route = (name, params, absolute, config = window.Ziggy) =>
+            // eslint-disable-next-line no-undef
+            routeFn(name, params, absolute, config);
+
         app.use(plugin);
+        app.use(ZiggyVue);
 
         app.mount(el);
     },
