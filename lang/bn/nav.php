@@ -1,0 +1,34 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'sales' => 'বিক্রয়',
+    'dashboard' => 'ড্যাশবোর্ড',
+    'pos' => 'পিওএস',
+    'orders' => 'অর্ডার',
+    'kds' => 'রান্নাঘরের ডিসপ্লে',
+    'inventory' => 'ইনভেন্টরি',
+    'menu' => 'মেনু',
+    'ingredients' => 'উপকরণ',
+    'recipes' => 'রেসিপি',
+    'purchases' => 'ক্রয়',
+    'wastage' => 'অপচয়',
+    'people' => 'মানুষ',
+    'customers' => 'গ্রাহক',
+    'staff' => 'স্টাফ',
+    'delivery' => 'ডেলিভারি',
+    'finance' => 'হিসাব',
+    'accounting' => 'অ্যাকাউন্টিং',
+    'reports' => 'রিপোর্ট',
+    'settings_group' => 'সেটিংস',
+    'branches' => 'শাখা',
+    'settings' => 'সেটিংস',
+    'activity_log' => 'কার্যক্রম লগ',
+    'logout' => 'সাইন আউট',
+    'branch' => 'শাখা',
+    'notifications' => 'বিজ্ঞপ্তি',
+    'no_notifications' => 'নতুন কোনো বিজ্ঞপ্তি নেই।',
+    'account' => 'অ্যাকাউন্ট মেনু',
+    'toggle_sidebar' => 'সাইডবার খুলুন বা বন্ধ করুন',
+];

@@ -1,0 +1,34 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'sales' => 'Sales',
+    'dashboard' => 'Dashboard',
+    'pos' => 'POS',
+    'orders' => 'Orders',
+    'kds' => 'Kitchen Display',
+    'inventory' => 'Inventory',
+    'menu' => 'Menu',
+    'ingredients' => 'Ingredients',
+    'recipes' => 'Recipes',
+    'purchases' => 'Purchases',
+    'wastage' => 'Wastage',
+    'people' => 'People',
+    'customers' => 'Customers',
+    'staff' => 'Staff',
+    'delivery' => 'Delivery',
+    'finance' => 'Finance',
+    'accounting' => 'Accounting',
+    'reports' => 'Reports',
+    'settings_group' => 'Settings',
+    'branches' => 'Branches',
+    'settings' => 'Settings',
+    'activity_log' => 'Activity log',
+    'logout' => 'Sign out',
+    'branch' => 'Branch',
+    'notifications' => 'Notifications',
+    'no_notifications' => 'No new notifications.',
+    'account' => 'Account menu',
+    'toggle_sidebar' => 'Toggle sidebar',
+];

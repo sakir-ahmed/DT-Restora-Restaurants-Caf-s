@@ -424,7 +424,7 @@ Build these once in `resources/js/components/ui-kit/` and use them everywhere. D
 
 **Never use emojis anywhere.** This covers the UI, Vue templates, Blade views, `lang/` files, toasts, SMS text, emails, receipts, PDFs and Excel exports, seeders and demo data, code comments, commit messages and documentation. Emojis render differently on every device, break thermal printers and PDF fonts, and look unprofessional in a business product.
 
-Also avoid decorative Unicode symbols used as icons (arrows, check marks, warning signs, stars, bullets such as `▲ ▼ ✓ ✕ ⚠ ★`). Use real icons instead. The currency symbol `৳` and normal punctuation are fine.
+Also avoid decorative Unicode symbols used as icons (arrows, check marks, warning signs, stars, or solid geometric bullets). Use real icons instead. The currency symbol `৳` and normal punctuation are fine.
 
 **Icon library: Font Awesome Free (one family only).**
 
