@@ -1,7 +1,7 @@
 import { chromium } from '/Users/sakir.ahmed/web-artisan/practices/dt-top-ten/DT-Restora-Restaurants-Caf-s/node_modules/@playwright/test/index.mjs';
 import { readFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
-const root = '/Users/sakir.ahmed/web-artisan/practices/dt-top-ten/DT-Restora-Restaurants-Caf-s/marketing/social/';
+const root = '/Users/sakir.ahmed/web-artisan/practices/dt-top-ten/DT-Restora-Restaurants-Caf-s/docs/marketing/social/';
 const manifest = JSON.parse(readFileSync(root + '_build/manifest.json', 'utf8'));
 const only = process.env.ONLY ? new RegExp(process.env.ONLY) : null;
 const byFile = {};

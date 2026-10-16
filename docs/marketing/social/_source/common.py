@@ -1,7 +1,7 @@
 """Templates and helpers for the DT Restora social post generator."""
 import re, html as _h
 
-ROOT = '/Users/sakir.ahmed/web-artisan/practices/dt-top-ten/DT-Restora-Restaurants-Caf-s/marketing/'
+ROOT = '/Users/sakir.ahmed/web-artisan/practices/dt-top-ten/DT-Restora-Restaurants-Caf-s/docs/marketing/'
 SITE = 'https://dt-restora.datatechbd.com'
 WA = 'https://wa.me/8801304734623'
 ASPECT = 0.55  # desktop screenshots are 1600x880
