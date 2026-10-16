@@ -171,7 +171,7 @@ onBeforeUnmount(() => {
         </PageHero>
 
         <!-- Sticky filters -->
-        <div class="bg-surface border border-border sticky top-16 z-20 border-x-0 border-t-0">
+        <div class="bg-surface border border-border sticky top-[calc(4rem+var(--demo-banner-h))] z-20 border-x-0 border-t-0">
             <div class="mx-auto max-w-6xl space-y-2 px-4 py-3">
                 <div class="flex flex-wrap items-center gap-2">
                     <label class="flex h-11 min-w-0 flex-1 items-center gap-2 rounded-lg border border-border bg-surface px-4 shadow-sm focus-within:border-accent">

@@ -102,12 +102,12 @@ onBeforeUnmount(() => {
     <div class="site flex min-h-screen flex-col bg-background text-foreground">
         <SeoHead />
 
-        <a href="#main" class="sr-only z-[60] rounded-lg bg-accent px-4 py-2 font-semibold text-accent-foreground focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
+        <a href="#main" class="sr-only z-[60] rounded-lg bg-accent px-4 py-2 font-semibold text-accent-foreground focus:not-sr-only focus:fixed focus:left-4 focus:top-[calc(1rem+var(--demo-banner-h))]">
             {{ t('site.skip_to_content') }}
         </a>
 
         <header
-            class="bg-surface border border-border sticky top-0 z-40 border-x-0 border-t-0 transition-shadow duration-300"
+            class="bg-surface border border-border sticky top-(--demo-banner-h) z-40 border-x-0 border-t-0 transition-shadow duration-300"
             :class="scrolled ? 'shadow-sm' : ''"
         >
             <div class="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
@@ -172,7 +172,7 @@ onBeforeUnmount(() => {
             leave-active-class="transition duration-200 ease-in"
             leave-to-class="-translate-y-4 opacity-0"
         >
-            <div v-if="drawerOpen" id="mobile-drawer" class="fixed inset-x-0 bottom-0 top-16 z-30 overflow-y-auto bg-background/95 px-4 pb-10 pt-6 backdrop-blur-xl lg:hidden">
+            <div v-if="drawerOpen" id="mobile-drawer" class="fixed inset-x-0 bottom-0 top-[calc(4rem+var(--demo-banner-h))] z-30 overflow-y-auto bg-background/95 px-4 pb-10 pt-6 backdrop-blur-xl lg:hidden">
                 <nav class="mx-auto max-w-md space-y-1" aria-label="Mobile">
                     <Link
                         v-for="link in links"

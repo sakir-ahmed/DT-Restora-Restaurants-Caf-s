@@ -42,3 +42,11 @@ Schedule::call(function (): void {
 // Daily database backup; clean old backups weekly.
 Schedule::command('backup:clean')->weekly()->sundays()->at('01:00');
 Schedule::command('backup:run --only-db')->daily()->at('01:30');
+
+// Demo sites start over each morning so visitor changes do not stick.
+Schedule::command('demo:reset')
+    ->dailyAt('04:00')
+    ->timezone('Asia/Dhaka')
+    ->when(fn (): bool => config('app.is_demo') === true)
+    ->withoutOverlapping(120)
+    ->runInBackground();

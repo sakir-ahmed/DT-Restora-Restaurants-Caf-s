@@ -85,4 +85,13 @@ return [
     'pos_locked_hint' => 'চালিয়ে যেতে স্টাফ পিন দিন। খোলা অর্ডার এই স্ক্রিনেই থাকবে।',
     'unlock' => 'আনলক',
     'pin_invalid' => 'পিনটি সঠিক নয়।',
+    'table_short' => 'টেবিল',
+    'discount_short' => 'ছাড়',
+    'discount_limit_short' => 'অনুমোদন লাগবে',
+    'payment_lane' => 'মূল্য পরিশোধ',
+    'split_short' => 'ভাগ',
+    'service_short' => 'সার্ভিস',
+    'other_short' => 'অন্যান্য',
+    'tendered_short' => 'গ্রহণ',
+    'print_short' => 'প্রিন্ট',
 ];

@@ -85,4 +85,13 @@ return [
     'pos_locked_hint' => 'Enter your staff PIN to continue. The open order stays on this screen.',
     'unlock' => 'Unlock',
     'pin_invalid' => 'That PIN is not correct.',
+    'table_short' => 'Table',
+    'discount_short' => 'Discount',
+    'discount_limit_short' => 'Needs approval',
+    'payment_lane' => 'Payment',
+    'split_short' => 'Split',
+    'service_short' => 'Service',
+    'other_short' => 'Other',
+    'tendered_short' => 'Received',
+    'print_short' => 'Print',
 ];

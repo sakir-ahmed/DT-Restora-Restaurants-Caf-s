@@ -29,8 +29,9 @@ return [
     'env' => env('APP_ENV', 'production'),
 
     /*
-    | Demo one-click login is shown only when this is true and the
-    | application is not running in production. "false" must stay false.
+    | When true, the site shows a demo banner and rebuilds the database
+    | every day at 04:00 Asia/Dhaka. One-click demo login still requires
+    | a non-production environment. "false" must stay false for real sites.
     */
     'is_demo' => filter_var(env('IS_DEMO', false), FILTER_VALIDATE_BOOL),
 

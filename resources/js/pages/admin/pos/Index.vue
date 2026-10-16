@@ -52,7 +52,11 @@ const variantPicker = ref(null);
 const heldOrders = ref([]);
 const payMode = ref(savedTicket?.payMode ?? 'cash');
 const tendered = ref(savedTicket?.tendered ?? '');
-const splitLines = ref([]);
+const blankSplitLines = () => [
+    { method: 'cash', amount: '', reference: '' },
+    { method: 'bkash', amount: '', reference: '' },
+];
+const splitLines = ref(blankSplitLines());
 const walletTrxId = ref('');
 const walletMethod = ref('bkash');
 const shiftDialogOpen = ref(false);
@@ -477,6 +481,7 @@ function startNewOrder() {
     tendered.value = '';
     payMode.value = 'cash';
     walletTrxId.value = '';
+    splitLines.value = blankSplitLines();
     itemEditor.value = null;
     sessionStorage.removeItem(TICKET_KEY);
 }
@@ -773,6 +778,35 @@ function payWalletManual() {
     });
 }
 
+// One confirm button serves all three payment lanes.
+function confirmPayment() {
+    if (payMode.value === 'cash') {
+        payNow();
+    } else if (payMode.value === 'split') {
+        paySplit();
+    } else {
+        payWalletManual();
+    }
+}
+
+function chooseLane(mode) {
+    if (lastPayment.value) {
+        return;
+    }
+
+    if (mode === 'split') {
+        startSplit();
+    } else {
+        payMode.value = mode;
+    }
+}
+
+const canConfirmPayment = computed(() => !! latestOrder.value && ! lastPayment.value && (payMode.value !== 'wallet' || !! walletTrxId.value));
+const confirmPaymentLabel = computed(() => (payMode.value === 'wallet' ? t('payments.record_manual') : t('orders.confirm_payment')));
+const laneLocked = computed(() => !! lastPayment.value);
+const discountAllTotal = computed(() => itemDiscountTotal.value + billDiscountAmount.value);
+const changeShown = computed(() => (lastPayment.value ? Number(lastPayment.value.change_due ?? 0) : changeDue.value));
+
 const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (latestOrder.value ? Number(latestOrder.value.total) : total.value)));
 </script>
 
@@ -890,195 +924,184 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                 </div>
             </div>
 
-            <!-- Operations -->
-            <footer class="thin-scrollbar max-h-[50%] shrink-0 overflow-y-auto border-t border-border bg-surface px-2 py-1">
-                <div class="mb-1 flex flex-col gap-1">
-                    <div class="flex items-center gap-1">
-                        <div class="flex flex-1 gap-1" role="radiogroup" :aria-label="t('orders.type_label')">
-                            <button
-                                type="button"
-                                role="radio"
-                                :aria-checked="orderType === 'dine_in'"
-                                class="inline-flex h-7 flex-1 items-center justify-center rounded-md border px-2 text-[13px] font-medium"
-                                :class="orderType === 'dine_in' ? 'border-accent bg-accent/15 text-foreground' : 'border-border bg-background text-muted hover:text-foreground'"
-                                @click="orderType = 'dine_in'"
-                            >
-                                {{ t('orders.type.dine_in') }}
-                            </button>
-                            <button
-                                type="button"
-                                role="radio"
-                                :aria-checked="orderType === 'takeaway'"
-                                class="inline-flex h-7 flex-1 items-center justify-center rounded-md border px-2 text-[13px] font-medium"
-                                :class="orderType === 'takeaway' ? 'border-accent bg-accent/15 text-foreground' : 'border-border bg-background text-muted hover:text-foreground'"
-                                @click="orderType = 'takeaway'"
-                            >
-                                {{ t('orders.type.takeaway') }}
-                            </button>
-                        </div>
+            <!-- Operations: every control is always visible; unavailable ones are disabled -->
+            <footer class="thin-scrollbar max-h-[65%] shrink-0 space-y-[3px] overflow-y-auto border-t border-border bg-surface px-2 py-1">
+                <!-- Order type and shift -->
+                <div class="flex items-center gap-1">
+                    <div class="flex flex-1 gap-1" role="radiogroup" :aria-label="t('orders.type_label')">
                         <button
-                            v-if="! openShift"
+                            v-for="type in ['dine_in', 'takeaway']"
+                            :key="type"
                             type="button"
-                            class="inline-flex h-7 shrink-0 items-center rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground hover:opacity-90"
-                            @click="openShiftDialog"
+                            role="radio"
+                            :aria-checked="orderType === type"
+                            class="inline-flex h-7 flex-1 items-center justify-center rounded-md border px-2 text-[13px] font-medium"
+                            :class="orderType === type ? 'border-accent bg-accent/15 text-foreground' : 'border-border bg-background text-muted hover:text-foreground'"
+                            @click="orderType = type"
                         >
-                            {{ t('orders.open_shift') }}
+                            {{ t(`orders.type.${type}`) }}
                         </button>
-                        <span v-else class="shrink-0 text-xs text-muted">{{ t('orders.shift_open_status') }}</span>
                     </div>
-
-                    <div v-if="orderType === 'dine_in'" class="thin-scrollbar flex gap-1 overflow-x-auto">
-                        <template v-for="group in tablesByArea" :key="group.area || 'tables'">
-                            <button
-                                v-for="table in group.tables"
-                                :key="table.id"
-                                type="button"
-                                class="inline-flex h-7 shrink-0 items-center gap-1 rounded-md border px-2 text-[13px] font-medium tabular-nums"
-                                :disabled="table.status === 'occupied'"
-                                :aria-pressed="tableId === table.id"
-                                :title="group.area || undefined"
-                                :class="tableId === table.id
-                                    ? 'border-accent bg-accent/15 text-foreground'
-                                    : table.status === 'occupied'
-                                        ? 'cursor-not-allowed border-border bg-background text-muted opacity-50'
-                                        : 'border-border bg-background text-foreground hover:border-accent'"
-                                @click="tableId = table.id"
-                            >
-                                {{ table.name }}
-                            </button>
-                        </template>
-                    </div>
-
-                    <MobileInput v-model="customerMobile" :placeholder="t('orders.customer_mobile')" />
+                    <button
+                        type="button"
+                        class="inline-flex h-7 shrink-0 items-center gap-1.5 rounded-md border px-2 text-xs font-medium disabled:cursor-default"
+                        :class="openShift ? 'border-success/40 bg-success/10 text-success' : 'border-accent bg-accent text-accent-foreground hover:opacity-90'"
+                        :disabled="!! openShift"
+                        @click="openShiftDialog"
+                    >
+                        <span class="h-1.5 w-1.5 rounded-full" :class="openShift ? 'bg-success' : 'bg-accent-foreground'" />
+                        {{ openShift ? t('orders.shift_open_status') : t('orders.open_shift') }}
+                    </button>
                 </div>
 
-                <div v-if="heldOrders.length" class="mb-1">
-                    <p class="mb-1 text-xs font-medium text-muted">{{ t('orders.held_orders') }}</p>
-                    <div class="flex flex-wrap gap-1">
+                <!-- Table and customer mobile -->
+                <div class="flex items-center gap-1">
+                    <select
+                        v-model="tableId"
+                        :disabled="orderType !== 'dine_in'"
+                        :aria-label="t('orders.select_table')"
+                        class="h-7 w-24 shrink-0 rounded-md border border-border bg-background px-1 text-[13px] text-foreground outline-none focus:border-accent disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <option :value="null" disabled>{{ t('orders.table_short') }}</option>
+                        <optgroup v-for="group in tablesByArea" :key="group.area || 'tables'" :label="group.area || t('orders.table_short')">
+                            <option v-for="table in group.tables" :key="table.id" :value="table.id" :disabled="table.status === 'occupied'">
+                                {{ table.name }}{{ table.status === 'occupied' ? ` (${t('orders.table_occupied')})` : '' }}
+                            </option>
+                        </optgroup>
+                    </select>
+                    <div class="min-w-0 flex-1">
+                        <MobileInput v-model="customerMobile" :placeholder="t('orders.customer_mobile')" />
+                    </div>
+                </div>
+
+                <!-- Held orders and current invoice -->
+                <div class="flex h-5 items-center gap-1.5 text-xs">
+                    <span class="shrink-0 font-medium text-muted">{{ t('orders.held_orders') }} ({{ heldOrders.length }})</span>
+                    <div class="thin-scrollbar flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
                         <button
                             v-for="held in heldOrders"
                             :key="held.id"
                             type="button"
-                            class="flex h-7 items-center gap-1 rounded-md border border-border bg-background px-2 text-[13px] text-foreground hover:border-accent"
+                            class="flex h-5 shrink-0 items-center gap-1 rounded-md border border-border bg-background px-1.5 text-xs text-foreground hover:border-accent"
                             @click="resumeOrder(held)"
                         >
-                            <AppIcon name="clock" size="12" class="text-warning" />
-                            {{ held.cart.reduce((sum, line) => sum + line.quantity, 0) }} {{ t('ui_kit.items') }}
-                            <span class="text-muted" @click.stop="discardHeld(held)">
-                                <AppIcon name="xmark" size="10" />
+                            <AppIcon name="clock" size="10" class="text-warning" />
+                            {{ held.cart.reduce((sum, line) => sum + line.quantity, 0) }}
+                            <span class="text-muted hover:text-danger" role="button" :aria-label="t('common.remove')" @click.stop="discardHeld(held)">
+                                <AppIcon name="xmark" size="9" />
                             </span>
                         </button>
                     </div>
+                    <span class="shrink-0 font-mono text-[11px] text-muted" :title="latestOrder?.invoice_no">{{ latestOrder?.invoice_no ?? '-' }}</span>
                 </div>
-                <div class="mb-1.5 flex items-center gap-1 rounded-md bg-background px-1.5 py-1">
+
+                <!-- Bill discount -->
+                <div class="flex items-center gap-1 rounded-md bg-background px-1.5 py-0.5">
                     <span class="shrink-0 text-[13px] font-medium text-foreground">{{ t('orders.bill_discount') }}</span>
-                    <button type="button" class="h-7 rounded-md border px-1.5 text-[13px] font-medium" :disabled="!!latestOrder" :class="discount.type !== 'fixed' ? 'border-accent bg-accent/15 text-foreground' : 'border-border text-muted'" @click="discount.type = 'percent'">%</button>
-                    <button type="button" class="h-7 rounded-md border px-1.5 text-[13px] font-medium" :disabled="!!latestOrder" :class="discount.type === 'fixed' ? 'border-accent bg-accent/15 text-foreground' : 'border-border text-muted'" @click="discount.type = 'fixed'">৳</button>
-                    <input v-model.number="discount.value" :disabled="!!latestOrder" type="number" min="0" :aria-label="t('orders.bill_discount')" class="h-7 w-16 rounded-md border border-border bg-surface px-1.5 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent disabled:opacity-60">
-                    <span v-if="billDiscountAmount > 0" class="ml-auto text-xs font-medium tabular-nums text-danger">-{{ formatMoney(billDiscountAmount) }}</span>
-                </div>
-                <p v-if="discountBlocked" class="mb-1 text-xs text-danger">{{ t('orders.discount_limit_hint') }}</p>
-
-                <div class="space-y-0.5 text-[13px]">
-                    <div class="flex justify-between text-muted">
-                        <span>{{ t('receipt.subtotal') }}</span>
-                        <span class="tabular-nums">{{ formatMoney(subtotal) }}</span>
-                    </div>
-                    <div v-if="itemDiscountTotal > 0" class="flex justify-between text-muted">
-                        <span>{{ t('orders.item_discount') }}</span>
-                        <span class="tabular-nums">-{{ formatMoney(itemDiscountTotal) }}</span>
-                    </div>
-                    <div v-if="billDiscountAmount > 0" class="flex justify-between text-muted">
-                        <span>{{ t('orders.bill_discount') }}</span>
-                        <span class="tabular-nums">-{{ formatMoney(billDiscountAmount) }}</span>
-                    </div>
-                    <div v-if="serviceCharge > 0" class="flex justify-between text-muted">
-                        <span>{{ t('receipt.service_charge') }}</span>
-                        <span class="tabular-nums">{{ formatMoney(serviceCharge) }}</span>
-                    </div>
-                    <div v-if="extraTotal > 0" class="flex justify-between text-muted">
-                        <span>{{ t('orders.other_charge') }}</span>
-                        <span class="tabular-nums">{{ formatMoney(extraTotal) }}</span>
-                    </div>
-                    <div v-if="vatAmount > 0" class="flex justify-between text-muted">
-                        <span>{{ t('receipt.vat') }}<template v-if="! hasCustomVat"> ({{ Number(branch.vat_percent).toFixed(2) }}%)</template></span>
-                        <span class="tabular-nums">{{ formatMoney(vatAmount) }}</span>
-                    </div>
-                    <div class="flex justify-between pt-0.5 text-sm font-semibold text-foreground">
-                        <span>{{ t('receipt.grand_total') }}</span>
-                        <span class="tabular-nums">{{ formatMoney(total) }}</span>
-                    </div>
+                    <button type="button" class="h-6 w-7 rounded-md border text-[13px] font-medium disabled:opacity-50" :disabled="!! latestOrder" :class="discount.type !== 'fixed' ? 'border-accent bg-accent/15 text-foreground' : 'border-border text-muted'" @click="discount.type = 'percent'">%</button>
+                    <button type="button" class="h-6 w-7 rounded-md border text-[13px] font-medium disabled:opacity-50" :disabled="!! latestOrder" :class="discount.type === 'fixed' ? 'border-accent bg-accent/15 text-foreground' : 'border-border text-muted'" @click="discount.type = 'fixed'">৳</button>
+                    <input v-model.number="discount.value" :disabled="!! latestOrder" type="number" min="0" :aria-label="t('orders.bill_discount')" class="h-6 w-16 rounded-md border bg-surface px-1.5 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent disabled:opacity-60" :class="discountBlocked ? 'border-danger' : 'border-border'">
+                    <span class="ml-auto min-w-0 truncate text-xs font-medium tabular-nums" :class="discountBlocked || billDiscountAmount > 0 ? 'text-danger' : 'text-muted'" :title="discountBlocked ? t('orders.discount_limit_hint') : undefined">
+                        {{ discountBlocked ? t('orders.discount_limit_short') : `-${formatMoney(billDiscountAmount)}` }}
+                    </span>
                 </div>
 
-                <div v-if="latestOrder" class="mt-1 rounded-md bg-background px-2 py-1 text-[13px] text-muted">
-                    {{ latestOrder.invoice_no }}
+                <!-- Charges at a glance: five fixed cells -->
+                <dl class="grid grid-cols-5 divide-x divide-border rounded-md border border-border bg-background text-center">
+                    <div class="min-w-0 px-1 py-0.5">
+                        <dt class="truncate text-[10px] leading-tight text-muted">{{ t('receipt.subtotal') }}</dt>
+                        <dd class="text-xs font-medium tabular-nums text-foreground">{{ formatMoney(subtotal) }}</dd>
+                    </div>
+                    <div class="min-w-0 px-1 py-0.5">
+                        <dt class="truncate text-[10px] leading-tight text-muted">{{ t('orders.discount_short') }}</dt>
+                        <dd class="text-xs font-medium tabular-nums" :class="discountAllTotal > 0 ? 'text-danger' : 'text-muted'">{{ discountAllTotal > 0 ? '-' : '' }}{{ formatMoney(discountAllTotal) }}</dd>
+                    </div>
+                    <div class="min-w-0 px-1 py-0.5">
+                        <dt class="truncate text-[10px] leading-tight text-muted" :title="t('receipt.service_charge')">{{ t('orders.service_short') }}</dt>
+                        <dd class="text-xs font-medium tabular-nums" :class="serviceCharge > 0 ? 'text-foreground' : 'text-muted'">{{ formatMoney(serviceCharge) }}</dd>
+                    </div>
+                    <div class="min-w-0 px-1 py-0.5">
+                        <dt class="truncate text-[10px] leading-tight text-muted" :title="t('orders.other_charge')">{{ t('orders.other_short') }}</dt>
+                        <dd class="text-xs font-medium tabular-nums" :class="extraTotal > 0 ? 'text-foreground' : 'text-muted'">{{ formatMoney(extraTotal) }}</dd>
+                    </div>
+                    <div class="min-w-0 px-1 py-0.5">
+                        <dt class="truncate text-[10px] leading-tight text-muted">{{ t('receipt.vat') }}{{ hasCustomVat ? '' : ` ${Number(branch.vat_percent)}%` }}</dt>
+                        <dd class="text-xs font-medium tabular-nums" :class="vatAmount > 0 ? 'text-foreground' : 'text-muted'">{{ formatMoney(vatAmount) }}</dd>
+                    </div>
+                </dl>
+
+                <!-- Total and change -->
+                <div class="flex items-stretch gap-1">
+                    <div class="flex h-8 min-w-0 flex-1 items-center justify-between rounded-md bg-primary px-2.5 text-primary-foreground">
+                        <span class="text-xs opacity-80">{{ t('receipt.grand_total') }}</span>
+                        <span class="text-lg font-bold tabular-nums">{{ formatMoney(total) }}</span>
+                    </div>
+                    <div class="flex h-8 w-28 shrink-0 flex-col justify-center rounded-md bg-success/10 px-2">
+                        <span class="truncate text-[10px] leading-tight text-muted">{{ t('orders.change_due') }}</span>
+                        <span class="text-sm font-semibold leading-tight tabular-nums" :class="changeShown > 0 ? 'text-success' : 'text-muted'">{{ formatMoney(changeShown) }}</span>
+                    </div>
                 </div>
 
-                <div v-if="! lastPayment" class="mt-1 space-y-1">
-                    <div class="grid grid-cols-3 gap-1">
-                        <button
-                            v-for="mode in ['cash', 'split', 'wallet']"
-                            :key="mode"
-                            type="button"
-                            class="flex h-7 items-center justify-center gap-1 rounded-md border text-[13px] font-medium"
-                            :class="payMode === mode ? 'border-accent bg-accent/15 text-foreground' : 'border-border text-muted'"
-                            @click="mode === 'split' ? startSplit() : (payMode = mode)"
-                        >
-                            {{ mode === 'cash' ? t('payment_method.cash') : mode === 'split' ? t('payment_method.split') : t('payments.wallet') }}
+                <!-- Payment lanes: choose a lane to enable its fields -->
+                <div class="space-y-1" role="radiogroup" :aria-label="t('orders.payment_lane')">
+                    <!-- Cash -->
+                    <div class="flex items-center gap-1 rounded-md border px-1.5 py-0.5" :class="payMode === 'cash' ? 'border-accent bg-accent/10' : 'border-border bg-background'">
+                        <button type="button" role="radio" :aria-checked="payMode === 'cash'" :disabled="laneLocked" class="flex h-6 w-16 shrink-0 items-center gap-1.5 text-[13px] font-medium text-foreground disabled:opacity-60" @click="chooseLane('cash')">
+                            <span class="flex h-3.5 w-3.5 items-center justify-center rounded-full border" :class="payMode === 'cash' ? 'border-accent' : 'border-border'"><span class="h-1.5 w-1.5 rounded-full" :class="payMode === 'cash' ? 'bg-accent' : 'bg-transparent'" /></span>
+                            {{ t('payment_method.cash') }}
                         </button>
-                    </div>
-
-                    <div v-if="payMode === 'cash'">
-                        <label class="mb-0.5 block text-[11px] font-medium text-muted">{{ t('orders.tendered') }}</label>
-                        <input v-model="tendered" type="number" min="0" step="1" class="h-7 w-full rounded-md border border-border bg-background px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
-                        <div class="mt-1 flex flex-wrap gap-1">
+                        <input v-model="tendered" type="number" min="0" step="1" :disabled="payMode !== 'cash' || laneLocked" :placeholder="t('orders.tendered_short')" :title="t('orders.tendered')" :aria-label="t('orders.tendered')" class="h-6 w-20 min-w-0 rounded-md border border-border bg-surface px-1.5 text-right text-[13px] tabular-nums text-foreground outline-none placeholder:text-[11px] placeholder:text-muted/70 focus:border-accent disabled:opacity-50">
+                        <div class="ml-auto flex gap-1">
                             <button
                                 v-for="amount in [total, 100, 500, 1000]"
                                 :key="amount"
                                 type="button"
-                                class="h-7 rounded-md border border-border px-2 text-[13px] font-medium text-foreground hover:border-accent"
+                                :disabled="payMode !== 'cash' || laneLocked"
+                                class="h-6 rounded-md border border-border bg-surface px-1.5 text-xs font-medium tabular-nums text-foreground hover:border-accent disabled:cursor-not-allowed disabled:opacity-50"
                                 @click="quickAmount(amount)"
                             >
                                 {{ amount === total ? t('orders.exact') : formatMoney(amount, { decimals: 0 }) }}
                             </button>
                         </div>
-                        <div class="mt-1 flex items-center justify-between rounded-md bg-success/10 px-2 py-1">
-                            <span class="text-[13px] font-medium text-foreground">{{ t('orders.change_due') }}</span>
-                            <span class="text-base font-semibold tabular-nums text-success">{{ formatMoney(changeDue) }}</span>
-                        </div>
                     </div>
 
-                    <div v-else-if="payMode === 'split'" class="space-y-1">
-                        <div v-for="(splitLine, index) in splitLines" :key="index" class="grid grid-cols-[4.5rem_1fr] gap-1">
-                            <select v-model="splitLine.method" class="h-7 rounded-md border border-border bg-background px-1 text-[13px] text-foreground">
+                    <!-- Split -->
+                    <div class="flex items-center gap-1 rounded-md border px-1.5 py-0.5" :class="payMode === 'split' ? 'border-accent bg-accent/10' : 'border-border bg-background'">
+                        <button type="button" role="radio" :aria-checked="payMode === 'split'" :disabled="laneLocked" class="flex h-6 w-16 shrink-0 items-center gap-1.5 text-[13px] font-medium text-foreground disabled:opacity-60" @click="chooseLane('split')">
+                            <span class="flex h-3.5 w-3.5 items-center justify-center rounded-full border" :class="payMode === 'split' ? 'border-accent' : 'border-border'"><span class="h-1.5 w-1.5 rounded-full" :class="payMode === 'split' ? 'bg-accent' : 'bg-transparent'" /></span>
+                            {{ t('orders.split_short') }}
+                        </button>
+                        <div v-for="(splitLine, index) in splitLines" :key="index" class="flex min-w-0 flex-1 gap-1">
+                            <select v-model="splitLine.method" :disabled="payMode !== 'split' || laneLocked" :aria-label="t('payment_method.split')" class="h-6 w-[4.25rem] shrink-0 rounded-md border border-border bg-surface px-0.5 text-xs text-foreground outline-none focus:border-accent disabled:opacity-50">
                                 <option value="cash">{{ t('payment_method.cash') }}</option>
                                 <option value="bkash">{{ t('payment_method.bkash') }}</option>
                                 <option value="nagad">{{ t('payment_method.nagad') }}</option>
                                 <option value="card">{{ t('payment_method.card') }}</option>
                             </select>
-                            <input v-model="splitLine.amount" type="number" min="0" class="h-7 rounded-md border border-border bg-background px-2 text-right text-[13px] tabular-nums text-foreground">
+                            <input v-model="splitLine.amount" type="number" min="0" :disabled="payMode !== 'split' || laneLocked" :aria-label="t('payments.amount')" class="h-6 w-full min-w-0 rounded-md border border-border bg-surface px-1.5 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent disabled:opacity-50">
                         </div>
                     </div>
 
-                    <div v-else class="grid grid-cols-2 gap-1">
-                        <select v-model="walletMethod" class="h-7 rounded-md border border-border bg-background px-1 text-[13px] text-foreground">
+                    <!-- Wallet -->
+                    <div class="flex items-center gap-1 rounded-md border px-1.5 py-0.5" :class="payMode === 'wallet' ? 'border-accent bg-accent/10' : 'border-border bg-background'">
+                        <button type="button" role="radio" :aria-checked="payMode === 'wallet'" :disabled="laneLocked" class="flex h-6 w-16 shrink-0 items-center gap-1.5 text-[13px] font-medium text-foreground disabled:opacity-60" @click="chooseLane('wallet')">
+                            <span class="flex h-3.5 w-3.5 items-center justify-center rounded-full border" :class="payMode === 'wallet' ? 'border-accent' : 'border-border'"><span class="h-1.5 w-1.5 rounded-full" :class="payMode === 'wallet' ? 'bg-accent' : 'bg-transparent'" /></span>
+                            {{ t('payments.wallet') }}
+                        </button>
+                        <select v-model="walletMethod" :disabled="payMode !== 'wallet' || laneLocked" :aria-label="t('payments.wallet')" class="h-6 w-[4.25rem] shrink-0 rounded-md border border-border bg-surface px-0.5 text-xs text-foreground outline-none focus:border-accent disabled:opacity-50">
                             <option value="bkash">{{ t('payment_method.bkash') }}</option>
                             <option value="nagad">{{ t('payment_method.nagad') }}</option>
                         </select>
-                        <input v-model="walletTrxId" type="text" :placeholder="t('payments.trxid')" class="h-7 rounded-md border border-border bg-background px-2 text-[13px] text-foreground">
+                        <input v-model="walletTrxId" type="text" :disabled="payMode !== 'wallet' || laneLocked" :placeholder="t('payments.trxid')" :aria-label="t('payments.trxid')" class="h-6 w-full min-w-0 flex-1 rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none placeholder:text-[11px] placeholder:text-muted/70 focus:border-accent disabled:opacity-50">
                     </div>
                 </div>
 
-                <div v-else class="mt-1 flex items-center justify-between rounded-md bg-success/10 px-2 py-1">
-                    <span class="text-[13px] font-medium text-foreground">{{ t('orders.payment_complete') }}</span>
-                    <span class="text-base font-semibold tabular-nums text-success">{{ formatMoney(lastPayment.change_due ?? 0) }}</span>
-                </div>
-
-                <div class="mt-1 grid grid-cols-2 gap-1">
+                <!-- Actions -->
+                <div class="grid grid-cols-6 gap-1">
                     <button
                         type="button"
-                        :disabled="cart.length === 0 || !!latestOrder || discountBlocked || (orderType === 'dine_in' && ! tableId)"
-                        class="flex h-8 items-center justify-center gap-1 rounded-md bg-primary text-[13px] font-semibold text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                        :disabled="cart.length === 0 || !! latestOrder || discountBlocked || (orderType === 'dine_in' && ! tableId)"
+                        class="col-span-3 flex h-7 items-center justify-center gap-1 rounded-md bg-primary text-[13px] font-semibold text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                         @click="submitOrder"
                     >
                         <AppIcon name="utensils" size="12" />
@@ -1086,56 +1109,38 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                     </button>
                     <button
                         type="button"
-                        :disabled="! latestOrder && ! lastPayment"
-                        class="flex h-8 items-center justify-center gap-1 rounded-md border border-border bg-background text-[13px] font-medium text-foreground hover:border-accent disabled:cursor-not-allowed disabled:opacity-50"
-                        @click="printCustomerCopy"
-                    >
-                        <AppIcon name="print" size="12" />
-                        {{ t('orders.print_customer') }}
-                    </button>
-                    <button
-                        v-if="! lastPayment && payMode === 'cash'"
-                        type="button"
-                        :disabled="! latestOrder"
-                        class="flex h-8 items-center justify-center gap-1 rounded-md bg-success text-[13px] font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-                        @click="payNow"
+                        :disabled="! canConfirmPayment"
+                        class="col-span-3 flex h-7 items-center justify-center gap-1 rounded-md bg-success text-[13px] font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                        @click="confirmPayment"
                     >
                         <AppIcon name="money-bill-wave" size="12" />
-                        {{ t('orders.confirm_payment') }}
-                    </button>
-                    <button
-                        v-else-if="! lastPayment && payMode === 'split'"
-                        type="button"
-                        :disabled="! latestOrder"
-                        class="flex h-8 items-center justify-center gap-1 rounded-md bg-success text-[13px] font-semibold text-white disabled:opacity-50"
-                        @click="paySplit"
-                    >
-                        {{ t('orders.confirm_payment') }}
-                    </button>
-                    <button
-                        v-else-if="! lastPayment"
-                        type="button"
-                        :disabled="! latestOrder || ! walletTrxId"
-                        class="flex h-8 items-center justify-center gap-1 rounded-md bg-success text-[13px] font-semibold text-white disabled:opacity-50"
-                        @click="payWalletManual"
-                    >
-                        {{ t('payments.record_manual') }}
+                        {{ confirmPaymentLabel }}
                     </button>
                     <button
                         type="button"
-                        :disabled="cart.length === 0 || !!latestOrder"
-                        class="flex h-8 items-center justify-center gap-1 rounded-md border border-border bg-background text-[13px] font-medium text-foreground disabled:opacity-50"
+                        :disabled="cart.length === 0 || !! latestOrder"
+                        class="col-span-2 flex h-7 items-center justify-center gap-1 rounded-md border border-border bg-background text-xs font-medium text-foreground hover:border-accent disabled:cursor-not-allowed disabled:opacity-50"
                         @click="holdOrder"
                     >
-                        <AppIcon name="clock" size="12" />
+                        <AppIcon name="clock" size="11" />
                         {{ t('orders.hold') }}
                     </button>
                     <button
-                        v-if="lastPayment || latestOrder"
                         type="button"
-                        class="col-span-2 flex h-8 items-center justify-center rounded-md border border-border bg-background text-[13px] font-medium text-foreground"
+                        :disabled="! latestOrder && ! lastPayment"
+                        class="col-span-2 flex h-7 items-center justify-center gap-1 rounded-md border border-border bg-background text-xs font-medium text-foreground hover:border-accent disabled:cursor-not-allowed disabled:opacity-50"
+                        @click="printCustomerCopy"
+                    >
+                        <AppIcon name="print" size="11" />
+                        {{ t('orders.print_short') }}
+                    </button>
+                    <button
+                        type="button"
+                        :disabled="! lastPayment && ! latestOrder"
+                        class="col-span-2 flex h-7 items-center justify-center gap-1 rounded-md border border-border bg-background text-xs font-medium text-foreground hover:border-accent disabled:cursor-not-allowed disabled:opacity-50"
                         @click="startNewOrder"
                     >
+                        <AppIcon name="plus" size="11" />
                         {{ t('orders.new_order') }}
                     </button>
                 </div>

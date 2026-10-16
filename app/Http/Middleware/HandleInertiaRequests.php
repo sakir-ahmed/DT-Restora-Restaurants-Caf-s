@@ -32,6 +32,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'appName' => config('app.name'),
+            'isDemo' => config('app.is_demo') === true,
             'locale' => app()->getLocale(),
             'translations' => flat_translations(app()->getLocale(), $request->routeIs('web.*') ? self::PUBLIC_TRANSLATION_GROUPS : null),
             'auth' => [

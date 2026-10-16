@@ -77,4 +77,7 @@ return [
     'demo_sms_title' => 'Demo SMS to :mobile',
     'demo_sms_note' => 'Demo mode: this message was not sent.',
     'demo_sms_badge' => 'SMS demo mode: messages show here and are not sent',
+    'demo_banner_title' => 'Free Demo — Try It Yourself!',
+    'demo_banner' => 'Sign in and explore all features. Demo data resets daily at 4:00 AM (Dhaka time).',
+    'demo_banner_call' => 'Want this software for your business? Call',
 ];

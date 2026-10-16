@@ -152,13 +152,13 @@ function openCommandPalette() {
         <!-- Mobile overlay -->
         <div
             v-if="sidebarOpen"
-            class="fixed inset-0 z-30 bg-black/40 lg:hidden"
+            class="fixed inset-x-0 bottom-0 top-(--demo-banner-h) z-30 bg-black/40 lg:hidden"
             @click="sidebarOpen = false"
         />
 
         <!-- Sidebar -->
         <aside
-            class="fixed inset-y-0 left-0 z-40 flex shrink-0 flex-col border-r border-border bg-surface transition-all duration-150 lg:static"
+            class="fixed top-(--demo-banner-h) bottom-0 left-0 z-40 flex shrink-0 flex-col border-r border-border bg-surface transition-all duration-150 lg:static"
             :class="[
                 sidebarCollapsed ? 'w-14' : 'w-[220px]',
                 sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
@@ -212,7 +212,7 @@ function openCommandPalette() {
 
         <!-- Main -->
         <div class="flex min-w-0 flex-1 flex-col">
-            <header class="sticky top-0 z-30 flex h-12 shrink-0 items-center gap-2 border-b border-border bg-surface px-3">
+            <header class="sticky top-(--demo-banner-h) z-30 flex h-12 shrink-0 items-center gap-2 border-b border-border bg-surface px-3">
                 <button
                     type="button"
                     class="flex h-8 w-8 items-center justify-center rounded-md text-muted hover:text-foreground lg:hidden"

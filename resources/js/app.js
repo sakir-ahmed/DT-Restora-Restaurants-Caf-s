@@ -6,6 +6,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, createSSRApp, defineComponent, h, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { Toaster } from 'vue-sonner';
 import { ZiggyVue, route as routeFn } from 'ziggy-js';
+import DemoBanner from './components/DemoBanner.vue';
 import ConfirmHost from './components/ui-kit/ConfirmHost.vue';
 import UpdatePrompt from './components/ui-kit/UpdatePrompt.vue';
 import { registerSW } from 'virtual:pwa-register';
@@ -49,6 +50,7 @@ createInertiaApp({
                 onBeforeUnmount(() => themeObserver?.disconnect());
 
                 return () => [
+                    page.props?.isDemo ? h(DemoBanner) : null,
                     h(App, props),
                     mounted.value && page.props?.smsDemo
                         ? h('div', {
@@ -61,6 +63,7 @@ createInertiaApp({
                     mounted.value
                         ? h(Toaster, {
                             theme: dark.value ? 'dark' : 'light',
+                            offset: page.props?.isDemo ? '32px' : undefined,
                             position: 'top-right',
                             duration: 3000,
                             closeButton: true,
