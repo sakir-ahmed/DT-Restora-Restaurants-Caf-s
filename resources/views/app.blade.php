@@ -12,6 +12,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#1f1612">
+    <link rel="manifest" href="/manifest.webmanifest">
     <meta data-inertia="robots" name="robots" content="{{ $robots }}">
 
     @unless ($ssrResponse)

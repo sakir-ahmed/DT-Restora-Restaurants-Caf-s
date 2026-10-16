@@ -22,4 +22,7 @@ return [
     'rejected' => 'Rejected',
     'open' => 'Open',
     'closed' => 'Closed',
+    'free' => 'Free',
+    'occupied' => 'Occupied',
+    'reserved' => 'Reserved',
 ];

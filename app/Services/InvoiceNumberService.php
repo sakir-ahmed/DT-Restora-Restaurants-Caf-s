@@ -6,6 +6,9 @@ namespace App\Services;
 
 use App\Models\Branch;
 use App\Models\InvoiceSequence;
+use App\Models\Order;
+use Illuminate\Support\Carbon;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Sequential invoice numbers per branch and terminal, no gaps:
@@ -47,5 +50,63 @@ class InvoiceNumberService
             $date->format('Ymd'),
             $sequence->last_number,
         );
+    }
+
+    /**
+     * Keep an invoice number the device already printed. The terminal
+     * counter moves forward to that number so the next online sale
+     * does not collide with it.
+     */
+    public function claim(Branch $branch, string $terminalCode, string $invoiceNo): string
+    {
+        $terminalCode = strtoupper($terminalCode);
+        $pattern = '/^'.preg_quote($branch->code, '/').'-'.preg_quote($terminalCode, '/').'-(\d{8})-(\d+)$/';
+
+        if (preg_match($pattern, $invoiceNo, $matches) !== 1) {
+            return $this->next($branch, $terminalCode);
+        }
+
+        try {
+            $date = Carbon::createFromFormat('!Ymd', $matches[1]);
+        } catch (\Throwable) {
+            return $this->next($branch, $terminalCode);
+        }
+
+        if (! $date instanceof \DateTimeInterface) {
+            return $this->next($branch, $terminalCode);
+        }
+
+        if (Order::query()->where('invoice_no', $invoiceNo)->exists()) {
+            throw ValidationException::withMessages([
+                'invoice_no' => __('sync.invoice_taken'),
+            ]);
+        }
+
+        $number = (int) $matches[2];
+
+        $sequence = InvoiceSequence::query()
+            ->where('branch_id', $branch->id)
+            ->where('terminal_code', $terminalCode)
+            ->whereDate('for_date', $date->toDateString())
+            ->lockForUpdate()
+            ->first();
+
+        if ($sequence === null) {
+            $sequence = InvoiceSequence::query()->create([
+                'branch_id' => $branch->id,
+                'terminal_code' => $terminalCode,
+                'for_date' => $date->toDateString(),
+                'last_number' => 0,
+            ]);
+
+            $sequence = InvoiceSequence::query()->whereKey($sequence->id)->lockForUpdate()->first();
+        }
+
+        if ($number > (int) $sequence->last_number) {
+            $sequence->last_number = $number;
+            $sequence->save();
+        }
+
+        return $invoiceNo;
     }
 }

@@ -30,6 +30,7 @@ use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\ReceiptController;
 use App\Http\Controllers\Admin\RecipeController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\RestaurantTableController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ShiftController;
 use App\Http\Controllers\Admin\StockCountController;
@@ -89,6 +90,10 @@ Route::get('/pay/{order}/{gateway}', [WebPaymentController::class, 'start'])->na
 
 // QR table ordering: scanning the code opens the menu for that table.
 Route::get('/q/{table}', fn (string $table) => redirect()->route('web.menu', ['table' => $table]))->name('web.qr');
+Route::get('/q/{branchCode}/{table}', fn (string $branchCode, string $table) => redirect()->route('web.menu', [
+    'branchCode' => strtolower($branchCode),
+    'table' => $table,
+]))->name('web.qr.branch');
 
 Route::get('/customer/login', [CustomerAuthController::class, 'showLogin'])->name('web.customer.login');
 Route::post('/customer/otp/send', [CustomerAuthController::class, 'sendOtp'])->name('web.customer.otp.send');
@@ -183,6 +188,11 @@ Route::prefix('admin')
         Route::post('menu/items', [AdminMenuController::class, 'storeItem'])->name('menu.items.store')->middleware('permission:menu.manage');
         Route::put('menu/items/{item}', [AdminMenuController::class, 'updateItem'])->name('menu.items.update')->middleware('permission:menu.manage');
         Route::delete('menu/items/{item}', [AdminMenuController::class, 'destroyItem'])->name('menu.items.destroy')->middleware('permission:menu.manage');
+
+        Route::get('tables', [RestaurantTableController::class, 'index'])->name('tables.index')->middleware('permission:tables.view');
+        Route::post('tables', [RestaurantTableController::class, 'store'])->name('tables.store')->middleware('permission:tables.manage');
+        Route::put('tables/{table}', [RestaurantTableController::class, 'update'])->name('tables.update')->middleware('permission:tables.manage');
+        Route::delete('tables/{table}', [RestaurantTableController::class, 'destroy'])->name('tables.destroy')->middleware('permission:tables.manage');
 
         Route::get('staff', [EmployeeController::class, 'index'])->name('staff.index')->middleware('permission:staff.view');
         Route::post('staff/employees', [EmployeeController::class, 'store'])->name('staff.employees.store')->middleware('permission:employees.manage');

@@ -62,6 +62,7 @@ class CreateOrderAction
         ?string $deliveryAddress = null,
         ?\DateTimeInterface $scheduledFor = null,
         ?string $couponCode = null,
+        ?string $invoiceNo = null,
     ): Order {
         if ($clientId !== null) {
             $existing = Order::query()->where('client_id', $clientId)->first();
@@ -73,7 +74,7 @@ class CreateOrderAction
 
         $lines = collect($lines);
 
-        return DB::transaction(function () use ($branch, $type, $lines, $cashier, $waiter, $tableId, $customer, $discount, $note, $channel, $clientId, $shift, $terminalCode, $deliveryFee, $deliveryZoneId, $deliveryAddress, $scheduledFor, $couponCode): Order {
+        return DB::transaction(function () use ($branch, $type, $lines, $cashier, $waiter, $tableId, $customer, $discount, $note, $channel, $clientId, $shift, $terminalCode, $deliveryFee, $deliveryZoneId, $deliveryAddress, $scheduledFor, $couponCode, $invoiceNo): Order {
             $branch = Branch::query()->whereKey($branch->id)->lockForUpdate()->firstOrFail();
 
             // Percent discounts above the limit need the override permission.
@@ -151,9 +152,13 @@ class CreateOrderAction
 
             $foodCost = round($items->sum(fn (array $item) => (float) $item['line_cost']), 4);
 
+            $terminal = strtoupper((string) ($terminalCode ?? 'T01'));
+
             $order = Order::query()->create([
                 'branch_id' => $branch->id,
-                'invoice_no' => $this->invoices->next($branch, $terminalCode),
+                'invoice_no' => is_string($invoiceNo) && $invoiceNo !== ''
+                    ? $this->invoices->claim($branch, $terminal, $invoiceNo)
+                    : $this->invoices->next($branch, $terminal),
                 'order_type' => $type->value,
                 'channel' => $channel->value,
                 'restaurant_table_id' => $type === OrderType::DineIn ? $tableId : null,

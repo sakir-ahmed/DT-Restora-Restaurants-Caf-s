@@ -45,6 +45,8 @@ it('scopes role permissions to the seeded matrix', function (string $role, strin
     'accountant can post journals' => ['accountant', 'journals.post', true],
     'rider cannot manage menu' => ['rider', 'menu.manage', false],
     'owner can manage branches' => ['owner', 'branches.manage', true],
+    'branch-manager can manage tables' => ['branch-manager', 'tables.manage', true],
+    'cashier cannot manage tables' => ['cashier', 'tables.manage', false],
 ]);
 
 it('returns 403 for a user with no role on the admin panel', function (): void {

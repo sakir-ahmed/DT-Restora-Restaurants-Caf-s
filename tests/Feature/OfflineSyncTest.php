@@ -313,3 +313,87 @@ it('rejects attendance sync items because clock-in is not supported', function (
         ->assertJsonPath('error.code', 'VALIDATION_FAILED')
         ->assertJsonStructure(['error' => ['details' => ['items.0.type']]]);
 });
+
+it('keeps the invoice number printed offline and continues that terminal series', function (): void {
+    $day = now()->format('Ymd');
+    $invoice = "BR01-T02-{$day}-0007";
+
+    [$accepted] = pushItem($this, [
+        'client_id' => '01H-INV7',
+        'payload' => [
+            'branch_id' => $this->branch->id,
+            'order_type' => 'takeaway',
+            'terminal' => 'T02',
+            'invoice_no' => $invoice,
+            'tendered' => 200,
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        ],
+    ]);
+
+    $accepted->assertOk()
+        ->assertJsonPath('data.results.0.status', SyncItem::STATUS_ACCEPTED);
+
+    expect(Order::query()->where('client_id', '01H-INV7')->value('invoice_no'))->toBe($invoice)
+        ->and(Order::query()->where('client_id', '01H-INV7')->first()->status->value)->toBe('paid');
+
+    [$next] = pushItem($this, ['client_id' => '01H-INV8']);
+
+    $next->assertOk()
+        ->assertJsonPath('data.results.0.status', SyncItem::STATUS_ACCEPTED);
+
+    expect(Order::query()->where('client_id', '01H-INV8')->value('invoice_no'))->toBe("BR01-T02-{$day}-0008");
+});
+
+it('records a conflict when an offline invoice number is already used', function (): void {
+    $invoice = 'BR01-T02-'.now()->format('Ymd').'-0003';
+    $payload = [
+        'branch_id' => $this->branch->id,
+        'order_type' => 'takeaway',
+        'terminal' => 'T02',
+        'invoice_no' => $invoice,
+        'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+    ];
+
+    [$first] = pushItem($this, ['client_id' => '01H-INV-A', 'payload' => $payload]);
+    $first->assertJsonPath('data.results.0.status', SyncItem::STATUS_ACCEPTED);
+
+    [$second] = pushItem($this, ['client_id' => '01H-INV-B', 'payload' => $payload]);
+
+    $second->assertOk()
+        ->assertJsonPath('data.results.0.status', SyncItem::STATUS_CONFLICT);
+
+    expect(Order::query()->where('invoice_no', $invoice)->count())->toBe(1);
+});
+
+it('pays an already synced offline order from the device client id', function (): void {
+    $token = $this->cashier->createToken('pos', ['staff'])->plainTextToken;
+
+    $this->withToken($token)->postJson('/api/v1/sync/push', ['items' => [[
+        'client_id' => '01H-OPEN-ORDER',
+        'type' => 'order',
+        'payload' => [
+            'branch_id' => $this->branch->id,
+            'order_type' => 'takeaway',
+            'terminal' => 'T02',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        ],
+        'created_at_device' => now()->subMinutes(2)->toIso8601String(),
+    ]]])->assertJsonPath('data.results.0.status', SyncItem::STATUS_ACCEPTED);
+
+    expect(Order::query()->where('client_id', '01H-OPEN-ORDER')->first()->status->value)->toBe('pending');
+
+    $this->withToken($token)->postJson('/api/v1/sync/push', ['items' => [[
+        'client_id' => '01H-OPEN-PAY',
+        'type' => 'payment',
+        'payload' => [
+            'order_client_id' => '01H-OPEN-ORDER',
+            'method' => 'cash',
+            'tendered' => 200,
+        ],
+        'created_at_device' => now()->subMinute()->toIso8601String(),
+    ]]])->assertOk()
+        ->assertJsonPath('data.results.0.status', SyncItem::STATUS_ACCEPTED);
+
+    expect(Order::query()->count())->toBe(1)
+        ->and(Order::query()->first()->status->value)->toBe('paid');
+});

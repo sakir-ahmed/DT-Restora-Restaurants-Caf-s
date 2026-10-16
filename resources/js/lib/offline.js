@@ -47,9 +47,90 @@ export async function getDataVersion() {
 
 export async function getCachedMenu() {
     const categories = await db.categories.toArray();
+    const tables = await db.tables.toArray();
     const meta = await db.meta.get('bootstrap');
 
-    return { categories, branch: meta?.value?.branch };
+    return { categories, tables, branch: meta?.value?.branch };
+}
+
+function deviceDay(date = new Date()) {
+    return new Intl.DateTimeFormat('en-CA', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    }).format(date).replaceAll('-', '');
+}
+
+function invoiceCursorKey(branchCode, terminal, day) {
+    return `invoice:${branchCode}:${String(terminal).toUpperCase()}:${day}`;
+}
+
+/**
+ * Remember the server's last invoice number so the next offline
+ * receipt continues that terminal's series.
+ */
+export async function rememberInvoiceCursor(branchCode, terminal, lastNumber, forDate) {
+    const day = String(forDate ?? '').replaceAll('-', '').slice(0, 8) || deviceDay();
+
+    if (day !== deviceDay()) {
+        return;
+    }
+
+    const key = invoiceCursorKey(branchCode, terminal, day);
+    const current = Number((await db.meta.get(key))?.value ?? 0);
+
+    await db.meta.put({ key, value: Math.max(current, Number(lastNumber) || 0) });
+}
+
+/**
+ * Next invoice for this device: BR01-T01-20261016-0001.
+ * The counter lives in IndexedDB, so a closed browser does not reuse it.
+ */
+export async function nextLocalInvoice(branchCode, terminal) {
+    const day = deviceDay();
+    const key = invoiceCursorKey(branchCode, terminal, day);
+    const current = Number((await db.meta.get(key))?.value ?? 0);
+    const number = current + 1;
+
+    await db.meta.put({ key, value: number });
+
+    return `${branchCode}-${String(terminal).toUpperCase()}-${day}-${String(number).padStart(4, '0')}`;
+}
+
+export async function rememberLocalShift(shift) {
+    await db.meta.put({ key: 'local_shift', value: shift });
+}
+
+export async function getLocalShift() {
+    const row = await db.meta.get('local_shift');
+
+    return row?.value ?? null;
+}
+
+export async function saveLocalOrder(order) {
+    await db.orders.put(order);
+}
+
+export async function findOutbox(clientId) {
+    return db.outbox.get(clientId);
+}
+
+export async function updateOutboxPayload(clientId, patch) {
+    const row = await db.outbox.get(clientId);
+
+    if (! row) {
+        return null;
+    }
+
+    const payload = { ...row.payload, ...patch };
+
+    await db.outbox.update(clientId, { payload });
+
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('outbox-changed'));
+    }
+
+    return { ...row, payload };
 }
 
 /**
@@ -90,15 +171,21 @@ export async function pushOutbox() {
     }
 
     const token = document.querySelector('meta[name=csrf-token]')?.content ?? '';
+    const xsrf = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+    const headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRF-TOKEN': token,
+    };
+
+    if (xsrf) {
+        headers['X-XSRF-TOKEN'] = decodeURIComponent(xsrf[1]);
+    }
 
     const response = await fetch('/api/v1/sync/push', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-TOKEN': token,
-        },
+        headers,
         credentials: 'same-origin',
         body: JSON.stringify({ items }),
     });

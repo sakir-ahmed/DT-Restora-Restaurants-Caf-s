@@ -11,11 +11,13 @@ use App\Actions\Sales\CreateOrderAction;
 use App\Actions\Sales\OpenShiftAction;
 use App\Actions\Sales\PayOrderAction;
 use App\Enums\OrderType;
+use App\Enums\PaymentMethod;
 use App\Exceptions\InsufficientStockException;
 use App\Models\Branch;
 use App\Models\DataVersion;
 use App\Models\Ingredient;
 use App\Models\IngredientStock;
+use App\Models\InvoiceSequence;
 use App\Models\MenuCategory;
 use App\Models\Order;
 use App\Models\RestaurantTable;
@@ -160,6 +162,7 @@ class SyncService
             cashier: $user,
             clientId: $clientId,
             terminalCode: (string) ($payload['terminal'] ?? 'T01'),
+            invoiceNo: isset($payload['invoice_no']) ? (string) $payload['invoice_no'] : null,
         );
 
         if (! empty($payload['tendered'])) {
@@ -342,9 +345,56 @@ class SyncService
      */
     private function applyPayment(User $user, array $payload): void
     {
-        $order = Order::query()->findOrFail((int) ($payload['order_id'] ?? 0));
+        $order = $this->orderForPayment($payload);
+        $method = (string) ($payload['method'] ?? 'cash');
 
-        $this->payments->executeCash($order, (float) ($payload['tendered'] ?? 0), $user);
+        if ($method === 'split') {
+            $this->payments->executeSplit($order, array_values((array) ($payload['lines'] ?? [])), $user);
+
+            return;
+        }
+
+        if ($method === 'cash') {
+            $this->payments->executeCash($order, (float) ($payload['tendered'] ?? $payload['amount'] ?? 0), $user);
+
+            return;
+        }
+
+        $this->payments->recordManualWallet(
+            $order,
+            PaymentMethod::from($method),
+            (float) ($payload['amount'] ?? $order->total),
+            (string) ($payload['reference'] ?? ''),
+            $user,
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function orderForPayment(array $payload): Order
+    {
+        if (! empty($payload['order_client_id'])) {
+            $order = Order::query()->where('client_id', (string) $payload['order_client_id'])->first();
+
+            if ($order !== null) {
+                return $order;
+            }
+        }
+
+        $orderId = (int) ($payload['order_id'] ?? 0);
+
+        if ($orderId > 0) {
+            $order = Order::query()->find($orderId);
+
+            if ($order !== null) {
+                return $order;
+            }
+        }
+
+        throw ValidationException::withMessages([
+            'order' => __('sync.order_missing'),
+        ]);
     }
 
     private function reasonFor(\Throwable $exception): string
@@ -380,7 +430,7 @@ class SyncService
 
         return [
             'data_version' => DataVersion::current(),
-            'branch' => $branch->only(['id', 'name', 'code', 'vat_percent', 'vat_inclusive', 'service_charge_percent']),
+            'branch' => $branch->only(['id', 'name', 'name_bn', 'code', 'phone', 'address', 'vat_percent', 'vat_inclusive', 'service_charge_percent', 'receipt_footer']),
             'categories' => MenuCategory::query()
                 ->where('branch_id', $branch->id)
                 ->active()
@@ -391,6 +441,10 @@ class SyncService
                 ->where('branch_id', $branch->id)
                 ->where('is_active', true)
                 ->get(['id', 'name', 'status']),
+            'invoice_sequences' => InvoiceSequence::query()
+                ->where('branch_id', $branch->id)
+                ->whereDate('for_date', now()->toDateString())
+                ->get(['terminal_code', 'last_number', 'for_date']),
         ];
     }
 

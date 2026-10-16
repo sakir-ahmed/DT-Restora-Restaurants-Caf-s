@@ -8,9 +8,10 @@ const props = defineProps({
     pendingCount: { type: Number, default: 0 },
 });
 
-const online = ref(navigator.onLine);
+const online = ref(typeof navigator === 'undefined' ? true : navigator.onLine);
 const syncing = ref(false);
 const localPending = ref(0);
+let pendingTimer = null;
 
 async function refreshPending() {
     try {
@@ -43,14 +44,15 @@ onMounted(() => {
     window.addEventListener('online', updateOnline);
     window.addEventListener('offline', updateOnline);
     window.addEventListener('outbox-changed', refreshPending);
-    refreshPending();
-    setInterval(refreshPending, 10000);
+    pendingTimer = setInterval(refreshPending, 10000);
+    updateOnline();
 });
 
 onBeforeUnmount(() => {
     window.removeEventListener('online', updateOnline);
     window.removeEventListener('offline', updateOnline);
     window.removeEventListener('outbox-changed', refreshPending);
+    clearInterval(pendingTimer);
 });
 
 const waiting = computed(() => props.pendingCount + localPending.value);
@@ -75,7 +77,7 @@ const meta = computed(() => {
         <AppIcon :name="meta.icon" size="10" :spin="syncing" />
         {{ meta.label }}
 
-        <span v-if="waiting > 0" class="rounded-full bg-background/60 px-1 tabular-nums">
+        <span v-if="waiting > 0" data-outbox-count class="rounded-full bg-background/60 px-1 tabular-nums">
             {{ waiting }}
         </span>
     </span>

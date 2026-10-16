@@ -1,0 +1,18 @@
+{
+    "name": "DT Restora POS",
+    "short_name": "DT Restora",
+    "description": "Offline-first restaurant POS",
+    "start_url": "/admin/pos",
+    "scope": "/",
+    "display": "standalone",
+    "theme_color": "#1f1612",
+    "background_color": "#f8fafc",
+    "icons": [
+        {
+            "src": "/favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        }
+    ]
+}

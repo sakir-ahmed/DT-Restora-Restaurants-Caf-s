@@ -15,6 +15,7 @@ export default defineConfig({
         tailwindcss(),
         VitePWA({
             registerType: 'prompt',
+            scope: '/',
             includeAssets: ['favicon.ico', 'favicon.svg'],
             manifest: {
                 name: 'DT Restora POS',
@@ -24,19 +25,22 @@ export default defineConfig({
                 background_color: '#f8fafc',
                 display: 'standalone',
                 icons: [
-                    { src: '/pwa-192x192.png', sizes: '192x192', type: 'image/png' },
-                    { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+                    { src: '/favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
                 ],
             },
             workbox: {
-                globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+                globPatterns: ['**/*.{js,css,html,svg,png,woff2,ico}'],
+                navigateFallback: null,
                 runtimeCaching: [
                     {
-                        urlPattern: ({ url }) => url.pathname.startsWith('/admin') || url.pathname.startsWith('/rider'),
+                        urlPattern: ({ url, request }) => request.method === 'GET' && (url.pathname.startsWith('/admin') || url.pathname.startsWith('/rider') || url.pathname === '/login'),
                         handler: 'NetworkFirst',
                         options: {
                             cacheName: 'app-shell',
                             networkTimeoutSeconds: 3,
+                            cacheableResponse: {
+                                statuses: [0, 200],
+                            },
                         },
                     },
                 ],

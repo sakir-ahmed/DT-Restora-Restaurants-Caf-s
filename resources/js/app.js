@@ -9,7 +9,7 @@ import { ZiggyVue, route as routeFn } from 'ziggy-js';
 import DemoBanner from './components/DemoBanner.vue';
 import ConfirmHost from './components/ui-kit/ConfirmHost.vue';
 import UpdatePrompt from './components/ui-kit/UpdatePrompt.vue';
-import { registerSW } from 'virtual:pwa-register';
+import { Workbox } from 'workbox-window';
 import { t } from './lib/i18n';
 import { notify } from './lib/notify';
 import { Ziggy } from './ziggy';
@@ -90,13 +90,20 @@ createInertiaApp({
 });
 
 // Prompt before applying a new service worker. Nothing reloads until the cashier chooses.
-if (import.meta.env.PROD) {
-    const updateSW = registerSW({
-        immediate: true,
-        onNeedRefresh() {
-            window.dispatchEvent(new CustomEvent('pwa-update', {
-                detail: { apply: () => updateSW(true) },
-            }));
-        },
+// The worker is served from /sw.js so its scope covers /admin, not only /build.
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+    const worker = new Workbox('/sw.js', { scope: '/' });
+
+    worker.addEventListener('waiting', () => {
+        window.dispatchEvent(new CustomEvent('pwa-update', {
+            detail: {
+                apply: () => {
+                    worker.messageSkipWaiting();
+                    window.location.reload();
+                },
+            },
+        }));
     });
+
+    worker.register();
 }

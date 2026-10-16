@@ -27,6 +27,9 @@ const MAP = {
     rejected: { classes: 'bg-danger/10 text-danger', icon: 'circle-xmark' },
     open: { classes: 'bg-warning/15 text-warning', icon: 'lock' },
     closed: { classes: 'bg-muted/10 text-muted', icon: 'lock' },
+    free: { classes: 'bg-success/10 text-success', icon: 'circle-check' },
+    occupied: { classes: 'bg-warning/15 text-warning', icon: 'utensils' },
+    reserved: { classes: 'bg-accent/15 text-accent-foreground', icon: 'bell-concierge' },
     low: { classes: 'bg-warning/15 text-warning', icon: 'triangle-exclamation' },
     high: { classes: 'bg-danger/10 text-danger', icon: 'triangle-exclamation' },
 };

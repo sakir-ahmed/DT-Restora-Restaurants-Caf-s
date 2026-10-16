@@ -21,6 +21,8 @@ class RoleSeeder extends Seeder
         'branches.manage',
         'menu.view',
         'menu.manage',
+        'tables.view',
+        'tables.manage',
         'media.view',
         'media.manage',
         'careers.manage',
@@ -69,7 +71,7 @@ class RoleSeeder extends Seeder
     private const ROLE_PERMISSIONS = [
         'owner' => '*',
         'branch-manager' => [
-            'admin.access', 'branches.view', 'menu.view', 'menu.manage', 'media.view', 'media.manage', 'staff.view',
+            'admin.access', 'branches.view', 'menu.view', 'menu.manage', 'tables.view', 'tables.manage', 'media.view', 'media.manage', 'staff.view',
             'orders.view', 'orders.create', 'orders.void', 'discounts.override',
             'inventory.view', 'inventory.manage', 'stock.adjust', 'purchases.manage',
             'recipes.manage', 'wastage.log', 'wastage.approve', 'transfers.manage',

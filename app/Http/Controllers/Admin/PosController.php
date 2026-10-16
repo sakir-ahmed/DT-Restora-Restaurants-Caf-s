@@ -46,7 +46,7 @@ class PosController extends Controller
                 ->where('is_active', true)
                 ->orderBy('name')
                 ->get(['id', 'name', 'area', 'seats', 'status']),
-            'branch' => $branch->only(['id', 'code', 'vat_percent', 'vat_inclusive', 'service_charge_percent', 'receipt_footer']),
+            'branch' => $branch->only(['id', 'name', 'name_bn', 'code', 'phone', 'address', 'vat_percent', 'vat_inclusive', 'service_charge_percent', 'receipt_footer']),
             'openShift' => $openShift,
             'canOverrideDiscount' => $user->can('discounts.override'),
             'canVoid' => $user->can('orders.void'),

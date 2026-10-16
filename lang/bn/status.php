@@ -22,4 +22,7 @@ return [
     'rejected' => 'প্রত্যাখ্যাত',
     'open' => 'খোলা',
     'closed' => 'বন্ধ',
+    'free' => 'খালি',
+    'occupied' => 'ব্যস্ত',
+    'reserved' => 'সংরক্ষিত',
 ];

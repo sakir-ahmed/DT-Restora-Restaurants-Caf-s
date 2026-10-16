@@ -37,7 +37,7 @@ class MenuController extends Controller
         // QR table ordering: /menu?table=T3 or /q/{code}
         $tableCode = $request->string('table')->toString();
         $table = $tableCode !== ''
-            ? RestaurantTable::query()->where('branch_id', $branch->id)->where('name', $tableCode)->first()
+            ? RestaurantTable::query()->where('branch_id', $branch->id)->where('is_active', true)->where('name', $tableCode)->first()
             : null;
 
         if ($tableCode !== '' && $table === null) {

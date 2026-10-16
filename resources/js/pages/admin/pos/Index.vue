@@ -10,9 +10,10 @@ import { useConfirm } from '@/components/ui-kit/useConfirm.js';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/format';
 import { dishKind, localized } from '@/lib/site';
-import { queueOutbox } from '@/lib/offline';
+import { cacheBootstrap, findOutbox, getCachedMenu, getDataVersion, getLocalShift, nextLocalInvoice, queueOutbox, rememberInvoiceCursor, rememberLocalShift, updateOutboxPayload } from '@/lib/offline';
 import { notify } from '@/lib/notify';
-import { printUrl } from '@/lib/print';
+import { printHtml, printUrl } from '@/lib/print';
+import { localReceiptHtml } from '@/lib/receipt';
 
 const props = defineProps({
     categories: { type: Array, required: true },
@@ -26,6 +27,12 @@ const props = defineProps({
 
 const confirm = useConfirm();
 const page = usePage();
+
+const categories = ref(props.categories);
+const tables = ref(props.tables);
+const branch = ref(props.branch);
+const localShift = ref(null);
+const openShift = computed(() => props.openShift || localShift.value);
 
 const TICKET_KEY = 'pos-open-ticket';
 
@@ -94,7 +101,45 @@ watch(
     { deep: true },
 );
 
-const allItems = computed(() => props.categories.flatMap((category) => category.items));
+const allItems = computed(() => categories.value.flatMap((category) => category.items));
+
+function catalogItem(itemId) {
+    return allItems.value.find((item) => item.id === itemId) ?? null;
+}
+
+// Variant rows are replaced when the menu is reseeded or edited, so a ticket
+// restored from this browser can still hold an id that no longer exists.
+function resolveVariant(item, variant) {
+    const variants = item?.variants ?? [];
+
+    if (! variant || variants.length === 0) {
+        return null;
+    }
+
+    return variants.find((entry) => entry.id === variant.id)
+        ?? variants.find((entry) => entry.name === variant.name)
+        ?? variants.find((entry) => entry.is_default)
+        ?? variants[0]
+        ?? null;
+}
+
+function reconcileCart() {
+    cart.value = cart.value.flatMap((line) => {
+        const item = catalogItem(line.item?.id);
+
+        if (! item) {
+            return [];
+        }
+
+        return [{
+            ...line,
+            item,
+            variant: resolveVariant(item, line.variant),
+        }];
+    });
+}
+
+reconcileCart();
 
 const filteredItems = computed(() => {
     const needle = search.value.trim().toLowerCase();
@@ -108,13 +153,13 @@ const filteredItems = computed(() => {
         return allItems.value;
     }
 
-    return props.categories.find((category) => category.id === activeCategory.value)?.items ?? [];
+    return categories.value.find((category) => category.id === activeCategory.value)?.items ?? [];
 });
 
 const tablesByArea = computed(() => {
     const groups = [];
 
-    for (const table of props.tables) {
+    for (const table of tables.value) {
         const area = table.area ?? '';
         const existing = groups.find((group) => group.area === area);
 
@@ -129,8 +174,8 @@ const tablesByArea = computed(() => {
 });
 
 function itemCategoryName(item) {
-    return props.categories.find((category) => category.id === item.menu_category_id)?.name
-        ?? props.categories.find((category) => (category.items ?? []).some((row) => row.id === item.id))?.name
+    return categories.value.find((category) => category.id === item.menu_category_id)?.name
+        ?? categories.value.find((category) => (category.items ?? []).some((row) => row.id === item.id))?.name
         ?? '';
 }
 
@@ -308,7 +353,7 @@ function vatOn(amount, rate) {
         return 0;
     }
 
-    if (props.branch.vat_inclusive) {
+    if (branch.value.vat_inclusive) {
         return amount - (amount * 100 / (100 + rate));
     }
 
@@ -380,10 +425,10 @@ const extraTotal = computed(() => roundMoney(cart.value.reduce((sum, line) => su
 
 const hasCustomVat = computed(() => cart.value.some((line) => lineVatRate(line) !== null));
 
-const serviceCharge = computed(() => roundMoney(((subtotal.value - discountAmount.value) * Number(props.branch.service_charge_percent)) / 100));
+const serviceCharge = computed(() => roundMoney(((subtotal.value - discountAmount.value) * Number(branch.value.service_charge_percent)) / 100));
 
 const vatAmount = computed(() => {
-    const branchRate = Number(props.branch.vat_percent);
+    const branchRate = Number(branch.value.vat_percent);
     const nets = cart.value.map((line) => ({
         net: lineNet(line),
         rate: lineVatRate(line) ?? branchRate,
@@ -401,7 +446,7 @@ const vatAmount = computed(() => {
 
 const vatBase = computed(() => subtotal.value - discountAmount.value + extraTotal.value + serviceCharge.value);
 
-const rawTotal = computed(() => (props.branch.vat_inclusive ? vatBase.value : vatBase.value + vatAmount.value));
+const rawTotal = computed(() => (branch.value.vat_inclusive ? vatBase.value : vatBase.value + vatAmount.value));
 
 const total = computed(() => Math.round(rawTotal.value));
 
@@ -502,9 +547,11 @@ async function submitOrder() {
         note: null,
         terminal: TERMINAL,
         items: cart.value.map((line) => {
+            const itemRecord = catalogItem(line.item.id) ?? line.item;
+            const variant = resolveVariant(itemRecord, line.variant);
             const item = {
-                menu_item_id: line.item.id,
-                variant_id: line.variant?.id ?? null,
+                menu_item_id: itemRecord.id,
+                variant_id: variant?.id ?? null,
                 quantity: line.quantity,
                 add_ons: line.addOns.map((addOn) => ({ id: addOn.id, qty: addOn.qty })),
             };
@@ -539,7 +586,7 @@ async function submitOrder() {
         payload.discount = orderDiscount;
     }
 
-    if (! props.openShift) {
+    if (! openShift.value) {
         openShiftDialog();
         notify.info(t('orders.shift_needed'));
 
@@ -547,8 +594,20 @@ async function submitOrder() {
     }
 
     if (! navigator.onLine) {
-        await queueOutbox('order', { ...payload, branch_id: props.branch.id });
-        startNewOrder();
+        const invoiceNo = await nextLocalInvoice(branch.value.code, TERMINAL);
+        const queued = await queueOutbox('order', {
+            ...payload,
+            branch_id: branch.value.id,
+            invoice_no: invoiceNo,
+        });
+
+        latestOrder.value = {
+            local: true,
+            id: null,
+            client_id: queued.client_id,
+            invoice_no: invoiceNo,
+            total: total.value,
+        };
         notify.info(t('sync.queued'));
 
         return;
@@ -560,20 +619,62 @@ async function submitOrder() {
         onSuccess: (page) => {
             const order = page.props.flash?.order ?? null;
 
+            if (order?.invoice_no) {
+                const sequence = Number(String(order.invoice_no).split('-').pop());
+
+                if (Number.isFinite(sequence)) {
+                    rememberInvoiceCursor(branch.value.code, TERMINAL, sequence);
+                }
+
+                latestOrder.value = order;
+            }
+
             notify.success(order?.invoice_no ? `${t('orders.sent_to_kitchen')} ${order.invoice_no}` : t('orders.sent_to_kitchen'));
-            startNewOrder();
         },
         onError: (errors) => {
+            // The menu changed since this page loaded (for example after the daily demo reset):
+            // refresh it. The cart stays and re-matches the new sizes by name.
+            if (Object.keys(errors).some((key) => key.startsWith('items.'))) {
+                notify.error(t('orders.catalog_changed'));
+                router.reload({ preserveScroll: true });
+
+                return;
+            }
+
             const first = Object.values(errors)[0];
             notify.error(String(first ?? t('common.error_occurred')));
         },
     });
 }
 
-function payNow() {
+async function payNow() {
     const order = pagePropsOrder();
 
     if (! order) {
+        return;
+    }
+
+    const tenderedAmount = Number(tendered.value || 0);
+
+    if (tenderedAmount < Number(order.total ?? total.value)) {
+        notify.error(t('orders.tendered_too_low'));
+
+        return;
+    }
+
+    if (! navigator.onLine || order.local) {
+        await queueOfflinePayment(order, {
+            method: 'cash',
+            tendered: tenderedAmount,
+        });
+        lastPayment.value = {
+            order_id: order.id ?? null,
+            client_id: order.client_id ?? null,
+            change_due: Math.max(0, tenderedAmount - Number(order.total ?? total.value)),
+            invoice_no: order.invoice_no,
+        };
+        notify.info(t('sync.queued'));
+
         return;
     }
 
@@ -582,9 +683,12 @@ function payNow() {
     }, {
         preserveState: true,
         preserveScroll: true,
-        onSuccess: () => {
+        onSuccess: (page) => {
+            lastPayment.value = page.props.flash?.payment ?? {
+                order_id: order.id,
+                change_due: changeDue.value,
+            };
             notify.success(t('orders.paid_success'));
-            startNewOrder();
         },
         onError: (errors) => {
             const first = Object.values(errors)[0];
@@ -632,14 +736,45 @@ function openShiftDialog() {
     shiftDialogOpen.value = true;
 }
 
+async function queueOfflinePayment(order, payload) {
+    const queuedOrder = order.client_id ? await findOutbox(order.client_id) : null;
+
+    if (queuedOrder && payload.method === 'cash') {
+        await updateOutboxPayload(order.client_id, { tendered: payload.tendered });
+
+        return;
+    }
+
+    await queueOutbox('payment', {
+        branch_id: branch.value.id,
+        order_client_id: order.client_id ?? null,
+        order_id: order.id ?? null,
+        ...payload,
+    });
+}
+
+function receiptLines() {
+    return cart.value.map((line) => ({
+        name: localized(line.item, 'name'),
+        quantity: line.quantity,
+        total: lineNet(line),
+    }));
+}
+
 async function startShift() {
     if (! navigator.onLine) {
         await queueOutbox('shift', {
             action: 'open',
-            branch_id: props.branch.id,
+            branch_id: branch.value.id,
             opening_cash: openingCash.value,
             terminal: TERMINAL,
         });
+        localShift.value = {
+            id: 'local',
+            opening_cash: openingCash.value,
+            terminal: TERMINAL,
+        };
+        await rememberLocalShift(localShift.value);
         shiftDialogOpen.value = false;
         notify.info(t('sync.queued'));
 
@@ -660,7 +795,27 @@ async function startShift() {
 }
 
 function printCustomerCopy() {
-    const orderId = lastPayment.value?.order_id ?? latestOrder.value?.id;
+    const order = latestOrder.value;
+    const orderId = lastPayment.value?.order_id ?? order?.id;
+
+    if (! orderId && order?.invoice_no) {
+        printHtml(localReceiptHtml({
+            branch: branch.value,
+            invoiceNo: order.invoice_no,
+            when: new Date().toLocaleString(),
+            orderType: t(`orders.type.${orderType.value}`),
+            lines: receiptLines(),
+            subtotal: subtotal.value,
+            discount: discountAmount.value,
+            service: serviceCharge.value,
+            extra: extraTotal.value,
+            vat: vatAmount.value,
+            total: order.total ?? total.value,
+            change: changeShown.value,
+        }));
+
+        return;
+    }
 
     if (! orderId) {
         notify.info(t('orders.send_before_print'));
@@ -669,7 +824,6 @@ function printCustomerCopy() {
     }
 
     printUrl(route('admin.orders.receipt', orderId));
-    startNewOrder();
 }
 
 // keyboard shortcuts: / focus search, F2 new order (clear), F8 hold
@@ -697,15 +851,76 @@ function onKeydown(event) {
     }
 }
 
-onMounted(() => {
-    if (latestOrder.value || lastPayment.value) {
-        startNewOrder();
+async function refreshOfflineCache() {
+    try {
+        if (categories.value.length === 0) {
+            const cached = await getCachedMenu();
+
+            if ((cached.categories ?? []).length > 0) {
+                categories.value = cached.categories;
+                tables.value = cached.tables ?? [];
+
+                if (cached.branch) {
+                    branch.value = { ...branch.value, ...cached.branch };
+                }
+
+                reconcileCart();
+            }
+        }
+
+        if (! props.openShift) {
+            localShift.value = await getLocalShift();
+        }
+
+        await cacheBootstrap({
+            categories: categories.value,
+            tables: tables.value,
+            branch: branch.value,
+            data_version: await getDataVersion(),
+        });
+    } catch {
+        return;
     }
+
+    if (! navigator.onLine) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/v1/sync/bootstrap', {
+            credentials: 'same-origin',
+            headers: {
+                Accept: 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+
+        if (! response.ok) {
+            return;
+        }
+
+        const data = (await response.json()).data ?? {};
+
+        await cacheBootstrap(data);
+
+        const code = data.branch?.code ?? branch.value.code;
+
+        for (const row of data.invoice_sequences ?? []) {
+            await rememberInvoiceCursor(code, row.terminal_code, row.last_number, row.for_date);
+        }
+    } catch {
+        // The cursor already on the device stays in place.
+    }
+}
+
+onMounted(() => {
+    reconcileCart();
 
     window.addEventListener('keydown', onKeydown);
     window.addEventListener('pointerdown', onActivity);
     window.addEventListener('keydown', onActivity);
     armIdleLock();
+    refreshOfflineCache();
 });
 
 onBeforeUnmount(() => {
@@ -739,6 +954,27 @@ function paySplit() {
         return;
     }
 
+    if (! navigator.onLine || order.local) {
+        queueOfflinePayment(order, {
+            method: 'split',
+            lines: splitLines.value.map((line) => ({
+                method: line.method,
+                amount: line.amount,
+                reference: line.reference || null,
+            })),
+        }).then(() => {
+            lastPayment.value = {
+                order_id: order.id ?? null,
+                client_id: order.client_id ?? null,
+                change_due: 0,
+                invoice_no: order.invoice_no,
+            };
+            notify.info(t('sync.queued'));
+        });
+
+        return;
+    }
+
     router.post(route('admin.payments.split', order.id), {
         lines: splitLines.value.map((line) => ({
             method: line.method,
@@ -748,9 +984,12 @@ function paySplit() {
     }, {
         preserveState: true,
         preserveScroll: true,
-        onSuccess: () => {
+        onSuccess: (page) => {
+            lastPayment.value = page.props.flash?.payment ?? {
+                order_id: order.id,
+                change_due: 0,
+            };
             notify.success(t('payments.split_completed'));
-            startNewOrder();
         },
         onError: (errors) => notify.error(Object.values(errors)[0] ?? t('payments.split_mismatch')),
     });
@@ -763,6 +1002,24 @@ function payWalletManual() {
         return;
     }
 
+    if (! navigator.onLine || order.local) {
+        queueOfflinePayment(order, {
+            method: walletMethod.value,
+            amount: Number(order.total ?? total.value),
+            reference: walletTrxId.value,
+        }).then(() => {
+            lastPayment.value = {
+                order_id: order.id ?? null,
+                client_id: order.client_id ?? null,
+                change_due: 0,
+                invoice_no: order.invoice_no,
+            };
+            notify.info(t('sync.queued'));
+        });
+
+        return;
+    }
+
     router.post(route('admin.payments.manual', order.id), {
         method: walletMethod.value,
         amount: Number(latestOrder.value?.total ?? total.value),
@@ -770,9 +1027,12 @@ function payWalletManual() {
     }, {
         preserveState: true,
         preserveScroll: true,
-        onSuccess: () => {
+        onSuccess: (page) => {
+            lastPayment.value = page.props.flash?.payment ?? {
+                order_id: order.id,
+                change_due: 0,
+            };
             notify.success(t('payments.manual_recorded'));
-            startNewOrder();
         },
         onError: (errors) => notify.error(Object.values(errors)[0] ?? t('common.error_occurred')),
     });
@@ -811,7 +1071,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
 </script>
 
 <template>
-    <div class="flex h-[calc(100vh-3.5rem)] flex-col gap-2 overflow-hidden p-2 lg:flex-row">
+    <div class="flex h-[calc(100vh-3.5rem-var(--demo-banner-h))] flex-col gap-2 overflow-hidden p-2 lg:flex-row">
         <!-- Left: categories + items -->
         <section class="flex min-w-0 flex-1 flex-col gap-2">
             <div class="flex items-center gap-2">
@@ -992,7 +1252,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                             </span>
                         </button>
                     </div>
-                    <span class="shrink-0 font-mono text-[11px] text-muted" :title="latestOrder?.invoice_no">{{ latestOrder?.invoice_no ?? '-' }}</span>
+                    <span data-pos-invoice class="shrink-0 font-mono text-[11px] text-muted" :title="latestOrder?.invoice_no">{{ latestOrder?.invoice_no ?? '-' }}</span>
                 </div>
 
                 <!-- Bill discount -->
