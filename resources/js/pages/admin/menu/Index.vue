@@ -7,6 +7,7 @@ import MoneyInput from '@/components/ui-kit/MoneyInput.vue';
 import PageHeader from '@/components/ui-kit/PageHeader.vue';
 import QuantityStepper from '@/components/ui-kit/QuantityStepper.vue';
 import SkeletonRows from '@/components/ui-kit/SkeletonRows.vue';
+import MediaManager from '@/components/admin/MediaManager.vue';
 import SlideOver from '@/components/ui-kit/SlideOver.vue';
 import StatusBadge from '@/components/ui-kit/StatusBadge.vue';
 import SwitchField from '@/components/ui-kit/SwitchField.vue';
@@ -18,6 +19,8 @@ import { notify } from '@/lib/notify';
 const props = defineProps({
     categories: { type: Array, required: true },
     canManage: { type: Boolean, default: false },
+    canViewMedia: { type: Boolean, default: false },
+    canManageMedia: { type: Boolean, default: false },
 });
 
 const confirm = useConfirm();
@@ -110,6 +113,20 @@ const emptyItem = () => ({
 });
 
 const itemForm = useForm(emptyItem());
+
+// Photos and videos of the dish being edited. Read from the page props so the
+// list refreshes after every upload without closing the form.
+const editingItemMedia = computed(() => {
+    for (const category of props.categories) {
+        const found = category.items.find((entry) => entry.id === editingItemId.value);
+
+        if (found) {
+            return found.media_gallery ?? [];
+        }
+    }
+
+    return [];
+});
 
 function openItem(item = null, categoryId = null) {
     editingItemId.value = item?.id ?? null;
@@ -475,6 +492,14 @@ function reload() {
                     </div>
                 </div>
             </form>
+
+            <!-- Photos and videos sit outside the dish form so their own forms are not nested inside it -->
+            <div v-if="canViewMedia" class="mt-3 border-t border-border pt-3">
+                <h3 class="text-xs font-semibold uppercase tracking-wider text-muted" :class="$page.props.locale === 'bn' ? 'normal-case tracking-normal' : ''">{{ t('media.section') }}</h3>
+                <p class="mb-2 mt-0.5 text-[13px] text-muted">{{ editingItemId === null ? t('media.save_first') : t('media.section_hint') }}</p>
+
+                <MediaManager v-if="editingItemId !== null" :owner="`item:${editingItemId}`" :media="editingItemMedia" :can-manage="canManageMedia" compact />
+            </div>
 
             <template #footer>
                 <button type="button" class="h-7 rounded-md border border-border bg-surface px-2.5 text-[13px] text-foreground hover:bg-background" @click="itemOpen = false">{{ t('common.cancel') }}</button>

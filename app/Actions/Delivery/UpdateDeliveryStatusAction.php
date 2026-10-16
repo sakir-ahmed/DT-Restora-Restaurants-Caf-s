@@ -65,7 +65,7 @@ class UpdateDeliveryStatusAction
 
             if (in_array($nextStatus, [Delivery::STATUS_PICKED_UP, Delivery::STATUS_DELIVERED, Delivery::STATUS_FAILED], true)
                 && $order->customer?->mobile !== null) {
-                SendSmsJob::dispatch(
+                SendSmsJob::deliver(
                     $order->customer->mobile,
                     __('delivery.sms_status.'.$nextStatus, ['invoice' => $order->invoice_no]),
                 );

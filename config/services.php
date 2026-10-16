@@ -63,6 +63,11 @@ return [
         'mode' => env('SSLCOMMERZ_MODE', 'sandbox'),
     ],
 
+    'sms' => [
+        // Demo mode shows each SMS as an on-screen toast instead of sending it. Ignored in production.
+        'demo' => (bool) env('SMS_DEMO', false),
+    ],
+
     'fcm' => [
         'server_key' => env('FCM_SERVER_KEY'),
     ],

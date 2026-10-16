@@ -14,4 +14,5 @@ return [
     'idempotency_required' => 'Send an Idempotency-Key header.',
     'forbidden' => 'You do not have permission for this action.',
     'google_not_configured' => 'Google sign-in is not configured.',
+    'otp_send_failed' => 'We could not send the code. Please check the number and try again.',
 ];

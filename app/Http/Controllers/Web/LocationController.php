@@ -50,16 +50,20 @@ class LocationController extends Controller
             ->available()
             ->where('branch_id', $branch->id)
             ->whereHas('category', fn ($query) => $query->where('is_active', true))
-            ->with(['category:id,name,name_bn', 'variants'])
+            ->with(['category:id,name,name_bn', 'variants', 'media'])
             ->orderByDesc('id')
             ->limit(6)
             ->get();
 
+        $locale = app()->getLocale();
+        $outletMedia = $branch->media()->where('is_active', true)->get();
+        $outletImages = $outletMedia->where('kind', 'image')->map(fn ($media) => $media->absoluteSrc())->filter()->values()->all();
         $canonical = route('web.locations.show', ['slug' => $branch->publicSlug()]);
 
         return Inertia::render('web/locations/Show', [
             'branch' => $this->summary($branch) + ['latitude' => $branch->latitude, 'longitude' => $branch->longitude],
             'popular' => $popular,
+            'media' => $outletMedia->map(fn ($media): array => $media->toDisplay($locale))->values(),
             'seo' => $this->seo->page(
                 title: __('site.seo_location_title', ['branch' => $branch->displayName(app()->getLocale())]),
                 description: __('site.seo_location_description', [
@@ -67,12 +71,13 @@ class LocationController extends Controller
                     'address' => trim($branch->address.', '.$branch->city, ', '),
                 ]),
                 canonical: $canonical,
-                jsonLd: [$this->seo->restaurant($branch)],
+                jsonLd: [$this->seo->restaurant($branch, $outletImages)],
                 breadcrumbs: [
                     ['name' => __('site.nav_home'), 'url' => url('/')],
                     ['name' => __('site.nav_locations'), 'url' => route('web.locations.index')],
                     ['name' => $branch->displayName(app()->getLocale()), 'url' => $canonical],
                 ],
+                image: $outletImages[0] ?? null,
             ),
         ]);
     }

@@ -3,8 +3,12 @@
 use App\Http\Controllers\Admin\AccountingController;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\AggregatorController;
+use App\Http\Controllers\Admin\AttendanceController;
+use App\Http\Controllers\Admin\AttendanceDeviceController;
+use App\Http\Controllers\Admin\BlogController as AdminBlogController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\BranchSwitchController;
+use App\Http\Controllers\Admin\CareerController as AdminCareerController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -13,11 +17,14 @@ use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\IngredientController;
 use App\Http\Controllers\Admin\KdsController;
+use App\Http\Controllers\Admin\LetterheadController;
 use App\Http\Controllers\Admin\LoyaltyController;
 use App\Http\Controllers\Admin\LoyaltyRedemptionController;
+use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\MenuController as AdminMenuController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\PayrollController;
 use App\Http\Controllers\Admin\PosController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\ReceiptController;
@@ -41,10 +48,14 @@ use App\Http\Controllers\Rider\RiderLocationWebController;
 use App\Http\Controllers\Web\AboutController;
 use App\Http\Controllers\Web\AccountController;
 use App\Http\Controllers\Web\AggregatorWebhookController;
+use App\Http\Controllers\Web\BlogController;
+use App\Http\Controllers\Web\CareerController;
 use App\Http\Controllers\Web\CheckoutController;
 use App\Http\Controllers\Web\ContactController;
 use App\Http\Controllers\Web\CustomerAuthController;
 use App\Http\Controllers\Web\CustomerGoogleController;
+use App\Http\Controllers\Web\FaqController;
+use App\Http\Controllers\Web\GalleryController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\ItemController;
 use App\Http\Controllers\Web\LegalController;
@@ -54,11 +65,17 @@ use App\Http\Controllers\Web\RobotsController;
 use App\Http\Controllers\Web\SitemapController;
 use App\Http\Controllers\Web\TrackController;
 use App\Http\Controllers\Web\WebPaymentController;
-use App\Models\Branch;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('web.home');
 Route::get('/about', AboutController::class)->name('web.about');
+Route::get('/gallery', GalleryController::class)->name('web.gallery');
+Route::get('/blog', [BlogController::class, 'index'])->name('web.blog.index');
+Route::get('/blog/feed.xml', [BlogController::class, 'feed'])->name('web.blog.feed');
+Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('web.blog.show');
+Route::get('/careers', [CareerController::class, 'index'])->name('web.careers.index');
+Route::post('/careers/apply', [CareerController::class, 'apply'])->name('web.careers.apply')->middleware('throttle:5,60');
+Route::get('/careers/{opening}/{slug?}', [CareerController::class, 'show'])->whereNumber('opening')->name('web.careers.show');
 Route::get('/contact', ContactController::class)->name('web.contact');
 Route::get('/locations', [LocationController::class, 'index'])->name('web.locations.index');
 Route::get('/locations/{slug}', [LocationController::class, 'show'])->name('web.locations.show');
@@ -97,6 +114,10 @@ Route::prefix('rider')->name('rider.')->middleware(['auth'])->group(function ():
 
 Route::get('/privacy', [LegalController::class, 'privacy'])->name('web.privacy');
 Route::get('/terms', [LegalController::class, 'terms'])->name('web.terms');
+Route::get('/refund-policy', [LegalController::class, 'refund'])->name('web.refund');
+Route::get('/delivery-policy', [LegalController::class, 'delivery'])->name('web.delivery');
+Route::get('/cookie-policy', [LegalController::class, 'cookies'])->name('web.cookies');
+Route::get('/faq', FaqController::class)->name('web.faq');
 
 Route::get('/sitemap.xml', SitemapController::class)->name('web.sitemap');
 Route::get('/robots.txt', RobotsController::class)->name('web.robots');
@@ -136,6 +157,25 @@ Route::prefix('admin')
         Route::put('branches/{branch}', [BranchController::class, 'update'])->name('branches.update')->middleware('permission:branches.manage');
         Route::delete('branches/{branch}', [BranchController::class, 'destroy'])->name('branches.destroy')->middleware('permission:branches.manage');
 
+        Route::get('blog', [AdminBlogController::class, 'index'])->name('blog.index')->middleware('permission:blog.manage');
+        Route::post('blog', [AdminBlogController::class, 'store'])->name('blog.store')->middleware('permission:blog.manage');
+        Route::put('blog/{post}', [AdminBlogController::class, 'update'])->name('blog.update')->middleware('permission:blog.manage');
+        Route::delete('blog/{post}', [AdminBlogController::class, 'destroy'])->name('blog.destroy')->middleware('permission:blog.manage');
+
+        Route::get('careers', [AdminCareerController::class, 'index'])->name('careers.index')->middleware('permission:careers.manage');
+        Route::post('careers', [AdminCareerController::class, 'store'])->name('careers.store')->middleware('permission:careers.manage');
+        Route::put('careers/{opening}', [AdminCareerController::class, 'update'])->name('careers.update')->middleware('permission:careers.manage');
+        Route::delete('careers/{opening}', [AdminCareerController::class, 'destroy'])->name('careers.destroy')->middleware('permission:careers.manage');
+        Route::put('careers/applications/{application}', [AdminCareerController::class, 'updateApplication'])->name('careers.applications.update')->middleware('permission:careers.manage');
+        Route::delete('careers/applications/{application}', [AdminCareerController::class, 'destroyApplication'])->name('careers.applications.destroy')->middleware('permission:careers.manage');
+        Route::get('careers/applications/{application}/cv', [AdminCareerController::class, 'downloadCv'])->name('careers.applications.cv')->middleware('permission:careers.manage');
+
+        Route::get('media', [AdminMediaController::class, 'index'])->name('media.index')->middleware('permission:media.view');
+        Route::post('media', [AdminMediaController::class, 'store'])->name('media.store')->middleware('permission:media.manage');
+        Route::put('media/{media}', [AdminMediaController::class, 'update'])->name('media.update')->middleware('permission:media.manage');
+        Route::post('media/{media}/move', [AdminMediaController::class, 'move'])->name('media.move')->middleware('permission:media.manage');
+        Route::delete('media/{media}', [AdminMediaController::class, 'destroy'])->name('media.destroy')->middleware('permission:media.manage');
+
         Route::get('menu', [AdminMenuController::class, 'index'])->name('menu.index')->middleware('permission:menu.view');
         Route::post('menu/categories', [AdminMenuController::class, 'storeCategory'])->name('menu.categories.store')->middleware('permission:menu.manage');
         Route::put('menu/categories/{category}', [AdminMenuController::class, 'updateCategory'])->name('menu.categories.update')->middleware('permission:menu.manage');
@@ -151,6 +191,22 @@ Route::prefix('admin')
         Route::post('staff/users', [UserController::class, 'store'])->name('staff.users.store')->middleware('permission:staff.manage');
         Route::put('staff/users/{user}', [UserController::class, 'update'])->name('staff.users.update')->middleware('permission:staff.manage');
         Route::delete('staff/users/{user}', [UserController::class, 'destroy'])->name('staff.users.destroy')->middleware('permission:staff.manage');
+
+        Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index')->middleware('permission:attendance.manage');
+        Route::post('attendance', [AttendanceController::class, 'store'])->name('attendance.store')->middleware('permission:attendance.manage');
+        Route::post('attendance/devices', [AttendanceDeviceController::class, 'store'])->name('attendance.devices.store')->middleware('permission:attendance.manage');
+        Route::put('attendance/devices/{device}', [AttendanceDeviceController::class, 'update'])->name('attendance.devices.update')->middleware('permission:attendance.manage');
+        Route::post('attendance/devices/{device}/token', [AttendanceDeviceController::class, 'rotate'])->name('attendance.devices.token')->middleware('permission:attendance.manage');
+
+        Route::get('payroll', [PayrollController::class, 'index'])->name('payroll.index')->middleware('permission:payroll.manage');
+        Route::post('payroll/advances', [PayrollController::class, 'storeAdvance'])->name('payroll.advances.store')->middleware('permission:payroll.manage');
+        Route::get('payroll/slips/{employee}', [PayrollController::class, 'slip'])->name('payroll.slip')->middleware('permission:payroll.manage');
+
+        Route::get('letters', [LetterheadController::class, 'index'])->name('letters.index')->middleware('permission:letters.manage');
+        Route::post('letters', [LetterheadController::class, 'store'])->name('letters.store')->middleware('permission:letters.manage');
+        Route::put('letters/{letter}', [LetterheadController::class, 'update'])->name('letters.update')->middleware('permission:letters.manage');
+        Route::delete('letters/{letter}', [LetterheadController::class, 'destroy'])->name('letters.destroy')->middleware('permission:letters.manage');
+        Route::get('letters/{letter}/print', [LetterheadController::class, 'print'])->name('letters.print')->middleware('permission:letters.manage');
 
         Route::get('ingredients', [IngredientController::class, 'index'])->name('ingredients.index')->middleware('permission:inventory.view');
         Route::post('ingredients', [IngredientController::class, 'store'])->name('ingredients.store')->middleware('permission:inventory.manage');

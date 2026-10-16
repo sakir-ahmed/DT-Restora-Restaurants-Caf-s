@@ -58,6 +58,7 @@ const nav = computed(() => {
             label: t('nav.inventory'),
             items: [
                 { label: t('nav.menu'), href: '/admin/menu', icon: 'book-open', permission: 'menu.view' },
+                { label: t('nav.media'), href: '/admin/media', icon: 'images', permission: 'media.view' },
                 { label: t('nav.ingredients'), href: '/admin/ingredients', icon: 'boxes-stacked', permission: 'inventory.view' },
                 { label: t('nav.recipes'), href: '/admin/recipes', icon: 'list-check', permission: 'recipes.manage' },
                 { label: t('nav.purchases'), href: '/admin/purchases', icon: 'truck-fast', permission: 'purchases.manage' },
@@ -73,6 +74,10 @@ const nav = computed(() => {
                 { label: t('loyalty.title'), href: '/admin/loyalty', icon: 'gift', permission: 'loyalty.manage' },
                 { label: t('coupons.title'), href: '/admin/coupons', icon: 'ticket', permission: 'coupons.manage' },
                 { label: t('nav.staff'), href: '/admin/staff', icon: 'user-shield', permission: 'staff.view' },
+                { label: t('nav.attendance'), href: '/admin/attendance', icon: 'clock', permission: 'attendance.manage' },
+                { label: t('nav.letters'), href: '/admin/letters', icon: 'envelope', permission: 'letters.manage' },
+                { label: t('nav.careers'), href: '/admin/careers', icon: 'briefcase', permission: 'careers.manage' },
+                { label: t('nav.blog'), href: '/admin/blog', icon: 'newspaper', permission: 'blog.manage' },
                 { label: t('nav.delivery'), href: '/admin/delivery', icon: 'motorcycle', permission: 'delivery.dispatch' },
             ],
         },
@@ -80,6 +85,7 @@ const nav = computed(() => {
             label: t('nav.finance'),
             items: [
                 { label: t('nav.accounting'), href: '/admin/accounting', icon: 'scale-balanced', permission: 'accounting.view' },
+                { label: t('nav.payroll'), href: '/admin/payroll', icon: 'money-bill-wave', permission: 'payroll.manage' },
                 { label: t('nav.reports'), href: '/admin/reports', icon: 'chart-column', permission: 'reports.view' },
                 { label: t('expenses.title'), href: '/admin/expenses', icon: 'wallet', permission: 'expenses.manage' },
             ],

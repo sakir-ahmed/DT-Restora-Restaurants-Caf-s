@@ -30,7 +30,7 @@ use Illuminate\Validation\ValidationException;
  * Prices, VAT, service charge, rounding and stock deduction all behave
  * the same wherever an order comes from.
  *
- * @phpstan-type OrderLineInput array{menu_item_id: int, variant_id?: int|null, quantity: int, add_ons?: array<int, array{id: int, qty?: int}>|null}
+ * @phpstan-type OrderLineInput array{menu_item_id: int, variant_id?: int|null, quantity: int, add_ons?: array<int, array{id: int, qty?: int}>|null, discount?: array{type?: string, value?: float|int|string}|null, vat_percent?: float|int|string|null, extra_charge?: float|int|string|null}
  * @phpstan-type DiscountInput array{type: 'percent'|'fixed', value: float}|null
  */
 class CreateOrderAction
@@ -76,15 +76,12 @@ class CreateOrderAction
         return DB::transaction(function () use ($branch, $type, $lines, $cashier, $waiter, $tableId, $customer, $discount, $note, $channel, $clientId, $shift, $terminalCode, $deliveryFee, $deliveryZoneId, $deliveryAddress, $scheduledFor, $couponCode): Order {
             $branch = Branch::query()->whereKey($branch->id)->lockForUpdate()->firstOrFail();
 
-            // Discount rule: above the limit needs the override permission.
-            if ($discount !== null && $discount['value'] > 0) {
-                $percentEquivalent = $discount['type'] === 'percent'
-                    ? (float) $discount['value']
-                    : 100.0; // fixed amounts checked after subtotal below
-
+            // Percent discounts above the limit need the override permission.
+            // Fixed amounts are checked against the subtotal once lines are priced.
+            if ($discount !== null && $discount['type'] === 'percent' && (float) $discount['value'] > 0) {
                 $limit = (float) Setting::current()->discount_limit_percent;
 
-                if ($percentEquivalent > $limit && ($cashier === null || ! $cashier->can('discounts.override'))) {
+                if ((float) $discount['value'] > $limit && ($cashier === null || ! $cashier->can('discounts.override'))) {
                     throw ValidationException::withMessages([
                         'discount' => __('orders.discount_limit_exceeded'),
                     ]);
@@ -96,19 +93,15 @@ class CreateOrderAction
             });
 
             $subtotal = round($items->sum(fn (array $item) => (float) $item['line_total']), 2);
+            $adjustments = $this->lineAdjustments(
+                $lines->values(),
+                $items->map(fn (array $item): float => (float) $item['line_total'])->values(),
+            );
+            $lineDiscounts = $adjustments['discount'];
+            $extraTotal = $adjustments['extra'];
 
-            // Fixed discounts above the configured percent of the subtotal also need approval.
-            if ($discount !== null && $discount['type'] === 'fixed' && $subtotal > 0) {
-                $limit = (float) Setting::current()->discount_limit_percent;
-
-                if (((float) $discount['value'] / $subtotal * 100) > $limit && ($cashier === null || ! $cashier->can('discounts.override'))) {
-                    throw ValidationException::withMessages([
-                        'discount' => __('orders.discount_limit_exceeded'),
-                    ]);
-                }
-            }
-
-            $manualDiscount = $this->discountAmount($discount, $subtotal);
+            $billBase = max(0, round($subtotal - $lineDiscounts, 2));
+            $manualDiscount = $this->discountAmount($discount, $billBase);
 
             $coupon = null;
             $couponDiscount = 0.0;
@@ -116,7 +109,7 @@ class CreateOrderAction
             if ($couponCode !== null && $couponCode !== '') {
                 $result = app(CouponService::class)->validate(
                     $couponCode,
-                    round($subtotal - $manualDiscount, 2),
+                    round(max(0, $billBase - $manualDiscount), 2),
                     ['channel' => $channel->value, 'branch_id' => $branch->id, 'customer_id' => $customer?->id],
                 );
 
@@ -124,17 +117,28 @@ class CreateOrderAction
                 $couponDiscount = $result['discount'];
             }
 
-            $discountAmount = round($manualDiscount + $couponDiscount, 2);
+            $discountBeforeCoupon = round($lineDiscounts + $manualDiscount, 2);
+
+            if ($subtotal > 0 && ($discountBeforeCoupon / $subtotal * 100) > (float) Setting::current()->discount_limit_percent && ($cashier === null || ! $cashier->can('discounts.override'))) {
+                throw ValidationException::withMessages([
+                    'discount' => __('orders.discount_limit_exceeded'),
+                ]);
+            }
+
+            $discountAmount = round($discountBeforeCoupon + $couponDiscount, 2);
 
             $afterDiscount = round($subtotal - $discountAmount, 2);
 
             $serviceCharge = round($afterDiscount * ((float) $branch->service_charge_percent) / 100, 2);
 
-            $vatBase = round($afterDiscount + $serviceCharge, 2);
+            $vatAmount = $this->combinedVat(
+                $branch,
+                $adjustments['lines'],
+                round($manualDiscount + $couponDiscount, 2),
+                $serviceCharge,
+            );
 
-            $vatAmount = $branch->vat_inclusive
-                ? round($vatBase - ($vatBase * 100 / (100 + (float) $branch->vat_percent)), 2)
-                : round($vatBase * ((float) $branch->vat_percent) / 100, 2);
+            $vatBase = round($afterDiscount + $extraTotal + $serviceCharge, 2);
 
             $fee = $type === OrderType::Delivery ? round((float) ($deliveryFee ?? 0), 2) : 0.0;
 
@@ -164,6 +168,7 @@ class CreateOrderAction
                 'coupon_id' => $coupon?->id,
                 'discount_amount' => $discountAmount,
                 'service_charge' => $serviceCharge,
+                'extra_charge' => $extraTotal,
                 'vat_amount' => $vatAmount,
                 'delivery_fee' => $fee,
                 'rounding' => $rounding,
@@ -341,6 +346,90 @@ class CreateOrderAction
                 );
             }
         }
+    }
+
+    /**
+     * @param  Collection<int, OrderLineInput>  $lines
+     * @param  Collection<int, float>  $grosses
+     * @return array{discount: float, extra: float, lines: array<int, array{net: float, vat_percent: float|null}>}
+     */
+    private function lineAdjustments(Collection $lines, Collection $grosses): array
+    {
+        $discount = 0.0;
+        $extra = 0.0;
+        $priced = [];
+
+        foreach ($grosses as $index => $gross) {
+            $input = $lines[$index];
+            $lineDiscount = $this->lineDiscountAmount($input, $gross);
+            $lineExtra = round(max((float) ($input['extra_charge'] ?? 0), 0), 2);
+            $vatPercent = array_key_exists('vat_percent', $input) && $input['vat_percent'] !== null && $input['vat_percent'] !== ''
+                ? (float) $input['vat_percent']
+                : null;
+
+            $discount += $lineDiscount;
+            $extra += $lineExtra;
+            $priced[] = [
+                'net' => round($gross - $lineDiscount + $lineExtra, 2),
+                'vat_percent' => $vatPercent,
+            ];
+        }
+
+        return [
+            'discount' => round($discount, 2),
+            'extra' => round($extra, 2),
+            'lines' => $priced,
+        ];
+    }
+
+    /**
+     * @param  OrderLineInput  $line
+     */
+    private function lineDiscountAmount(array $line, float $gross): float
+    {
+        $discount = $line['discount'] ?? null;
+
+        if (! is_array($discount) || (float) ($discount['value'] ?? 0) <= 0) {
+            return 0.0;
+        }
+
+        $amount = ($discount['type'] ?? 'percent') === 'fixed'
+            ? (float) $discount['value']
+            : $gross * ((float) $discount['value']) / 100;
+
+        return round(min(max($amount, 0), $gross), 2);
+    }
+
+    /**
+     * @param  array<int, array{net: float, vat_percent: float|null}>  $lines
+     */
+    private function combinedVat(Branch $branch, array $lines, float $billDiscount, float $serviceCharge): float
+    {
+        $netTotal = array_sum(array_column($lines, 'net'));
+        $vat = 0.0;
+
+        foreach ($lines as $line) {
+            $share = $netTotal > 0 ? ($line['net'] / $netTotal) * $billDiscount : 0.0;
+            $taxable = max(0, $line['net'] - $share);
+            $vat += $this->vatOn($taxable, $line['vat_percent'] ?? (float) $branch->vat_percent, (bool) $branch->vat_inclusive);
+        }
+
+        $vat += $this->vatOn($serviceCharge, (float) $branch->vat_percent, (bool) $branch->vat_inclusive);
+
+        return round($vat, 2);
+    }
+
+    private function vatOn(float $amount, float $rate, bool $inclusive): float
+    {
+        if ($amount <= 0 || $rate <= 0) {
+            return 0.0;
+        }
+
+        if ($inclusive) {
+            return $amount - ($amount * 100 / (100 + $rate));
+        }
+
+        return $amount * $rate / 100;
     }
 
     /**

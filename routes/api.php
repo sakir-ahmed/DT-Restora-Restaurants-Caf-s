@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\Accounting\AccountingApiController;
+use App\Http\Controllers\Api\V1\Attendance\DevicePunchController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Auth\OtpController;
 use App\Http\Controllers\Api\V1\Customer\CustomerApiController;
@@ -16,6 +17,10 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
         'success' => true,
         'data' => ['status' => 'ok'],
     ]))->name('health');
+
+    Route::post('/attendance/punches', [DevicePunchController::class, 'store'])
+        ->middleware(['attendance.device', 'throttle:120,1'])
+        ->name('attendance.punches');
 
     Route::prefix('auth')->name('auth.')->group(function (): void {
         Route::post('/login', [AuthController::class, 'login'])->name('login');

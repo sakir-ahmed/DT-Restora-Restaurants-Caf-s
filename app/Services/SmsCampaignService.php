@@ -32,7 +32,7 @@ class SmsCampaignService
                     return;
                 }
 
-                SendSmsJob::dispatch($customer->mobile, __('web.sms_birthday', ['name' => $customer->name]));
+                SendSmsJob::deliver($customer->mobile, __('web.sms_birthday', ['name' => $customer->name]));
                 Cache::put($key, true, now()->addYear());
                 $sent++;
             });
@@ -58,7 +58,7 @@ class SmsCampaignService
                     return;
                 }
 
-                SendSmsJob::dispatch($customer->mobile, __('web.sms_winback', ['name' => $customer->name]));
+                SendSmsJob::deliver($customer->mobile, __('web.sms_winback', ['name' => $customer->name]));
                 Cache::put($key, true, now()->addDays($inactiveDays));
                 $sent++;
             });

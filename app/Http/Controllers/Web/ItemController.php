@@ -31,7 +31,7 @@ class ItemController extends Controller
             ->where('branch_id', $branch->id)
             ->where('menu_category_id', $item->menu_category_id)
             ->whereKeyNot($item->id)
-            ->with(['category:id,name,name_bn', 'variants'])
+            ->with(['category:id,name,name_bn', 'variants', 'media'])
             ->orderBy('sort_order')
             ->limit(4)
             ->get();
@@ -41,7 +41,8 @@ class ItemController extends Controller
         $description = $locale === 'bn' && $item->description_bn ? $item->description_bn : $item->description;
         $code = strtolower($branch->code);
         $canonical = route('web.item', ['branchCode' => $code, 'item' => $item->id]);
-        $image = $this->photoUrl($item->photo_path);
+        $gallery = $this->gallery($item, $name, $locale);
+        $image = collect($gallery)->firstWhere('kind', 'image')['absolute_src'] ?? null;
 
         return Inertia::render('web/Item', [
             'branch' => $branch->only(['id', 'name', 'name_bn', 'code']),
@@ -59,6 +60,7 @@ class ItemController extends Controller
                 'variants' => $item->variants,
                 'add_ons' => $item->addOns,
             ],
+            'gallery' => $gallery,
             'related' => $related,
             'seo' => $this->seo->page(
                 title: __('site.seo_item_title', ['item' => $name, 'branch' => $branch->displayName($locale)]),
@@ -68,7 +70,7 @@ class ItemController extends Controller
                     '@type' => 'MenuItem',
                     'name' => $item->name,
                     'description' => $item->description,
-                    'image' => $image,
+                    'image' => collect($gallery)->where('kind', 'image')->pluck('absolute_src')->values()->all() ?: null,
                     'suitableForDiet' => $item->is_vegetarian ? 'https://schema.org/VegetarianDiet' : null,
                     'offers' => [
                         '@type' => 'Offer',
@@ -88,12 +90,41 @@ class ItemController extends Controller
         ]);
     }
 
-    private function photoUrl(?string $path): ?string
+    /**
+     * Photos and videos for the dish page, starting with the legacy photo
+     * path when the dish has one.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function gallery(MenuItem $item, string $name, string $locale): array
+    {
+        $gallery = [];
+
+        if ($item->photo_path && $item->media->doesntContain(fn ($media): bool => $media->path === $item->photo_path)) {
+            $gallery[] = [
+                'id' => 0, 'kind' => 'image', 'src' => $this->photoPath($item->photo_path), 'absolute_src' => $this->absolute($this->photoPath($item->photo_path)), 'title' => $name,
+                'provider' => null, 'embed_url' => null, 'thumbnail' => null, 'video_url' => null,
+            ];
+        }
+
+        foreach ($item->media->where('is_active', true) as $media) {
+            $gallery[] = $media->toDisplay($locale);
+        }
+
+        return $gallery;
+    }
+
+    private function photoPath(?string $path): ?string
     {
         if ($path === null || $path === '') {
             return null;
         }
 
-        return str_starts_with($path, 'http') ? $path : url('/storage/'.ltrim($path, '/'));
+        return str_starts_with($path, 'http') ? $path : '/storage/'.ltrim($path, '/');
+    }
+
+    private function absolute(?string $path): ?string
+    {
+        return $path === null ? null : (str_starts_with($path, 'http') ? $path : url($path));
     }
 }

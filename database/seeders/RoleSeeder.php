@@ -21,6 +21,10 @@ class RoleSeeder extends Seeder
         'branches.manage',
         'menu.view',
         'menu.manage',
+        'media.view',
+        'media.manage',
+        'careers.manage',
+        'blog.manage',
         'staff.view',
         'staff.manage',
         'orders.view',
@@ -36,6 +40,9 @@ class RoleSeeder extends Seeder
         'wastage.approve',
         'transfers.manage',
         'employees.manage',
+        'attendance.manage',
+        'payroll.manage',
+        'letters.manage',
         'shifts.manage',
         'pos.access',
         'kds.access',
@@ -62,11 +69,11 @@ class RoleSeeder extends Seeder
     private const ROLE_PERMISSIONS = [
         'owner' => '*',
         'branch-manager' => [
-            'admin.access', 'branches.view', 'menu.view', 'menu.manage', 'staff.view',
+            'admin.access', 'branches.view', 'menu.view', 'menu.manage', 'media.view', 'media.manage', 'staff.view',
             'orders.view', 'orders.create', 'orders.void', 'discounts.override',
             'inventory.view', 'inventory.manage', 'stock.adjust', 'purchases.manage',
             'recipes.manage', 'wastage.log', 'wastage.approve', 'transfers.manage',
-            'employees.manage', 'shifts.manage', 'payments.manage', 'expenses.manage',
+            'employees.manage', 'attendance.manage', 'letters.manage', 'shifts.manage', 'payments.manage', 'expenses.manage',
             'pos.access', 'kds.access',
             'reports.view', 'dashboard.view', 'customers.view', 'customers.manage',
             'loyalty.manage', 'delivery.dispatch', 'riders.manage', 'aggregators.manage', 'sync.resolve',
@@ -86,7 +93,7 @@ class RoleSeeder extends Seeder
         ],
         'accountant' => [
             'admin.access', 'branches.view', 'reports.view', 'dashboard.view',
-            'accounting.view', 'journals.post', 'vouchers.manage', 'periods.lock', 'expenses.manage',
+            'accounting.view', 'journals.post', 'vouchers.manage', 'periods.lock', 'expenses.manage', 'payroll.manage', 'letters.manage',
         ],
         'rider' => [
             'admin.access', 'branches.view',

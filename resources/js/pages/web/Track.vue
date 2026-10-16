@@ -1,6 +1,7 @@
 <script setup>
-import { Head } from '@inertiajs/vue3';
-import { onMounted, onBeforeUnmount } from 'vue';
+import { Head, usePage } from '@inertiajs/vue3';
+import { onMounted, onBeforeUnmount, ref } from 'vue';
+import OrderPlacedDialog from '@/components/site/OrderPlacedDialog.vue';
 import AppIcon from '@/components/AppIcon.vue';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/format';
@@ -9,6 +10,10 @@ const props = defineProps({
     order: { type: Object, required: true },
     map: { type: Object, default: () => ({}) },
 });
+
+const page = usePage();
+const placed = ref(page.props.flash?.placed ?? null);
+const showPlaced = ref(placed.value !== null);
 
 let mapInstance = null;
 
@@ -57,6 +62,8 @@ function activeIndex(status) {
 
 <template>
     <Head :title="t('web.track_title')" />
+
+    <OrderPlacedDialog :open="showPlaced" :order="placed" @close="showPlaced = false" />
 
     <div class="mx-auto max-w-lg">
         <div class="rounded-xl border border-border bg-surface p-5">

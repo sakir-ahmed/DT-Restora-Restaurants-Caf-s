@@ -5,16 +5,20 @@ declare(strict_types=1);
 namespace App\Services\Accounting;
 
 use App\Actions\Accounting\PostJournalEntryAction;
+use App\Actions\Payroll\CalculateStaffPayAction;
+use App\Enums\PayBasis;
 use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\Expense;
 use App\Models\Journal;
 use App\Models\Order;
 use App\Models\Purchase;
+use App\Models\SalaryAdvance;
 use App\Models\Scopes\BranchScope;
 use App\Models\User;
 use App\Models\Voucher;
 use App\Models\Wastage;
+use Carbon\CarbonImmutable;
 
 /**
  * Automatic postings from business events. Every method maps one
@@ -47,7 +51,10 @@ class AccountingService
         'payable' => '2200',
     ];
 
-    public function __construct(private readonly PostJournalEntryAction $poster) {}
+    public function __construct(
+        private readonly PostJournalEntryAction $poster,
+        private readonly CalculateStaffPayAction $pay,
+    ) {}
 
     /**
      * Account codes used by automatic postings. Names may change; these codes may not.
@@ -80,14 +87,18 @@ class AccountingService
 
         $lines = [];
 
-        $netSales = round((float) $order->subtotal - (float) $order->discount_amount, 2);
+        $grossSales = round((float) $order->subtotal, 2);
 
         if ((float) $order->discount_amount > 0) {
             $lines[] = $this->line('sales_discount', debit: (float) $order->discount_amount);
         }
 
-        if ($netSales > 0) {
-            $lines[] = $this->line('sales', credit: $netSales);
+        if ($grossSales > 0) {
+            $lines[] = $this->line('sales', credit: $grossSales);
+        }
+
+        if ((float) $order->extra_charge > 0) {
+            $lines[] = $this->line('sales', credit: (float) $order->extra_charge);
         }
 
         if ((float) $order->service_charge > 0) {
@@ -211,9 +222,11 @@ class AccountingService
                 ->withoutGlobalScope(BranchScope::class)
                 ->where('branch_id', $branch->id)
                 ->where('is_active', true)
+                ->where('pay_basis', PayBasis::Monthly)
                 ->sum('monthly_salary');
 
-            $amount = round($monthly / 30, 2);
+            $dayDate = CarbonImmutable::parse($day);
+            $amount = round($monthly / 30 + $this->pay->attendanceCost($branch->id, $dayDate, $dayDate), 2);
 
             if ($amount <= 0) {
                 return;
@@ -276,6 +289,39 @@ class AccountingService
     }
 
     /**
+     * Cash paid as a salary advance. Debits accrued salaries and credits cash
+     * so the existing ledger stays balanced. The period pay calculation
+     * subtracts the same advance from gross pay.
+     */
+    public function postSalaryAdvance(SalaryAdvance $advance, ?User $user = null): Journal
+    {
+        $existing = Journal::query()
+            ->where('source_type', $advance->getMorphClass())
+            ->where('source_id', $advance->id)
+            ->where('status', '!=', Journal::STATUS_REVERSED)
+            ->first();
+
+        if ($existing !== null) {
+            return $existing;
+        }
+
+        $amount = (float) $advance->amount;
+        $advance->loadMissing('employee');
+
+        return $this->poster->execute(
+            entryDate: $advance->advanced_on->toDateString(),
+            lines: [
+                $this->line('salary_payable', debit: $amount),
+                $this->line('cash', credit: $amount),
+            ],
+            reference: 'ADV-'.$advance->id,
+            note: __('accounting.advance_note', ['name' => $advance->employee->name ?? '']),
+            source: $advance,
+            user: $user,
+        );
+    }
+
+    /**
      * Operating expense.
      */
     public function postExpense(Expense $expense, ?User $user = null): void
@@ -326,17 +372,12 @@ class AccountingService
         $drift = round($debits - $credits, 2);
 
         if (abs($drift) > 0.001) {
-            // Attach the drift to the cash/receivable side.
-            foreach ($lines as $index => $line) {
-                if (in_array($line['account_code'], [self::CODES['cash'], self::CODES['receivable']], true)) {
-                    if ($drift > 0) {
-                        $lines[$index]['credit'] = round((float) ($line['credit'] ?? 0) + $drift, 2);
-                    } else {
-                        $lines[$index]['debit'] = round((float) ($line['debit'] ?? 0) - $drift, 2);
-                    }
-
-                    break;
-                }
+            // A separate one-sided line. Never add the opposite amount
+            // onto a line that already has a debit or a credit.
+            if ($drift > 0) {
+                $lines[] = $this->line('sales', credit: $drift);
+            } else {
+                $lines[] = $this->line('sales', debit: abs($drift));
             }
         }
 

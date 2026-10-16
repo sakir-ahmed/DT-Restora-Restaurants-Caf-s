@@ -21,6 +21,21 @@ class SendSmsJob implements ShouldQueue
         public readonly string $message,
     ) {}
 
+    /**
+     * Queue the SMS, or run it immediately in demo mode so the message can
+     * appear as a toast in the same request.
+     */
+    public static function deliver(string $mobile, string $message): void
+    {
+        if (SmsService::isDemo()) {
+            static::dispatchSync($mobile, $message);
+
+            return;
+        }
+
+        static::dispatch($mobile, $message);
+    }
+
     public function handle(SmsService $sms): void
     {
         $sms->send($this->mobile, $this->message);

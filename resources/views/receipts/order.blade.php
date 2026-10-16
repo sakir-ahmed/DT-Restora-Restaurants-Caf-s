@@ -125,6 +125,12 @@
                 <td class="right">{{ \Illuminate\Support\Number::format((float) $order->service_charge, 2) }}</td>
             </tr>
         @endif
+        @if ((float) $order->extra_charge > 0)
+            <tr>
+                <td>{{ __('receipt.other_charge') }}</td>
+                <td class="right">{{ \Illuminate\Support\Number::format((float) $order->extra_charge, 2) }}</td>
+            </tr>
+        @endif
         @if ((float) $order->vat_amount > 0)
             <tr>
                 <td>{{ __('receipt.vat') }} ({{ \Illuminate\Support\Number::format((float) $order->branch->vat_percent, 2) }}%)</td>

@@ -10,6 +10,14 @@ beforeEach(function (): void {
     $this->seed(RoleSeeder::class);
 });
 
+it('sends a signed-in staff member to the dashboard', function (): void {
+    $user = User::factory()->role('cashier')->create();
+
+    $this->actingAs($user, 'staff')
+        ->get('/login')
+        ->assertRedirect('/admin');
+});
+
 it('logs in with a username', function (): void {
     $user = User::factory()->create([
         'username' => 'cashier01',

@@ -16,6 +16,7 @@ use App\Models\DeliveryZone;
 use App\Models\RestaurantTable;
 use App\Services\CouponService;
 use App\Services\OtpService;
+use App\Services\SmsService;
 use App\Services\TurnstileService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -111,12 +112,19 @@ class CheckoutController extends Controller
             'items.*.add_ons' => ['nullable', 'array'],
             'items.*.add_ons.*.id' => ['required', 'integer', 'exists:menu_item_addons,id'],
             'items.*.add_ons.*.qty' => ['nullable', 'integer', 'min:1'],
+        ], [
+            'delivery_zone_id.required_if' => __('web.err_zone'),
+            'delivery_address.required_if' => __('web.err_address'),
+            'items.required' => __('web.cart_empty'),
+            'items.min' => __('web.cart_empty'),
+            'guest_otp.digits' => __('web.err_otp_length'),
+            'scheduled_for.after' => __('web.err_scheduled'),
         ]);
 
         // Guest checkout rate limit: 5 orders per hour per IP.
         $key = 'guest-checkout:'.sha1((string) $request->ip());
 
-        if (RateLimiter::tooManyAttempts($key, 5)) {
+        if (! SmsService::isDemo() && RateLimiter::tooManyAttempts($key, 5)) {
             throw ValidationException::withMessages([
                 'order' => __('web.too_many_orders'),
             ]);
@@ -125,7 +133,9 @@ class CheckoutController extends Controller
         $customer = $request->user('customer');
 
         if ($customer === null) {
-            RateLimiter::hit($key, 3600);
+            if (! SmsService::isDemo()) {
+                RateLimiter::hit($key, 3600);
+            }
 
             // Guests must pass Turnstile (when configured) and verify by OTP.
             if (! $turnstile->verify((string) ($validated['turnstile_token'] ?? ''))) {
@@ -210,7 +220,7 @@ class CheckoutController extends Controller
             'items' => $order->items->map(fn ($item) => ['name' => $item->name, 'quantity' => $item->quantity])->all(),
         ]));
 
-        SendSmsJob::dispatch($customer->mobile, __('web.sms_order_confirmed', ['invoice' => $order->invoice_no, 'total' => $order->total]));
+        SendSmsJob::deliver($customer->mobile, __('web.sms_order_confirmed', ['invoice' => $order->invoice_no, 'total' => $order->total]));
 
         if ($validated['payment_method'] !== 'cod' && in_array($validated['payment_method'], ['bkash', 'sslcommerz'], true)) {
             session(['pending_gateway_order' => $order->id]);
@@ -219,6 +229,14 @@ class CheckoutController extends Controller
         }
 
         return redirect()->route('web.track', ['token' => $order->tracking_token])
-            ->with('success', __('web.order_placed', ['invoice' => $order->invoice_no]));
+            ->with('success', __('web.order_placed', ['invoice' => $order->invoice_no]))
+            ->with('placed_order', [
+                'invoice_no' => $order->invoice_no,
+                'total' => (string) $order->total,
+                'order_type' => $type->value,
+                'payment_method' => $validated['payment_method'],
+                'eta_minutes' => $zone?->eta_minutes,
+                'branch' => $branch->name,
+            ]);
     }
 }

@@ -115,6 +115,25 @@ it('automatically posts a balanced entry when an order is paid', function (): vo
     expect(Journal::query()->where('source_id', $order->id)->count())->toBe(1);
 });
 
+it('posts a discounted order without putting both sides on the cash line', function (): void {
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::Takeaway,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 2]],
+        cashier: $this->cashier,
+        discount: ['type' => 'fixed', 'value' => 20],
+    );
+
+    app(PayOrderAction::class)->executeCash($order, (float) $order->total);
+
+    $journal = Journal::query()->where('source_id', $order->id)->where('source_type', $order->getMorphClass())->firstOrFail();
+    $cash = $journal->lines()->whereHas('account', fn ($query) => $query->where('code', '1100'))->firstOrFail();
+
+    expect($journal->totalDebit())->toBe($journal->totalCredit())
+        ->and((float) $cash->debit)->toBe((float) $order->total)
+        ->and((float) $cash->credit)->toBe(0.0);
+});
+
 it('reverses the journal when an order is voided', function (): void {
     $order = app(CreateOrderAction::class)->execute(
         branch: $this->branch,

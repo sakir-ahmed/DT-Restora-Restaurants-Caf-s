@@ -1,4 +1,6 @@
 @php
+    // The SSR response already carries the page title; print our own only when SSR is unavailable.
+    $ssrResponse = app(\Inertia\Ssr\SsrState::class)->setPage($page)->dispatch();
     $seo = $page['props']['seo'] ?? null;
     $brand = config('app.name', 'DT Restora');
     $title = $seo ? $seo['title'].' - '.$brand : $brand;
@@ -12,9 +14,12 @@
     <meta name="theme-color" content="#1f1612">
     <meta data-inertia="robots" name="robots" content="{{ $robots }}">
 
-    <title>{{ $title }}</title>
+    @unless ($ssrResponse)
+        <title>{{ $title }}</title>
+    @endunless
 
     @if ($seo)
+        <link rel="alternate" type="application/rss+xml" title="{{ $brand }}" href="{{ route('web.blog.feed') }}">
         <meta data-inertia="description" name="description" content="{{ $seo['description'] }}">
         <link data-inertia="canonical" rel="canonical" href="{{ $seo['canonical'] }}">
         <meta data-inertia="og:site_name" property="og:site_name" content="{{ $brand }}">

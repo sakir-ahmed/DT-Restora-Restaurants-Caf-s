@@ -5,117 +5,154 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Models\Branch;
-use App\Models\Employee;
+use App\Models\Media;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\MenuItemAddOn;
 use App\Models\MenuItemVariant;
 use App\Models\RestaurantTable;
+use Database\Seeders\Support\DemoMenuCatalog;
+use Database\Seeders\Support\DemoPhotos;
 use Illuminate\Database\Seeder;
 
 class DemoMenuSeeder extends Seeder
 {
     public function run(): void
     {
-        if (config('app.env') === 'testing') {
+        if (app()->environment('testing')) {
             return;
         }
 
-        $branch = Branch::query()->where('code', 'BR01')->firstOrFail();
-
-        $menu = [
-            'Rice and Curry' => ['name_bn' => 'ভাত ও তরকারি', 'items' => [
-                ['name' => 'Chicken Biryani', 'name_bn' => 'চিকেন বিরিয়ানি', 'price' => '280.00', 'veg' => false, 'variants' => [
-                    ['name' => 'Regular', 'name_bn' => 'রেগুলার', 'price' => '280.00', 'default' => true],
-                    ['name' => 'Large', 'name_bn' => 'লার্জ', 'price' => '360.00', 'default' => false],
-                ], 'addons' => [
-                    ['name' => 'Extra Roast', 'name_bn' => 'অতিরিক্ত রোস্ট', 'price' => '90.00'],
-                    ['name' => 'Borhani Glass', 'name_bn' => 'বোরহানি গ্লাস', 'price' => '40.00'],
-                ]],
-                ['name' => 'Beef Tehari', 'name_bn' => 'বিফ তেহারি', 'price' => '250.00', 'veg' => false, 'variants' => [
-                    ['name' => 'Regular', 'name_bn' => 'রেগুলার', 'price' => '250.00', 'default' => true],
-                    ['name' => 'Large', 'name_bn' => 'লার্জ', 'price' => '330.00', 'default' => false],
-                ], 'addons' => []],
-            ]],
-            'Fast Food' => ['name_bn' => 'ফাস্ট ফুড', 'items' => [
-                ['name' => 'Chicken Burger', 'name_bn' => 'চিকেন বার্গার', 'price' => '180.00', 'veg' => false, 'variants' => [
-                    ['name' => 'Single', 'name_bn' => 'সিঙ্গেল', 'price' => '180.00', 'default' => true],
-                    ['name' => 'Double Patty', 'name_bn' => 'ডাবল প্যাটি', 'price' => '280.00', 'default' => false],
-                ], 'addons' => [
-                    ['name' => 'Cheese Slice', 'name_bn' => 'চিজ স্লাইস', 'price' => '40.00'],
-                    ['name' => 'Fries Regular', 'name_bn' => 'ফ্রাই রেগুলার', 'price' => '70.00'],
-                ]],
-                ['name' => 'Vegetable Sandwich', 'name_bn' => 'ভেজিটেবল স্যান্ডউইচ', 'price' => '120.00', 'veg' => true, 'variants' => [], 'addons' => []],
-            ]],
-            'Drinks' => ['name_bn' => 'পানীয়', 'items' => [
-                ['name' => 'Lacchi Sharbat', 'name_bn' => 'লাচ্ছি শরবত', 'price' => '60.00', 'veg' => true, 'variants' => [
-                    ['name' => 'Normal', 'name_bn' => 'সাধারণ', 'price' => '60.00', 'default' => true],
-                    ['name' => 'Special', 'name_bn' => 'স্পেশাল', 'price' => '90.00', 'default' => false],
-                ], 'addons' => []],
-                ['name' => 'Masala Tea', 'name_bn' => 'মসলা চা', 'price' => '25.00', 'veg' => true, 'variants' => [], 'addons' => []],
-            ]],
+        $factors = [
+            'BR01' => 1.0,
+            'BR02' => 0.92,
+            'BR03' => 0.88,
         ];
 
-        foreach ($menu as $categoryName => $categoryData) {
-            $category = MenuCategory::query()->updateOrCreate(
-                ['branch_id' => $branch->id, 'name' => $categoryName],
-                ['name_bn' => $categoryData['name_bn'], 'is_active' => true],
-            );
+        $tables = [
+            'BR01' => [
+                ['prefix' => 'T', 'from' => 1, 'to' => 12, 'seats' => 4, 'area' => 'Ground floor'],
+                ['prefix' => 'F', 'from' => 1, 'to' => 6, 'seats' => 6, 'area' => 'Family'],
+                ['prefix' => 'R', 'from' => 1, 'to' => 4, 'seats' => 4, 'area' => 'Rooftop'],
+            ],
+            'BR02' => [
+                ['prefix' => 'H', 'from' => 1, 'to' => 10, 'seats' => 4, 'area' => 'Hall'],
+                ['prefix' => 'C', 'from' => 1, 'to' => 4, 'seats' => 6, 'area' => 'Cabin'],
+            ],
+            'BR03' => [
+                ['prefix' => 'U', 'from' => 1, 'to' => 8, 'seats' => 4, 'area' => 'Floor'],
+                ['prefix' => 'G', 'from' => 1, 'to' => 4, 'seats' => 4, 'area' => 'Garden'],
+            ],
+        ];
 
-            foreach ($categoryData['items'] as $index => $itemData) {
-                $item = MenuItem::query()->updateOrCreate(
-                    ['branch_id' => $branch->id, 'menu_category_id' => $category->id, 'name' => $itemData['name']],
+        $catalog = DemoMenuCatalog::categories();
+
+        foreach (Branch::query()->whereIn('code', array_keys($factors))->orderBy('code')->get() as $branch) {
+            $factor = $factors[$branch->code];
+            $keptCategories = [];
+            $barcode = 1;
+
+            foreach ($catalog as $categoryOrder => $categoryData) {
+                $category = MenuCategory::query()->updateOrCreate(
+                    ['branch_id' => $branch->id, 'name' => $categoryData['name']],
                     [
-                        'name_bn' => $itemData['name_bn'],
-                        'base_price' => $itemData['price'],
-                        'is_available' => true,
-                        'is_vegetarian' => $itemData['veg'],
-                        'sort_order' => $index + 1,
+                        'name_bn' => $categoryData['name_bn'],
+                        'sort_order' => $categoryOrder + 1,
+                        'is_active' => true,
                     ],
                 );
+                $keptCategories[] = $category->id;
 
-                foreach ($itemData['variants'] as $variantOrder => $variantData) {
-                    MenuItemVariant::query()->updateOrCreate(
-                        ['menu_item_id' => $item->id, 'name' => $variantData['name']],
+                foreach ($categoryData['items'] as $itemOrder => $itemData) {
+                    $item = MenuItem::query()->updateOrCreate(
+                        ['branch_id' => $branch->id, 'name' => $itemData['name']],
                         [
-                            'name_bn' => $variantData['name_bn'],
-                            'price' => $variantData['price'],
-                            'is_default' => $variantData['default'],
-                            'sort_order' => $variantOrder + 1,
+                            'menu_category_id' => $category->id,
+                            'name_bn' => $itemData['name_bn'],
+                            'description' => $itemData['description'],
+                            'description_bn' => $itemData['description_bn'],
+                            'base_price' => $this->price((int) $itemData['price'], $factor),
+                            'photo_path' => DemoPhotos::publish((string) $itemData['photo']),
+                            'barcode' => sprintf('DT-%s-%04d', $branch->code, $barcode),
+                            'is_available' => ! $itemData['sold_out'],
+                            'is_vegetarian' => $itemData['veg'],
+                            'sort_order' => $itemOrder + 1,
                         ],
                     );
-                }
+                    $barcode++;
 
-                foreach ($itemData['addons'] as $addOnOrder => $addOnData) {
-                    MenuItemAddOn::query()->updateOrCreate(
-                        ['menu_item_id' => $item->id, 'name' => $addOnData['name']],
-                        [
-                            'name_bn' => $addOnData['name_bn'],
-                            'price' => $addOnData['price'],
+                    $item->variants()->delete();
+                    $item->addOns()->delete();
+
+                    foreach ($itemData['variants'] as $variantOrder => $variant) {
+                        MenuItemVariant::query()->create([
+                            'menu_item_id' => $item->id,
+                            'name' => $variant['name'],
+                            'name_bn' => $variant['name_bn'],
+                            'price' => $this->price((int) $variant['price'], $factor),
+                            'is_default' => $variant['default'],
+                            'sort_order' => $variantOrder + 1,
+                        ]);
+                    }
+
+                    foreach ($itemData['addons'] as $addOnOrder => $addOn) {
+                        MenuItemAddOn::query()->create([
+                            'menu_item_id' => $item->id,
+                            'name' => $addOn['name'],
+                            'name_bn' => $addOn['name_bn'],
+                            'price' => $this->price((int) $addOn['price'], $factor),
+                            'is_active' => true,
                             'sort_order' => $addOnOrder + 1,
+                        ]);
+                    }
+
+                    $photo = $item->photo_path;
+
+                    if ($photo !== null) {
+                        Media::query()->updateOrCreate(
+                            [
+                                'mediable_type' => $item->getMorphClass(),
+                                'mediable_id' => $item->id,
+                                'kind' => Media::KIND_IMAGE,
+                            ],
+                            [
+                                'path' => $photo,
+                                'title' => $item->name,
+                                'title_bn' => $item->name_bn,
+                                'sort_order' => 1,
+                                'is_active' => true,
+                            ],
+                        );
+                    }
+                }
+            }
+
+            MenuCategory::query()
+                ->where('branch_id', $branch->id)
+                ->whereNotIn('id', $keptCategories)
+                ->whereDoesntHave('items')
+                ->delete();
+
+            foreach ($tables[$branch->code] ?? [] as $group) {
+                foreach (range($group['from'], $group['to']) as $number) {
+                    RestaurantTable::query()->updateOrCreate(
+                        ['branch_id' => $branch->id, 'name' => $group['prefix'].$number],
+                        [
+                            'seats' => $group['seats'],
+                            'area' => $group['area'],
+                            'status' => 'free',
+                            'is_active' => true,
                         ],
                     );
                 }
             }
         }
+    }
 
-        // Restaurant tables for dine-in at BR01.
-        foreach (range(1, 8) as $number) {
-            RestaurantTable::query()->updateOrCreate(
-                ['branch_id' => $branch->id, 'name' => 'T'.$number],
-                ['seats' => $number <= 4 ? 4 : 6, 'area' => $number <= 4 ? 'Ground floor' : 'Rooftop', 'status' => 'free', 'is_active' => true],
-            );
-        }
+    private function price(int $amount, float $factor): string
+    {
+        $adjusted = (int) (round(($amount * $factor) / 10) * 10);
 
-        foreach (['Head Chef' => 45000, 'Sous Chef' => 30000, 'Kitchen Helper' => 15000, 'Cleaner' => 12000] as $designation => $salary) {
-            Employee::query()->updateOrCreate(
-                ['branch_id' => $branch->id, 'designation' => $designation],
-                [
-                    'name' => fake()->name(),
-                    'monthly_salary' => $salary,
-                    'is_active' => true,
-                ],
-            );
-        }
+        return number_format((float) max(20, $adjusted), 2, '.', '');
     }
 }

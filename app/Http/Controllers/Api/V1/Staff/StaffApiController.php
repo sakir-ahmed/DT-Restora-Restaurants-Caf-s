@@ -556,14 +556,20 @@ class StaffApiController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:150'],
             'designation' => ['required', 'string', 'max:80'],
-            'monthly_salary' => ['required', 'numeric', 'min:0'],
+            'monthly_salary' => ['required_without:pay_rate', 'nullable', 'numeric', 'min:0'],
+            'pay_basis' => ['nullable', 'in:monthly,daily,hourly'],
+            'pay_rate' => ['nullable', 'numeric', 'min:0'],
+            'device_user_id' => ['nullable', 'string', 'max:64'],
             'mobile' => ['nullable', 'string', 'max:20'],
         ]);
 
         $employee = Employee::query()->create([
-            ...$validated,
+            'name' => $validated['name'],
+            'designation' => $validated['designation'],
+            'mobile' => $validated['mobile'] ?? null,
             'branch_id' => $branchModel->id,
             'is_active' => true,
+            ...Employee::payAttributes($validated),
         ]);
 
         return $this->success($employee, null, 201);

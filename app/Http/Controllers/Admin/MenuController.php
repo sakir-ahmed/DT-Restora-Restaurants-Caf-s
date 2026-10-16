@@ -28,12 +28,19 @@ class MenuController extends Controller
         $categories = MenuCategory::query()
             ->where('branch_id', $branch->id)
             ->ordered()
-            ->with(['items' => fn ($query) => $query->orderBy('sort_order')->orderBy('name')])
+            ->with(['items' => fn ($query) => $query->orderBy('sort_order')->orderBy('name')->with('media')])
             ->get();
+
+        // MenuItem hides its media relation, so hand each dish's photos and videos over explicitly.
+        $categories->each(fn (MenuCategory $category) => $category->items->each(
+            fn (MenuItem $item) => $item->setAttribute('media_gallery', $item->media->map(fn ($media): array => $media->toDisplay(app()->getLocale()))->values()),
+        ));
 
         return Inertia::render('admin/menu/Index', [
             'categories' => $categories,
             'canManage' => $request->user('staff')?->can('menu.manage'),
+            'canViewMedia' => (bool) $request->user('staff')?->can('media.view'),
+            'canManageMedia' => (bool) $request->user('staff')?->can('media.manage'),
         ]);
     }
 

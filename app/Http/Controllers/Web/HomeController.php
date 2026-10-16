@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\BlogPost;
 use App\Models\Branch;
 use App\Models\DeliveryZone;
+use App\Models\Media;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Services\SeoBuilder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -31,7 +34,7 @@ class HomeController extends Controller
         $featured = MenuItem::query()
             ->available()
             ->whereHas('category', fn ($query) => $query->where('is_active', true))
-            ->with(['category:id,name,name_bn', 'variants'])
+            ->with(['category:id,name,name_bn', 'variants', 'media'])
             ->orderByDesc('id')
             ->limit(8)
             ->get();
@@ -50,6 +53,18 @@ class HomeController extends Controller
             'branches' => $branches,
             'featured' => $featured,
             'categories' => $categories,
+            'gallery' => $this->galleryPreview(),
+            'posts' => BlogPost::query()->published()->orderByDesc('published_at')->limit(3)->get()->map(fn (BlogPost $post): array => [
+                'id' => $post->id,
+                'slug' => $post->slug,
+                'title' => $post->text('title', app()->getLocale()),
+                'excerpt' => $post->text('excerpt', app()->getLocale()),
+                'category' => $post->category,
+                'cover' => $post->coverSrc(),
+                'cover_alt' => $post->cover_alt ?: $post->text('title', app()->getLocale()),
+                'published_at' => $post->published_at?->toIso8601String(),
+                'reading_minutes' => $post->readingMinutes(app()->getLocale()),
+            ])->values(),
             'stats' => [
                 'branches' => $branches->count(),
                 'dishes' => MenuItem::query()->available()->whereIn('branch_id', $branches->pluck('id'))->count(),
@@ -60,7 +75,7 @@ class HomeController extends Controller
     }
 
     /**
-     * @param  \Illuminate\Support\Collection<int, Branch>  $branches
+     * @param  Collection<int, Branch>  $branches
      * @return array<string, mixed>
      */
     private function seoData($branches): array
@@ -78,5 +93,23 @@ class HomeController extends Controller
             canonical: url('/'),
             jsonLd: $graph,
         );
+    }
+
+    /**
+     * A few recent photos for the home page strip.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function galleryPreview(): array
+    {
+        return Media::query()
+            ->active()
+            ->where('kind', Media::KIND_IMAGE)
+            ->whereNotNull('path')
+            ->orderByDesc('id')
+            ->limit(6)
+            ->get()
+            ->map(fn (Media $media): array => $media->toDisplay(app()->getLocale()))
+            ->all();
     }
 }

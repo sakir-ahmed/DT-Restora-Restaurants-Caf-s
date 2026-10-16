@@ -27,6 +27,12 @@ beforeEach(function (): void {
     ]);
 });
 
+it('opens the customer sign-in page from the website', function (): void {
+    $this->get('/customer/login')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('web/Login'));
+});
+
 it('renders a public item page for the branch', function (): void {
     $this->get('/menu/br01/items/'.$this->item->id)
         ->assertOk()

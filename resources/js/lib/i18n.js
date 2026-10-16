@@ -15,7 +15,10 @@ function interpolate(template, replacements = {}) {
  */
 watch(() => page.props?.locale ?? 'en', (value) => {
     locale.value = value;
-    document.documentElement.lang = value;
+
+    if (typeof document !== 'undefined') {
+        document.documentElement.lang = value;
+    }
 }, { immediate: true });
 
 /**

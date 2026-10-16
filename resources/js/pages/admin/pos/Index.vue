@@ -1,13 +1,15 @@
 <script setup>
-import { useForm, router } from '@inertiajs/vue3';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { useForm, router, usePage } from '@inertiajs/vue3';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
+import DishArt from '@/components/site/DishArt.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
 import MobileInput from '@/components/ui-kit/MobileInput.vue';
 import MoneyInput from '@/components/ui-kit/MoneyInput.vue';
 import { useConfirm } from '@/components/ui-kit/useConfirm.js';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/format';
+import { dishKind, localized } from '@/lib/site';
 import { queueOutbox } from '@/lib/offline';
 import { notify } from '@/lib/notify';
 import { printUrl } from '@/lib/print';
@@ -23,19 +25,33 @@ const props = defineProps({
 });
 
 const confirm = useConfirm();
+const page = usePage();
+
+const TICKET_KEY = 'pos-open-ticket';
+
+function readTicket() {
+    try {
+        return JSON.parse(sessionStorage.getItem(TICKET_KEY) ?? 'null');
+    } catch {
+        return null;
+    }
+}
+
+const savedTicket = readTicket();
 
 const activeCategory = ref(null);
 const search = ref('');
-const orderType = ref('dine_in');
-const tableId = ref(null);
+const orderType = ref(savedTicket?.orderType ?? 'dine_in');
+const tableId = ref(savedTicket?.tableId ?? null);
 const failedPhotoIds = ref({});
-const customerMobile = ref('');
-const cart = ref([]);
-const discount = ref({ type: 'percent', value: 0 });
+const customerMobile = ref(savedTicket?.customerMobile ?? '');
+const cart = ref(savedTicket?.cart ?? []);
+const discount = ref(savedTicket?.discount ?? { type: 'percent', value: 0 });
+const itemEditor = ref(null);
+const variantPicker = ref(null);
 const heldOrders = ref([]);
-const payDialogOpen = ref(false);
-const payMode = ref('cash'); // cash | split | wallet
-const tendered = ref('');
+const payMode = ref(savedTicket?.payMode ?? 'cash');
+const tendered = ref(savedTicket?.tendered ?? '');
 const splitLines = ref([]);
 const walletTrxId = ref('');
 const walletMethod = ref('bkash');
@@ -45,11 +61,34 @@ const locked = ref(false);
 const pin = ref('');
 const pinError = ref('');
 let idleTimer = null;
-const lastPayment = ref(null);
-const discountDialogOpen = ref(false);
+const lastPayment = ref(savedTicket?.lastPayment ?? null);
 
 const TERMINAL = localStorage.getItem('pos-terminal') ?? 'T01';
-const latestOrder = ref(null);
+const latestOrder = ref(savedTicket?.latestOrder ?? null);
+
+watch(
+    [cart, discount, orderType, tableId, customerMobile, tendered, payMode, latestOrder, lastPayment],
+    () => {
+        if (cart.value.length === 0 && ! latestOrder.value) {
+            sessionStorage.removeItem(TICKET_KEY);
+
+            return;
+        }
+
+        sessionStorage.setItem(TICKET_KEY, JSON.stringify({
+            cart: cart.value,
+            discount: discount.value,
+            orderType: orderType.value,
+            tableId: tableId.value,
+            customerMobile: customerMobile.value,
+            tendered: tendered.value,
+            payMode: payMode.value,
+            latestOrder: latestOrder.value,
+            lastPayment: lastPayment.value,
+        }));
+    },
+    { deep: true },
+);
 
 const allItems = computed(() => props.categories.flatMap((category) => category.items));
 
@@ -85,12 +124,18 @@ const tablesByArea = computed(() => {
     return groups;
 });
 
+function itemCategoryName(item) {
+    return props.categories.find((category) => category.id === item.menu_category_id)?.name
+        ?? props.categories.find((category) => (category.items ?? []).some((row) => row.id === item.id))?.name
+        ?? '';
+}
+
 function itemPhotoSrc(item) {
-    if (failedPhotoIds.value[item.id]) {
+    if (! item || failedPhotoIds.value[item.id]) {
         return null;
     }
 
-    const path = item.photo_path;
+    const path = item.cover_url || item.photo_path;
 
     if (! path) {
         return null;
@@ -107,20 +152,96 @@ function markPhotoFailed(itemId) {
     failedPhotoIds.value = { ...failedPhotoIds.value, [itemId]: true };
 }
 
-function addItem(item) {
-    const defaultVariant = item.variants?.find((variant) => variant.is_default) ?? item.variants?.[0] ?? null;
+function itemHasVariants(item) {
+    return (item.variants ?? []).length > 0;
+}
 
+function sortedVariants(item) {
+    return [...(item.variants ?? [])].sort((left, right) => (left.sort_order ?? 0) - (right.sort_order ?? 0));
+}
+
+function itemCardPrice(item) {
+    if (! itemHasVariants(item)) {
+        return item.base_price;
+    }
+
+    return Math.min(...item.variants.map((variant) => Number(variant.price)));
+}
+
+function addItem(item) {
+    if (itemHasVariants(item)) {
+        variantPicker.value = item;
+
+        return;
+    }
+
+    pushLine(item, null);
+}
+
+function variantLine(variant) {
+    const item = variantPicker.value;
+
+    if (! item) {
+        return null;
+    }
+
+    return cart.value.find((line) => line.item.id === item.id
+        && (line.variant?.id ?? null) === (variant?.id ?? null)) ?? null;
+}
+
+function variantQuantity(variant) {
+    return variantLine(variant)?.quantity ?? 0;
+}
+
+function pickerLines() {
+    const item = variantPicker.value;
+
+    if (! item) {
+        return [];
+    }
+
+    return cart.value.filter((line) => line.item.id === item.id && line.variant);
+}
+
+const pickerQuantity = computed(() => pickerLines().reduce((sum, line) => sum + line.quantity, 0));
+
+const pickerTotal = computed(() => pickerLines().reduce((sum, line) => sum + lineNet(line), 0));
+
+function selectVariant(variant) {
+    const item = variantPicker.value;
+
+    if (! item || latestOrder.value) {
+        return;
+    }
+
+    pushLine(item, variant);
+}
+
+function decreaseVariant(variant) {
+    const line = variantLine(variant);
+
+    if (! line) {
+        return;
+    }
+
+    setQuantity(line, line.quantity - 1);
+}
+
+function pushLine(item, variant) {
     const existing = cart.value.find((line) => line.item.id === item.id
-        && (line.variant?.id ?? null) === (defaultVariant?.id ?? null));
+        && (line.variant?.id ?? null) === (variant?.id ?? null));
 
     if (existing) {
         existing.quantity += 1;
     } else {
         cart.value.push({
             item,
-            variant: defaultVariant,
+            variant,
             quantity: 1,
             addOns: [],
+            discount: { type: 'percent', value: 0 },
+            vatPercent: null,
+            extraCharge: 0,
         });
     }
 }
@@ -133,49 +254,148 @@ function lineAddOnsTotal(line) {
     return line.addOns.reduce((sum, addOn) => sum + addOn.price * addOn.qty, 0);
 }
 
-function lineTotal(line) {
+function lineGross(line) {
     return (lineUnitPrice(line) * line.quantity) + (lineAddOnsTotal(line) * line.quantity);
 }
 
-function toggleAddOn(line, addOn) {
-    const existing = line.addOns.find((entry) => entry.id === addOn.id);
+function roundMoney(amount) {
+    return Math.round((Number(amount) + Number.EPSILON) * 100) / 100;
+}
 
-    if (existing) {
-        line.addOns = line.addOns.filter((entry) => entry.id !== addOn.id);
-    } else {
-        line.addOns.push({ id: addOn.id, name: addOn.name, price: Number(addOn.price), qty: 1 });
+function lineDiscountAmount(line) {
+    const gross = lineGross(line);
+    const value = Number(line.discount?.value || 0);
+
+    if (value <= 0) {
+        return 0;
     }
+
+    const amount = line.discount?.type === 'fixed' ? value : gross * value / 100;
+
+    return roundMoney(Math.min(Math.max(amount, 0), gross));
 }
 
-function hasAddOn(line, addOn) {
-    return line.addOns.some((entry) => entry.id === addOn.id);
+function lineExtra(line) {
+    return roundMoney(Math.max(0, Number(line.extraCharge) || 0));
 }
 
-const subtotal = computed(() => cart.value.reduce((sum, line) => sum + lineTotal(line), 0));
+function lineVatRate(line) {
+    const value = line.vatPercent;
 
-const discountAmount = computed(() => {
-    if (discount.value.value <= 0) {
+    if (value === null || value === undefined || value === '') {
+        return null;
+    }
+
+    const rate = Number(value);
+
+    return Number.isFinite(rate) ? Math.min(100, Math.max(0, rate)) : null;
+}
+
+function lineNet(line) {
+    return roundMoney(lineGross(line) - lineDiscountAmount(line) + lineExtra(line));
+}
+
+function lineKey(line) {
+    return `${line.item.id}-${line.variant?.id ?? 0}`;
+}
+
+function vatOn(amount, rate) {
+    if (amount <= 0 || rate <= 0) {
+        return 0;
+    }
+
+    if (props.branch.vat_inclusive) {
+        return amount - (amount * 100 / (100 + rate));
+    }
+
+    return amount * rate / 100;
+}
+
+function openItemEditor(line) {
+    itemEditor.value = {
+        key: lineKey(line),
+        name: localized(line.item, 'name'),
+        quantity: line.quantity,
+        discountType: line.discount?.type === 'fixed' ? 'fixed' : 'percent',
+        discountValue: Number(line.discount?.value || 0),
+        vatPercent: line.vatPercent === null || line.vatPercent === undefined ? '' : line.vatPercent,
+        extraCharge: Number(line.extraCharge || 0),
+    };
+}
+
+function applyItemEditor() {
+    const draft = itemEditor.value;
+    const line = cart.value.find((entry) => lineKey(entry) === draft?.key);
+
+    if (! line || latestOrder.value) {
+        itemEditor.value = null;
+
+        return;
+    }
+
+    line.quantity = Math.min(999, Math.max(1, Math.round(Number(draft.quantity) || 1)));
+    line.discount = {
+        type: draft.discountType === 'fixed' ? 'fixed' : 'percent',
+        value: Math.max(0, Number(draft.discountValue) || 0),
+    };
+
+    const vat = draft.vatPercent;
+
+    line.vatPercent = vat === '' || vat === null ? null : Math.min(100, Math.max(0, Number(vat) || 0));
+    line.extraCharge = Math.max(0, Number(draft.extraCharge) || 0);
+    itemEditor.value = null;
+}
+
+const grossSubtotal = computed(() => cart.value.reduce((sum, line) => sum + lineGross(line), 0));
+
+const itemDiscountTotal = computed(() => cart.value.reduce((sum, line) => sum + lineDiscountAmount(line), 0));
+
+const subtotal = computed(() => grossSubtotal.value);
+
+const billDiscountAmount = computed(() => {
+    const base = Math.max(0, grossSubtotal.value - itemDiscountTotal.value);
+
+    if (discount.value.value <= 0 || base <= 0) {
         return 0;
     }
 
     const amount = discount.value.type === 'percent'
-        ? subtotal.value * discount.value.value / 100
-        : discount.value.value;
+        ? base * Number(discount.value.value) / 100
+        : Number(discount.value.value);
 
-    return Math.min(amount, subtotal.value);
+    return roundMoney(Math.min(Math.max(amount, 0), base));
 });
 
-const serviceCharge = computed(() => ((subtotal.value - discountAmount.value) * Number(props.branch.service_charge_percent)) / 100);
+const discountAmount = computed(() => roundMoney(itemDiscountTotal.value + billDiscountAmount.value));
 
-const vatBase = computed(() => subtotal.value - discountAmount.value + serviceCharge.value);
+const discountPercent = computed(() => (grossSubtotal.value > 0 ? roundMoney(discountAmount.value / grossSubtotal.value * 100) : 0));
+
+const discountBlocked = computed(() => discountPercent.value > 10 && ! props.canOverrideDiscount);
+
+const extraTotal = computed(() => roundMoney(cart.value.reduce((sum, line) => sum + lineExtra(line), 0)));
+
+const hasCustomVat = computed(() => cart.value.some((line) => lineVatRate(line) !== null));
+
+const serviceCharge = computed(() => roundMoney(((subtotal.value - discountAmount.value) * Number(props.branch.service_charge_percent)) / 100));
 
 const vatAmount = computed(() => {
-    const rate = Number(props.branch.vat_percent);
+    const branchRate = Number(props.branch.vat_percent);
+    const nets = cart.value.map((line) => ({
+        net: lineNet(line),
+        rate: lineVatRate(line) ?? branchRate,
+    }));
+    const netTotal = nets.reduce((sum, line) => sum + line.net, 0);
+    const bill = billDiscountAmount.value;
+    const lineVat = nets.reduce((sum, line) => {
+        const share = netTotal > 0 ? (line.net / netTotal) * bill : 0;
 
-    return props.branch.vat_inclusive
-        ? vatBase.value - (vatBase.value * 100 / (100 + rate))
-        : vatBase.value * rate / 100;
+        return sum + vatOn(Math.max(0, line.net - share), line.rate);
+    }, 0);
+
+    return roundMoney(lineVat + vatOn(serviceCharge.value, branchRate));
 });
+
+const vatBase = computed(() => subtotal.value - discountAmount.value + extraTotal.value + serviceCharge.value);
 
 const rawTotal = computed(() => (props.branch.vat_inclusive ? vatBase.value : vatBase.value + vatAmount.value));
 
@@ -186,10 +406,14 @@ const rounding = computed(() => total.value - rawTotal.value);
 const itemCount = computed(() => cart.value.reduce((sum, line) => sum + line.quantity, 0));
 
 function setQuantity(line, quantity) {
+    if (latestOrder.value) {
+        return;
+    }
+
     if (quantity <= 0) {
         cart.value = cart.value.filter((entry) => entry !== line);
     } else {
-        line.quantity = quantity;
+        line.quantity = Math.min(999, Math.round(quantity));
     }
 }
 
@@ -237,23 +461,77 @@ async function unlockPos() {
     armIdleLock();
 }
 
+function discountPayload() {
+    if (billDiscountAmount.value <= 0) {
+        return null;
+    }
+
+    return { type: 'fixed', value: Number(billDiscountAmount.value.toFixed(2)) };
+}
+
+function startNewOrder() {
+    cart.value = [];
+    discount.value = { type: 'percent', value: 0 };
+    latestOrder.value = null;
+    lastPayment.value = null;
+    tendered.value = '';
+    payMode.value = 'cash';
+    walletTrxId.value = '';
+    itemEditor.value = null;
+    sessionStorage.removeItem(TICKET_KEY);
+}
+
 async function submitOrder() {
+    if (latestOrder.value || discountBlocked.value) {
+        if (discountBlocked.value) {
+            notify.error(t('orders.discount_limit_exceeded'));
+        }
+
+        return;
+    }
+
     const payload = {
         order_type: orderType.value,
         restaurant_table_id: orderType.value === 'dine_in' ? tableId.value : null,
         customer_mobile: customerMobile.value || null,
         note: null,
         terminal: TERMINAL,
-        items: cart.value.map((line) => ({
-            menu_item_id: line.item.id,
-            variant_id: line.variant?.id ?? null,
-            quantity: line.quantity,
-            add_ons: line.addOns.map((addOn) => ({ id: addOn.id, qty: addOn.qty })),
-        })),
+        items: cart.value.map((line) => {
+            const item = {
+                menu_item_id: line.item.id,
+                variant_id: line.variant?.id ?? null,
+                quantity: line.quantity,
+                add_ons: line.addOns.map((addOn) => ({ id: addOn.id, qty: addOn.qty })),
+            };
+            const discountValue = Number(line.discount?.value || 0);
+
+            if (discountValue > 0) {
+                item.discount = {
+                    type: line.discount?.type === 'fixed' ? 'fixed' : 'percent',
+                    value: discountValue,
+                };
+            }
+
+            const vatPercent = lineVatRate(line);
+
+            if (vatPercent !== null) {
+                item.vat_percent = vatPercent;
+            }
+
+            const extraCharge = lineExtra(line);
+
+            if (extraCharge > 0) {
+                item.extra_charge = extraCharge;
+            }
+
+            return item;
+        }),
     };
 
-    if (discount.value.value > 0) {
-        payload.discount = { type: discount.value.type, value: discount.value.value };
+    const orderDiscount = discountPayload();
+
+    if (orderDiscount) {
+        payload.discount = orderDiscount;
     }
 
     if (! props.openShift) {
@@ -265,8 +543,7 @@ async function submitOrder() {
 
     if (! navigator.onLine) {
         await queueOutbox('order', { ...payload, branch_id: props.branch.id });
-        cart.value = [];
-        discount.value = { type: 'percent', value: 0 };
+        startNewOrder();
         notify.info(t('sync.queued'));
 
         return;
@@ -278,19 +555,8 @@ async function submitOrder() {
         onSuccess: (page) => {
             const order = page.props.flash?.order ?? null;
 
-            cart.value = [];
-            discount.value = { type: 'percent', value: 0 };
-
-            if (order) {
-                latestOrder.value = order;
-                lastPayment.value = null;
-                payDialogOpen.value = true;
-                payMode.value = 'cash';
-                tendered.value = String(order.total);
-                walletTrxId.value = '';
-                walletMethod.value = 'bkash';
-                splitLines.value = [];
-            }
+            notify.success(order?.invoice_no ? `${t('orders.sent_to_kitchen')} ${order.invoice_no}` : t('orders.sent_to_kitchen'));
+            startNewOrder();
         },
         onError: (errors) => {
             const first = Object.values(errors)[0];
@@ -311,14 +577,14 @@ function payNow() {
     }, {
         preserveState: true,
         preserveScroll: true,
-        onSuccess: (page) => {
-            payDialogOpen.value = false;
-            const payment = page.props.flash?.payment ?? null;
-
-            lastPayment.value = { ...payment, order_id: order.id };
+        onSuccess: () => {
             notify.success(t('orders.paid_success'));
+            startNewOrder();
         },
-        onError: () => notify.error(t('orders.tendered_too_low')),
+        onError: (errors) => {
+            const first = Object.values(errors)[0];
+            notify.error(String(first ?? t('orders.tendered_too_low')));
+        },
     });
 }
 
@@ -340,7 +606,7 @@ function holdOrder() {
         at: new Date().toISOString(),
     });
 
-    cart.value = [];
+    startNewOrder();
     notify.info(t('orders.held'));
 }
 
@@ -388,27 +654,35 @@ async function startShift() {
     });
 }
 
-async function applyDiscount() {
-    const percent = discount.value.type === 'percent'
-        ? discount.value.value
-        : (subtotal.value > 0 ? discount.value.value / subtotal.value * 100 : 0);
+function printCustomerCopy() {
+    const orderId = lastPayment.value?.order_id ?? latestOrder.value?.id;
 
-    if (percent > 10 && ! props.canOverrideDiscount) {
-        notify.error(t('orders.discount_limit_exceeded'));
-        discount.value = { type: 'percent', value: 0 };
+    if (! orderId) {
+        notify.info(t('orders.send_before_print'));
 
         return;
     }
 
-    discountDialogOpen.value = false;
-}
-
-function printReceipt(orderId) {
     printUrl(route('admin.orders.receipt', orderId));
+    startNewOrder();
 }
 
 // keyboard shortcuts: / focus search, F2 new order (clear), F8 hold
 function onKeydown(event) {
+    if (event.key === 'Escape') {
+        if (variantPicker.value) {
+            variantPicker.value = null;
+        } else if (itemEditor.value) {
+            itemEditor.value = null;
+        }
+
+        return;
+    }
+
+    if (variantPicker.value || itemEditor.value) {
+        return;
+    }
+
     if (event.key === '/' && document.activeElement?.tagName !== 'INPUT') {
         event.preventDefault();
         document.querySelector('[data-pos-search]')?.focus();
@@ -419,6 +693,10 @@ function onKeydown(event) {
 }
 
 onMounted(() => {
+    if (latestOrder.value || lastPayment.value) {
+        startNewOrder();
+    }
+
     window.addEventListener('keydown', onKeydown);
     window.addEventListener('pointerdown', onActivity);
     window.addEventListener('keydown', onActivity);
@@ -466,9 +744,8 @@ function paySplit() {
         preserveState: true,
         preserveScroll: true,
         onSuccess: () => {
-            payDialogOpen.value = false;
-            lastPayment.value = { order_id: order.id, invoice_no: order.invoice_no, change_due: 0 };
             notify.success(t('payments.split_completed'));
+            startNewOrder();
         },
         onError: (errors) => notify.error(Object.values(errors)[0] ?? t('payments.split_mismatch')),
     });
@@ -489,8 +766,8 @@ function payWalletManual() {
         preserveState: true,
         preserveScroll: true,
         onSuccess: () => {
-            payDialogOpen.value = false;
             notify.success(t('payments.manual_recorded'));
+            startNewOrder();
         },
         onError: (errors) => notify.error(Object.values(errors)[0] ?? t('common.error_occurred')),
     });
@@ -557,10 +834,16 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                         <AppIcon v-else name="utensils" size="16" class="text-muted" />
                     </span>
                     <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-                        <span class="line-clamp-2 text-sm font-medium text-foreground">{{ item.name }}</span>
+                        <span class="line-clamp-2 text-sm font-medium text-foreground">{{ localized(item, 'name') }}</span>
                         <span class="flex items-center justify-between gap-1">
-                            <span class="text-sm font-semibold tabular-nums text-foreground">{{ formatMoney(item.base_price) }}</span>
-                            <AppIcon v-if="item.is_vegetarian" name="circle-check" size="12" class="text-success" />
+                            <span class="inline-flex items-baseline gap-1 text-sm font-semibold tabular-nums text-foreground">
+                                <span v-if="itemHasVariants(item)" class="text-[11px] font-medium uppercase tracking-wide text-muted">{{ t('orders.from_price') }}</span>
+                                <span>{{ formatMoney(itemCardPrice(item)) }}</span>
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <AppIcon v-if="itemHasVariants(item)" name="layer-group" size="12" class="text-muted" />
+                                <AppIcon v-if="item.is_vegetarian" name="circle-check" size="12" class="text-success" />
+                            </span>
                         </span>
                     </span>
                 </button>
@@ -568,55 +851,92 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
         </section>
 
         <!-- Right: cart -->
-        <section class="flex w-full shrink-0 flex-col overflow-hidden rounded-lg border border-border bg-surface lg:w-[22.5rem]">
-            <header class="flex flex-col gap-1.5 border-b border-border p-2">
-                <div class="flex items-center gap-1.5">
-                    <div class="flex flex-1 gap-1" role="radiogroup" :aria-label="t('orders.type_label')">
+        <section class="flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden rounded-lg border border-border bg-surface lg:w-[26rem]">
+            <!-- Selected items -->
+            <div class="thin-scrollbar min-h-0 flex-1 overflow-y-auto px-2">
+                <p v-if="cart.length === 0" class="py-6 text-center text-[13px] text-muted">{{ t('orders.cart_empty') }}</p>
+
+                <div v-for="line in cart" :key="lineKey(line)" class="border-b border-border py-1.5 last:border-b-0">
+                    <div class="flex items-center gap-1">
+                        <div class="min-w-0 flex-1">
+                            <p class="truncate text-[13px] font-medium text-foreground">{{ localized(line.item, 'name') }}</p>
+                            <p v-if="line.variant" class="truncate text-xs text-muted">{{ localized(line.variant, 'name') }}</p>
+                            <p v-if="(line.addOns ?? []).length" class="truncate text-xs text-muted">{{ line.addOns.map((addOn) => addOn.name).join(', ') }}</p>
+                        </div>
+                        <div class="flex items-center">
+                            <button type="button" class="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-background text-foreground disabled:opacity-50" :disabled="!!latestOrder" :aria-label="t('common.decrease')" @click.stop="setQuantity(line, line.quantity - 1)">
+                                <AppIcon name="minus" size="12" />
+                            </button>
+                            <span class="w-9 text-center text-[13px] font-semibold tabular-nums text-foreground">{{ line.quantity }}</span>
+                            <button type="button" class="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-background text-foreground disabled:opacity-50" :disabled="!!latestOrder || line.quantity >= 999" :aria-label="t('common.increase')" @click.stop="setQuantity(line, line.quantity + 1)">
+                                <AppIcon name="plus" size="12" />
+                            </button>
+                        </div>
+                        <span class="w-16 shrink-0 text-right text-[13px] font-semibold tabular-nums text-foreground">{{ formatMoney(lineNet(line)) }}</span>
                         <button
                             type="button"
-                            role="radio"
-                            :aria-checked="orderType === 'dine_in'"
-                            class="inline-flex h-7 flex-1 items-center justify-center rounded-md border px-2 text-[13px] font-medium"
-                            :class="orderType === 'dine_in' ? 'border-accent bg-accent/15 text-foreground' : 'border-border bg-background text-muted hover:text-foreground'"
-                            @click="orderType = 'dine_in'"
+                            class="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border disabled:opacity-50"
+                            :class="lineDiscountAmount(line) > 0 || lineExtra(line) > 0 || lineVatRate(line) !== null ? 'border-accent bg-accent/15 text-foreground' : 'border-border text-muted hover:text-foreground'"
+                            :aria-label="t('orders.edit_item')"
+                            :disabled="!!latestOrder"
+                            @click.stop="openItemEditor(line)"
                         >
-                            {{ t('orders.type.dine_in') }}
+                            <AppIcon name="pen-to-square" size="12" />
                         </button>
-                        <button
-                            type="button"
-                            role="radio"
-                            :aria-checked="orderType === 'takeaway'"
-                            class="inline-flex h-7 flex-1 items-center justify-center rounded-md border px-2 text-[13px] font-medium"
-                            :class="orderType === 'takeaway' ? 'border-accent bg-accent/15 text-foreground' : 'border-border bg-background text-muted hover:text-foreground'"
-                            @click="orderType = 'takeaway'"
-                        >
-                            {{ t('orders.type.takeaway') }}
+                        <button type="button" class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted hover:text-danger disabled:opacity-50" :disabled="!!latestOrder" :aria-label="t('common.remove')" @click="setQuantity(line, 0)">
+                            <AppIcon name="xmark" size="12" />
                         </button>
                     </div>
-                    <button
-                        v-if="! openShift"
-                        type="button"
-                        class="inline-flex h-7 shrink-0 items-center rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground hover:opacity-90"
-                        @click="openShiftDialog"
-                    >
-                        {{ t('orders.open_shift') }}
-                    </button>
-                    <span v-else class="shrink-0 text-xs text-muted">{{ t('orders.shift_open_status') }}</span>
                 </div>
+            </div>
 
-                <div v-if="orderType === 'dine_in'" class="flex flex-col gap-1">
-                    <p class="text-xs font-medium text-muted">{{ t('receipt.table') }}</p>
-                    <div v-for="group in tablesByArea" :key="group.area || 'tables'" class="flex flex-col gap-1">
-                        <p v-if="group.area && tablesByArea.length > 1" class="text-[11px] text-muted">{{ group.area }}</p>
-                        <div class="flex flex-wrap gap-1">
+            <!-- Operations -->
+            <footer class="thin-scrollbar max-h-[50%] shrink-0 overflow-y-auto border-t border-border bg-surface px-2 py-1">
+                <div class="mb-1 flex flex-col gap-1">
+                    <div class="flex items-center gap-1">
+                        <div class="flex flex-1 gap-1" role="radiogroup" :aria-label="t('orders.type_label')">
+                            <button
+                                type="button"
+                                role="radio"
+                                :aria-checked="orderType === 'dine_in'"
+                                class="inline-flex h-7 flex-1 items-center justify-center rounded-md border px-2 text-[13px] font-medium"
+                                :class="orderType === 'dine_in' ? 'border-accent bg-accent/15 text-foreground' : 'border-border bg-background text-muted hover:text-foreground'"
+                                @click="orderType = 'dine_in'"
+                            >
+                                {{ t('orders.type.dine_in') }}
+                            </button>
+                            <button
+                                type="button"
+                                role="radio"
+                                :aria-checked="orderType === 'takeaway'"
+                                class="inline-flex h-7 flex-1 items-center justify-center rounded-md border px-2 text-[13px] font-medium"
+                                :class="orderType === 'takeaway' ? 'border-accent bg-accent/15 text-foreground' : 'border-border bg-background text-muted hover:text-foreground'"
+                                @click="orderType = 'takeaway'"
+                            >
+                                {{ t('orders.type.takeaway') }}
+                            </button>
+                        </div>
+                        <button
+                            v-if="! openShift"
+                            type="button"
+                            class="inline-flex h-7 shrink-0 items-center rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground hover:opacity-90"
+                            @click="openShiftDialog"
+                        >
+                            {{ t('orders.open_shift') }}
+                        </button>
+                        <span v-else class="shrink-0 text-xs text-muted">{{ t('orders.shift_open_status') }}</span>
+                    </div>
+
+                    <div v-if="orderType === 'dine_in'" class="thin-scrollbar flex gap-1 overflow-x-auto">
+                        <template v-for="group in tablesByArea" :key="group.area || 'tables'">
                             <button
                                 v-for="table in group.tables"
                                 :key="table.id"
                                 type="button"
-                                class="inline-flex h-7 items-center gap-1 rounded-md border px-2 text-[13px] font-medium tabular-nums"
+                                class="inline-flex h-7 shrink-0 items-center gap-1 rounded-md border px-2 text-[13px] font-medium tabular-nums"
                                 :disabled="table.status === 'occupied'"
                                 :aria-pressed="tableId === table.id"
-                                :title="table.status === 'occupied' ? t('orders.table_occupied') : undefined"
+                                :title="group.area || undefined"
                                 :class="tableId === table.id
                                     ? 'border-accent bg-accent/15 text-foreground'
                                     : table.status === 'occupied'
@@ -625,93 +945,63 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                                 @click="tableId = table.id"
                             >
                                 {{ table.name }}
-                                <span class="text-[11px] font-normal text-muted">{{ table.seats }}</span>
                             </button>
-                        </div>
-                    </div>
-                </div>
-
-                <MobileInput v-model="customerMobile" :placeholder="t('orders.customer_mobile')" />
-            </header>
-
-            <!-- Held orders -->
-            <div v-if="heldOrders.length" class="border-b border-border px-2 py-1.5">
-                <p class="mb-1 text-xs font-medium text-muted">{{ t('orders.held_orders') }}</p>
-                <div class="flex flex-wrap gap-1">
-                    <button
-                        v-for="held in heldOrders"
-                        :key="held.id"
-                        type="button"
-                        class="flex h-7 items-center gap-1 rounded-md border border-border bg-background px-2 text-[13px] text-foreground hover:border-accent"
-                        @click="resumeOrder(held)"
-                    >
-                        <AppIcon name="clock" size="12" class="text-warning" />
-                        {{ held.cart.reduce((sum, line) => sum + line.quantity, 0) }} {{ t('ui_kit.items') }}
-                        <span class="text-muted" @click.stop="discardHeld(held)">
-                            <AppIcon name="xmark" size="10" />
-                        </span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Cart lines -->
-            <div class="thin-scrollbar flex-1 overflow-y-auto px-2">
-                <p v-if="cart.length === 0" class="py-6 text-center text-[13px] text-muted">{{ t('orders.cart_empty') }}</p>
-
-                <div v-for="line in cart" :key="`${line.item.id}-${line.variant?.id ?? 0}`" class="border-b border-border py-1.5 last:border-b-0">
-                    <div class="flex items-center gap-1">
-                        <div class="min-w-0 flex-1">
-                            <p class="truncate text-[13px] font-medium text-foreground">{{ line.item.name }}</p>
-                            <p v-if="line.variant" class="truncate text-xs text-muted">{{ line.variant.name }} - {{ formatMoney(line.variant.price) }}</p>
-                        </div>
-                        <div class="flex items-center">
-                            <button type="button" class="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-background text-foreground" :aria-label="t('common.decrease')" @click="setQuantity(line, line.quantity - 1)">
-                                <AppIcon name="minus" size="12" />
-                            </button>
-                            <span class="w-6 text-center text-[13px] font-semibold tabular-nums text-foreground">{{ line.quantity }}</span>
-                            <button type="button" class="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-background text-foreground" :aria-label="t('common.increase')" @click="setQuantity(line, line.quantity + 1)">
-                                <AppIcon name="plus" size="12" />
-                            </button>
-                        </div>
-                        <span class="w-[4.75rem] shrink-0 text-right text-[13px] font-semibold tabular-nums text-foreground">{{ formatMoney(lineTotal(line)) }}</span>
-                        <button type="button" class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted hover:text-danger" :aria-label="t('common.remove')" @click="setQuantity(line, 0)">
-                            <AppIcon name="xmark" size="12" />
-                        </button>
+                        </template>
                     </div>
 
-                    <div v-if="line.item.add_ons?.length" class="mt-1 flex flex-wrap gap-1">
+                    <MobileInput v-model="customerMobile" :placeholder="t('orders.customer_mobile')" />
+                </div>
+
+                <div v-if="heldOrders.length" class="mb-1">
+                    <p class="mb-1 text-xs font-medium text-muted">{{ t('orders.held_orders') }}</p>
+                    <div class="flex flex-wrap gap-1">
                         <button
-                            v-for="addOn in line.item.add_ons"
-                            :key="addOn.id"
+                            v-for="held in heldOrders"
+                            :key="held.id"
                             type="button"
-                            class="flex h-7 items-center gap-1 rounded-md border px-2 text-xs"
-                            :class="hasAddOn(line, addOn) ? 'border-accent bg-accent/15 text-accent-foreground' : 'border-border text-muted'"
-                            @click="toggleAddOn(line, addOn)"
+                            class="flex h-7 items-center gap-1 rounded-md border border-border bg-background px-2 text-[13px] text-foreground hover:border-accent"
+                            @click="resumeOrder(held)"
                         >
-                            <AppIcon v-if="hasAddOn(line, addOn)" name="check" size="10" />
-                            {{ addOn.name }} +{{ formatMoney(addOn.price) }}
+                            <AppIcon name="clock" size="12" class="text-warning" />
+                            {{ held.cart.reduce((sum, line) => sum + line.quantity, 0) }} {{ t('ui_kit.items') }}
+                            <span class="text-muted" @click.stop="discardHeld(held)">
+                                <AppIcon name="xmark" size="10" />
+                            </span>
                         </button>
                     </div>
                 </div>
-            </div>
+                <div class="mb-1.5 flex items-center gap-1 rounded-md bg-background px-1.5 py-1">
+                    <span class="shrink-0 text-[13px] font-medium text-foreground">{{ t('orders.bill_discount') }}</span>
+                    <button type="button" class="h-7 rounded-md border px-1.5 text-[13px] font-medium" :disabled="!!latestOrder" :class="discount.type !== 'fixed' ? 'border-accent bg-accent/15 text-foreground' : 'border-border text-muted'" @click="discount.type = 'percent'">%</button>
+                    <button type="button" class="h-7 rounded-md border px-1.5 text-[13px] font-medium" :disabled="!!latestOrder" :class="discount.type === 'fixed' ? 'border-accent bg-accent/15 text-foreground' : 'border-border text-muted'" @click="discount.type = 'fixed'">৳</button>
+                    <input v-model.number="discount.value" :disabled="!!latestOrder" type="number" min="0" :aria-label="t('orders.bill_discount')" class="h-7 w-16 rounded-md border border-border bg-surface px-1.5 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent disabled:opacity-60">
+                    <span v-if="billDiscountAmount > 0" class="ml-auto text-xs font-medium tabular-nums text-danger">-{{ formatMoney(billDiscountAmount) }}</span>
+                </div>
+                <p v-if="discountBlocked" class="mb-1 text-xs text-danger">{{ t('orders.discount_limit_hint') }}</p>
 
-            <!-- Totals + actions -->
-            <footer class="border-t border-border px-2 py-1.5">
                 <div class="space-y-0.5 text-[13px]">
                     <div class="flex justify-between text-muted">
                         <span>{{ t('receipt.subtotal') }}</span>
                         <span class="tabular-nums">{{ formatMoney(subtotal) }}</span>
                     </div>
-                    <div v-if="discountAmount > 0" class="flex justify-between text-muted">
-                        <span>{{ t('receipt.discount') }}</span>
-                        <span class="tabular-nums">-{{ formatMoney(discountAmount) }}</span>
+                    <div v-if="itemDiscountTotal > 0" class="flex justify-between text-muted">
+                        <span>{{ t('orders.item_discount') }}</span>
+                        <span class="tabular-nums">-{{ formatMoney(itemDiscountTotal) }}</span>
+                    </div>
+                    <div v-if="billDiscountAmount > 0" class="flex justify-between text-muted">
+                        <span>{{ t('orders.bill_discount') }}</span>
+                        <span class="tabular-nums">-{{ formatMoney(billDiscountAmount) }}</span>
                     </div>
                     <div v-if="serviceCharge > 0" class="flex justify-between text-muted">
                         <span>{{ t('receipt.service_charge') }}</span>
                         <span class="tabular-nums">{{ formatMoney(serviceCharge) }}</span>
                     </div>
+                    <div v-if="extraTotal > 0" class="flex justify-between text-muted">
+                        <span>{{ t('orders.other_charge') }}</span>
+                        <span class="tabular-nums">{{ formatMoney(extraTotal) }}</span>
+                    </div>
                     <div v-if="vatAmount > 0" class="flex justify-between text-muted">
-                        <span>{{ t('receipt.vat') }} ({{ Number(branch.vat_percent).toFixed(2) }}%)</span>
+                        <span>{{ t('receipt.vat') }}<template v-if="! hasCustomVat"> ({{ Number(branch.vat_percent).toFixed(2) }}%)</template></span>
                         <span class="tabular-nums">{{ formatMoney(vatAmount) }}</span>
                     </div>
                     <div class="flex justify-between pt-0.5 text-sm font-semibold text-foreground">
@@ -720,197 +1010,264 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                     </div>
                 </div>
 
-                <div class="mt-1.5 grid grid-cols-3 gap-1">
+                <div v-if="latestOrder" class="mt-1 rounded-md bg-background px-2 py-1 text-[13px] text-muted">
+                    {{ latestOrder.invoice_no }}
+                </div>
+
+                <div v-if="! lastPayment" class="mt-1 space-y-1">
+                    <div class="grid grid-cols-3 gap-1">
+                        <button
+                            v-for="mode in ['cash', 'split', 'wallet']"
+                            :key="mode"
+                            type="button"
+                            class="flex h-7 items-center justify-center gap-1 rounded-md border text-[13px] font-medium"
+                            :class="payMode === mode ? 'border-accent bg-accent/15 text-foreground' : 'border-border text-muted'"
+                            @click="mode === 'split' ? startSplit() : (payMode = mode)"
+                        >
+                            {{ mode === 'cash' ? t('payment_method.cash') : mode === 'split' ? t('payment_method.split') : t('payments.wallet') }}
+                        </button>
+                    </div>
+
+                    <div v-if="payMode === 'cash'">
+                        <label class="mb-0.5 block text-[11px] font-medium text-muted">{{ t('orders.tendered') }}</label>
+                        <input v-model="tendered" type="number" min="0" step="1" class="h-7 w-full rounded-md border border-border bg-background px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
+                        <div class="mt-1 flex flex-wrap gap-1">
+                            <button
+                                v-for="amount in [total, 100, 500, 1000]"
+                                :key="amount"
+                                type="button"
+                                class="h-7 rounded-md border border-border px-2 text-[13px] font-medium text-foreground hover:border-accent"
+                                @click="quickAmount(amount)"
+                            >
+                                {{ amount === total ? t('orders.exact') : formatMoney(amount, { decimals: 0 }) }}
+                            </button>
+                        </div>
+                        <div class="mt-1 flex items-center justify-between rounded-md bg-success/10 px-2 py-1">
+                            <span class="text-[13px] font-medium text-foreground">{{ t('orders.change_due') }}</span>
+                            <span class="text-base font-semibold tabular-nums text-success">{{ formatMoney(changeDue) }}</span>
+                        </div>
+                    </div>
+
+                    <div v-else-if="payMode === 'split'" class="space-y-1">
+                        <div v-for="(splitLine, index) in splitLines" :key="index" class="grid grid-cols-[4.5rem_1fr] gap-1">
+                            <select v-model="splitLine.method" class="h-7 rounded-md border border-border bg-background px-1 text-[13px] text-foreground">
+                                <option value="cash">{{ t('payment_method.cash') }}</option>
+                                <option value="bkash">{{ t('payment_method.bkash') }}</option>
+                                <option value="nagad">{{ t('payment_method.nagad') }}</option>
+                                <option value="card">{{ t('payment_method.card') }}</option>
+                            </select>
+                            <input v-model="splitLine.amount" type="number" min="0" class="h-7 rounded-md border border-border bg-background px-2 text-right text-[13px] tabular-nums text-foreground">
+                        </div>
+                    </div>
+
+                    <div v-else class="grid grid-cols-2 gap-1">
+                        <select v-model="walletMethod" class="h-7 rounded-md border border-border bg-background px-1 text-[13px] text-foreground">
+                            <option value="bkash">{{ t('payment_method.bkash') }}</option>
+                            <option value="nagad">{{ t('payment_method.nagad') }}</option>
+                        </select>
+                        <input v-model="walletTrxId" type="text" :placeholder="t('payments.trxid')" class="h-7 rounded-md border border-border bg-background px-2 text-[13px] text-foreground">
+                    </div>
+                </div>
+
+                <div v-else class="mt-1 flex items-center justify-between rounded-md bg-success/10 px-2 py-1">
+                    <span class="text-[13px] font-medium text-foreground">{{ t('orders.payment_complete') }}</span>
+                    <span class="text-base font-semibold tabular-nums text-success">{{ formatMoney(lastPayment.change_due ?? 0) }}</span>
+                </div>
+
+                <div class="mt-1 grid grid-cols-2 gap-1">
                     <button
                         type="button"
-                        class="flex h-7 items-center justify-center gap-1 rounded-md border border-border bg-background text-[13px] font-medium text-foreground hover:bg-surface"
-                        @click="discountDialogOpen = true"
+                        :disabled="cart.length === 0 || !!latestOrder || discountBlocked || (orderType === 'dine_in' && ! tableId)"
+                        class="flex h-8 items-center justify-center gap-1 rounded-md bg-primary text-[13px] font-semibold text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                        @click="submitOrder"
                     >
-                        <AppIcon name="tags" size="12" />
-                        {{ t('orders.discount') }}
+                        <AppIcon name="utensils" size="12" />
+                        {{ t('orders.send_kitchen') }}
                     </button>
                     <button
                         type="button"
-                        :disabled="cart.length === 0"
-                        class="flex h-7 items-center justify-center gap-1 rounded-md border border-border bg-background text-[13px] font-medium text-foreground hover:bg-surface disabled:cursor-not-allowed disabled:opacity-50"
+                        :disabled="! latestOrder && ! lastPayment"
+                        class="flex h-8 items-center justify-center gap-1 rounded-md border border-border bg-background text-[13px] font-medium text-foreground hover:border-accent disabled:cursor-not-allowed disabled:opacity-50"
+                        @click="printCustomerCopy"
+                    >
+                        <AppIcon name="print" size="12" />
+                        {{ t('orders.print_customer') }}
+                    </button>
+                    <button
+                        v-if="! lastPayment && payMode === 'cash'"
+                        type="button"
+                        :disabled="! latestOrder"
+                        class="flex h-8 items-center justify-center gap-1 rounded-md bg-success text-[13px] font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                        @click="payNow"
+                    >
+                        <AppIcon name="money-bill-wave" size="12" />
+                        {{ t('orders.confirm_payment') }}
+                    </button>
+                    <button
+                        v-else-if="! lastPayment && payMode === 'split'"
+                        type="button"
+                        :disabled="! latestOrder"
+                        class="flex h-8 items-center justify-center gap-1 rounded-md bg-success text-[13px] font-semibold text-white disabled:opacity-50"
+                        @click="paySplit"
+                    >
+                        {{ t('orders.confirm_payment') }}
+                    </button>
+                    <button
+                        v-else-if="! lastPayment"
+                        type="button"
+                        :disabled="! latestOrder || ! walletTrxId"
+                        class="flex h-8 items-center justify-center gap-1 rounded-md bg-success text-[13px] font-semibold text-white disabled:opacity-50"
+                        @click="payWalletManual"
+                    >
+                        {{ t('payments.record_manual') }}
+                    </button>
+                    <button
+                        type="button"
+                        :disabled="cart.length === 0 || !!latestOrder"
+                        class="flex h-8 items-center justify-center gap-1 rounded-md border border-border bg-background text-[13px] font-medium text-foreground disabled:opacity-50"
                         @click="holdOrder"
                     >
                         <AppIcon name="clock" size="12" />
                         {{ t('orders.hold') }}
                     </button>
                     <button
+                        v-if="lastPayment || latestOrder"
                         type="button"
-                        :disabled="cart.length === 0 || (orderType === 'dine_in' && ! tableId)"
-                        class="flex h-7 items-center justify-center gap-1 rounded-md bg-primary text-[13px] font-semibold text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-                        @click="submitOrder"
+                        class="col-span-2 flex h-8 items-center justify-center rounded-md border border-border bg-background text-[13px] font-medium text-foreground"
+                        @click="startNewOrder"
                     >
-                        <AppIcon name="receipt" size="12" />
-                        {{ t('orders.send') }}
+                        {{ t('orders.new_order') }}
                     </button>
                 </div>
             </footer>
+
         </section>
 
-        <!-- Pay dialog -->
         <Teleport to="body">
-            <div v-if="payDialogOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                <div class="w-full max-w-md rounded-xl border border-border bg-surface p-4">
-                    <h2 class="text-lg font-semibold text-foreground">{{ t('orders.take_payment') }}</h2>
-                    <p class="mt-0.5 text-sm text-muted">{{ latestOrder?.invoice_no }}</p>
-
-                    <p class="mt-3 text-3xl font-bold tabular-nums text-foreground">{{ formatMoney(latestOrder?.total ?? total) }}</p>
-
-                    <!-- Method tabs -->
-                    <div class="mt-3 grid grid-cols-3 gap-1.5">
-                        <button
-                            v-for="mode in ['cash', 'split', 'wallet']"
-                            :key="mode"
-                            type="button"
-                            class="flex h-9 items-center justify-center gap-1 rounded-md border text-sm font-medium"
-                            :class="payMode === mode ? 'border-accent bg-accent/15 text-accent-foreground' : 'border-border text-muted'"
-                            @click="mode === 'split' ? startSplit() : (payMode = mode)"
+            <div v-if="variantPicker" class="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 p-3" @click.self="variantPicker = null">
+                <div
+                    role="dialog"
+                    aria-modal="true"
+                    :aria-label="t('orders.choose_size')"
+                    class="grid max-h-[min(32rem,calc(100vh-1.5rem))] w-full max-w-xl overflow-hidden rounded-xl border border-border bg-surface sm:grid-cols-[11rem_minmax(0,1fr)]"
+                >
+                    <div class="relative h-36 overflow-hidden bg-[#f6efe4] dark:bg-background sm:h-auto sm:min-h-full">
+                        <img
+                            v-if="itemPhotoSrc(variantPicker)"
+                            :src="itemPhotoSrc(variantPicker)"
+                            alt=""
+                            class="absolute inset-0 h-full w-full object-cover"
+                            @error="markPhotoFailed(variantPicker.id)"
                         >
-                            <AppIcon :name="mode === 'cash' ? 'money-bill-wave' : mode === 'split' ? 'layer-group' : 'mobile-screen'" size="12" />
-                            {{ mode === 'cash' ? t('payment_method.cash') : mode === 'split' ? t('payment_method.split') : t('payments.wallet') }}
-                        </button>
+                        <div v-else class="flex h-full min-h-36 items-center justify-center">
+                            <DishArt
+                                :kind="dishKind(itemCategoryName(variantPicker))"
+                                :seed="variantPicker.id"
+                                class="h-32 w-32"
+                            />
+                        </div>
                     </div>
 
-                    <!-- Cash -->
-                    <div v-if="payMode === 'cash'">
-                        <div class="mt-3">
-                            <FormField :label="t('orders.tendered')" required>
-                                <MoneyInput v-model="tendered" />
-                            </FormField>
+                    <div class="flex min-h-0 flex-col">
+                        <div class="border-b border-border px-3 py-2">
+                            <p class="text-xs font-medium text-muted">{{ t('orders.choose_size') }}</p>
+                            <h2 class="truncate text-base font-semibold text-foreground">{{ localized(variantPicker, 'name') }}</h2>
                         </div>
 
-                        <div class="mt-2 flex flex-wrap gap-1.5">
-                            <button
-                                v-for="amount in [total, 100, 500, 1000, 2000]"
-                                :key="amount"
-                                type="button"
-                                class="h-9 rounded-md border border-border px-3 text-sm font-medium text-foreground hover:bg-background"
-                                @click="quickAmount(amount)"
+                        <div class="thin-scrollbar flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto p-2">
+                            <div
+                                v-for="variant in sortedVariants(variantPicker)"
+                                :key="variant.id"
+                                class="flex items-center gap-2 rounded-lg border px-2 py-1 transition-colors"
+                                :class="variantQuantity(variant) > 0 ? 'border-accent bg-accent/10' : 'border-border bg-background'"
                             >
-                                {{ amount === total ? t('orders.exact') : formatMoney(amount, { decimals: 0 }) }}
-                            </button>
+                                <button
+                                    type="button"
+                                    class="flex min-h-11 min-w-0 flex-1 flex-col items-start justify-center text-left disabled:opacity-50"
+                                    :disabled="!!latestOrder"
+                                    @click="selectVariant(variant)"
+                                >
+                                    <span class="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                                        <AppIcon v-if="variantQuantity(variant) > 0" name="circle-check" size="12" class="text-success" />
+                                        {{ localized(variant, 'name') }}
+                                    </span>
+                                    <span class="text-sm font-semibold tabular-nums text-foreground">{{ formatMoney(variant.price) }}</span>
+                                </button>
+                                <div class="flex shrink-0 items-center overflow-hidden rounded-md border border-border bg-surface">
+                                    <button
+                                        type="button"
+                                        class="flex h-9 w-9 items-center justify-center text-foreground disabled:opacity-40"
+                                        :disabled="!!latestOrder || variantQuantity(variant) === 0"
+                                        :aria-label="t('common.decrease')"
+                                        @click="decreaseVariant(variant)"
+                                    >
+                                        <AppIcon name="minus" size="12" />
+                                    </button>
+                                    <span class="w-6 text-center text-sm font-semibold tabular-nums text-foreground">{{ variantQuantity(variant) }}</span>
+                                    <button
+                                        type="button"
+                                        class="flex h-9 w-9 items-center justify-center bg-accent text-accent-foreground disabled:opacity-40"
+                                        :disabled="!!latestOrder"
+                                        :aria-label="t('common.increase')"
+                                        @click="selectVariant(variant)"
+                                    >
+                                        <AppIcon name="plus" size="12" />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="mt-3 flex items-center justify-between rounded-lg bg-success/10 px-3 py-2">
-                            <span class="text-sm font-medium text-foreground">{{ t('receipt.change') }}</span>
-                            <span class="text-xl font-bold tabular-nums text-success">{{ formatMoney(changeDue) }}</span>
+                        <div class="flex items-center justify-between gap-3 border-t border-border px-3 py-2">
+                            <p class="text-sm text-muted">
+                                {{ pickerQuantity > 0 ? t('orders.sizes_added', { count: pickerQuantity }) : t('orders.choose_size') }}
+                            </p>
+                            <p class="text-base font-semibold tabular-nums text-foreground">{{ formatMoney(pickerTotal) }}</p>
                         </div>
-                    </div>
-
-                    <!-- Split -->
-                    <div v-else-if="payMode === 'split'">
-                        <div v-for="(line, index) in splitLines" :key="index" class="mt-2 grid grid-cols-[90px_1fr_1fr] items-end gap-2">
-                            <select v-model="line.method" class="h-9 rounded-md border border-border bg-background px-1.5 text-sm text-foreground">
-                                <option value="cash">{{ t('payment_method.cash') }}</option>
-                                <option value="bkash">{{ t('payment_method.bkash') }}</option>
-                                <option value="nagad">{{ t('payment_method.nagad') }}</option>
-                                <option value="card">{{ t('payment_method.card') }}</option>
-                            </select>
-                            <FormField :label="t('payments.amount')">
-                                <MoneyInput v-model="line.amount" />
-                            </FormField>
-                            <FormField v-if="line.method !== 'cash' && line.method !== 'card'" :label="t('payments.trxid')">
-                                <template #default="{ id }">
-                                    <input :id="id" v-model="line.reference" type="text" class="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground">
-                                </template>
-                            </FormField>
-                        </div>
-
-                        <div class="mt-2 flex items-center justify-between text-sm" :class="Math.abs(splitTotal() - Number(latestOrder?.total ?? total)) < 0.01 ? 'text-success' : 'text-danger'">
-                            <span>{{ t('common.total') }}</span>
-                            <span class="tabular-nums font-semibold">{{ formatMoney(splitTotal()) }}</span>
-                        </div>
-                    </div>
-
-                    <!-- Manual wallet -->
-                    <div v-else>
-                        <div class="mt-3 grid grid-cols-2 gap-2">
-                            <FormField :label="t('payments.wallet_type')">
-                                <select v-model="walletMethod" class="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground">
-                                    <option value="bkash">{{ t('payment_method.bkash') }}</option>
-                                    <option value="nagad">{{ t('payment_method.nagad') }}</option>
-                                </select>
-                            </FormField>
-                            <FormField :label="t('payments.trxid')" required>
-                                <template #default="{ id }">
-                                    <input :id="id" v-model="walletTrxId" type="text" placeholder="8N7D5XYZ" class="h-9 w-full rounded-md border border-border bg-background px-2 text-sm tabular-nums text-foreground">
-                                </template>
-                            </FormField>
-                        </div>
-                        <p class="mt-2 text-xs text-muted">{{ t('payments.manual_hint') }}</p>
-                    </div>
-
-                    <div class="mt-4 flex justify-end gap-2">
-                        <button type="button" class="h-9 rounded-md border border-border px-3 text-sm text-foreground hover:bg-background" @click="payDialogOpen = false">{{ t('common.cancel') }}</button>
-                        <button
-                            v-if="payMode === 'cash'"
-                            type="button"
-                            class="inline-flex h-9 items-center gap-1.5 rounded-lg bg-success px-4 text-sm font-semibold text-white hover:opacity-90"
-                            @click="payNow"
-                        >
-                            <AppIcon name="money-bill-wave" size="14" />
-                            {{ t('orders.confirm_payment') }}
-                        </button>
-                        <button
-                            v-else-if="payMode === 'split'"
-                            type="button"
-                            :disabled="Math.abs(splitTotal() - Number(latestOrder?.total ?? total)) > 0.01"
-                            class="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-50"
-                            @click="paySplit"
-                        >
-                            {{ t('orders.confirm_payment') }}
-                        </button>
-                        <button
-                            v-else
-                            type="button"
-                            :disabled="! walletTrxId"
-                            class="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-50"
-                            @click="payWalletManual"
-                        >
-                            {{ t('payments.record_manual') }}
-                        </button>
                     </div>
                 </div>
             </div>
         </Teleport>
 
-        <!-- Payment success -->
         <Teleport to="body">
-            <div v-if="lastPayment" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                <div class="w-full max-w-sm rounded-xl border border-border bg-surface p-6 text-center">
-                    <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-success/15 text-success">
-                        <AppIcon name="circle-check" size="32" />
-                    </span>
-                    <h2 class="mt-3 text-lg font-semibold text-foreground">{{ t('orders.payment_complete') }}</h2>
-                    <p class="mt-1 text-sm text-muted">{{ lastPayment.invoice_no }}</p>
+            <div v-if="itemEditor" class="fixed inset-0 z-[80] flex items-center justify-center bg-black/50 p-4" @keydown.esc="itemEditor = null">
+                <form class="w-[17.5rem] rounded-xl border border-border bg-surface p-3" @submit.prevent="applyItemEditor">
+                    <div class="flex flex-col gap-2">
+                        <div>
+                            <h2 class="text-[13px] font-semibold text-foreground">{{ t('orders.edit_item') }}</h2>
+                            <p class="truncate text-xs text-muted">{{ itemEditor.name }}</p>
+                        </div>
 
-                    <div class="mt-3 flex items-center justify-between rounded-lg bg-background px-3 py-2">
-                        <span class="text-sm text-foreground">{{ t('receipt.change') }}</span>
-                        <span class="text-2xl font-bold tabular-nums text-success">{{ formatMoney(lastPayment.change_due ?? 0) }}</span>
-                    </div>
+                        <label class="grid grid-cols-[minmax(0,1fr)_4.5rem] items-center gap-2">
+                            <span class="text-[13px] text-foreground">{{ t('orders.custom_quantity') }}</span>
+                            <input v-model.number="itemEditor.quantity" type="number" min="1" max="999" class="h-7 w-full rounded-md border border-border bg-background px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
+                        </label>
 
-                    <div class="mt-4 flex justify-center gap-2">
-                        <button
-                            type="button"
-                            class="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-4 text-sm font-medium text-foreground hover:bg-background"
-                            @click="printReceipt(lastPayment.order_id)"
-                        >
-                            <AppIcon name="print" size="14" />
-                            {{ t('receipt.print') }}
-                        </button>
-                        <button
-                            type="button"
-                            class="h-10 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
-                            @click="lastPayment = null"
-                        >
-                            {{ t('orders.new_order') }}
-                        </button>
+                        <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+                            <span class="text-[13px] text-foreground">{{ t('orders.item_discount') }}</span>
+                            <div class="flex items-center gap-1">
+                                <button type="button" class="h-7 w-7 rounded-md border text-[13px] font-medium" :class="itemEditor.discountType !== 'fixed' ? 'border-accent bg-accent/15 text-foreground' : 'border-border text-muted'" @click="itemEditor.discountType = 'percent'">%</button>
+                                <button type="button" class="h-7 w-7 rounded-md border text-[13px] font-medium" :class="itemEditor.discountType === 'fixed' ? 'border-accent bg-accent/15 text-foreground' : 'border-border text-muted'" @click="itemEditor.discountType = 'fixed'">৳</button>
+                                <input v-model.number="itemEditor.discountValue" type="number" min="0" :aria-label="t('orders.item_discount')" class="h-7 w-14 rounded-md border border-border bg-background px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
+                            </div>
+                        </div>
+
+                        <label class="grid grid-cols-[minmax(0,1fr)_4.5rem] items-center gap-2">
+                            <span class="text-[13px] text-foreground">{{ t('orders.custom_vat') }}</span>
+                            <input v-model="itemEditor.vatPercent" type="number" min="0" max="100" step="0.01" :placeholder="String(Number(branch.vat_percent))" :aria-label="t('orders.custom_vat')" class="h-7 w-full rounded-md border border-border bg-background px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
+                        </label>
+                        <p class="text-xs text-muted">{{ t('orders.custom_vat_hint') }}</p>
+
+                        <label class="grid grid-cols-[minmax(0,1fr)_4.5rem] items-center gap-2">
+                            <span class="text-[13px] text-foreground">{{ t('orders.other_charge') }}</span>
+                            <input v-model.number="itemEditor.extraCharge" type="number" min="0" step="0.01" :aria-label="t('orders.other_charge')" class="h-7 w-full rounded-md border border-border bg-background px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
+                        </label>
+
+                        <div class="flex justify-end gap-2">
+                            <button type="button" class="h-7 rounded-md border border-border px-3 text-[13px] text-foreground hover:bg-background" @click="itemEditor = null">{{ t('common.cancel') }}</button>
+                            <button type="submit" class="h-7 rounded-md bg-primary px-3 text-[13px] font-semibold text-primary-foreground hover:opacity-90">{{ t('common.apply') }}</button>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
         </Teleport>
 
@@ -930,34 +1287,6 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                     <div class="mt-4 flex justify-end gap-2">
                         <button type="button" class="h-9 rounded-md border border-border px-3 text-sm text-foreground hover:bg-background" @click="shiftDialogOpen = false">{{ t('common.cancel') }}</button>
                         <button type="button" class="h-9 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90" @click="startShift">{{ t('orders.open_shift') }}</button>
-                    </div>
-                </div>
-            </div>
-        </Teleport>
-
-        <!-- Discount dialog -->
-        <Teleport to="body">
-            <div v-if="discountDialogOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                <div class="w-full max-w-sm rounded-xl border border-border bg-surface p-4">
-                    <h2 class="text-lg font-semibold text-foreground">{{ t('orders.discount') }}</h2>
-
-                    <div class="mt-3 grid grid-cols-2 gap-3">
-                        <FormField :label="t('orders.discount_type')">
-                            <select v-model="discount.type" class="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground">
-                                <option value="percent">%</option>
-                                <option value="fixed">{{ t('orders.fixed_amount') }}</option>
-                            </select>
-                        </FormField>
-                        <FormField :label="t('orders.discount_value')">
-                            <MoneyInput v-model="discount.value" :prefix="discount.type === 'percent' ? '%' : ''" />
-                        </FormField>
-                    </div>
-
-                    <p v-if="! canOverrideDiscount" class="mt-2 text-xs text-muted">{{ t('orders.discount_limit_hint') }}</p>
-
-                    <div class="mt-4 flex justify-end gap-2">
-                        <button type="button" class="h-9 rounded-md border border-border px-3 text-sm text-foreground hover:bg-background" @click="discountDialogOpen = false">{{ t('common.cancel') }}</button>
-                        <button type="button" class="h-9 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground" @click="applyDiscount">{{ t('common.apply') }}</button>
                     </div>
                 </div>
             </div>

@@ -19,6 +19,9 @@ return [
     'people' => 'মানুষ',
     'customers' => 'গ্রাহক',
     'staff' => 'স্টাফ',
+    'attendance' => 'হাজিরা',
+    'letters' => 'চিঠি',
+    'payroll' => 'বেতন',
     'delivery' => 'ডেলিভারি',
     'finance' => 'হিসাব',
     'accounting' => 'অ্যাকাউন্টিং',
@@ -33,4 +36,7 @@ return [
     'no_notifications' => 'নতুন কোনো বিজ্ঞপ্তি নেই।',
     'account' => 'অ্যাকাউন্ট মেনু',
     'toggle_sidebar' => 'সাইডবার খুলুন বা বন্ধ করুন',
+    'media' => 'ছবি ও ভিডিও',
+    'careers' => 'ক্যারিয়ার',
+    'blog' => 'ব্লগ',
 ];

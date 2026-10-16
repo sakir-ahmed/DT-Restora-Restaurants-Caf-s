@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Metrics;
 
+use App\Actions\Payroll\CalculateStaffPayAction;
 use App\Enums\OrderStatus;
+use App\Enums\PayBasis;
 use App\Models\Branch;
 use App\Models\Delivery;
 use App\Models\Employee;
@@ -24,6 +26,8 @@ use Illuminate\Support\Facades\DB;
  */
 class MetricsService
 {
+    public function __construct(private readonly CalculateStaffPayAction $pay) {}
+
     /**
      * @return array{gross_sales: string, net_sales: string, discount: string, vat: string, service_charge: string, food_cost: string, wastage_cost: string, salary_cost: string, expenses: string, commission: string, net_profit: string, orders: int, order_items: int}
      */
@@ -60,9 +64,14 @@ class MetricsService
         $monthlySalary = (float) Employee::query()
             ->when($branchId, fn ($query) => $query->where('branch_id', $branchId))
             ->where('is_active', true)
+            ->where('pay_basis', PayBasis::Monthly)
             ->sum('monthly_salary');
 
-        $salaryCost = round($monthlySalary / 30 * $days, 2);
+        $attendanceCost = $branchId === null
+            ? $this->attendanceCostForAllBranches($from, $to)
+            : $this->pay->attendanceCost($branchId, $from, $to);
+
+        $salaryCost = round($monthlySalary / 30 * $days + $attendanceCost, 2);
 
         $expenses = (float) Expense::query()
             ->when($branchId, fn ($query) => $query->where('branch_id', $branchId))
@@ -412,5 +421,12 @@ class MetricsService
             'entries' => (int) $row->getAttribute('entries_count'),
             'points' => (int) $row->getAttribute('points_sum'),
         ])->all();
+    }
+
+    private function attendanceCostForAllBranches(CarbonInterface $from, CarbonInterface $to): float
+    {
+        return round(Branch::query()->orderBy('id')->get()->sum(
+            fn (Branch $branch): float => $this->pay->attendanceCost($branch->id, $from, $to),
+        ), 2);
     }
 }

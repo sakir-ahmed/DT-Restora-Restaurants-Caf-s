@@ -1,0 +1,37 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'title' => 'Letters',
+    'letter_title' => 'Title',
+    'subtitle' => 'Write a letter and print it on the branch letterhead.',
+    'new' => 'New letter',
+    'edit' => 'Edit letter',
+    'date' => 'Date',
+    'recipient' => 'To',
+    'subject' => 'Subject',
+    'body' => 'Letter',
+    'print' => 'Print',
+    'empty' => 'No letters yet',
+    'empty_hint' => 'Write the first letter, then print it.',
+    'saved' => 'Letter saved.',
+    'deleted' => 'Letter deleted.',
+    'delete_title' => 'Delete this letter?',
+    'delete_message' => '":title" will be removed.',
+    'to' => 'To',
+    'salary_slip' => 'Salary slip',
+    'official' => 'Official letter',
+    'period' => 'Period',
+    'employee' => 'Employee',
+    'designation' => 'Designation',
+    'basis' => 'Pay basis',
+    'rate' => 'Rate',
+    'days' => 'Days present',
+    'hours' => 'Hours',
+    'gross' => 'Gross pay',
+    'advances' => 'Advances',
+    'net' => 'Net pay',
+    'signature' => 'Authorized signature',
+    'printed' => 'Printed :date',
+];

@@ -9,6 +9,7 @@ return [
     'subtotal' => 'উপমোট',
     'discount' => 'ছাড়',
     'service_charge' => 'সার্ভিস চার্জ',
+    'other_charge' => 'অন্যান্য চার্জ',
     'vat' => 'ভ্যাট',
     'rounding' => 'ভগ্নাংশ',
     'grand_total' => 'মোট',

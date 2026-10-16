@@ -18,8 +18,10 @@ class DatabaseSeeder extends Seeder
             RootAdminSeeder::class,
             DemoStaffSeeder::class,
             DemoMenuSeeder::class,
+            DemoCustomerSeeder::class,
             DemoInventorySeeder::class,
             DemoSalesSeeder::class,
+            DemoOperationsSeeder::class,
         ]);
     }
 }

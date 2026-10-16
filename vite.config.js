@@ -8,13 +8,14 @@ export default defineConfig({
     plugins: [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.js'],
+            ssr: 'resources/js/ssr.js',
             refresh: true,
         }),
         vue(),
         tailwindcss(),
         VitePWA({
             registerType: 'prompt',
-            includeAssets: ['favicon.ico', 'robots.txt'],
+            includeAssets: ['favicon.ico', 'favicon.svg'],
             manifest: {
                 name: 'DT Restora POS',
                 short_name: 'DT Restora',

@@ -6,12 +6,24 @@ namespace App\Http\Middleware;
 
 use App\Models\Branch;
 use App\Models\User;
+use App\Services\DemoSmsInbox;
 use App\Services\Metrics\MetricsService;
+use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
+    /**
+     * Translation groups the public website needs. The back office loads all of them.
+     *
+     * @var list<string>
+     */
+    private const PUBLIC_TRANSLATION_GROUPS = [
+        'common', 'web', 'site', 'auth', 'coupons', 'orders', 'payment_method',
+        'payments', 'status', 'menu', 'loyalty', 'errors', 'staff', 'nav', 'legal', 'receipt', 'reasons', 'sync',
+    ];
+
     public function share(Request $request): array
     {
         $user = $request->user('staff');
@@ -21,7 +33,7 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'appName' => config('app.name'),
             'locale' => app()->getLocale(),
-            'translations' => flat_translations(app()->getLocale()),
+            'translations' => flat_translations(app()->getLocale(), $request->routeIs('web.*') ? self::PUBLIC_TRANSLATION_GROUPS : null),
             'auth' => [
                 'customer' => $customer ? [
                     'id' => $customer->id,
@@ -51,6 +63,8 @@ class HandleInertiaRequests extends Middleware
                     ])
                     ->all()
                 : [],
+            'smsDemo' => SmsService::isDemo(),
+            'demoSms' => fn () => app(DemoSmsInbox::class)->drain($request),
             'site' => fn () => $request->routeIs('web.*') ? $this->siteData() : null,
             'currentBranchId' => $user ? $this->currentBranchId($user) : null,
             'notifications' => $user ? $this->notifications($user) : [],
@@ -59,6 +73,9 @@ class HandleInertiaRequests extends Middleware
                 'error' => $request->session()->get('error'),
                 'order' => $request->session()->get('order'),
                 'payment' => $request->session()->get('payment'),
+                'placed' => $request->session()->get('placed_order'),
+                'device_token' => $request->session()->get('device_token'),
+                'device_name' => $request->session()->get('device_name'),
             ],
         ];
     }

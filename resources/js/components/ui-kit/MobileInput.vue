@@ -2,6 +2,8 @@
 const props = defineProps({
     modelValue: { type: String, default: '' },
     disabled: { type: Boolean, default: false },
+    inputId: { type: String, default: null },
+    invalid: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -26,10 +28,15 @@ function onInput(event) {
 </script>
 
 <template>
-    <div class="flex h-7 items-stretch overflow-hidden rounded-md border border-border bg-surface focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/40">
+    <div
+        class="flex h-7 items-stretch overflow-hidden rounded-md border bg-surface focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/40"
+        :class="invalid ? 'border-danger' : 'border-border'"
+    >
         <span class="flex items-center bg-background px-2 text-[13px] text-muted" aria-hidden="true">+88</span>
 
         <input
+            :id="inputId"
+            :aria-invalid="invalid || undefined"
             type="tel"
             inputmode="numeric"
             :value="modelValue"

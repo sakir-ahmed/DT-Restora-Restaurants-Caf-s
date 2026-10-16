@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Str;
 
 /** @use HasMany<User, $this> */
@@ -61,6 +62,12 @@ class Branch extends Model
     public function displayName(string $locale): string
     {
         return $locale === 'bn' && $this->name_bn ? $this->name_bn : $this->name;
+    }
+
+    /** @return MorphMany<Media, $this> */
+    public function media(): MorphMany
+    {
+        return $this->morphMany(Media::class, 'mediable')->orderBy('sort_order')->orderBy('id');
     }
 
     /**

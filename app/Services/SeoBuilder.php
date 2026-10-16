@@ -14,7 +14,10 @@ use Illuminate\Support\Str;
  */
 class SeoBuilder
 {
-    public const FAQ_COUNT = 6;
+    /** Questions on the home page, and in total on the FAQ page. */
+    public const FAQ_HOME_COUNT = 6;
+
+    public const FAQ_COUNT = 10;
 
     private const DAYS = [
         'mon' => 'Monday', 'tue' => 'Tuesday', 'wed' => 'Wednesday', 'thu' => 'Thursday',
@@ -97,9 +100,10 @@ class SeoBuilder
     }
 
     /**
+     * @param  list<string>  $images
      * @return array<string, mixed>
      */
-    public function restaurant(Branch $branch): array
+    public function restaurant(Branch $branch, array $images = []): array
     {
         $node = [
             '@type' => 'Restaurant',
@@ -121,6 +125,10 @@ class SeoBuilder
                 'deliveryMethod' => ['http://purl.org/goodrelations/v1#DeliveryModeOwnFleet', 'http://purl.org/goodrelations/v1#DeliveryModePickUp'],
             ],
         ];
+
+        if ($images !== []) {
+            $node['image'] = $images;
+        }
 
         if ($branch->phone) {
             $node['telephone'] = $branch->phone;
@@ -146,11 +154,11 @@ class SeoBuilder
     /**
      * @return array<string, mixed>
      */
-    public function faqPage(): array
+    public function faqPage(int $count = self::FAQ_HOME_COUNT): array
     {
         $questions = [];
 
-        for ($number = 1; $number <= self::FAQ_COUNT; $number++) {
+        for ($number = 1; $number <= $count; $number++) {
             $questions[] = [
                 '@type' => 'Question',
                 'name' => __('site.faq.q'.$number),

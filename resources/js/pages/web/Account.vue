@@ -8,7 +8,6 @@ import DateText from '@/components/ui-kit/DateText.vue';
 import StatusBadge from '@/components/ui-kit/StatusBadge.vue';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/format';
-import { notify } from '@/lib/notify';
 import { addToCart } from '@/lib/cart';
 
 defineProps({
@@ -28,7 +27,6 @@ function saveAddress() {
         preserveState: true,
         onSuccess: () => {
             addressForm.value = { label: '', address: '', landmark: '', delivery_zone_id: null };
-            notify.success(t('web.address_saved'));
         },
     });
 }
@@ -62,9 +60,7 @@ async function removeAddress(address) {
         return;
     }
 
-    router.delete(route('web.account.addresses.destroy', address.id), {
-        onSuccess: () => notify.success(t('web.address_deleted')),
-    });
+    router.delete(route('web.account.addresses.destroy', address.id));
 }
 
 function reorder(order) {
@@ -73,8 +69,6 @@ function reorder(order) {
             order.items.forEach((item) => {
                 addToCart({ id: item.menu_item_id, name: item.name, base_price: item.line_total / item.quantity });
             });
-
-            notify.success(t('web.reordered'));
         },
     });
 }

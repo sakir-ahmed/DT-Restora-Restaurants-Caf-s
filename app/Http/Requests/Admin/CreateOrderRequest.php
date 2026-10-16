@@ -34,6 +34,10 @@ class CreateOrderRequest extends FormRequest
             'items.*.add_ons' => ['nullable', 'array'],
             'items.*.add_ons.*.id' => ['required', 'integer', 'exists:menu_item_addons,id'],
             'items.*.add_ons.*.qty' => ['nullable', 'integer', 'min:1'],
+            'items.*.discount.type' => ['nullable', 'in:percent,fixed'],
+            'items.*.discount.value' => ['nullable', 'numeric', 'min:0'],
+            'items.*.vat_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'items.*.extra_charge' => ['nullable', 'numeric', 'min:0', 'max:999999'],
         ];
     }
 }

@@ -5,7 +5,6 @@ import AppIcon from '@/components/AppIcon.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
 import MobileInput from '@/components/ui-kit/MobileInput.vue';
 import { t } from '@/lib/i18n';
-import { notify } from '@/lib/notify';
 
 defineProps({
     mobile: { type: String, default: '' },
@@ -16,28 +15,31 @@ const mobile = ref('');
 const code = ref('');
 const sent = ref(false);
 const busy = ref(false);
+const message = ref('');
 
 function send() {
     busy.value = true;
+    message.value = '';
 
     router.post(route('web.customer.otp.send'), { mobile: mobile.value }, {
         preserveState: true,
         onSuccess: () => {
             sent.value = true;
-            notify.success(t('web.otp_sent'));
         },
-        onError: (errors) => notify.error(Object.values(errors)[0]),
+        onError: (errors) => {
+            message.value = Object.values(errors)[0] ?? t('common.error_occurred');
+        },
         onFinish: () => (busy.value = false),
     });
 }
 
 function verify() {
     busy.value = true;
+    message.value = '';
 
     router.post(route('web.customer.otp.verify'), { mobile: mobile.value, code: code.value }, {
-        onSuccess: () => notify.success(t('web.login_success')),
         onError: (errors) => {
-            notify.error(Object.values(errors)[0]);
+            message.value = Object.values(errors)[0] ?? t('common.error_occurred');
             busy.value = false;
         },
     });
@@ -66,6 +68,8 @@ function verify() {
                     <input :id="id" v-model="code" type="text" inputmode="numeric" maxlength="6" class="h-10 w-full rounded-md border border-border bg-surface px-2 text-center text-lg tracking-[0.4em] tabular-nums">
                 </template>
             </FormField>
+
+            <p v-if="message" role="alert" class="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger">{{ message }}</p>
 
             <a :href="route('web.customer.google.redirect')" class="flex h-10 w-full items-center justify-center rounded-lg border border-border text-sm font-medium">
                 {{ t('web.continue_google') }}

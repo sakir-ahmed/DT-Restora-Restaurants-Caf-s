@@ -6,6 +6,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 
 class OtpService
@@ -16,6 +17,16 @@ class OtpService
 
     public function __construct(private readonly SmsService $sms) {}
 
+    public function isRateLimited(string $mobile, string $ip): bool
+    {
+        // Demo mode is for testing, so repeated sends must never lock the tester out.
+        if (SmsService::isDemo()) {
+            return false;
+        }
+
+        return RateLimiter::tooManyAttempts('otp:send:'.sha1(normalize_bd_mobile($mobile).'|'.$ip), 5);
+    }
+
     /**
      * Generate, store (hashed) and send an OTP. Rate limited by IP + mobile
      * at 5 requests per hour.
@@ -25,11 +36,13 @@ class OtpService
         $mobile = normalize_bd_mobile($mobile);
         $key = 'otp:send:'.sha1($mobile.'|'.$ip);
 
-        if (RateLimiter::tooManyAttempts($key, 5)) {
-            return false;
-        }
+        if (! SmsService::isDemo()) {
+            if (RateLimiter::tooManyAttempts($key, 5)) {
+                return false;
+            }
 
-        RateLimiter::hit($key, 3600);
+            RateLimiter::hit($key, 3600);
+        }
 
         $code = (string) random_int(100000, 999999);
 
@@ -37,6 +50,13 @@ class OtpService
             'hash' => Hash::make($code),
             'attempts' => 0,
         ], now()->addMinutes(self::TTL_MINUTES));
+
+        // Local installs without an SMS gateway read the code from the log so sign-in and checkout stay testable.
+        if (app()->environment('local') && ! SmsService::isDemo() && ! config('services.bdbulksms.token')) {
+            Log::info('OTP for local testing (SMS gateway not configured).', ['mobile' => $mobile, 'code' => $code]);
+
+            return true;
+        }
 
         return $this->sms->send($mobile, __('auth.otp_sms', ['code' => $code]));
     }

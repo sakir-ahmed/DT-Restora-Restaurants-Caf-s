@@ -9,6 +9,7 @@ return [
     'subtotal' => 'Subtotal',
     'discount' => 'Discount',
     'service_charge' => 'Service charge',
+    'other_charge' => 'Other charge',
     'vat' => 'VAT',
     'rounding' => 'Rounding',
     'grand_total' => 'Total',

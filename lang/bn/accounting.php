@@ -47,6 +47,7 @@ return [
     'purchase_note' => 'ক্রয় #:id',
     'wastage_note' => 'অপচয় #:id',
     'salary_note' => 'বেতন বরাদ্দ :branch :date',
+    'advance_note' => ':name-এর অগ্রিম বেতন',
     'reversal_of' => 'এন্ট্রি #:id ফেরত',
     'add_line' => 'লাইন যোগ করুন',
     'approve' => 'অনুমোদন',

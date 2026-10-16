@@ -1,13 +1,16 @@
 import '../css/app.css';
+import 'vue-sonner/style.css';
 
-import { createInertiaApp } from '@inertiajs/vue3';
+import { createInertiaApp, usePage } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
-import { createApp, defineComponent, h } from 'vue';
+import { createApp, createSSRApp, defineComponent, h, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { Toaster } from 'vue-sonner';
 import { ZiggyVue, route as routeFn } from 'ziggy-js';
 import ConfirmHost from './components/ui-kit/ConfirmHost.vue';
 import UpdatePrompt from './components/ui-kit/UpdatePrompt.vue';
 import { registerSW } from 'virtual:pwa-register';
+import { t } from './lib/i18n';
+import { notify } from './lib/notify';
 import { Ziggy } from './ziggy';
 
 createInertiaApp({
@@ -18,23 +21,58 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         // Root component keeps persistent UI (confirm dialogs, toasts)
         // alive across page navigation.
+        // Client-only widgets mount after hydration so the server markup matches.
         const Root = defineComponent({
             setup() {
+                const mounted = ref(false);
+                const page = usePage();
+
+                // Toasts follow the site's own light/dark switch, not only the OS setting.
+                const dark = ref(typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
+                let themeObserver = null;
+
+                // SMS_DEMO: show every captured SMS as a toast with its full text.
+                const showDemoSms = (items) => (items ?? []).forEach((entry) => notify.sms(entry));
+
+                onMounted(() => {
+                    mounted.value = true;
+                    dark.value = document.documentElement.classList.contains('dark');
+                    themeObserver = new MutationObserver(() => {
+                        dark.value = document.documentElement.classList.contains('dark');
+                    });
+                    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+                    showDemoSms(page.props?.demoSms);
+                });
+
+                watch(() => page.props?.demoSms, showDemoSms);
+
+                onBeforeUnmount(() => themeObserver?.disconnect());
+
                 return () => [
                     h(App, props),
-                    h(ConfirmHost),
-                    h(UpdatePrompt),
-                    h(Toaster, {
-                        position: 'top-right',
-                        duration: 3000,
-                        closeButton: true,
-                        expand: false,
-                    }),
+                    mounted.value && page.props?.smsDemo
+                        ? h('div', {
+                            role: 'status',
+                            class: 'pointer-events-none fixed bottom-3 left-3 z-[60] max-w-[calc(100vw-1.5rem)] rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-muted shadow-sm',
+                        }, t('common.demo_sms_badge'))
+                        : null,
+                    mounted.value ? h(ConfirmHost) : null,
+                    mounted.value ? h(UpdatePrompt) : null,
+                    mounted.value
+                        ? h(Toaster, {
+                            theme: dark.value ? 'dark' : 'light',
+                            position: 'top-right',
+                            duration: 3000,
+                            closeButton: true,
+                            expand: true,
+                            visibleToasts: 4,
+                        })
+                        : null,
                 ];
             },
         });
 
-        const app = createApp(Root);
+        const app = el.hasAttribute('data-server-rendered') ? createSSRApp(Root) : createApp(Root);
 
         window.Ziggy = { ...Ziggy, url: window.location.origin };
         window.route = (name, params, absolute, config = window.Ziggy) =>

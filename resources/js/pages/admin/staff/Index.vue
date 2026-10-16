@@ -29,16 +29,22 @@ const employeeColumns = computed(() => [
     { key: 'name', label: t('staff.employee'), align: 'left', sortable: true },
     { key: 'designation', label: t('staff.designation'), align: 'left', sortable: true },
     { key: 'mobile', label: t('staff.mobile'), align: 'left' },
-    { key: 'salary_display', label: t('staff.salary'), type: 'money', sortable: true, minWidth: '110px' },
+    { key: 'salary_display', label: t('staff.pay_rate'), align: 'right', sortable: true, minWidth: '140px' },
     { key: 'joined_at', label: t('staff.joined'), align: 'left' },
     { key: 'is_active', label: t('common.status'), minWidth: '104px' },
 ]);
 
+function payRate(employee) {
+    const basis = employee.pay_basis ?? 'monthly';
+
+    return basis === 'monthly' ? employee.monthly_salary : employee.pay_rate;
+}
+
 const employeeRows = computed(() => props.employees.map((employee) => ({
     ...employee,
-    salary_display: formatMoney(employee.monthly_salary),
+    salary_display: `${t(`staff.basis_${employee.pay_basis ?? 'monthly'}`)} ${formatMoney(payRate(employee))}`,
     joined_at: employee.joined_at ? formatDate(employee.joined_at) : null,
-    sort_salary: Number(employee.monthly_salary),
+    sort_salary: Number(payRate(employee)),
 })));
 
 const userColumns = computed(() => [
@@ -55,17 +61,21 @@ const employeeOpen = ref(false);
 const editingEmployeeId = ref(null);
 
 const employeeForm = useForm({
-    name: '', name_bn: '', designation: '', mobile: '', monthly_salary: '0.00', joined_at: '', is_active: true,
+    name: '', name_bn: '', designation: '', mobile: '', pay_basis: 'monthly', pay_rate: '0.00', monthly_salary: '0.00', device_user_id: '', joined_at: '', is_active: true,
 });
 
 function openEmployee(employee = null) {
     editingEmployeeId.value = employee?.id ?? null;
+    const basis = employee?.pay_basis ?? 'monthly';
     employeeForm.defaults({
         name: employee?.name ?? '',
         name_bn: employee?.name_bn ?? '',
         designation: employee?.designation ?? '',
         mobile: employee?.mobile ?? '',
+        pay_basis: basis,
+        pay_rate: employee ? payRate(employee) : '0.00',
         monthly_salary: employee?.monthly_salary ?? '0.00',
+        device_user_id: employee?.device_user_id ?? '',
         joined_at: employee?.joined_at ?? '',
         is_active: employee?.is_active ?? true,
     }).reset();
@@ -73,6 +83,9 @@ function openEmployee(employee = null) {
 }
 
 function saveEmployee() {
+    employeeForm.monthly_salary = employeeForm.pay_basis === 'monthly' ? employeeForm.pay_rate : '0.00';
+    employeeForm.device_user_id = employeeForm.device_user_id || null;
+
     const options = {
         onSuccess: () => {
             employeeOpen.value = false;
@@ -267,8 +280,24 @@ async function deactivateUser(user) {
                         <MobileInput v-model="employeeForm.mobile" />
                     </FormField>
 
-                    <FormField :label="t('staff.salary')" required :helper="t('staff.salary_helper')" :error="employeeForm.errors.monthly_salary">
-                        <MoneyInput v-model="employeeForm.monthly_salary" />
+                    <FormField :label="t('staff.pay_basis')" required :error="employeeForm.errors.pay_basis">
+                        <template #default="{ id }">
+                            <select :id="id" v-model="employeeForm.pay_basis" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
+                                <option value="monthly">{{ t('staff.basis_monthly') }}</option>
+                                <option value="daily">{{ t('staff.basis_daily') }}</option>
+                                <option value="hourly">{{ t('staff.basis_hourly') }}</option>
+                            </select>
+                        </template>
+                    </FormField>
+
+                    <FormField :label="t('staff.pay_rate')" required :helper="employeeForm.pay_basis === 'monthly' ? t('staff.salary_helper') : ''" :error="employeeForm.errors.pay_rate || employeeForm.errors.monthly_salary">
+                        <MoneyInput v-model="employeeForm.pay_rate" />
+                    </FormField>
+
+                    <FormField :label="t('staff.device_user_id')" :helper="t('staff.device_user_helper')" :error="employeeForm.errors.device_user_id">
+                        <template #default="{ id }">
+                            <input :id="id" v-model="employeeForm.device_user_id" type="text" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
+                        </template>
                     </FormField>
 
                     <FormField :label="t('staff.joined')" :error="employeeForm.errors.joined_at">

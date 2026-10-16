@@ -19,7 +19,7 @@ class CustomerAuthController extends Controller
             return redirect()->route('web.account');
         }
 
-        return inertia('web/auth/Login', [
+        return inertia('web/Login', [
             'mobile' => old('mobile', $request->session()->get('otp_mobile')),
             'codeSent' => (bool) $request->session()->get('otp_mobile'),
         ]);
@@ -33,11 +33,15 @@ class CustomerAuthController extends Controller
 
         $mobile = normalize_bd_mobile($validated['mobile']);
 
-        $sent = $otp->send($mobile, (string) $request->ip());
-
-        if (! $sent) {
+        if ($otp->isRateLimited($mobile, (string) $request->ip())) {
             throw ValidationException::withMessages([
                 'mobile' => __('api.otp_rate_limited'),
+            ]);
+        }
+
+        if (! $otp->send($mobile, (string) $request->ip())) {
+            throw ValidationException::withMessages([
+                'mobile' => __('api.otp_send_failed'),
             ]);
         }
 

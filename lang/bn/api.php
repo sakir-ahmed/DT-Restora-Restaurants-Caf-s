@@ -14,4 +14,5 @@ return [
     'idempotency_required' => 'Idempotency-Key হেডার পাঠান।',
     'forbidden' => 'এই কাজের অনুমতি নেই।',
     'google_not_configured' => 'গুগল সাইন-ইন সেট করা নেই।',
+    'otp_send_failed' => 'কোডটি পাঠানো যায়নি। নম্বরটি যাচাই করে আবার চেষ্টা করুন।',
 ];

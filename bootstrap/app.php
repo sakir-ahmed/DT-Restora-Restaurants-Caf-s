@@ -1,6 +1,7 @@
 <?php
 
 use App\Exceptions\InsufficientStockException;
+use App\Http\Middleware\AuthenticateAttendanceDevice;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -34,9 +35,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => SpatieRole::class,
             'permission' => SpatiePermission::class,
             'auth' => Authenticate::class,
+            'attendance.device' => AuthenticateAttendanceDevice::class,
         ]);
 
         $middleware->redirectGuestsTo(fn () => route('login'));
+        $middleware->redirectUsersTo(fn () => route('admin.dashboard'));
 
         $middleware->validateCsrfTokens(except: [
             'payments/sslcommerz/ipn',

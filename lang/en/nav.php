@@ -19,6 +19,9 @@ return [
     'people' => 'People',
     'customers' => 'Customers',
     'staff' => 'Staff',
+    'attendance' => 'Attendance',
+    'letters' => 'Letters',
+    'payroll' => 'Payroll',
     'delivery' => 'Delivery',
     'finance' => 'Finance',
     'accounting' => 'Accounting',
@@ -33,4 +36,7 @@ return [
     'no_notifications' => 'No new notifications.',
     'account' => 'Account menu',
     'toggle_sidebar' => 'Toggle sidebar',
+    'media' => 'Photos and videos',
+    'careers' => 'Careers',
+    'blog' => 'Blog',
 ];

@@ -45,11 +45,13 @@ if (! function_exists('money')) {
 if (! function_exists('flat_translations')) {
     /**
      * Flatten all lang/{locale} group files into a single key => value map
-     * (nav.orders => "Orders") for sharing with Inertia.
+     * (nav.orders => "Orders") for sharing with Inertia. Pass $groups to keep
+     * the payload small on pages that only need a few groups.
      *
+     * @param  list<string>|null  $groups
      * @return array<string, string>
      */
-    function flat_translations(string $locale): array
+    function flat_translations(string $locale, ?array $groups = null): array
     {
         $path = lang_path($locale);
 
@@ -61,6 +63,11 @@ if (! function_exists('flat_translations')) {
 
         foreach (glob($path.'/*.php') ?: [] as $file) {
             $group = basename($file, '.php');
+
+            if ($groups !== null && ! in_array($group, $groups, true)) {
+                continue;
+            }
+
             $lines = require $file;
 
             foreach (array_dot($lines) as $key => $value) {

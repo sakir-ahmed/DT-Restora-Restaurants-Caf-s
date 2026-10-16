@@ -74,4 +74,7 @@ return [
         'hour' => ':n hr ago',
         'day' => ':n days ago',
     ],
+    'demo_sms_title' => 'Demo SMS to :mobile',
+    'demo_sms_note' => 'Demo mode: this message was not sent.',
+    'demo_sms_badge' => 'SMS demo mode: messages show here and are not sent',
 ];

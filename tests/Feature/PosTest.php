@@ -126,6 +126,43 @@ it('applies a percent discount before service charge and VAT', function (): void
         ->and((float) $order->total)->toBe(416.0);
 });
 
+it('allows a fixed discount within the limit', function (): void {
+    $order = createPosOrder($this, [
+        'discount' => ['type' => 'fixed', 'value' => 20],
+    ]);
+
+    expect((float) $order->discount_amount)->toBe(20.0);
+});
+
+it('applies a line discount, custom vat and an extra charge', function (): void {
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::Takeaway,
+        lines: [[
+            'menu_item_id' => $this->item->id,
+            'quantity' => 2,
+            'discount' => ['type' => 'percent', 'value' => 10],
+            'vat_percent' => 0,
+            'extra_charge' => 20,
+        ]],
+        cashier: $this->cashier,
+        shift: $this->shift,
+        terminalCode: 'T01',
+    );
+
+    // Gross 400, line discount 40, extra 20, service 10% of 360 = 36, custom VAT 0, service VAT 1.80.
+    expect((float) $order->discount_amount)->toBe(40.0)
+        ->and((float) $order->extra_charge)->toBe(20.0)
+        ->and((float) $order->service_charge)->toBe(36.0)
+        ->and((float) $order->vat_amount)->toBe(1.8)
+        ->and((float) $order->total)->toBe(418.0);
+});
+
+it('rejects a fixed discount above the limit without the override permission', function (): void {
+    expect(fn () => createPosOrder($this, ['discount' => ['type' => 'fixed', 'value' => 80]]))
+        ->toThrow(ValidationException::class);
+});
+
 it('rejects discounts above the limit without the override permission', function (): void {
     expect(fn () => createPosOrder($this, ['discount' => ['type' => 'percent', 'value' => 25]]))
         ->toThrow(ValidationException::class);

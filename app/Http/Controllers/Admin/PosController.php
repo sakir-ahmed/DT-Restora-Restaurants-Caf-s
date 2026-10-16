@@ -30,7 +30,7 @@ class PosController extends Controller
             ->where('branch_id', $branch->id)
             ->active()
             ->ordered()
-            ->with(['items' => fn ($query) => $query->available()->with(['variants', 'addOns'])->orderBy('sort_order')])
+            ->with(['items' => fn ($query) => $query->available()->with(['variants', 'addOns', 'media'])->orderBy('sort_order')])
             ->get();
 
         $openShift = Shift::query()

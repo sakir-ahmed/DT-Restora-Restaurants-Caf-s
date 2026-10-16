@@ -18,7 +18,7 @@ Schedule::call(function (): void {
 
     foreach (User::query()->whereHas('roles', fn ($query) => $query->whereIn('name', ['owner']))->pluck('mobile') as $mobile) {
         if ($mobile !== null) {
-            SendSmsJob::dispatch((string) $mobile, __('web.owner_daily_summary', [
+            SendSmsJob::deliver((string) $mobile, __('web.owner_daily_summary', [
                 'date' => now()->subDay()->toDateString(),
                 'count' => $summary['orders'],
                 'total' => $summary['gross_sales'],

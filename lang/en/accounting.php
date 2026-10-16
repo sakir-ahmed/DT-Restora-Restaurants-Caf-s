@@ -47,6 +47,7 @@ return [
     'purchase_note' => 'Purchase #:id',
     'wastage_note' => 'Wastage #:id',
     'salary_note' => 'Salary allocation :branch :date',
+    'advance_note' => 'Salary advance for :name',
     'reversal_of' => 'Reversal of entry #:id',
     'add_line' => 'Add line',
     'approve' => 'Approve',

@@ -59,8 +59,11 @@ class EmployeeController extends Controller
     {
         $branch = $this->currentBranch($request);
 
+        $validated = $request->validated();
+
         Employee::query()->create([
-            ...$request->validated(),
+            ...collect($validated)->except(['pay_basis', 'pay_rate', 'monthly_salary', 'device_user_id'])->all(),
+            ...Employee::payAttributes($validated),
             'branch_id' => $branch->id,
         ]);
 
@@ -69,7 +72,12 @@ class EmployeeController extends Controller
 
     public function update(EmployeeRequest $request, Employee $employee): RedirectResponse
     {
-        $employee->update($request->validated());
+        $validated = $request->validated();
+
+        $employee->update([
+            ...collect($validated)->except(['pay_basis', 'pay_rate', 'monthly_salary', 'device_user_id'])->all(),
+            ...Employee::payAttributes($validated),
+        ]);
 
         return back()->with('success', __('staff.employee_updated'));
     }

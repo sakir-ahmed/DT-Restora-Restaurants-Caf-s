@@ -1,6 +1,6 @@
 <script setup>
 import { Head, router, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
 import MobileInput from '@/components/ui-kit/MobileInput.vue';
@@ -8,7 +8,6 @@ import RadioCards from '@/components/ui-kit/RadioCards.vue';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/format';
 import { cart, cartSubtotal, setQuantity } from '@/lib/cart';
-import { notify } from '@/lib/notify';
 
 const page = usePage();
 
@@ -33,6 +32,7 @@ const scheduledFor = ref('');
 const couponCode = ref('');
 const couponDiscount = ref(0);
 const couponChecking = ref(false);
+const couponFeedback = ref(null);
 
 async function checkCoupon() {
     if (! couponCode.value.trim()) {
@@ -40,6 +40,7 @@ async function checkCoupon() {
     }
 
     couponChecking.value = true;
+    couponFeedback.value = null;
 
     try {
         const token = document.querySelector('meta[name=csrf-token]')?.content ?? '';
@@ -59,19 +60,27 @@ async function checkCoupon() {
 
         if (payload.success) {
             couponDiscount.value = Number(payload.data.discount);
-            notify.success(t('coupons.applied', { discount: payload.data.discount }));
+            couponFeedback.value = { ok: true, text: t('coupons.applied', { discount: payload.data.discount }) };
         } else {
             couponDiscount.value = 0;
-            notify.error(payload.error?.message ?? t('coupons.not_found'));
+            couponFeedback.value = { ok: false, text: payload.error?.message ?? t('coupons.not_found') };
         }
     } catch {
-        notify.error(t('common.error_occurred'));
+        couponFeedback.value = { ok: false, text: t('common.error_occurred') };
     } finally {
         couponChecking.value = false;
     }
 }
 const submitting = ref(false);
+const otpSending = ref(false);
 const errors = ref({});
+
+const FIELD_ORDER = ['items', 'delivery_zone_id', 'delivery_address', 'customer_mobile', 'guest_otp'];
+
+/**
+ * Every distinct message to show in the summary at the top of the form.
+ */
+const errorMessages = computed(() => [...new Set(Object.values(errors.value).flat().filter(Boolean))]);
 
 const selectedZone = computed(() => props.zones.find((zone) => zone.id === Number(zoneId.value)));
 
@@ -97,18 +106,96 @@ function chooseAddress(saved) {
     }
 }
 
+/**
+ * Checks everything the server checks so people see what is missing
+ * before any request is sent.
+ */
+function validate() {
+    const found = {};
+
+    if (cart.lines.length === 0) {
+        found.items = t('web.cart_empty');
+    }
+
+    if (orderType.value === 'delivery') {
+        if (! zoneId.value) {
+            found.delivery_zone_id = t('web.err_zone');
+        } else if (selectedZone.value && cartSubtotal() < Number(selectedZone.value.min_order)) {
+            found.delivery_zone_id = t('web.min_order_not_met', { min: selectedZone.value.min_order });
+        }
+
+        if (! address.value.trim()) {
+            found.delivery_address = t('web.err_address');
+        }
+    }
+
+    if (! props.customer) {
+        if (! /^01[3-9]\d{8}$/.test(mobile.value)) {
+            found.customer_mobile = t('web.err_mobile');
+        }
+
+        if (! /^\d{6}$/.test(guestOtp.value)) {
+            found.guest_otp = otpSent.value ? t('web.err_otp_length') : t('web.otp_first');
+        }
+    }
+
+    return found;
+}
+
+async function focusFirstError(keys) {
+    await nextTick();
+
+    const first = FIELD_ORDER.find((key) => keys.includes(key)) ?? keys[0];
+    const field = document.getElementById(`field-${first}`);
+
+    if (field) {
+        field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        field.focus({ preventScroll: true });
+    } else {
+        document.getElementById('checkout-errors')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
 function sendOtp() {
+    if (! /^01[3-9]\d{8}$/.test(mobile.value)) {
+        errors.value = { ...errors.value, customer_mobile: t('web.err_mobile') };
+        focusFirstError(['customer_mobile']);
+
+        return;
+    }
+
+    otpSending.value = true;
+
     router.post(route('web.customer.otp.send'), { mobile: mobile.value }, {
         preserveState: true,
+        preserveScroll: true,
         onSuccess: () => {
             otpSent.value = true;
-            notify.success(t('web.otp_sent'));
+            const { customer_mobile: _removed, ...rest } = errors.value;
+            errors.value = rest;
         },
-        onError: (errs) => notify.error(Object.values(errs)[0]),
+        onError: (errs) => {
+            const message = errs.mobile ?? Object.values(errs)[0] ?? t('common.error_occurred');
+            errors.value = { ...errors.value, customer_mobile: message };
+        },
+        onFinish: () => (otpSending.value = false),
     });
 }
 
 function submit() {
+    if (submitting.value) {
+        return;
+    }
+
+    const found = validate();
+
+    if (Object.keys(found).length > 0) {
+        errors.value = found;
+        focusFirstError(Object.keys(found));
+
+        return;
+    }
+
     submitting.value = true;
     errors.value = {};
 
@@ -131,13 +218,13 @@ function submit() {
             add_ons: line.addOns.map((addOn) => ({ id: addOn.id, qty: 1 })),
         })),
     }, {
+        preserveScroll: true,
         onSuccess: () => {
             cart.lines.splice(0);
         },
         onError: (errs) => {
             errors.value = errs;
-            submitting.value = false;
-            notify.error(Object.values(errs)[0] ?? t('common.error_occurred'));
+            focusFirstError(Object.keys(errs));
         },
         onFinish: () => (submitting.value = false),
     });
@@ -149,6 +236,16 @@ function submit() {
 
     <div class="grid gap-6 lg:grid-cols-[1fr_360px]">
         <div class="space-y-5">
+            <div v-if="errorMessages.length" id="checkout-errors" role="alert" class="rounded-xl border border-danger/40 bg-danger/10 p-4">
+                <p class="flex items-center gap-2 text-sm font-semibold text-danger">
+                    <AppIcon name="triangle-exclamation" size="14" />
+                    {{ t('web.checkout_fix') }}
+                </p>
+                <ul class="mt-2 list-disc space-y-0.5 pl-9 text-sm text-foreground">
+                    <li v-for="message in errorMessages" :key="message">{{ message }}</li>
+                </ul>
+            </div>
+
             <!-- Order type -->
             <section class="rounded-xl border border-border bg-surface p-4">
                 <h2 class="text-sm font-semibold">{{ t('web.how_to_get_order') }}</h2>
@@ -169,9 +266,9 @@ function submit() {
             <section v-if="orderType === 'delivery'" class="space-y-3 rounded-xl border border-border bg-surface p-4">
                 <h2 class="text-sm font-semibold">{{ t('web.delivery_details') }}</h2>
 
-                <FormField :label="t('web.zone')" required :error="errors.delivery_zone_id">
-                    <template #default="{ id }">
-                        <select :id="id" v-model="zoneId" class="h-9 w-full rounded-md border bg-surface px-2 text-sm" :class="errors.delivery_zone_id ? 'border-danger' : 'border-border'">
+                <FormField :label="t('web.zone')" required for="field-delivery_zone_id" :error="errors.delivery_zone_id">
+                    <template #default>
+                        <select id="field-delivery_zone_id" v-model="zoneId" :aria-invalid="!! errors.delivery_zone_id" class="h-9 w-full rounded-md border bg-surface px-2 text-sm" :class="errors.delivery_zone_id ? 'border-danger' : 'border-border'">
                             <option :value="null" disabled>{{ t('common.select') }}</option>
                             <option v-for="zone in zones" :key="zone.id" :value="zone.id">
                                 {{ zone.name }} - {{ formatMoney(zone.fee) }} ({{ t('web.min_order') }}: {{ formatMoney(zone.min_order) }})
@@ -192,9 +289,9 @@ function submit() {
                     </button>
                 </div>
 
-                <FormField :label="t('web.address')" required :error="errors.delivery_address">
-                    <template #default="{ id }">
-                        <textarea :id="id" v-model="address" rows="2" class="w-full resize-y rounded-md border bg-surface px-2 py-1.5 text-sm" :class="errors.delivery_address ? 'border-danger' : 'border-border'" />
+                <FormField :label="t('web.address')" required for="field-delivery_address" :error="errors.delivery_address">
+                    <template #default>
+                        <textarea id="field-delivery_address" v-model="address" :aria-invalid="!! errors.delivery_address" rows="2" class="w-full resize-y rounded-md border bg-surface px-2 py-1.5 text-sm" :class="errors.delivery_address ? 'border-danger' : 'border-border'" />
                     </template>
                 </FormField>
 
@@ -215,19 +312,20 @@ function submit() {
                         </template>
                     </FormField>
 
-                    <FormField :label="t('staff.mobile')" required :error="errors.customer_mobile">
-                        <div class="flex gap-1.5">
-                            <MobileInput v-model="mobile" />
-                            <button type="button" class="h-9 shrink-0 rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground" @click="sendOtp">
-                                {{ otpSent ? t('web.resend_otp') : t('web.send_otp') }}
+                    <FormField :label="t('staff.mobile')" required for="field-customer_mobile" :error="errors.customer_mobile">
+                        <div class="flex items-start gap-1.5">
+                            <MobileInput v-model="mobile" input-id="field-customer_mobile" :invalid="!! errors.customer_mobile" />
+                            <button type="button" :disabled="otpSending" class="inline-flex h-7 shrink-0 items-center gap-1.5 rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground disabled:opacity-60" @click="sendOtp">
+                                <AppIcon v-if="otpSending" name="spinner" size="11" spin />
+                                {{ otpSending ? t('web.sending') : (otpSent ? t('web.resend_otp') : t('web.send_otp')) }}
                             </button>
                         </div>
                     </FormField>
                 </div>
 
-                <FormField v-if="otpSent" :label="t('web.otp_code')" required :error="errors.guest_otp" :helper="t('web.otp_helper')">
-                    <template #default="{ id }">
-                        <input :id="id" v-model="guestOtp" type="text" inputmode="numeric" maxlength="6" class="h-9 w-full rounded-md border bg-surface px-2 text-center text-lg tracking-[0.4em] tabular-nums" :class="errors.guest_otp ? 'border-danger' : 'border-border'">
+                <FormField :label="t('web.otp_code')" required for="field-guest_otp" :error="errors.guest_otp" :helper="otpSent ? t('web.otp_helper') : t('web.otp_first')">
+                    <template #default>
+                        <input id="field-guest_otp" v-model="guestOtp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" :aria-invalid="!! errors.guest_otp" class="h-9 w-full rounded-md border bg-surface px-2 text-center text-lg tracking-[0.4em] tabular-nums" :class="errors.guest_otp ? 'border-danger' : 'border-border'">
                     </template>
                 </FormField>
 
@@ -303,12 +401,12 @@ function submit() {
 
             <button
                 type="button"
-                :disabled="cart.lines.length === 0 || submitting || (orderType === 'delivery' && ! zoneId)"
-                class="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-accent text-base font-semibold text-accent-foreground disabled:opacity-50"
+                :disabled="submitting"
+                class="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-accent text-base font-semibold text-accent-foreground hover:opacity-90 disabled:opacity-60"
                 @click="submit"
             >
                 <AppIcon v-if="submitting" name="spinner" spin />
-                {{ t('web.place_order') }}
+                {{ submitting ? t('web.sending') : t('web.place_order') }}
             </button>
 
             <div class="mt-2 flex gap-1.5">
@@ -317,6 +415,8 @@ function submit() {
                     {{ t('common.apply') }}
                 </button>
             </div>
+
+            <p v-if="couponFeedback" role="status" class="text-xs" :class="couponFeedback.ok ? 'text-success' : 'text-danger'">{{ couponFeedback.text }}</p>
 
             <p v-if="selectedZone && cartSubtotal() < Number(selectedZone.min_order)" class="text-center text-xs text-danger">
                 {{ t('web.min_order_not_met', { min: selectedZone.min_order }) }}

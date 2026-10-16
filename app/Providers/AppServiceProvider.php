@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Models\Branch;
+use App\Models\MenuItem;
 use App\Models\User;
 use Dedoc\Scramble\Scramble;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
 
@@ -19,10 +23,18 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Short names in the media table instead of class names.
+        Relation::morphMap(['branch' => Branch::class, 'menu_item' => MenuItem::class]);
+
         // super-admin (Datatech support) always passes authorization checks.
         Gate::before(function ($user, string $ability) {
             return $user instanceof User && $user->hasRole('super-admin') ? true : null;
         });
+
+        // SMS_DEMO would leak verification codes to browsers, so it must never run in production.
+        if (config('services.sms.demo') === true && $this->app->isProduction()) {
+            Log::critical('SMS_DEMO is enabled in production and has been ignored. Remove it from the environment.');
+        }
 
         // Server-side render only the public, indexable pages. The back office, POS, checkout and account stay client-side.
         Inertia::withoutSsr(['admin', 'admin/*', 'rider', 'rider/*', 'login', 'checkout', 'account', 'customer/*', 'track/*', 'pay/*']);
