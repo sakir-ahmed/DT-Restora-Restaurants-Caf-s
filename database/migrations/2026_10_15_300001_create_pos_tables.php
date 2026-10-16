@@ -42,6 +42,22 @@ return new class extends Migration
             $table->unique(['branch_id', 'terminal_code', 'for_date']);
         });
 
+        Schema::create('shifts', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('terminal_code', 10)->default('T01');
+            $table->decimal('opening_cash', 12, 2)->default(0);
+            $table->decimal('counted_cash', 12, 2)->nullable();
+            $table->decimal('expected_cash', 12, 2)->nullable();
+            $table->decimal('difference', 12, 2)->nullable();
+            $table->timestamp('opened_at');
+            $table->timestamp('closed_at')->nullable();
+            $table->timestamps();
+
+            $table->index(['branch_id', 'user_id', 'closed_at']);
+        });
+
         Schema::create('orders', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
@@ -105,22 +121,6 @@ return new class extends Migration
             $table->index(['order_id', 'status']);
         });
 
-        Schema::create('shifts', function (Blueprint $table): void {
-            $table->id();
-            $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('terminal_code', 10)->default('T01');
-            $table->decimal('opening_cash', 12, 2)->default(0);
-            $table->decimal('counted_cash', 12, 2)->nullable();
-            $table->decimal('expected_cash', 12, 2)->nullable();
-            $table->decimal('difference', 12, 2)->nullable();
-            $table->timestamp('opened_at');
-            $table->timestamp('closed_at')->nullable();
-            $table->timestamps();
-
-            $table->index(['branch_id', 'user_id', 'closed_at']);
-        });
-
         Schema::create('void_requests', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('order_id')->constrained()->cascadeOnDelete();
@@ -139,10 +139,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('void_requests');
-        Schema::dropIfExists('shifts');
         Schema::dropIfExists('payments');
         Schema::dropIfExists('order_items');
         Schema::dropIfExists('orders');
+        Schema::dropIfExists('shifts');
         Schema::dropIfExists('invoice_sequences');
         Schema::dropIfExists('restaurant_tables');
         Schema::dropIfExists('terminals');
