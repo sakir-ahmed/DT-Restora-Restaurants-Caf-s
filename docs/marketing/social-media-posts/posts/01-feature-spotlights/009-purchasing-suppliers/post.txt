@@ -1,0 +1,65 @@
+POST 009 | Feature spotlight | English
+Folder: 01-feature-spotlights/009-purchasing-suppliers
+Images: 1, 1080x1350 (4:5).
+Best time to post (Bangladesh time): Thu 8:00 pm
+Contact line on every post: Md. Sakir Ahmed 01304734623
+Status and schedule are tracked in content-plan.json (id P009). Links are not used in captions.
+
+=== FACEBOOK ===
+Suppliers, purchase orders and price history
+
+Record suppliers, raise purchase orders and receive goods against them. Each receipt updates stock and ingredient cost, and the price history helps you spot a supplier who quietly raised rates.
+
+- Purchase orders
+- Goods received
+- Price history
+
+To book a free demo, contact Md. Sakir Ahmed: 01304734623
+
+#Purchasing #SupplierManagement #RestaurantCosts #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
+
+=== LINKEDIN ===
+Suppliers, purchase orders and price history
+
+Record suppliers, raise purchase orders and receive goods against them. Each receipt updates stock and ingredient cost, and the price history helps you spot a supplier who quietly raised rates.
+
+Key points:
+- Purchase orders
+- Goods received
+- Price history
+
+If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: 01304734623
+
+#Purchasing #SupplierManagement #RestaurantCosts #DTRestora #SaaS
+
+=== X (TWITTER) ===
+Suppliers, purchase orders and price history
+
+Know what you bought, at what price, from whom.
+
+Md. Sakir Ahmed 01304734623
+
+#Purchasing #SupplierManagement
+(characters counted by X: 155 of 280)
+
+=== INSTAGRAM ===
+Suppliers, purchase orders and price history
+
+Record suppliers, raise purchase orders and receive goods against them. Each receipt updates stock and ingredient cost, and the price history helps you spot a supplier who quietly raised rates.
+
+To book a free demo, contact Md. Sakir Ahmed: 01304734623 (or DM "DEMO").
+
+#Purchasing #SupplierManagement #RestaurantCosts #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
+
+=== GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
+Know what you bought, at what price, from whom. Try the free demo. Call Md. Sakir Ahmed: 01304734623.
+
+=== SEO (use for a blog post, landing page or video description) ===
+SEO title: Suppliers, purchase orders and price history | DT Restora
+Meta description: Know what you bought, at what price, from whom. Record suppliers, raise purchase orders and receive goods against them
+Primary keyword: restaurant purchase order software
+Secondary keywords: purchasing, supplier management, restaurant costs, restaurant management software bangladesh, restaurant pos system dhaka
+Suggested URL slug: /blog/purchasing-suppliers
+
+=== IMAGE ALT TEXT ===
+image-01.png: Suppliers, purchase orders and price history - screenshot of DT Restora restaurant software showing the purchases and goods received screen.

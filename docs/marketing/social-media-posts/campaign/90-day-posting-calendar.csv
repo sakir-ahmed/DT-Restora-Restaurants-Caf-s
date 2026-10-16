@@ -1,0 +1,91 @@
+day,planned_date,post_id,title,folder,planned_platforms,video_ids,phase
+1,2026-10-19,P000,"Hello, we are DT Restora (page introduction)",../facebook-page/assets,facebook instagram linkedin whatsapp_status,,launch-30
+2,2026-10-20,P043,Start free. Then pay less.,posts/03-offers-pricing/043-launch-offer,facebook instagram linkedin x facebook_story instagram_story whatsapp_status google_business threads,,launch-30
+3,2026-10-21,P035,Paper hides your money,posts/02-problem-solution/035-paper-hides-money,facebook instagram x facebook_story instagram_story,V-101,launch-30
+4,2026-10-22,P012,See your profit before the day ends,posts/01-feature-spotlights/012-owner-dashboard,facebook instagram linkedin x facebook_story instagram_story,,launch-30
+5,2026-10-23,P079,Your biggest restaurant headache?,posts/07-engagement/079-poll-biggest-headache,facebook instagram x,,launch-30
+6,2026-10-24,P005,"The kitchen sees every order, instantly",posts/01-feature-spotlights/005-kitchen-display,facebook instagram linkedin x facebook_story instagram_story,V-102,launch-30
+7,2026-10-25,P050,See it before you decide,posts/03-offers-pricing/050-book-free-demo,facebook instagram linkedin x facebook_story instagram_story whatsapp_status google_business threads,V-109,launch-30
+8,2026-10-26,P106,Sales are good. So why is profit low?,posts/09-quick-answers/106-why-profit-is-low,facebook instagram linkedin x threads,,launch-30
+9,2026-10-27,P006,Know what every plate really costs,posts/01-feature-spotlights/006-recipe-costing,facebook instagram x,V-103,launch-30
+10,2026-10-28,P126,Myth: a restaurant system costs a fortune,posts/11-myth-vs-fact/126-myth-systems-cost-a-fortune,facebook instagram linkedin x,V-110,launch-30
+11,2026-10-29,P019,Turn first visits into regulars,posts/01-feature-spotlights/019-loyalty-points,facebook instagram linkedin x facebook_story instagram_story,,launch-30
+12,2026-10-30,P061,Digitalize your restaurant in 5 steps,posts/05-carousels-video/061-five-steps-to-digitalize,facebook instagram linkedin x facebook_story instagram_story,V-104,launch-30
+13,2026-10-31,P085,ফ্রিতে শুরু করুন। তারপর কম খরচে চালান।,posts/08-bangla-posts/085-bn-launch-offer,facebook instagram linkedin x facebook_story instagram_story whatsapp_status threads,V-061,launch-30
+14,2026-11-01,P132,Is the first month really free?,posts/12-owner-chat/132-chat-is-the-first-month-free,facebook instagram linkedin x,V-111,launch-30
+15,2026-11-02,P029,Internet down? Keep selling.,posts/01-feature-spotlights/029-offline-mode,facebook instagram linkedin x facebook_story instagram_story,V-105,launch-30
+16,2026-11-03,P036,You find out the rice is gone when the kitchen runs out,posts/02-problem-solution/036-stock-guesswork,facebook instagram linkedin x facebook_story instagram_story,,launch-30
+17,2026-11-04,P118,Which formula gives food cost percentage?,posts/10-quiz-and-polls/118-quiz-food-cost-formula,facebook instagram linkedin x,V-113,launch-30
+18,2026-11-05,P016,Payroll and salary slips in one click,posts/01-feature-spotlights/016-payroll-salary-slips,facebook instagram x,V-106,launch-30
+19,2026-11-06,P078,How do you track food waste today?,posts/07-engagement/078-poll-how-track-waste,facebook instagram linkedin x facebook_story instagram_story,,launch-30
+20,2026-11-07,P026,Delivery-app orders without the chaos,posts/01-feature-spotlights/026-delivery-app-orders,facebook instagram linkedin x facebook_story instagram_story,,launch-30
+21,2026-11-08,P063,A day in the life of your cashier,posts/05-carousels-video/063-day-of-a-cashier,facebook instagram x facebook_story instagram_story,V-107,launch-30
+22,2026-11-09,P089,ক্যাশিয়ার কয়েক মিনিটেই শিখে ফেলবেন,posts/08-bangla-posts/089-bn-pos,facebook instagram linkedin x facebook_story instagram_story whatsapp_status threads,V-063,launch-30
+23,2026-11-10,P108,Why is the cash drawer short every week?,posts/09-quick-answers/108-why-cash-is-short,facebook instagram linkedin x threads,,launch-30
+24,2026-11-11,P022,Your own ordering website,posts/01-feature-spotlights/022-ordering-website,facebook instagram linkedin x facebook_story instagram_story,V-108,launch-30
+25,2026-11-12,P138,How is net profit really calculated?,posts/13-mini-infographics/138-formula-net-profit,facebook instagram linkedin x,,launch-30
+26,2026-11-13,P045,Installation refundable after one year,posts/03-offers-pricing/045-refundable-installation,facebook instagram linkedin x facebook_story instagram_story whatsapp_status google_business threads,,launch-30
+27,2026-11-14,P135,Our network drops at lunch,posts/12-owner-chat/135-chat-our-network-drops-at-lunch,facebook instagram linkedin x,,launch-30
+28,2026-11-15,P124,খাবারের খরচের শতাংশ বের করার সঠিক নিয়ম কোনটি?,posts/10-quiz-and-polls/124-bn-quiz-food-cost,facebook instagram linkedin x threads,,launch-30
+29,2026-11-16,P068,5 questions before buying a POS,posts/05-carousels-video/068-questions-before-buying-pos,facebook instagram linkedin x facebook_story instagram_story,,launch-30
+30,2026-11-17,P046,Pay yearly. Get 2 months free.,posts/03-offers-pricing/046-yearly-two-months-free,facebook instagram x whatsapp_status google_business threads,V-068 V-112,launch-30
+31,2026-11-18,P031,"Who changed what, and when",posts/01-feature-spotlights/031-activity-log,facebook instagram linkedin x facebook_story instagram_story,,scale-90
+32,2026-11-19,P032,Run many branches from one screen,posts/01-feature-spotlights/032-multi-branch,facebook instagram x,,scale-90
+33,2026-11-20,P033,Grow your brand beyond the menu,posts/01-feature-spotlights/033-blog-careers-gallery,facebook instagram linkedin x facebook_story instagram_story,,scale-90
+34,2026-11-21,P034,Every dish with photos and videos,posts/01-feature-spotlights/034-dish-photos-videos,facebook instagram x,,scale-90
+35,2026-11-22,P001,A till your cashier learns in minutes,posts/01-feature-spotlights/001-pos-terminal,facebook instagram linkedin x facebook_story instagram_story,,scale-90
+36,2026-11-23,P002,Split one bill between cash and bKash,posts/01-feature-spotlights/002-split-payments,facebook instagram x,,scale-90
+37,2026-11-24,P037,Waste nobody records costs the most,posts/02-problem-solution/037-unrecorded-waste,facebook instagram x,,scale-90
+38,2026-11-25,P038,"The drawer is short again. Who, when, how much?",posts/02-problem-solution/038-cash-drawer-mismatch,facebook instagram linkedin x facebook_story instagram_story,,scale-90
+39,2026-11-26,P039,You learn your profit three weeks too late,posts/02-problem-solution/039-profit-at-month-end,facebook instagram x,,scale-90
+40,2026-11-27,P040,Three tablets. Three headaches.,posts/02-problem-solution/040-delivery-app-chaos,facebook instagram linkedin x facebook_story instagram_story,,scale-90
+41,2026-11-28,P041,"""I worked that day."" ""No, you did not.""",posts/02-problem-solution/041-attendance-disputes,facebook instagram x,,scale-90
+42,2026-11-29,P042,"Many branches, one blurry picture",posts/02-problem-solution/042-branches-blind,facebook instagram x facebook_story instagram_story,,scale-90
+43,2026-11-30,P003,Discounts with a manager check,posts/01-feature-spotlights/003-discount-approval,facebook instagram linkedin x facebook_story instagram_story,,scale-90
+44,2026-12-01,P044,Your first month is free,posts/03-offers-pricing/044-first-month-free,facebook instagram x whatsapp_status google_business threads,,scale-90
+45,2026-12-02,P004,Cash that adds up every shift,posts/01-feature-spotlights/004-shift-cash-count,facebook instagram x,,scale-90
+46,2026-12-03,P007,Stock that reduces itself with every sale,posts/01-feature-spotlights/007-auto-stock-deduction,facebook instagram x facebook_story instagram_story,,scale-90
+47,2026-12-04,P047,"5,700 BDT or 1,000 BDT?",posts/03-offers-pricing/047-regular-vs-launch-price,facebook instagram linkedin x facebook_story instagram_story whatsapp_status google_business threads,,scale-90
+48,2026-12-05,P048,About 33 BDT a day,posts/03-offers-pricing/048-thirty-three-a-day,facebook instagram x whatsapp_status google_business threads,,scale-90
+49,2026-12-06,P049,One price. Everything included.,posts/03-offers-pricing/049-everything-included,facebook instagram x facebook_story instagram_story whatsapp_status google_business threads,,scale-90
+50,2026-12-07,P008,Every loss logged with a reason and a cost,posts/01-feature-spotlights/008-wastage-log,facebook instagram linkedin x facebook_story instagram_story,,scale-90
+51,2026-12-08,P051,How to calculate food cost percentage,posts/04-owner-tips-seo/051-food-cost-percentage,facebook instagram x,,scale-90
+52,2026-12-09,P052,5 ways to reduce food waste,posts/04-owner-tips-seo/052-five-ways-reduce-waste,facebook instagram linkedin x facebook_story instagram_story,,scale-90
+53,2026-12-10,P053,Menu pricing basics,posts/04-owner-tips-seo/053-menu-pricing-basics,facebook instagram x,,scale-90
+54,2026-12-11,P054,What is a reorder level?,posts/04-owner-tips-seo/054-reorder-level-explained,facebook instagram linkedin x facebook_story instagram_story,,scale-90
+55,2026-12-12,P055,Weekly inventory checklist,posts/04-owner-tips-seo/055-inventory-checklist,facebook instagram x,,scale-90
+56,2026-12-13,P056,Why add a QR menu,posts/04-owner-tips-seo/056-qr-menu-benefits,facebook instagram x facebook_story instagram_story,,scale-90
+57,2026-12-14,P057,Cash handling rules that work,posts/04-owner-tips-seo/057-cash-handling-rules,facebook instagram linkedin x facebook_story instagram_story,,scale-90
+58,2026-12-15,P058,5 loyalty ideas for cafes,posts/04-owner-tips-seo/058-loyalty-ideas-cafe,facebook instagram x,,scale-90
+59,2026-12-16,P059,Get found: Google Business Profile,posts/04-owner-tips-seo/059-google-business-profile,facebook instagram linkedin x facebook_story instagram_story,,scale-90
+60,2026-12-17,P060,How to choose a restaurant POS,posts/04-owner-tips-seo/060-choose-restaurant-pos,facebook instagram x,,scale-90
+61,2026-12-18,P009,"Suppliers, purchase orders and price history",posts/01-feature-spotlights/009-purchasing-suppliers,facebook instagram x,,scale-90
+62,2026-12-19,P062,"From order to profit, on autopilot",posts/05-carousels-video/062-order-to-profit,facebook instagram x,,scale-90
+63,2026-12-20,P010,Count the shelf. See the difference.,posts/01-feature-spotlights/010-stock-count,facebook instagram linkedin x facebook_story instagram_story,V-062,scale-90
+64,2026-12-21,P064,A day in the life of your kitchen,posts/05-carousels-video/064-day-of-the-kitchen,facebook instagram linkedin x facebook_story instagram_story,,scale-90
+65,2026-12-22,P065,The owner's two-minute morning check,posts/05-carousels-video/065-owner-morning-check,facebook instagram x,V-064,scale-90
+66,2026-12-23,P066,How a guest orders from your website,posts/05-carousels-video/066-online-order-journey,facebook instagram linkedin x facebook_story instagram_story,V-065,scale-90
+67,2026-12-24,P067,Month end without the panic,posts/05-carousels-video/067-month-end-without-panic,facebook instagram x,V-066,scale-90
+68,2026-12-25,P011,Move stock between branches with approval,posts/01-feature-spotlights/011-branch-transfers,facebook instagram x,V-067,scale-90
+69,2026-12-26,P069,"The POS, in 3 simple moves",posts/05-carousels-video/069-pos-in-three-steps,facebook instagram x,,scale-90
+70,2026-12-27,P070,From attendance to salary slip,posts/05-carousels-video/070-attendance-to-payroll,facebook instagram x facebook_story instagram_story,V-069,scale-90
+71,2026-12-28,P071,"The loyalty loop: earn, return, repeat",posts/05-carousels-video/071-loyalty-loop,facebook instagram linkedin x facebook_story instagram_story,V-070,scale-90
+72,2026-12-29,P072,"From purchase to plate, every gram tracked",posts/05-carousels-video/072-purchase-to-plate,facebook instagram x,V-071,scale-90
+73,2026-12-30,P073,"""I am not good with computers""",posts/06-faq-and-myths/073-not-tech-savvy,facebook instagram linkedin x facebook_story instagram_story threads,V-072,scale-90
+74,2026-12-31,P074,What if the internet goes down?,posts/06-faq-and-myths/074-what-if-internet-down,facebook instagram x threads,,scale-90
+75,2027-01-01,P075,Whose data is it? Yours.,posts/06-faq-and-myths/075-whose-data-is-it,facebook instagram linkedin x facebook_story instagram_story threads,,scale-90
+76,2027-01-02,P076,Do I need the website?,posts/06-faq-and-myths/076-do-i-need-the-website,facebook instagram x threads,,scale-90
+77,2027-01-03,P077,"Myth: ""Systems are for big restaurants""",posts/06-faq-and-myths/077-pos-only-for-big-restaurants,facebook instagram x facebook_story instagram_story threads,,scale-90
+78,2027-01-04,P013,"Profit, cost by cost",posts/01-feature-spotlights/013-profit-buildup,facebook instagram x,,scale-90
+79,2027-01-05,P014,Which branch earns the most?,posts/01-feature-spotlights/014-branch-comparison,facebook instagram x facebook_story instagram_story,,scale-90
+80,2027-01-06,P080,Paper or digital?,posts/07-engagement/080-poll-paper-or-digital,facebook instagram linkedin x facebook_story instagram_story,,scale-90
+81,2027-01-07,P081,Which feature would you switch on first?,posts/07-engagement/081-poll-feature-first,facebook instagram x,,scale-90
+82,2027-01-08,P082,Know a restaurant owner? Tag them.,posts/07-engagement/082-tag-a-restaurant-owner,facebook instagram linkedin x facebook_story instagram_story,,scale-90
+83,2027-01-09,P083,Friday close-out checklist,posts/07-engagement/083-friday-checklist,facebook instagram x,,scale-90
+84,2027-01-10,P084,You cannot manage what you cannot see.,posts/07-engagement/084-quote-what-you-see,facebook instagram x facebook_story instagram_story,,scale-90
+85,2027-01-11,P015,Attendance from a fingerprint device,posts/01-feature-spotlights/015-staff-attendance,facebook instagram linkedin x facebook_story instagram_story,,scale-90
+86,2027-01-12,P086,প্রথম মাস একদম ফ্রি,posts/08-bangla-posts/086-bn-first-month-free,facebook instagram x whatsapp_status threads,,scale-90
+87,2027-01-13,P087,ইনস্টলেশন ফি ফেরতযোগ্য,posts/08-bangla-posts/087-bn-refundable-installation,facebook instagram linkedin x facebook_story instagram_story whatsapp_status threads,,scale-90
+88,2027-01-14,P088,"বছরের টাকা একসাথে দিন, ২ মাস ফ্রি পান",posts/08-bangla-posts/088-bn-yearly-plan,facebook instagram x whatsapp_status threads,,scale-90
+89,2027-01-15,P017,"Advances recorded once, deducted automatically",posts/01-feature-spotlights/017-salary-advances,facebook instagram linkedin x facebook_story instagram_story,,scale-90
+90,2027-01-16,P090,রান্নাঘর অর্ডার দেখে তৎক্ষণাৎ,posts/08-bangla-posts/090-bn-kitchen-display,facebook instagram x whatsapp_status threads,,scale-90

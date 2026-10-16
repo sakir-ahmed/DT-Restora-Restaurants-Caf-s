@@ -1,0 +1,80 @@
+POST 062 | Step by step | English
+Folder: 05-carousels-video/062-order-to-profit
+Images: 6, 1080x1350 (4:5).
+Best time to post (Bangladesh time): Mon 12:30 pm
+Contact line on every post: Md. Sakir Ahmed 01304734623
+Status and schedule are tracked in content-plan.json (id P062). Links are not used in captions.
+
+=== FACEBOOK ===
+From order to profit, on autopilot
+
+One sale touches five things. In DT Restora they all update by themselves, so nobody types the same sale twice.
+
+To book a free demo, contact Md. Sakir Ahmed: 01304734623
+
+#Automation #RestaurantOps #POS #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
+
+=== LINKEDIN ===
+From order to profit, on autopilot
+
+One sale touches five things. In DT Restora they all update by themselves, so nobody types the same sale twice.
+
+If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: 01304734623
+
+#Automation #RestaurantOps #POS #DTRestora #SaaS
+
+=== X (TWITTER) ===
+From order to profit, on autopilot
+
+What happens after a single sale.
+
+Md. Sakir Ahmed 01304734623
+
+#Automation #RestaurantOps
+(characters counted by X: 126 of 280)
+
+Optional thread (one tweet per slide, attach the matching image):
+1/ Order taken - At the counter, the table, the website or a delivery app.
+2/ Kitchen sees it - The ticket appears on the kitchen display at once.
+3/ Stock reduces - Each recipe ingredient is deducted. A void puts it back.
+4/ Profit updates - Sales, VAT and costs post to the books and the dashboard.
+
+=== INSTAGRAM ===
+From order to profit, on autopilot
+
+One sale touches five things. In DT Restora they all update by themselves, so nobody types the same sale twice.
+
+To book a free demo, contact Md. Sakir Ahmed: 01304734623 (or DM "DEMO").
+
+#Automation #RestaurantOps #POS #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
+
+=== GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
+What happens after a single sale. Try the free demo. Call Md. Sakir Ahmed: 01304734623.
+
+=== SEO (use for a blog post, landing page or video description) ===
+SEO title: From order to profit, on autopilot | DT Restora
+Meta description: What happens after a single sale. One sale touches five things
+Primary keyword: restaurant order flow automation
+Secondary keywords: automation, restaurant ops, p o s, restaurant management software bangladesh, restaurant pos system dhaka
+Suggested URL slug: /blog/order-to-profit
+
+=== IMAGE ALT TEXT ===
+image-01.png: From order to profit, on autopilot - screenshot of DT Restora restaurant software showing the POS with cart, discount and payment panel.
+image-02.png: From order to profit, on autopilot - screenshot of DT Restora restaurant software showing the POS with cart, discount and payment panel.
+image-03.png: From order to profit, on autopilot - screenshot of DT Restora restaurant software showing the kitchen display with pending, preparing and ready tickets.
+image-04.png: From order to profit, on autopilot - screenshot of DT Restora restaurant software showing the ingredient stock list.
+image-05.png: From order to profit, on autopilot - screenshot of DT Restora restaurant software showing the owner dashboard with sales and profit.
+image-06.png: DT Restora call to action slide with contact details.
+
+=== VIDEO SCRIPT (turn the images into a Reel, Short or LinkedIn video) ===
+Format: vertical 9:16 or 4:5, about 22 seconds. Show each image full screen, 3 to 4 seconds each, with a gentle zoom.
+Music: soft upbeat instrumental, low volume. Add captions in English.
+Opening (3s): From order to profit, on autopilot
+Slide 1 (4s) - on screen: Order taken | voice-over: At the counter, the table, the website or a delivery app.
+Slide 2 (4s) - on screen: Kitchen sees it | voice-over: The ticket appears on the kitchen display at once.
+Slide 3 (4s) - on screen: Stock reduces | voice-over: Each recipe ingredient is deducted. A void puts it back.
+Slide 4 (4s) - on screen: Profit updates | voice-over: Sales, VAT and costs post to the books and the dashboard.
+Closing (3s): Try the free demo. First month free after installation. Call Md. Sakir Ahmed 01304734623
+Video title: From order to profit, on autopilot | DT Restora
+Video description: What happens after a single sale. One sale touches five things. In DT Restora they all update by themselves, so nobody types the same sale twice. Contact: Md. Sakir Ahmed 01304734623
+Video tags: restaurant order flow automation, restaurant software, restaurant pos bangladesh, DT Restora

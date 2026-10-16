@@ -42,7 +42,7 @@ An empty page does not convince visitors. Publish these first:
 
 - [ ] **Intro post**: `assets/intro-post-hello.png` (text in `05-launch-30-days.md`).
 - [ ] **Launch offer** post and **pin it**: `assets/pinned-post-launch-offer.png` (and the Bangla version).
-- [ ] Upload **9 to 12 posts** from `../social/` so the feed already looks active (see the 30-day plan).
+- [ ] Upload **9 to 12 posts** from `../social-media-posts/posts/` so the feed already looks active (see the 30-day plan).
 - [ ] Create **photo albums**: "Product screenshots" (from `../product-screenshots/`), "Tips for owners", "Offers".
 - [ ] Upload one short **demo video** (screen recording of the dashboard, POS and kitchen display).
 - [ ] Fill the **Featured** section with the pinned offer and the demo video.
@@ -59,7 +59,7 @@ An empty page does not convince visitors. Publish these first:
 
 - [ ] Add a **privacy policy** URL on datatechbd.com before running lead ads.
 - [ ] Use the tracked links from each `post.txt` (they contain `utm_source=facebook` and a post number).
-- [ ] Create a copy of `../social/campaign/lead-tracker-template.csv` in Google Sheets for leads.
+- [ ] Create a copy of `../social-media-posts/campaign/lead-tracker-template.csv` in Google Sheets for leads.
 - [ ] Do not make guarantees (for example "double your profit"). Describe what the system does.
 - [ ] Do not buy followers or likes. They hurt reach.
 

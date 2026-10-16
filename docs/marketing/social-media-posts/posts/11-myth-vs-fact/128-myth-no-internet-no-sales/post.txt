@@ -1,0 +1,65 @@
+POST 128 | Myth vs fact | English
+Folder: 11-myth-vs-fact/128-myth-no-internet-no-sales
+Images: 1, 1080x1350 (4:5).
+Best time to post (Bangladesh time): Thu 8:00 pm
+Contact line on every post: Md. Sakir Ahmed 01304734623
+Status and schedule are tracked in content-plan.json (id P128). Links are not used in captions.
+
+=== FACEBOOK ===
+Myth: no internet means no sales
+
+The POS and kitchen screen keep working without internet. Cash orders are saved locally and sync when the connection returns. Online payments, SMS and website orders do need internet.
+
+- Menu cached on the device
+- Receipts still print
+- No duplicate orders on sync
+
+To book a free demo, contact Md. Sakir Ahmed: 01304734623
+
+#MythBusting #OfflinePOS #LoadShedding #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
+
+=== LINKEDIN ===
+Myth: no internet means no sales
+
+The POS and kitchen screen keep working without internet. Cash orders are saved locally and sync when the connection returns. Online payments, SMS and website orders do need internet.
+
+Key points:
+- Menu cached on the device
+- Receipts still print
+- No duplicate orders on sync
+
+If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: 01304734623
+
+#MythBusting #OfflinePOS #LoadShedding #DTRestora #SaaS
+
+=== X (TWITTER) ===
+Myth: no internet means no sales
+
+Fact check on connectivity.
+
+Md. Sakir Ahmed 01304734623
+
+#MythBusting #OfflinePOS
+(characters counted by X: 116 of 280)
+
+=== INSTAGRAM ===
+Myth: no internet means no sales
+
+The POS and kitchen screen keep working without internet. Cash orders are saved locally and sync when the connection returns. Online payments, SMS and website orders do need internet.
+
+To book a free demo, contact Md. Sakir Ahmed: 01304734623 (or DM "DEMO").
+
+#MythBusting #OfflinePOS #LoadShedding #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
+
+=== GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
+Fact check on connectivity. Try the free demo. Call Md. Sakir Ahmed: 01304734623.
+
+=== SEO (use for a blog post, landing page or video description) ===
+SEO title: Myth: no internet means no sales | DT Restora
+Meta description: Fact check on connectivity. The POS and kitchen screen keep working without internet
+Primary keyword: pos works without internet
+Secondary keywords: myth busting, offline p o s, load shedding, restaurant management software bangladesh, restaurant pos system dhaka
+Suggested URL slug: /blog/myth-no-internet-no-sales
+
+=== IMAGE ALT TEXT ===
+image-01.png: Myth: no internet means no sales - screenshot of DT Restora restaurant software showing the sync conflicts screen.

@@ -19,6 +19,6 @@ Start here:
 2. Follow `04-setup-checklist.md` from top to bottom.
 3. Publish the posts in `05-launch-30-days.md`.
 
-Related folders (one level up): `../social/` has 145 ready posts with captions, `../social/00-brand-assets/` has banners, stories and ads, `../social/campaign/` has the 90-day plan for 100 sales, and `../product-screenshots/` has screenshots for photo albums.
+Related folders (one level up): `../social-media-posts/posts/` has 145 ready posts with captions, `../social-media-posts/brand-assets/` has banners, stories and ads, `../social-media-posts/campaign/` has the 90-day plan for 100 sales, and `../product-screenshots/` has screenshots for photo albums.
 
 Items marked `[ADD]` in these files are facts only you can fill in (address, opening hours, privacy policy link, your company story). Facebook changes its menus often, so treat menu names as a guide.

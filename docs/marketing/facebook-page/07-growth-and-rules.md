@@ -2,7 +2,7 @@
 
 ## 1. Content mix
 
-| Share | Type | Examples in `../social/` |
+| Share | Type | Examples in `../social-media-posts/posts/` |
 |---|---|---|
 | 30% | Education and tips | `04-owner-tips-seo`, `13-mini-infographics` |
 | 25% | Feature spotlights | `01-feature-spotlights`, `05-carousels-video` |
@@ -34,10 +34,10 @@ Offer each one a short pitch, the demo link and a tracked link (use a different 
 
 Start small and learn.
 
-- **Budget:** about 5,000 BDT per week to test, as in `../social/campaign/100-sales-plan-90-days.md`.
+- **Budget:** about 5,000 BDT per week to test, as in `../social-media-posts/campaign/100-sales-plan-90-days.md`.
 - **Objective:** Messages (to Messenger or WhatsApp) or Leads.
 - **Audience:** restaurant, cafe and food-business owners and managers in your target areas, aged about 25 to 55. Try interests such as restaurant management, food business and cafe owners.
-- **Creatives:** use `../social/00-brand-assets/ad-sq-*.png` and `ad-wide-*.png`, plus the best organic posts.
+- **Creatives:** use `../social-media-posts/brand-assets/ad-sq-*.png` and `ad-wide-*.png`, plus the best organic posts.
 - **Text:** the first two lines of the matching `post.txt`.
 - **Landing:** a Messenger conversation, WhatsApp chat or the demo link with a tracked URL.
 - **Judge after 7 days:** cost per message, messages that become demos, cost per demo.

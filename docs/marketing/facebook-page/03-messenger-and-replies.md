@@ -39,7 +39,7 @@ Thanks for your message. We are away right now and will reply when we are back `
 | How long to get started? | We install it for you, then you load your menu, recipes and staff roles. Start with POS and kitchen and add other parts when you are ready. |
 | Who owns my data? | You do. Every client has a separate installation and database, with daily backups. |
 
-Bangla versions of the same answers can be pasted from `docs/user-guide.bn.md` and the Bangla posts in `social/08-bangla-posts/`.
+Bangla versions of the same answers can be pasted from `docs/user-guide.bn.md` and the Bangla posts in `social-media-posts/posts/08-bangla-posts/`.
 
 ## 5. Saved replies (copy into Inbox, Saved replies)
 
@@ -90,7 +90,7 @@ Thank you for trying DT Restora! If you were happy, a short review on our page h
 5. Do you want online ordering and delivery too?
 6. When is a good time for a 20-minute demo?
 
-Record each lead in `docs/marketing/social/campaign/lead-tracker-template.csv`.
+Record each lead in `docs/marketing/social-media-posts/campaign/lead-tracker-template.csv`.
 
 ## 7. Comment reply templates
 
