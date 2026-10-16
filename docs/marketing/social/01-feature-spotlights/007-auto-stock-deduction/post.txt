@@ -1,0 +1,65 @@
+POST 007 | Feature spotlight | English
+Folder: 01-feature-spotlights/007-auto-stock-deduction
+Images: 1 (single image), 1080x1350 (4:5). Works on Facebook, Instagram, LinkedIn and X.
+Best time to post (Bangladesh time): Tue 8:00 pm
+
+=== FACEBOOK ===
+Stock that reduces itself with every sale
+
+Manual stock books are always behind. When a recipe is linked to a menu item, each confirmed order reduces the right ingredients in that branch. If an order is voided, the stock comes back. Low stock raises an alert before you run out.
+
+- Recipe-based deduction
+- Voids restore stock
+- Reorder alerts
+
+Try the free live demo: https://dt-restora.datatechbd.com/?utm_source=facebook&utm_medium=social&utm_campaign=launch-90&utm_content=post-007
+Talk to us on WhatsApp: https://wa.me/8801304734623
+
+#InventoryManagement #StockControl #RestaurantInventory #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
+
+=== LINKEDIN ===
+Stock that reduces itself with every sale
+
+Manual stock books are always behind. When a recipe is linked to a menu item, each confirmed order reduces the right ingredients in that branch. If an order is voided, the stock comes back. Low stock raises an alert before you run out.
+
+Key points:
+- Recipe-based deduction
+- Voids restore stock
+- Reorder alerts
+
+See it working in the live demo: https://dt-restora.datatechbd.com/?utm_source=linkedin&utm_medium=social&utm_campaign=launch-90&utm_content=post-007
+If you run or advise a restaurant or cafe group, message me and I will walk you through it.
+#InventoryManagement #StockControl #RestaurantInventory #DTRestora #SaaS
+
+=== X (TWITTER) ===
+Stock that reduces itself with every sale
+
+Sell a biryani and the rice, meat and spice stock drops automatically.
+
+https://dt-restora.datatechbd.com/?utm_source=x&utm_medium=social&utm_campaign=launch-90&utm_content=post-007
+#InventoryManagement #StockControl
+(characters counted by X: 173 of 280)
+
+=== INSTAGRAM ===
+Stock that reduces itself with every sale
+
+Manual stock books are always behind. When a recipe is linked to a menu item, each confirmed order reduces the right ingredients in that branch. If an order is voided, the stock comes back. Low stock raises an alert before you run out.
+
+Link in bio for the free demo. Or DM "DEMO" and we will reply.
+
+#InventoryManagement #StockControl #RestaurantInventory #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
+
+=== GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
+Sell a biryani and the rice, meat and spice stock drops automatically. Try the free demo.
+Button: Learn more -> https://dt-restora.datatechbd.com/?utm_source=google&utm_medium=social&utm_campaign=launch-90&utm_content=post-007
+
+=== SEO (use for a blog post, landing page or video description) ===
+SEO title: Stock that reduces itself with every sale | DT Restora
+Meta description: Sell a biryani and the rice, meat and spice stock drops automatically. Manual stock books are always behind
+Primary keyword: restaurant inventory management software
+Secondary keywords: inventory management, stock control, restaurant inventory, restaurant management software bangladesh, restaurant pos system dhaka
+Suggested URL slug: /blog/auto-stock-deduction
+
+=== IMAGE ALT TEXT ===
+image-01.png: Stock that reduces itself with every sale - screenshot of DT Restora restaurant software showing the ingredient stock list.
+
