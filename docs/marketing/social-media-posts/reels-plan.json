@@ -1,0 +1,3383 @@
+{
+  "meta": {
+    "project": "DT Restora reels plan",
+    "goal": "Two Facebook Reels per day (10:30 and 18:30 Bangladesh time) from 2026-10-17 to 2026-11-11 to grow a brand-new page and bring owners to a free demo.",
+    "owner_contact": {
+      "name": "Md. Sakir Ahmed",
+      "phone": "01304734623"
+    },
+    "counts": {
+      "reels": 52,
+      "motion_graphic": 26,
+      "character_skit": 26,
+      "days": 26
+    },
+    "rules": [
+      "English only, natural Bangladeshi English (see voice).",
+      "No links in captions or on screen. Contact is the phone number.",
+      "Facts only from the product docs and existing posts: price 1,000 BDT/month (regular 5,700), 2,500 BDT installation (refundable after one year), first month free after installation, yearly plan 2 months free.",
+      "No fake customers, no invented numbers, no fake testimonials. Characters and restaurants are fictional and must be labelled as such.",
+      "No emojis or Unicode symbol icons in text on screen.",
+      "Reels are 1080x1920, 20 to 35 seconds, captions burned in, first frame is the hook."
+    ],
+    "standard_structure": {
+      "0_3s": "Hook: a question or a bold line the owner feels",
+      "3_10s": "Problem: one painful, specific moment",
+      "10_22s": "Solution: show the real screen or the simple fix",
+      "22_28s": "Proof or number from real facts",
+      "28_33s": "CTA: free demo, call or WhatsApp the number; or comment DEMO"
+    },
+    "content_pillars": {
+      "tip": "Free educational tip (saves, shares)",
+      "feature": "One feature shown on the real screen",
+      "problem": "Owner pain then fix",
+      "story": "Character story (relatable, soft sell)",
+      "offer": "Launch offer and trust (price, refund, free demo)",
+      "intro": "Brand introduction"
+    },
+    "daily_pattern": {
+      "slot_A_10:30": "Educate: tip or feature, motion graphic (MG), fast to produce",
+      "slot_B_18:30": "Connect: character skit or offer story (SK), more emotional"
+    },
+    "voice": {
+      "narrator": {
+        "name": "Ayesha (fictional narrator)",
+        "tone": "warm, calm, confident, like a friendly consultant talking to an owner over tea",
+        "accent": "neutral Bangladeshi English, natural pace, short sentences",
+        "pace": "about 140 words per minute",
+        "do": [
+          "Use plain words: bill, cash, stock, profit, kitchen",
+          "Address the owner: you, bhai, apu (sparingly, once per video at most)",
+          "Short pauses after the hook and before the CTA",
+          "Say numbers the local way, for example one thousand taka, thirty three taka a day"
+        ],
+        "dont": [
+          "No hard sales shouting",
+          "No slang overload, no Hindi or Urdu words",
+          "No claims we cannot prove",
+          "No real person's voice cloning or impersonation"
+        ],
+        "sample_lines": [
+          "Think about it. Sales is full, but where is the profit?",
+          "Simple, na? One screen, one tap.",
+          "Message us. We will show you on your own menu."
+        ]
+      },
+      "tts_options": [
+        {
+          "tool": "Grok voice or its video audio (check in pilot)",
+          "note": "user has a paid Grok account"
+        },
+        {
+          "tool": "Google Gemini / AI Studio text-to-speech (free tier)",
+          "note": "pick an Indian or neutral English female voice and slow it to 0.95"
+        },
+        {
+          "tool": "macOS say (offline fallback)",
+          "voices": [
+            "Rishi en_IN",
+            "Aman en_IN"
+          ],
+          "note": "robotic but free; use only if online tools fail"
+        }
+      ]
+    },
+    "characters": {
+      "style_note": "All fictional. Keep the same look in every clip: reuse the reference image and the exact prompt block below. Realistic, warm lighting, a typical Dhaka cafe and restaurant, no logos, no real brand names, no text rendered by the AI (add text in editing).",
+      "narrator": {
+        "role": "Voice only, no face",
+        "use": "voice-over on every reel"
+      },
+      "rafiq_bhai": {
+        "role": "Owner of the fictional Dhanmondi Spice Corner, 3 branches",
+        "look": "man in his early 40s, short black hair, neat trimmed beard, light blue shirt, sleeves rolled, friendly worried expression",
+        "prompt_block": "Bangladeshi man in his early 40s, short black hair, neat trimmed beard, light blue shirt with rolled sleeves, in a busy Dhaka restaurant, natural warm light, realistic, vertical 9:16"
+      },
+      "nusrat_apu": {
+        "role": "Manager, calm and sharp, shows the numbers",
+        "look": "woman in her early 30s, dark green salwar kameez, hair tied back, glasses, holds a tablet",
+        "prompt_block": "Bangladeshi woman in her early 30s, dark green salwar kameez, hair tied back, glasses, holding a tablet in a restaurant kitchen pass, natural warm light, realistic, vertical 9:16"
+      },
+      "tanvir": {
+        "role": "Young cashier, learns fast",
+        "look": "man in his early 20s, black cap, white t-shirt, black apron",
+        "prompt_block": "Young Bangladeshi man in his early 20s, black cap, white t-shirt and black apron, at a restaurant counter with a POS screen, natural warm light, realistic, vertical 9:16"
+      },
+      "karim_bhai": {
+        "role": "Head cook, experienced, hand-written notebooks",
+        "look": "man in his 50s, grey stubble, white chef jacket, white cap",
+        "prompt_block": "Bangladeshi man in his 50s, grey stubble, white chef jacket and cap, in a restaurant kitchen, natural warm light, realistic, vertical 9:16"
+      }
+    },
+    "tools": {
+      "recommended_pipeline": [
+        {
+          "step": 1,
+          "name": "Scripts and plan",
+          "tool": "this file (reels-plan.json)",
+          "status": "ready"
+        },
+        {
+          "step": 2,
+          "name": "Motion graphic reels (MG)",
+          "tool": "Local ffmpeg + existing graphics + voice-over + captions, fully automated by Claude Code on this Mac, no watermark, free",
+          "status": "ffmpeg is installed on this Mac"
+        },
+        {
+          "step": 3,
+          "name": "Character skits (SK)",
+          "tool": "Grok Imagine video in the user's logged-in Grok (paid), clip by clip; fallback Meta AI or Gemini Veo (free limits); invideo AI as last fallback (watermark on free plan)",
+          "status": "not verified yet, a 1-reel pilot decides the exact tool"
+        },
+        {
+          "step": 4,
+          "name": "Voice-over",
+          "tool": "Gemini or Grok text-to-speech first, macOS voices as fallback",
+          "status": "not verified yet"
+        },
+        {
+          "step": 5,
+          "name": "Assembly",
+          "tool": "ffmpeg: join clips, add voice, burn captions, add end card with the phone number, 1080x1920",
+          "status": "ready after clips exist"
+        },
+        {
+          "step": 6,
+          "name": "Scheduling",
+          "tool": "Meta Business Suite Create reel with the same scripted flow used for the posts (upload, caption, schedule)",
+          "status": "to be built in pilot"
+        }
+      ],
+      "free_tool_notes": "Free AI video tools change limits often and most add watermarks or cap length. Do not rely on them for 52 reels. Use them only as fallback.",
+      "risks": [
+        "Face and outfit may change between AI clips; fix with the reference image and short clips",
+        "AI text rendering is bad; never ask for text in the clip",
+        "Daily generation limits on Grok and Meta AI may force batching or fewer SK reels",
+        "Meta may require the AI-generated label on realistic AI video",
+        "Reel scheduling in Business Suite is a different screen from post scheduling; the first reel will be a test"
+      ]
+    },
+    "production_plan": {
+      "phase_0_pilot": "Produce 2 reels end to end: R001 (MG) and R002 (SK). Confirm quality, voice and the scheduling flow. Approve before batch work.",
+      "phase_1_batch": "Produce 6 days at a time (12 reels), schedule them, review in Meta, then continue.",
+      "weekly_review": "Every Sunday copy views, shares, messages and leads into each reel's performance; repeat the top 3 formats, drop the bottom 3."
+    },
+    "platform_flags": [
+      "facebook_reel",
+      "instagram_reel",
+      "youtube_shorts",
+      "tiktok"
+    ],
+    "schedule_note": "Reels slots 10:30 and 18:30 are chosen to sit between the post slots (09:00, 12:30, 16:00, 20:00, 22:00). Times are Bangladesh time."
+  },
+  "reels": [
+    {
+      "id": "R001",
+      "title": "We are live",
+      "pillar": "intro",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 1,
+        "planned_date": "2026-10-17",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "Restaurant owners, one minute please.",
+        "voice_over": "Hello, we are DT Restora. We built one system for restaurants and cafes in Bangladesh. POS, kitchen screen, stock, staff, loyalty, delivery and accounts. So you see your real profit, not just your sales. Follow this page, we will share simple tips every day.",
+        "voice_over_words": 44,
+        "estimated_seconds": 29,
+        "on_screen_text": [
+          "We are LIVE",
+          "POS . Kitchen . Stock . Staff . Accounts",
+          "Follow for daily owner tips"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P144",
+          "P145"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Restaurant owners, one minute please.\n\nHello, we are DT Restora. We built one system for restaurants and cafes in Bangladesh. POS, kitchen screen, stock, staff, loyalty, delivery and accounts. So you see your real profit, not just your sales. Follow this page, we will share simple tips every day.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#DTRestora #RestaurantSoftware #BangladeshRestaurants #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R001.mp4",
+        "thumbnail": "reels/output/R001.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R002",
+      "title": "Rafiq bhai finds the missing profit",
+      "pillar": "story",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 1,
+        "planned_date": "2026-10-17",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "Sales were high. Why was the bank balance low?",
+        "voice_over": "Rafiq bhai had a full restaurant every night. But at month end, the money was not there. Nusrat apu showed him the numbers. Food cost, waste, salary, all eating his sales. Profit was small. He said, I never saw this before. Now he checks profit every day.",
+        "voice_over_words": 47,
+        "estimated_seconds": 30,
+        "on_screen_text": [
+          "Full tables. Empty pocket?",
+          "Food cost + waste + salary = profit gone",
+          "Check profit every day"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P146"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Sales were high. Why was the bank balance low?\n\nRafiq bhai had a full restaurant every night. But at month end, the money was not there. Nusrat apu showed him the numbers. Food cost, waste, salary, all eating his sales. Profit was small. He said, I never saw this before. Now he checks profit every day.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RestaurantProfit #OwnerStory #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R002.mp4",
+        "thumbnail": "reels/output/R002.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R003",
+      "title": "3 questions every owner must answer",
+      "pillar": "tip",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 2,
+        "planned_date": "2026-10-18",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "Be honest. Can you answer these three?",
+        "voice_over": "One, do you know today's profit? Two, do you know this week's waste? Three, does your cash drawer match every night? If any answer is no, you are guessing. And guessing costs money. A simple system can answer all three.",
+        "voice_over_words": 40,
+        "estimated_seconds": 27,
+        "on_screen_text": [
+          "Today's profit?",
+          "This week's waste?",
+          "Cash matches every night?"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P149"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Be honest. Can you answer these three?\n\nOne, do you know today's profit? Two, do you know this week's waste? Three, does your cash drawer match every night? If any answer is no, you are guessing. And guessing costs money. A simple system can answer all three.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RestaurantOwners #OwnerQuiz #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R003.mp4",
+        "thumbnail": "reels/output/R003.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R004",
+      "title": "Tanvir learns the POS in minutes",
+      "pillar": "feature",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 2,
+        "planned_date": "2026-10-18",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "New cashier on day one. Scared?",
+        "voice_over": "Tanvir is a new cashier. First day, he was nervous. But the screen was simple. Pick the table, tap the dishes, take payment, print the receipt. In a few minutes he was selling like a pro. Training does not need a whole week.",
+        "voice_over_words": 43,
+        "estimated_seconds": 29,
+        "on_screen_text": [
+          "New cashier, day one",
+          "Pick . Tap . Pay . Print",
+          "Learn in minutes"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "tanvir"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P001"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "New cashier on day one. Scared?\n\nTanvir is a new cashier. First day, he was nervous. But the screen was simple. Pick the table, tap the dishes, take payment, print the receipt. In a few minutes he was selling like a pro. Training does not need a whole week.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RestaurantPOS #CashierTraining #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R004.mp4",
+        "thumbnail": "reels/output/R004.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R005",
+      "title": "Launch offer in 20 seconds",
+      "pillar": "offer",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 3,
+        "planned_date": "2026-10-19",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "1,000 taka a month. Really?",
+        "voice_over": "Our launch price is one thousand taka per month. The regular price is five thousand seven hundred. Installation is two thousand five hundred taka, one time. And your first month is free after installation. Choose yearly and get two months free.",
+        "voice_over_words": 41,
+        "estimated_seconds": 28,
+        "on_screen_text": [
+          "1,000 BDT / month",
+          "Regular: 5,700 BDT",
+          "First month free after installation",
+          "Yearly: 2 months free"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P043"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "1,000 taka a month. Really?\n\nOur launch price is one thousand taka per month. The regular price is five thousand seven hundred. Installation is two thousand five hundred taka, one time. And your first month is free after installation. Choose yearly and get two months free.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#LaunchOffer #RestaurantSoftware #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R005.mp4",
+        "thumbnail": "reels/output/R005.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R006",
+      "title": "Paper hides your money",
+      "pillar": "problem",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 3,
+        "planned_date": "2026-10-19",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "Hand-written bill. Can you trust it?",
+        "voice_over": "Karim bhai writes every bill by hand. Stock is counted by guess. At month end, nobody knows where the money went. Paper hides leaks. When you go digital, every leak becomes visible. Then you can fix it.",
+        "voice_over_words": 37,
+        "estimated_seconds": 26,
+        "on_screen_text": [
+          "Paper bills",
+          "Guessed stock",
+          "Month-end surprise",
+          "Go digital, see the leaks"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai",
+        "nusrat_apu"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P035"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Hand-written bill. Can you trust it?\n\nKarim bhai writes every bill by hand. Stock is counted by guess. At month end, nobody knows where the money went. Paper hides leaks. When you go digital, every leak becomes visible. Then you can fix it.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#PaperToDigital #RestaurantOwners #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R006.mp4",
+        "thumbnail": "reels/output/R006.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R007",
+      "title": "Kitchen display, no shouting",
+      "pillar": "feature",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 4,
+        "planned_date": "2026-10-20",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "Order shouting in your kitchen?",
+        "voice_over": "Counter, website and QR table orders all appear on one kitchen screen. The cook taps start preparing, then served. Every ticket shows waiting time. So slow plates are caught early. No paper slips, no shouting.",
+        "voice_over_words": 35,
+        "estimated_seconds": 25,
+        "on_screen_text": [
+          "Counter + website + QR",
+          "One kitchen screen",
+          "Waiting time on every ticket"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P005"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Order shouting in your kitchen?\n\nCounter, website and QR table orders all appear on one kitchen screen. The cook taps start preparing, then served. Every ticket shows waiting time. So slow plates are caught early. No paper slips, no shouting.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#KitchenDisplay #RestaurantKitchen #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R007.mp4",
+        "thumbnail": "reels/output/R007.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R008",
+      "title": "The rice ran out at lunch",
+      "pillar": "problem",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 4,
+        "planned_date": "2026-10-20",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "Lunch rush. Rice finished. What now?",
+        "voice_over": "It is lunch time. Full house. Then the cook says, rice is finished. Customers wait, some leave. This happens when stock is a guess. Link recipes to stock. Each sale reduces ingredients, and you get a reorder alert before it is too late.",
+        "voice_over_words": 43,
+        "estimated_seconds": 29,
+        "on_screen_text": [
+          "Rice finished at lunch",
+          "Recipe-linked stock",
+          "Alert before you run out"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai",
+        "nusrat_apu"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P036",
+          "P007"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Lunch rush. Rice finished. What now?\n\nIt is lunch time. Full house. Then the cook says, rice is finished. Customers wait, some leave. This happens when stock is a guess. Link recipes to stock. Each sale reduces ingredients, and you get a reorder alert before it is too late.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#StockControl #RestaurantOps #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R008.mp4",
+        "thumbnail": "reels/output/R008.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R009",
+      "title": "Food cost percentage in 25 seconds",
+      "pillar": "tip",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 5,
+        "planned_date": "2026-10-21",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "Do you know your food cost percentage?",
+        "voice_over": "Food cost percentage is simple. Cost of ingredients for a dish, divided by its selling price, times one hundred. Do it for every dish, not just the average. Averages hide the dishes that quietly lose money.",
+        "voice_over_words": 36,
+        "estimated_seconds": 26,
+        "on_screen_text": [
+          "Dish cost / selling price x 100",
+          "Check dish by dish",
+          "Reprice the weak ones"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P139"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Do you know your food cost percentage?\n\nFood cost percentage is simple. Cost of ingredients for a dish, divided by its selling price, times one hundred. Do it for every dish, not just the average. Averages hide the dishes that quietly lose money.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#FoodCost #MenuPricing #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R009.mp4",
+        "thumbnail": "reels/output/R009.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R010",
+      "title": "Nusrat apu closes the shift",
+      "pillar": "feature",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 5,
+        "planned_date": "2026-10-21",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "Cash short again?",
+        "voice_over": "At night, Nusrat apu counts the drawer. The system already shows expected cash, counted cash and the difference. If something is short, she knows today, not at month end. Every discount and void is in the log too.",
+        "voice_over_words": 38,
+        "estimated_seconds": 27,
+        "on_screen_text": [
+          "Expected vs counted cash",
+          "Difference shown same day",
+          "Every override logged"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "nusrat_apu"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P004",
+          "P108"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Cash short again?\n\nAt night, Nusrat apu counts the drawer. The system already shows expected cash, counted cash and the difference. If something is short, she knows today, not at month end. Every discount and void is in the log too.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#CashControl #ShiftClose #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R010.mp4",
+        "thumbnail": "reels/output/R010.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R011",
+      "title": "5 ways to reduce food waste",
+      "pillar": "tip",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 6,
+        "planned_date": "2026-10-22",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "Waste is real money.",
+        "voice_over": "Five ways to cut waste. One, log every loss with a reason. Two, count stock on a schedule. Three, cook to forecast, not to fear. Four, first in, first out. Five, review waste every week. What you measure, you can reduce.",
+        "voice_over_words": 41,
+        "estimated_seconds": 28,
+        "on_screen_text": [
+          "1 Log every loss",
+          "2 Count stock",
+          "3 Cook to forecast",
+          "4 FIFO",
+          "5 Review weekly"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P052"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Waste is real money.\n\nFive ways to cut waste. One, log every loss with a reason. Two, count stock on a schedule. Three, cook to forecast, not to fear. Four, first in, first out. Five, review waste every week. What you measure, you can reduce.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#FoodWaste #ReduceWaste #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R011.mp4",
+        "thumbnail": "reels/output/R011.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R012",
+      "title": "Rafiq bhai and the delivery apps",
+      "pillar": "story",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 6,
+        "planned_date": "2026-10-22",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "Orders on three tablets. Headache!",
+        "voice_over": "Rafiq bhai had three tablets for three delivery apps. Orders typed again by hand, commission hidden. Now every channel is on one screen, tagged and costed. Profit is shown after commission. Much calmer, na?",
+        "voice_over_words": 34,
+        "estimated_seconds": 25,
+        "on_screen_text": [
+          "Three tablets, three headaches",
+          "One screen for every channel",
+          "Profit after commission"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P040",
+          "P026"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Orders on three tablets. Headache!\n\nRafiq bhai had three tablets for three delivery apps. Orders typed again by hand, commission hidden. Now every channel is on one screen, tagged and costed. Profit is shown after commission. Much calmer, na?\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#DeliveryApps #Foodpanda #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R012.mp4",
+        "thumbnail": "reels/output/R012.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R013",
+      "title": "Your own ordering website",
+      "pillar": "feature",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 7,
+        "planned_date": "2026-10-23",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "Stop paying commission on every order.",
+        "voice_over": "Marketplace apps take commission. Your own ordering website does not. Bangla and English menu, photos, checkout and live tracking. Orders go straight to your kitchen screen. Your customers, your brand.",
+        "voice_over_words": 30,
+        "estimated_seconds": 23,
+        "on_screen_text": [
+          "Own website, no marketplace commission",
+          "Bangla + English",
+          "Live tracking"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P022"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Stop paying commission on every order.\n\nMarketplace apps take commission. Your own ordering website does not. Bangla and English menu, photos, checkout and live tracking. Orders go straight to your kitchen screen. Your customers, your brand.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#OnlineOrdering #OwnWebsite #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R013.mp4",
+        "thumbnail": "reels/output/R013.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R014",
+      "title": "QR at the table",
+      "pillar": "feature",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 7,
+        "planned_date": "2026-10-23",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "Guests scan, order, and your waiter relaxes.",
+        "voice_over": "A family sits at the table and scans the QR code. They browse photos and order from their phone. The ticket lands on the kitchen screen with the table number. Waiters spend time serving, not writing orders.",
+        "voice_over_words": 37,
+        "estimated_seconds": 26,
+        "on_screen_text": [
+          "Scan the QR",
+          "Order from phone",
+          "Kitchen gets the ticket"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai",
+        "nusrat_apu"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P023"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Guests scan, order, and your waiter relaxes.\n\nA family sits at the table and scans the QR code. They browse photos and order from their phone. The ticket lands on the kitchen screen with the table number. Waiters spend time serving, not writing orders.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#QRMenu #ContactlessDining #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R014.mp4",
+        "thumbnail": "reels/output/R014.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R015",
+      "title": "Why the cash drawer is short",
+      "pillar": "tip",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 8,
+        "planned_date": "2026-10-24",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "Short cash every week?",
+        "voice_over": "When many people touch one drawer, a shortage is a mystery. Tie cash to a shift. One cashier, one drawer, counted at open and at close. Approve big discounts. Record every void with a reason. Mystery solved.",
+        "voice_over_words": 37,
+        "estimated_seconds": 26,
+        "on_screen_text": [
+          "One cashier, one drawer",
+          "Count open and close",
+          "Approve discounts",
+          "Void needs a reason"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P057",
+          "P038"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Short cash every week?\n\nWhen many people touch one drawer, a shortage is a mystery. Tie cash to a shift. One cashier, one drawer, counted at open and at close. Approve big discounts. Record every void with a reason. Mystery solved.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#CashHandling #RestaurantControl #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R015.mp4",
+        "thumbnail": "reels/output/R015.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R016",
+      "title": "Karim bhai and the payroll weekend",
+      "pillar": "story",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 8,
+        "planned_date": "2026-10-24",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "Pay day took the whole weekend.",
+        "voice_over": "Every month, pay day ate Karim bhai's weekend. Attendance register, advances, calculations. Now attendance flows from a fingerprint device, advances are deducted automatically, and the salary slip prints in a click. Weekend saved.",
+        "voice_over_words": 33,
+        "estimated_seconds": 24,
+        "on_screen_text": [
+          "Attendance from fingerprint device",
+          "Advances deducted automatically",
+          "Salary slip in one click"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "karim_bhai"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P015",
+          "P016",
+          "P017"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Pay day took the whole weekend.\n\nEvery month, pay day ate Karim bhai's weekend. Attendance register, advances, calculations. Now attendance flows from a fingerprint device, advances are deducted automatically, and the salary slip prints in a click. Weekend saved.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#Payroll #StaffAttendance #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R016.mp4",
+        "thumbnail": "reels/output/R016.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R017",
+      "title": "Weekly stock checklist",
+      "pillar": "tip",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 9,
+        "planned_date": "2026-10-25",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "Five minutes every week saves your month.",
+        "voice_over": "Weekly stock habit. Count high value items first. Compare the count with the system. Investigate big differences. Record waste and gifts. Update reorder levels. Small routine, big saving.",
+        "voice_over_words": 28,
+        "estimated_seconds": 22,
+        "on_screen_text": [
+          "Count high-value items first",
+          "Compare with system",
+          "Investigate variances",
+          "Update reorder levels"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P055"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Five minutes every week saves your month.\n\nWeekly stock habit. Count high value items first. Compare the count with the system. Investigate big differences. Record waste and gifts. Update reorder levels. Small routine, big saving.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#InventoryChecklist #StockCount #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R017.mp4",
+        "thumbnail": "reels/output/R017.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R018",
+      "title": "Discount with a manager check",
+      "pillar": "feature",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 9,
+        "planned_date": "2026-10-25",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "Who gave that discount?",
+        "voice_over": "A cashier gives a big discount. In DT Restora, above your limit it needs a manager approval. Voids need a reason. Every override is written in the activity log. Honest teams stay honest.",
+        "voice_over_words": 33,
+        "estimated_seconds": 24,
+        "on_screen_text": [
+          "Set your own discount limit",
+          "Manager approval above limit",
+          "Everything logged"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai",
+        "nusrat_apu"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P003",
+          "P031"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Who gave that discount?\n\nA cashier gives a big discount. In DT Restora, above your limit it needs a manager approval. Voids need a reason. Every override is written in the activity log. Honest teams stay honest.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#DiscountControl #ActivityLog #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R018.mp4",
+        "thumbnail": "reels/output/R018.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R019",
+      "title": "Split bill: cash and bKash",
+      "pillar": "feature",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 10,
+        "planned_date": "2026-10-26",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "Five friends, three ways to pay.",
+        "voice_over": "Groups rarely pay the same way. Split one bill between cash, bKash, Nagad or card in a few taps. The system checks the total and the receipt shows each method clearly. Simple.",
+        "voice_over_words": 32,
+        "estimated_seconds": 24,
+        "on_screen_text": [
+          "Cash + bKash + Nagad + card",
+          "Change calculator",
+          "Clear receipt"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P002"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Five friends, three ways to pay.\n\nGroups rarely pay the same way. Split one bill between cash, bKash, Nagad or card in a few taps. The system checks the total and the receipt shows each method clearly. Simple.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#bKash #Nagad #SplitBill #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R019.mp4",
+        "thumbnail": "reels/output/R019.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R020",
+      "title": "The owner who cannot be in three kitchens",
+      "pillar": "problem",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 10,
+        "planned_date": "2026-10-26",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "Three branches. One owner. How?",
+        "voice_over": "Rafiq bhai has three branches and one body. He cannot be in every kitchen. The dashboard shows sales, food cost and profit for each branch. The comparison table shows who is best. Managers see only their branch.",
+        "voice_over_words": 37,
+        "estimated_seconds": 26,
+        "on_screen_text": [
+          "One dashboard",
+          "Branch comparison",
+          "Managers see only their branch"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai",
+        "nusrat_apu"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P014",
+          "P114"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Three branches. One owner. How?\n\nRafiq bhai has three branches and one body. He cannot be in every kitchen. The dashboard shows sales, food cost and profit for each branch. The comparison table shows who is best. Managers see only their branch.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#MultiBranch #RestaurantGroup #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R020.mp4",
+        "thumbnail": "reels/output/R020.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R021",
+      "title": "What does 33 taka a day buy?",
+      "pillar": "offer",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 11,
+        "planned_date": "2026-10-27",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "33 taka a day. What do you get?",
+        "voice_over": "One thousand taka a month is about thirty three taka a day. For that you get POS, kitchen display, stock, staff, loyalty, delivery tools, your website and accounts. One avoided mistake pays for it.",
+        "voice_over_words": 34,
+        "estimated_seconds": 25,
+        "on_screen_text": [
+          "About 33 BDT a day",
+          "Everything included",
+          "First month free"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P048",
+          "P049"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "33 taka a day. What do you get?\n\nOne thousand taka a month is about thirty three taka a day. For that you get POS, kitchen display, stock, staff, loyalty, delivery tools, your website and accounts. One avoided mistake pays for it.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#ValueForMoney #RestaurantSoftware #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R021.mp4",
+        "thumbnail": "reels/output/R021.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R022",
+      "title": "Loyalty: from first visit to regular",
+      "pillar": "feature",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 11,
+        "planned_date": "2026-10-27",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "How do you make guests come back?",
+        "voice_over": "A cafe guest pays and gets points. Next week, she comes back to use them. Points on every paid order, birthday message, a coupon with clear limits. Regular customers are your cheapest growth.",
+        "voice_over_words": 33,
+        "estimated_seconds": 24,
+        "on_screen_text": [
+          "Points on every order",
+          "Birthday and win-back messages",
+          "Coupons with limits"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai",
+        "nusrat_apu"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P019",
+          "P113"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "How do you make guests come back?\n\nA cafe guest pays and gets points. Next week, she comes back to use them. Points on every paid order, birthday message, a coupon with clear limits. Regular customers are your cheapest growth.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#CustomerLoyalty #CafeMarketing #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R022.mp4",
+        "thumbnail": "reels/output/R022.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R023",
+      "title": "Menu pricing basics",
+      "pillar": "tip",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 12,
+        "planned_date": "2026-10-28",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "Are you copying your competitor's price?",
+        "voice_over": "Copying a competitor ignores your own cost. First know the true cost of each plate. Choose a target food cost. Look at what sells. Review prices every quarter. And never change old orders.",
+        "voice_over_words": 33,
+        "estimated_seconds": 24,
+        "on_screen_text": [
+          "Know plate cost",
+          "Set target food cost",
+          "Check what sells",
+          "Review quarterly"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P053"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Are you copying your competitor's price?\n\nCopying a competitor ignores your own cost. First know the true cost of each plate. Choose a target food cost. Look at what sells. Review prices every quarter. And never change old orders.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#MenuPricing #FoodCost #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R023.mp4",
+        "thumbnail": "reels/output/R023.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R024",
+      "title": "Rafiq bhai and the accountant",
+      "pillar": "story",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 12,
+        "planned_date": "2026-10-28",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "The accountant calls every month.",
+        "voice_over": "Every month, the accountant chased Rafiq bhai for papers. Sales, purchases, expenses, salary, all different notebooks. Now everything posts to one ledger. The accountant opens the trial balance. Month end is a review, not a rescue.",
+        "voice_over_words": 36,
+        "estimated_seconds": 26,
+        "on_screen_text": [
+          "Chasing papers",
+          "One ledger",
+          "Trial balance in a click"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P027",
+          "P115"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "The accountant calls every month.\n\nEvery month, the accountant chased Rafiq bhai for papers. Sales, purchases, expenses, salary, all different notebooks. Now everything posts to one ledger. The accountant opens the trial balance. Month end is a review, not a rescue.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RestaurantAccounting #MonthEnd #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R024.mp4",
+        "thumbnail": "reels/output/R024.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R025",
+      "title": "Works when internet is down",
+      "pillar": "feature",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 13,
+        "planned_date": "2026-10-29",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "Load shedding at lunch?",
+        "voice_over": "Internet down? Keep selling. The menu is cached on the device. Cash orders are saved locally and sync when the connection returns. Receipts still print. No duplicate orders.",
+        "voice_over_words": 28,
+        "estimated_seconds": 22,
+        "on_screen_text": [
+          "Menu cached",
+          "Cash orders saved locally",
+          "Auto-sync later"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P029"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Load shedding at lunch?\n\nInternet down? Keep selling. The menu is cached on the device. Cash orders are saved locally and sync when the connection returns. Receipts still print. No duplicate orders.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#OfflinePOS #LoadShedding #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R025.mp4",
+        "thumbnail": "reels/output/R025.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R026",
+      "title": "Peak hour chaos",
+      "pillar": "problem",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 13,
+        "planned_date": "2026-10-29",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "Why is service slow at peak hours?",
+        "voice_over": "Friday night. Orders from counter, QR and website. Paper slips pile up, one order is forgotten. On one kitchen board with a timer, the pass moves faster. Hold and resume tickets at the till. Fewer forgotten orders.",
+        "voice_over_words": 37,
+        "estimated_seconds": 26,
+        "on_screen_text": [
+          "Peak hour pressure",
+          "One kitchen board + timer",
+          "Hold and resume tickets"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai",
+        "nusrat_apu"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P111",
+          "P005"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Why is service slow at peak hours?\n\nFriday night. Orders from counter, QR and website. Paper slips pile up, one order is forgotten. On one kitchen board with a timer, the pass moves faster. Hold and resume tickets at the till. Fewer forgotten orders.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#KitchenDisplay #PeakHour #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R026.mp4",
+        "thumbnail": "reels/output/R026.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R027",
+      "title": "How to choose a restaurant POS",
+      "pillar": "tip",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 14,
+        "planned_date": "2026-10-30",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "Before you buy a POS, ask five questions.",
+        "voice_over": "Does it work offline? Does it track recipe-level stock? Is staff payroll included? Can customers order online? Can I try a live demo first? If the answer is no, you will run spreadsheets next to it.",
+        "voice_over_words": 36,
+        "estimated_seconds": 26,
+        "on_screen_text": [
+          "Offline?",
+          "Recipe-level stock?",
+          "Payroll included?",
+          "Online ordering?",
+          "Live demo?"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P060",
+          "P068"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Before you buy a POS, ask five questions.\n\nDoes it work offline? Does it track recipe-level stock? Is staff payroll included? Can customers order online? Can I try a live demo first? If the answer is no, you will run spreadsheets next to it.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#BuyingGuide #RestaurantPOS #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R027.mp4",
+        "thumbnail": "reels/output/R027.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R028",
+      "title": "Dish photos sell dishes",
+      "pillar": "feature",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 14,
+        "planned_date": "2026-10-30",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "People order what they can see.",
+        "voice_over": "A guest opens your website. Beautiful photos and short videos for every dish. She orders the biryani. People order what they see. Add several photos and videos to every dish.",
+        "voice_over_words": 30,
+        "estimated_seconds": 23,
+        "on_screen_text": [
+          "Photos and videos per dish",
+          "Gallery on dish page",
+          "Better conversion"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai",
+        "nusrat_apu"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P034"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "People order what they can see.\n\nA guest opens your website. Beautiful photos and short videos for every dish. She orders the biryani. People order what they see. Add several photos and videos to every dish.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#FoodPhotography #OnlineMenu #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R028.mp4",
+        "thumbnail": "reels/output/R028.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R029",
+      "title": "What is a reorder level?",
+      "pillar": "tip",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 15,
+        "planned_date": "2026-10-31",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "Never run dry mid-service.",
+        "voice_over": "A reorder level is the quantity that triggers a new order. High enough for delivery time, low enough not to tie up cash. Set one for every important ingredient. Let the alert remind you.",
+        "voice_over_words": 34,
+        "estimated_seconds": 25,
+        "on_screen_text": [
+          "Quantity that triggers an order",
+          "Cover delivery time",
+          "Alert warns early"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P054",
+          "P123"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Never run dry mid-service.\n\nA reorder level is the quantity that triggers a new order. High enough for delivery time, low enough not to tie up cash. Set one for every important ingredient. Let the alert remind you.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#ReorderLevel #Inventory #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R029.mp4",
+        "thumbnail": "reels/output/R029.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R030",
+      "title": "Tanvir and the void",
+      "pillar": "story",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 15,
+        "planned_date": "2026-10-31",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "A void without a reason?",
+        "voice_over": "Tanvir voids an order. The system asks for a reason. Above the limit it needs manager approval, and stock is restored. Everything lands in the log. Easy to review later, and nobody argues.",
+        "voice_over_words": 33,
+        "estimated_seconds": 24,
+        "on_screen_text": [
+          "Void needs a reason",
+          "Manager approval",
+          "Stock restored",
+          "Logged"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "tanvir"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P121",
+          "P003"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "A void without a reason?\n\nTanvir voids an order. The system asks for a reason. Above the limit it needs manager approval, and stock is restored. Everything lands in the log. Easy to review later, and nobody argues.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#CashControl #ActivityLog #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R030.mp4",
+        "thumbnail": "reels/output/R030.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R031",
+      "title": "Recipe costing",
+      "pillar": "feature",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 16,
+        "planned_date": "2026-11-01",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "What does one plate really cost?",
+        "voice_over": "Add ingredients with exact quantity. DT Restora uses your latest purchase prices to show the cost of each dish. When ingredient price changes, the cost updates. Price with numbers, not guesses.",
+        "voice_over_words": 31,
+        "estimated_seconds": 24,
+        "on_screen_text": [
+          "Exact quantities",
+          "Latest purchase prices",
+          "Cost updates automatically"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P006"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "What does one plate really cost?\n\nAdd ingredients with exact quantity. DT Restora uses your latest purchase prices to show the cost of each dish. When ingredient price changes, the cost updates. Price with numbers, not guesses.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RecipeCosting #FoodCost #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R031.mp4",
+        "thumbnail": "reels/output/R031.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R032",
+      "title": "Month end without panic",
+      "pillar": "problem",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 16,
+        "planned_date": "2026-11-01",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "Month end stress?",
+        "voice_over": "Month end. Rafiq bhai used to panic. Where is the sales sheet, where are the bills. Now books are ready every day. Sales, VAT and costs post automatically. Month end becomes a calm review.",
+        "voice_over_words": 34,
+        "estimated_seconds": 25,
+        "on_screen_text": [
+          "Books ready daily",
+          "VAT posts automatically",
+          "Calm month end"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai",
+        "nusrat_apu"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P027",
+          "P067"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Month end stress?\n\nMonth end. Rafiq bhai used to panic. Where is the sales sheet, where are the bills. Now books are ready every day. Sales, VAT and costs post automatically. Month end becomes a calm review.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#Accounting #MonthEnd #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R032.mp4",
+        "thumbnail": "reels/output/R032.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R033",
+      "title": "Cash handling rules that work",
+      "pillar": "tip",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 17,
+        "planned_date": "2026-11-02",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "Protect the owner and the cashier.",
+        "voice_over": "Good cash control protects both sides. One cashier per drawer per shift. Count at open and close. Approve discounts above a limit. Record every void with a reason. Review the activity log weekly.",
+        "voice_over_words": 33,
+        "estimated_seconds": 24,
+        "on_screen_text": [
+          "One drawer per shift",
+          "Count open and close",
+          "Review the log weekly"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P057"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Protect the owner and the cashier.\n\nGood cash control protects both sides. One cashier per drawer per shift. Count at open and close. Approve discounts above a limit. Record every void with a reason. Review the activity log weekly.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#CashControl #RestaurantTips #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R033.mp4",
+        "thumbnail": "reels/output/R033.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R034",
+      "title": "Is the first month really free?",
+      "pillar": "offer",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 17,
+        "planned_date": "2026-11-02",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "Is there a catch?",
+        "voice_over": "Nusrat apu asks, is the first month really free? Yes. After installation, your first month costs nothing. Then one thousand taka per month, instead of five thousand seven hundred. Installation is two thousand five hundred, one time.",
+        "voice_over_words": 37,
+        "estimated_seconds": 26,
+        "on_screen_text": [
+          "First month free after installation",
+          "1,000 BDT / month",
+          "2,500 BDT one-time install"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai",
+        "nusrat_apu"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P044",
+          "P047"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Is there a catch?\n\nNusrat apu asks, is the first month really free? Yes. After installation, your first month costs nothing. Then one thousand taka per month, instead of five thousand seven hundred. Installation is two thousand five hundred, one time.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#FirstMonthFree #LaunchOffer #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R034.mp4",
+        "thumbnail": "reels/output/R034.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R035",
+      "title": "Get found on Google",
+      "pillar": "tip",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 18,
+        "planned_date": "2026-11-03",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "Customers search on their phone.",
+        "voice_over": "Most people search for food near them on their phone. Claim your Google Business Profile. Add real photos every week. Keep hours and phone correct. Reply to every review. Then a search can become an order.",
+        "voice_over_words": 36,
+        "estimated_seconds": 26,
+        "on_screen_text": [
+          "Claim your profile",
+          "Real photos weekly",
+          "Correct hours and phone",
+          "Reply to reviews"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P059"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Customers search on their phone.\n\nMost people search for food near them on their phone. Claim your Google Business Profile. Add real photos every week. Keep hours and phone correct. Reply to every review. Then a search can become an order.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#LocalSEO #GoogleBusinessProfile #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R035.mp4",
+        "thumbnail": "reels/output/R035.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R036",
+      "title": "Rider assigned, order tracked",
+      "pillar": "feature",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 18,
+        "planned_date": "2026-11-03",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "Where is my food?",
+        "voice_over": "A customer places an order. The manager assigns a rider from the dispatch board. The rider updates status on a simple mobile page. The customer follows the trip. Fewer where-is-my-food calls.",
+        "voice_over_words": 31,
+        "estimated_seconds": 24,
+        "on_screen_text": [
+          "Dispatch board",
+          "Rider mobile page",
+          "Live tracking"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai",
+        "nusrat_apu"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P024",
+          "P025"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Where is my food?\n\nA customer places an order. The manager assigns a rider from the dispatch board. The rider updates status on a simple mobile page. The customer follows the trip. Fewer where-is-my-food calls.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#DeliveryManagement #OrderTracking #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R036.mp4",
+        "thumbnail": "reels/output/R036.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R037",
+      "title": "5 loyalty ideas for cafes",
+      "pillar": "tip",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 19,
+        "planned_date": "2026-11-04",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "Loyalty is cheaper than advertising.",
+        "voice_over": "Five loyalty ideas for cafes. Points on every order. Bonus points on slow days. Birthday message with a small offer. Win-back message after weeks away. Silver and Gold tiers. Keep rewards small and frequent.",
+        "voice_over_words": 34,
+        "estimated_seconds": 25,
+        "on_screen_text": [
+          "Points on every order",
+          "Bonus on slow days",
+          "Birthday offer",
+          "Win-back message",
+          "Tiers"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P058"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Loyalty is cheaper than advertising.\n\nFive loyalty ideas for cafes. Points on every order. Bonus points on slow days. Birthday message with a small offer. Win-back message after weeks away. Silver and Gold tiers. Keep rewards small and frequent.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#CafeLoyalty #CustomerRetention #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R037.mp4",
+        "thumbnail": "reels/output/R037.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R038",
+      "title": "Roles: everyone sees only their job",
+      "pillar": "story",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 19,
+        "planned_date": "2026-11-04",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "Why does the cashier see the profit?",
+        "voice_over": "In a small restaurant, everyone sees everything. Not here. Owner sees the dashboard, manager sees daily operations, cashier sees POS and shifts, kitchen sees the display. Training is faster and data stays safe.",
+        "voice_over_words": 33,
+        "estimated_seconds": 24,
+        "on_screen_text": [
+          "Owner: dashboard",
+          "Manager: operations",
+          "Cashier: POS",
+          "Kitchen: display"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai",
+        "nusrat_apu"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P030"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Why does the cashier see the profit?\n\nIn a small restaurant, everyone sees everything. Not here. Owner sees the dashboard, manager sees daily operations, cashier sees POS and shifts, kitchen sees the display. Training is faster and data stays safe.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RolesAndPermissions #RestaurantSecurity #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R038.mp4",
+        "thumbnail": "reels/output/R038.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R039",
+      "title": "Why add a QR menu",
+      "pillar": "tip",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 20,
+        "planned_date": "2026-11-05",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "Reprint the menu every price change?",
+        "voice_over": "A QR menu is about speed and accuracy. Prices are always current, no reprinting. Photos help guests choose. Orders go straight to the kitchen without handwriting mistakes. Fewer waiter trips.",
+        "voice_over_words": 30,
+        "estimated_seconds": 23,
+        "on_screen_text": [
+          "No reprint when prices change",
+          "Photos help guests",
+          "Straight to kitchen"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P056"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Reprint the menu every price change?\n\nA QR menu is about speed and accuracy. Prices are always current, no reprinting. Photos help guests choose. Orders go straight to the kitchen without handwriting mistakes. Fewer waiter trips.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#QRMenu #ContactlessDining #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R039.mp4",
+        "thumbnail": "reels/output/R039.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R040",
+      "title": "HR letters and attendance",
+      "pillar": "feature",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 20,
+        "planned_date": "2026-11-05",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "Appointment letter in Word again?",
+        "voice_over": "Karim bhai writes appointment letters in scattered Word files. Now he writes the letter in the system and prints it on the restaurant letterhead. Warnings and experience certificates stay in one place.",
+        "voice_over_words": 32,
+        "estimated_seconds": 24,
+        "on_screen_text": [
+          "Letters on your letterhead",
+          "Saved per employee",
+          "One place for HR"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai",
+        "nusrat_apu"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P018"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Appointment letter in Word again?\n\nKarim bhai writes appointment letters in scattered Word files. Now he writes the letter in the system and prints it on the restaurant letterhead. Warnings and experience certificates stay in one place.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#HRLetters #RestaurantAdmin #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R040.mp4",
+        "thumbnail": "reels/output/R040.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R041",
+      "title": "Friday close-out checklist",
+      "pillar": "tip",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 21,
+        "planned_date": "2026-11-06",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "The weekend is your biggest window.",
+        "voice_over": "A five minute Friday routine. Count and compare cash. Review the week's waste. Check low stock alerts. Reorder what the weekend needs. Brief staff on specials. Never be surprised when it matters most.",
+        "voice_over_words": 33,
+        "estimated_seconds": 24,
+        "on_screen_text": [
+          "Count cash",
+          "Review waste",
+          "Check low stock",
+          "Reorder",
+          "Brief staff"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P083"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "The weekend is your biggest window.\n\nA five minute Friday routine. Count and compare cash. Review the week's waste. Check low stock alerts. Reorder what the weekend needs. Brief staff on specials. Never be surprised when it matters most.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RestaurantTips #WeekendRush #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R041.mp4",
+        "thumbnail": "reels/output/R041.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R042",
+      "title": "Rafiq bhai tries the free demo",
+      "pillar": "story",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 21,
+        "planned_date": "2026-11-06",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "Can I try before I pay?",
+        "voice_over": "Rafiq bhai was not sure. So he tried the free live demo. He clicked every screen as owner, cashier and kitchen. Then we showed it on his own menu. Free, no pressure, nothing to install to try.",
+        "voice_over_words": 37,
+        "estimated_seconds": 26,
+        "on_screen_text": [
+          "Try the free demo",
+          "Owner, cashier, kitchen",
+          "On your own menu"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P136",
+          "P151"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Can I try before I pay?\n\nRafiq bhai was not sure. So he tried the free live demo. He clicked every screen as owner, cashier and kitchen. Then we showed it on his own menu. Free, no pressure, nothing to install to try.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#FreeDemo #TryBeforeYouBuy #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R042.mp4",
+        "thumbnail": "reels/output/R042.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R043",
+      "title": "What does FIFO mean?",
+      "pillar": "tip",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 22,
+        "planned_date": "2026-11-07",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "Quick kitchen quiz.",
+        "voice_over": "FIFO. First in, first out. Use the oldest stock first, so food does not expire on the shelf. Count stock every week and log spoilage with a reason. Small habit, less waste.",
+        "voice_over_words": 32,
+        "estimated_seconds": 24,
+        "on_screen_text": [
+          "First in, first out",
+          "Oldest stock first",
+          "Log spoilage with a reason"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P119"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Quick kitchen quiz.\n\nFIFO. First in, first out. Use the oldest stock first, so food does not expire on the shelf. Count stock every week and log spoilage with a reason. Small habit, less waste.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#FIFO #FoodWaste #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R043.mp4",
+        "thumbnail": "reels/output/R043.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R044",
+      "title": "Which dish really makes money?",
+      "pillar": "feature",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 22,
+        "planned_date": "2026-11-07",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "Your best seller may be losing money.",
+        "voice_over": "A best seller with a thin margin can lose you money. Recipe costing shows what each dish costs, top items shows what sells. Together they tell you what to promote, reprice or drop.",
+        "voice_over_words": 33,
+        "estimated_seconds": 24,
+        "on_screen_text": [
+          "Cost per dish",
+          "Top-selling items",
+          "Promote . Reprice . Drop"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai",
+        "nusrat_apu"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P112"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Your best seller may be losing money.\n\nA best seller with a thin margin can lose you money. Recipe costing shows what each dish costs, top items shows what sells. Together they tell you what to promote, reprice or drop.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#MenuEngineering #FoodCost #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R044.mp4",
+        "thumbnail": "reels/output/R044.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R045",
+      "title": "Myth: only big restaurants need software",
+      "pillar": "tip",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 23,
+        "planned_date": "2026-11-08",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "One-counter cafe. Do you need this?",
+        "voice_over": "Waste, cash gaps and guessed stock hurt a one-counter cafe as much as a chain. Start small with POS and kitchen. Add stock, staff, delivery and website when you are ready.",
+        "voice_over_words": 31,
+        "estimated_seconds": 24,
+        "on_screen_text": [
+          "Waste does not care about size",
+          "Start with POS only",
+          "Add modules as you grow"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P129",
+          "P077"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "One-counter cafe. Do you need this?\n\nWaste, cash gaps and guessed stock hurt a one-counter cafe as much as a chain. Start small with POS and kitchen. Add stock, staff, delivery and website when you are ready.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#MythBusting #SmallBusiness #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R045.mp4",
+        "thumbnail": "reels/output/R045.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R046",
+      "title": "Refundable installation",
+      "pillar": "offer",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 23,
+        "planned_date": "2026-11-08",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "What if I want to leave?",
+        "voice_over": "Use DT Restora for one year. If you decide to cancel, the two thousand five hundred taka installation fee is refundable. Your data stays in your own installation with daily backups. We want you to feel safe.",
+        "voice_over_words": 37,
+        "estimated_seconds": 26,
+        "on_screen_text": [
+          "Installation refundable after one year",
+          "Your own database",
+          "Daily backups"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai",
+        "nusrat_apu"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P045",
+          "P133"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "What if I want to leave?\n\nUse DT Restora for one year. If you decide to cancel, the two thousand five hundred taka installation fee is refundable. Your data stays in your own installation with daily backups. We want you to feel safe.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#NoRisk #DataOwnership #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R046.mp4",
+        "thumbnail": "reels/output/R046.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R047",
+      "title": "Reports for your accountant",
+      "pillar": "feature",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 24,
+        "planned_date": "2026-11-09",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "PDF and Excel in one click.",
+        "voice_over": "Daily sales, item-wise sales, channel and payment reports, cashier performance, wastage, stock value, branch profit and loss. Filter by date and branch, then export to PDF or Excel.",
+        "voice_over_words": 28,
+        "estimated_seconds": 22,
+        "on_screen_text": [
+          "Sales by day and item",
+          "By channel and payment",
+          "Export PDF / Excel"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P028"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "PDF and Excel in one click.\n\nDaily sales, item-wise sales, channel and payment reports, cashier performance, wastage, stock value, branch profit and loss. Filter by date and branch, then export to PDF or Excel.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RestaurantReports #SalesReport #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R047.mp4",
+        "thumbnail": "reels/output/R047.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R048",
+      "title": "Training the team in Bangla",
+      "pillar": "story",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 24,
+        "planned_date": "2026-11-09",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "How long to train my cashier?",
+        "voice_over": "Training is short because each role sees one clean screen. Screens, messages and guides are in Bangla and English, so the team learns in their own language. Start small, grow later.",
+        "voice_over_words": 31,
+        "estimated_seconds": 24,
+        "on_screen_text": [
+          "One screen per role",
+          "Bangla and English",
+          "Start small"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai",
+        "nusrat_apu"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P134",
+          "P127"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "How long to train my cashier?\n\nTraining is short because each role sees one clean screen. Screens, messages and guides are in Bangla and English, so the team learns in their own language. Start small, grow later.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#BanglaPOS #StaffTraining #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R048.mp4",
+        "thumbnail": "reels/output/R048.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R049",
+      "title": "How a guest orders online",
+      "pillar": "tip",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 25,
+        "planned_date": "2026-11-10",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "What does your customer see?",
+        "voice_over": "On your own website: open the menu, pick dishes, check out, then follow the order live. On your side, the ticket appears on the kitchen screen at once. Simple for the guest, simple for the team.",
+        "voice_over_words": 36,
+        "estimated_seconds": 26,
+        "on_screen_text": [
+          "Browse . Order . Track",
+          "Ticket lands in kitchen"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P066",
+          "P022"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "What does your customer see?\n\nOn your own website: open the menu, pick dishes, check out, then follow the order live. On your side, the ticket appears on the kitchen screen at once. Simple for the guest, simple for the team.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#OnlineOrdering #CustomerJourney #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R049.mp4",
+        "thumbnail": "reels/output/R049.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R050",
+      "title": "From order to profit",
+      "pillar": "feature",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 25,
+        "planned_date": "2026-11-10",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "One sale. Five updates.",
+        "voice_over": "One sale touches five things. Kitchen ticket, stock deduction, payment record and accounting entries all update by themselves. Nobody types the same sale twice. Books are ready daily.",
+        "voice_over_words": 28,
+        "estimated_seconds": 22,
+        "on_screen_text": [
+          "Kitchen ticket",
+          "Stock deduction",
+          "Payment record",
+          "Accounting entries"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai",
+        "nusrat_apu"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P062",
+          "P141"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "One sale. Five updates.\n\nOne sale touches five things. Kitchen ticket, stock deduction, payment record and accounting entries all update by themselves. Nobody types the same sale twice. Books are ready daily.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#Automation #OrderFlow #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R050.mp4",
+        "thumbnail": "reels/output/R050.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R051",
+      "title": "How do we get you live?",
+      "pillar": "tip",
+      "format": "MG",
+      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "schedule": {
+        "day_number": 26,
+        "planned_date": "2026-11-11",
+        "slot": "A",
+        "time_bd": "10:30"
+      },
+      "script": {
+        "hook_0_3s": "Going live is easier than you think.",
+        "voice_over": "Try the demo. We install it for you. You load your menu and roles. Your team learns one screen each. Then you take your first live orders. Bangla and English guides, and the first month is free.",
+        "voice_over_words": 37,
+        "estimated_seconds": 26,
+        "on_screen_text": [
+          "Try the demo",
+          "We install",
+          "Load menu and roles",
+          "Go live"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [],
+      "visual_sources": {
+        "post_graphics": [
+          "P143",
+          "P061"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Going live is easier than you think.\n\nTry the demo. We install it for you. You load your menu and roles. Your team learns one screen each. Then you take your first live orders. Bangla and English guides, and the first month is free.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#GoLive #Onboarding #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R051.mp4",
+        "thumbnail": "reels/output/R051.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    },
+    {
+      "id": "R052",
+      "title": "Comment DEMO",
+      "pillar": "offer",
+      "format": "SK",
+      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "schedule": {
+        "day_number": 26,
+        "planned_date": "2026-11-11",
+        "slot": "B",
+        "time_bd": "18:30"
+      },
+      "script": {
+        "hook_0_3s": "Ready to see it?",
+        "voice_over": "If you run a restaurant or a cafe, this is for you. Comment DEMO and we will message you a free walkthrough on your own menu. Or call and WhatsApp us directly. Free, no pressure.",
+        "voice_over_words": 35,
+        "estimated_seconds": 25,
+        "on_screen_text": [
+          "Comment DEMO",
+          "Free walkthrough",
+          "No pressure"
+        ],
+        "cta_voice_over": "Message Md. Sakir Ahmed on zero one three zero four, seven three four, six two three, for a free demo.",
+        "cta_on_screen": "Free demo: 01304734623"
+      },
+      "characters": [
+        "narrator",
+        "rafiq_bhai",
+        "nusrat_apu"
+      ],
+      "visual_sources": {
+        "post_graphics": [
+          "P153",
+          "P151"
+        ],
+        "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
+      },
+      "caption": "Ready to see it?\n\nIf you run a restaurant or a cafe, this is for you. Comment DEMO and we will message you a free walkthrough on your own menu. Or call and WhatsApp us directly. Free, no pressure.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#FreeDemo #RestaurantOwners #DTRestora #Reels",
+      "status": {
+        "is_script_approved": false,
+        "is_voice_generated": false,
+        "is_video_generated": false,
+        "is_edited": false,
+        "is_scheduled_facebook_reel": false,
+        "is_posted_facebook_reel": false,
+        "is_posted_instagram_reel": false,
+        "is_posted_youtube_shorts": false,
+        "is_posted_tiktok": false
+      },
+      "files": {
+        "video": "reels/output/R052.mp4",
+        "thumbnail": "reels/output/R052.jpg"
+      },
+      "performance": {
+        "views": null,
+        "watch_time_pct": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "messages": null,
+        "leads": null
+      },
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+    }
+  ]
+}

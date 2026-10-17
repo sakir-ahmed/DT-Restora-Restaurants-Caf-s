@@ -5,6 +5,7 @@ Contact on every post: Md. Sakir Ahmed, 01304734623. No links in captions.
 ```
 content-plan.json   master tracker: 146 posts (images, captions per platform, schedule, is_posted_* flags, performance)
 video-plan.json     25 videos (12 from carousels, 13 new shoots) with scripts and their own is_posted_* flags
+reels-plan.json     52 reels (2 per day, 17 Oct to 11 Nov): scripts, characters, voice, tools, status flags
 growth-plan.md      self-driven growth and promotion plan for a new page
 posts/              14 category folders, one folder per post with image-NN.png and post.txt
 brand-assets/       covers, banners, profile pictures, stories, ads, video thumbnails
