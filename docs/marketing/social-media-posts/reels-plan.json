@@ -18,7 +18,8 @@
       "Facts only from the product docs and existing posts: price 1,000 BDT/month (regular 5,700), 2,500 BDT installation (refundable after one year), first month free after installation, yearly plan 2 months free.",
       "No fake customers, no invented numbers, no fake testimonials. Characters and restaurants are fictional and must be labelled as such.",
       "No emojis or Unicode symbol icons in text on screen.",
-      "Reels are 1080x1920, 20 to 35 seconds, captions burned in, first frame is the hook."
+      "Every reel must show the real DT Restora software on screen for at least 60 percent of its runtime. AI clips only add the human problem moment (max 6 s). If a viewer cannot tell it is a software ad, redo it.",
+      "Reels are 1080x1920, 22 to 33 seconds, captions burned in, first frame is the hook."
     ],
     "standard_structure": {
       "0_3s": "Hook: a question or a bold line the owner feels",
@@ -126,7 +127,7 @@
         {
           "step": 3,
           "name": "Character skits (SK)",
-          "tool": "Grok Imagine video in the user's logged-in Grok (paid), clip by clip; fallback Meta AI or Gemini Veo (free limits); invideo AI as last fallback (watermark on free plan)",
+          "tool": "AI clips only for the 4 to 6 second human problem moment (Grok Imagine in the user's logged-in Grok); all software scenes come from real screenshots and screen recordings of DT Restora",
           "status": "not verified yet, a 1-reel pilot decides the exact tool"
         },
         {
@@ -168,7 +169,9 @@
       "youtube_shorts",
       "tiktok"
     ],
-    "schedule_note": "Reels slots 10:30 and 18:30 are chosen to sit between the post slots (09:00, 12:30, 16:00, 20:00, 22:00). Times are Bangladesh time."
+    "schedule_note": "Reels slots 10:30 and 18:30 are chosen to sit between the post slots (09:00, 12:30, 16:00, 20:00, 22:00). Times are Bangladesh time.",
+    "story_arc_standard": "Problem (real-life restaurant pain) -> DT Restora screen solves it (feature callout) -> result for the owner -> trust (real facts: own data, daily backups, refundable installation, logged actions, Bangla/English) -> free demo CTA",
+    "voice_status": "macOS 'say' is blocked in this sandbox. Voice-over must come from Grok or Gemini text-to-speech, which needs downloaded audio files (waiting for user permission). Until then reels are produced as captioned, muted-friendly versions."
   },
   "reels": [
     {
@@ -176,7 +179,7 @@
       "title": "We are live",
       "pillar": "intro",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 1,
         "planned_date": "2026-10-17",
@@ -208,13 +211,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
         "is_scheduled_facebook_reel": false,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Silent captioned pilot (software-first) rendered locally: reels/output/R001.mp4. Voice-over pending (needs downloaded Grok/Gemini audio). Not scheduled yet."
       },
       "files": {
         "video": "reels/output/R001.mp4",
@@ -229,14 +233,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Restaurant owners, one minute please.",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "One system for the whole restaurant",
+          "visual": "assets/shots/settings.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Follow for daily owner tips",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Your own system and your own database",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/settings.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "One system for the whole restaurant"
+        }
+      ],
+      "trust_line": "Your own system and your own database"
     },
     {
       "id": "R002",
       "title": "Rafiq bhai finds the missing profit",
       "pillar": "story",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 1,
         "planned_date": "2026-10-17",
@@ -291,14 +340,64 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Sales were high. Why was the bank balance low?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Net profit, built up daily",
+          "visual": "assets/shots/dash.jpg cropped to (897, 525, 690, 205)"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Check profit every day",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Daily backups of your data",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/dash.jpg",
+          "crop_xywh_on_1600x880": [
+            897,
+            525,
+            690,
+            205
+          ],
+          "callout": "Net profit, built up daily"
+        }
+      ],
+      "trust_line": "Daily backups of your data"
     },
     {
       "id": "R003",
       "title": "3 questions every owner must answer",
       "pillar": "tip",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 2,
         "planned_date": "2026-10-18",
@@ -350,14 +449,64 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Be honest. Can you answer these three?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Sales, food cost, profit: today",
+          "visual": "assets/shots/dash.jpg cropped to (196, 137, 1392, 82)"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Cash matches every night?",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Installation fee refundable after one year of use",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/dash.jpg",
+          "crop_xywh_on_1600x880": [
+            196,
+            137,
+            1392,
+            82
+          ],
+          "callout": "Sales, food cost, profit: today"
+        }
+      ],
+      "trust_line": "Installation fee refundable after one year of use"
     },
     {
       "id": "R004",
       "title": "Tanvir learns the POS in minutes",
       "pillar": "feature",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 2,
         "planned_date": "2026-10-18",
@@ -412,14 +561,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "New cashier on day one. Scared?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Pick . Tap . Pay . Print",
+          "visual": "assets/shots/pos-cart.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Learn in minutes",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Every void and discount is logged",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/pos-cart.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Pick . Tap . Pay . Print"
+        }
+      ],
+      "trust_line": "Every void and discount is logged"
     },
     {
       "id": "R005",
       "title": "Launch offer in 20 seconds",
       "pillar": "offer",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 3,
         "planned_date": "2026-10-19",
@@ -472,14 +666,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "1,000 taka a month. Really?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "One system for the whole restaurant",
+          "visual": "assets/shots/settings.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Yearly: 2 months free",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Bangla and English screens and guides",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/settings.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "One system for the whole restaurant"
+        }
+      ],
+      "trust_line": "Bangla and English screens and guides"
     },
     {
       "id": "R006",
       "title": "Paper hides your money",
       "pillar": "problem",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 3,
         "planned_date": "2026-10-19",
@@ -536,14 +775,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Hand-written bill. Can you trust it?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "One system for the whole restaurant",
+          "visual": "assets/shots/dash.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Go digital, see the leaks",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Try the free demo before you decide",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/dash.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "One system for the whole restaurant"
+        }
+      ],
+      "trust_line": "Try the free demo before you decide"
     },
     {
       "id": "R007",
       "title": "Kitchen display, no shouting",
       "pillar": "feature",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 4,
         "planned_date": "2026-10-20",
@@ -595,14 +879,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Order shouting in your kitchen?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "One live kitchen screen",
+          "visual": "assets/shots/kds.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Waiting time on every ticket",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "We install it for you, local support",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/kds.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "One live kitchen screen"
+        }
+      ],
+      "trust_line": "We install it for you, local support"
     },
     {
       "id": "R008",
       "title": "The rice ran out at lunch",
       "pillar": "problem",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 4,
         "planned_date": "2026-10-20",
@@ -659,14 +988,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Lunch rush. Rice finished. What now?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Reorder alerts per ingredient",
+          "visual": "assets/shots/ingredients.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Alert before you run out",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Your own system and your own database",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/ingredients.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Reorder alerts per ingredient"
+        }
+      ],
+      "trust_line": "Your own system and your own database"
     },
     {
       "id": "R009",
       "title": "Food cost percentage in 25 seconds",
       "pillar": "tip",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 5,
         "planned_date": "2026-10-21",
@@ -718,14 +1092,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Do you know your food cost percentage?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Cost of every dish",
+          "visual": "assets/shots/recipes.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Reprice the weak ones",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Daily backups of your data",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/recipes.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Cost of every dish"
+        }
+      ],
+      "trust_line": "Daily backups of your data"
     },
     {
       "id": "R010",
       "title": "Nusrat apu closes the shift",
       "pillar": "feature",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 5,
         "planned_date": "2026-10-21",
@@ -781,14 +1200,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Cash short again?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Shift cash counted, difference shown",
+          "visual": "assets/shots/pos-paid.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Every override logged",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Installation fee refundable after one year of use",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/pos-paid.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Shift cash counted, difference shown"
+        }
+      ],
+      "trust_line": "Installation fee refundable after one year of use"
     },
     {
       "id": "R011",
       "title": "5 ways to reduce food waste",
       "pillar": "tip",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 6,
         "planned_date": "2026-10-22",
@@ -842,14 +1306,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Waste is real money.",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Every loss logged with a reason",
+          "visual": "assets/shots/wastage.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "5 Review weekly",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Every void and discount is logged",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/wastage.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Every loss logged with a reason"
+        }
+      ],
+      "trust_line": "Every void and discount is logged"
     },
     {
       "id": "R012",
       "title": "Rafiq bhai and the delivery apps",
       "pillar": "story",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 6,
         "planned_date": "2026-10-22",
@@ -905,14 +1414,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Orders on three tablets. Headache!",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Every channel, commission costed",
+          "visual": "assets/shots/aggr.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Profit after commission",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Bangla and English screens and guides",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/aggr.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Every channel, commission costed"
+        }
+      ],
+      "trust_line": "Bangla and English screens and guides"
     },
     {
       "id": "R013",
       "title": "Your own ordering website",
       "pillar": "feature",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 7,
         "planned_date": "2026-10-23",
@@ -964,14 +1518,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Stop paying commission on every order.",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Your own ordering website",
+          "visual": "assets/shots/w-home.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Live tracking",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Try the free demo before you decide",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/w-home.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Your own ordering website"
+        }
+      ],
+      "trust_line": "Try the free demo before you decide"
     },
     {
       "id": "R014",
       "title": "QR at the table",
       "pillar": "feature",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 7,
         "planned_date": "2026-10-23",
@@ -1027,14 +1626,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Guests scan, order, and your waiter relaxes.",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Your own ordering website",
+          "visual": "assets/shots/w-home.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Kitchen gets the ticket",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "We install it for you, local support",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/w-home.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Your own ordering website"
+        }
+      ],
+      "trust_line": "We install it for you, local support"
     },
     {
       "id": "R015",
       "title": "Why the cash drawer is short",
       "pillar": "tip",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 8,
         "planned_date": "2026-10-24",
@@ -1088,14 +1732,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Short cash every week?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Shift cash counted, difference shown",
+          "visual": "assets/shots/pos-paid.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Void needs a reason",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Your own system and your own database",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/pos-paid.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Shift cash counted, difference shown"
+        }
+      ],
+      "trust_line": "Your own system and your own database"
     },
     {
       "id": "R016",
       "title": "Karim bhai and the payroll weekend",
       "pillar": "story",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 8,
         "planned_date": "2026-10-24",
@@ -1152,14 +1841,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Pay day took the whole weekend.",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Attendance to salary slip",
+          "visual": "assets/shots/payroll.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Salary slip in one click",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Daily backups of your data",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/payroll.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Attendance to salary slip"
+        }
+      ],
+      "trust_line": "Daily backups of your data"
     },
     {
       "id": "R017",
       "title": "Weekly stock checklist",
       "pillar": "tip",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 9,
         "planned_date": "2026-10-25",
@@ -1212,14 +1946,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Five minutes every week saves your month.",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Count the shelf, see the difference",
+          "visual": "assets/shots/stockcount.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Update reorder levels",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Installation fee refundable after one year of use",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/stockcount.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Count the shelf, see the difference"
+        }
+      ],
+      "trust_line": "Installation fee refundable after one year of use"
     },
     {
       "id": "R018",
       "title": "Discount with a manager check",
       "pillar": "feature",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 9,
         "planned_date": "2026-10-25",
@@ -1276,14 +2055,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Who gave that discount?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Who changed what, and when",
+          "visual": "assets/shots/activity.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Everything logged",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Every void and discount is logged",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/activity.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Who changed what, and when"
+        }
+      ],
+      "trust_line": "Every void and discount is logged"
     },
     {
       "id": "R019",
       "title": "Split bill: cash and bKash",
       "pillar": "feature",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 10,
         "planned_date": "2026-10-26",
@@ -1335,14 +2159,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Five friends, three ways to pay.",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Cash + bKash + Nagad + card",
+          "visual": "assets/shots/pos-split.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Clear receipt",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Bangla and English screens and guides",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/pos-split.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Cash + bKash + Nagad + card"
+        }
+      ],
+      "trust_line": "Bangla and English screens and guides"
     },
     {
       "id": "R020",
       "title": "The owner who cannot be in three kitchens",
       "pillar": "problem",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 10,
         "planned_date": "2026-10-26",
@@ -1399,14 +2268,64 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Three branches. One owner. How?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Every branch on one screen",
+          "visual": "assets/shots/dash.jpg cropped to (197, 745, 1392, 135)"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Managers see only their branch",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Try the free demo before you decide",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/dash.jpg",
+          "crop_xywh_on_1600x880": [
+            197,
+            745,
+            1392,
+            135
+          ],
+          "callout": "Every branch on one screen"
+        }
+      ],
+      "trust_line": "Try the free demo before you decide"
     },
     {
       "id": "R021",
       "title": "What does 33 taka a day buy?",
       "pillar": "offer",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 11,
         "planned_date": "2026-10-27",
@@ -1459,14 +2378,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "33 taka a day. What do you get?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "One system for the whole restaurant",
+          "visual": "assets/shots/settings.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "First month free",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "We install it for you, local support",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/settings.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "One system for the whole restaurant"
+        }
+      ],
+      "trust_line": "We install it for you, local support"
     },
     {
       "id": "R022",
       "title": "Loyalty: from first visit to regular",
       "pillar": "feature",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 11,
         "planned_date": "2026-10-27",
@@ -1523,14 +2487,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "How do you make guests come back?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Points on every order",
+          "visual": "assets/shots/loyalty.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Coupons with limits",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Your own system and your own database",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/loyalty.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Points on every order"
+        }
+      ],
+      "trust_line": "Your own system and your own database"
     },
     {
       "id": "R023",
       "title": "Menu pricing basics",
       "pillar": "tip",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 12,
         "planned_date": "2026-10-28",
@@ -1583,14 +2592,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Are you copying your competitor's price?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Cost of every dish",
+          "visual": "assets/shots/recipes.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Review quarterly",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Daily backups of your data",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/recipes.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Cost of every dish"
+        }
+      ],
+      "trust_line": "Daily backups of your data"
     },
     {
       "id": "R024",
       "title": "Rafiq bhai and the accountant",
       "pillar": "story",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 12,
         "planned_date": "2026-10-28",
@@ -1646,14 +2700,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "The accountant calls every month.",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Books that write themselves",
+          "visual": "assets/shots/accounting.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Trial balance in a click",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Installation fee refundable after one year of use",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/accounting.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Books that write themselves"
+        }
+      ],
+      "trust_line": "Installation fee refundable after one year of use"
     },
     {
       "id": "R025",
       "title": "Works when internet is down",
       "pillar": "feature",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 13,
         "planned_date": "2026-10-29",
@@ -1705,14 +2804,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Load shedding at lunch?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Offline orders sync later",
+          "visual": "assets/shots/sync.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Auto-sync later",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Every void and discount is logged",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/sync.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Offline orders sync later"
+        }
+      ],
+      "trust_line": "Every void and discount is logged"
     },
     {
       "id": "R026",
       "title": "Peak hour chaos",
       "pillar": "problem",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 13,
         "planned_date": "2026-10-29",
@@ -1769,14 +2913,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Why is service slow at peak hours?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "One live kitchen screen",
+          "visual": "assets/shots/kds.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Hold and resume tickets",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Bangla and English screens and guides",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/kds.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "One live kitchen screen"
+        }
+      ],
+      "trust_line": "Bangla and English screens and guides"
     },
     {
       "id": "R027",
       "title": "How to choose a restaurant POS",
       "pillar": "tip",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 14,
         "planned_date": "2026-10-30",
@@ -1831,14 +3020,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Before you buy a POS, ask five questions.",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Pick . Tap . Pay . Print",
+          "visual": "assets/shots/pos-cart.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Live demo?",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Try the free demo before you decide",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/pos-cart.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Pick . Tap . Pay . Print"
+        }
+      ],
+      "trust_line": "Try the free demo before you decide"
     },
     {
       "id": "R028",
       "title": "Dish photos sell dishes",
       "pillar": "feature",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 14,
         "planned_date": "2026-10-30",
@@ -1894,14 +3128,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "People order what they can see.",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Photos and videos per dish",
+          "visual": "assets/shots/dishmedia.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Better conversion",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "We install it for you, local support",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/dishmedia.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Photos and videos per dish"
+        }
+      ],
+      "trust_line": "We install it for you, local support"
     },
     {
       "id": "R029",
       "title": "What is a reorder level?",
       "pillar": "tip",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 15,
         "planned_date": "2026-10-31",
@@ -1954,14 +3233,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Never run dry mid-service.",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Reorder alerts per ingredient",
+          "visual": "assets/shots/ingredients.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Alert warns early",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Your own system and your own database",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/ingredients.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Reorder alerts per ingredient"
+        }
+      ],
+      "trust_line": "Your own system and your own database"
     },
     {
       "id": "R030",
       "title": "Tanvir and the void",
       "pillar": "story",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 15,
         "planned_date": "2026-10-31",
@@ -2018,14 +3342,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "A void without a reason?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Who changed what, and when",
+          "visual": "assets/shots/activity.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Logged",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Daily backups of your data",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/activity.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Who changed what, and when"
+        }
+      ],
+      "trust_line": "Daily backups of your data"
     },
     {
       "id": "R031",
       "title": "Recipe costing",
       "pillar": "feature",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 16,
         "planned_date": "2026-11-01",
@@ -2077,14 +3446,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "What does one plate really cost?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Cost of every dish",
+          "visual": "assets/shots/recipes.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Cost updates automatically",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Installation fee refundable after one year of use",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/recipes.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Cost of every dish"
+        }
+      ],
+      "trust_line": "Installation fee refundable after one year of use"
     },
     {
       "id": "R032",
       "title": "Month end without panic",
       "pillar": "problem",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 16,
         "planned_date": "2026-11-01",
@@ -2141,14 +3555,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Month end stress?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Books that write themselves",
+          "visual": "assets/shots/accounting.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Calm month end",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Every void and discount is logged",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/accounting.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Books that write themselves"
+        }
+      ],
+      "trust_line": "Every void and discount is logged"
     },
     {
       "id": "R033",
       "title": "Cash handling rules that work",
       "pillar": "tip",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 17,
         "planned_date": "2026-11-02",
@@ -2200,14 +3659,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Protect the owner and the cashier.",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Shift cash counted, difference shown",
+          "visual": "assets/shots/pos-paid.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Review the log weekly",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Bangla and English screens and guides",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/pos-paid.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Shift cash counted, difference shown"
+        }
+      ],
+      "trust_line": "Bangla and English screens and guides"
     },
     {
       "id": "R034",
       "title": "Is the first month really free?",
       "pillar": "offer",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 17,
         "planned_date": "2026-11-02",
@@ -2264,14 +3768,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Is there a catch?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "One system for the whole restaurant",
+          "visual": "assets/shots/settings.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "2,500 BDT one-time install",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Try the free demo before you decide",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/settings.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "One system for the whole restaurant"
+        }
+      ],
+      "trust_line": "Try the free demo before you decide"
     },
     {
       "id": "R035",
       "title": "Get found on Google",
       "pillar": "tip",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 18,
         "planned_date": "2026-11-03",
@@ -2324,14 +3873,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Customers search on their phone.",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "One system for the whole restaurant",
+          "visual": "assets/shots/settings.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Reply to reviews",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "We install it for you, local support",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/settings.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "One system for the whole restaurant"
+        }
+      ],
+      "trust_line": "We install it for you, local support"
     },
     {
       "id": "R036",
       "title": "Rider assigned, order tracked",
       "pillar": "feature",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 18,
         "planned_date": "2026-11-03",
@@ -2388,14 +3982,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Where is my food?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Every channel, commission costed",
+          "visual": "assets/shots/aggr.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Live tracking",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Your own system and your own database",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/aggr.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Every channel, commission costed"
+        }
+      ],
+      "trust_line": "Your own system and your own database"
     },
     {
       "id": "R037",
       "title": "5 loyalty ideas for cafes",
       "pillar": "tip",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 19,
         "planned_date": "2026-11-04",
@@ -2449,14 +4088,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Loyalty is cheaper than advertising.",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Points on every order",
+          "visual": "assets/shots/loyalty.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Tiers",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Daily backups of your data",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/loyalty.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Points on every order"
+        }
+      ],
+      "trust_line": "Daily backups of your data"
     },
     {
       "id": "R038",
       "title": "Roles: everyone sees only their job",
       "pillar": "story",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 19,
         "planned_date": "2026-11-04",
@@ -2513,14 +4197,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Why does the cashier see the profit?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Each role sees only its job",
+          "visual": "assets/shots/staff.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Kitchen: display",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Installation fee refundable after one year of use",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/staff.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Each role sees only its job"
+        }
+      ],
+      "trust_line": "Installation fee refundable after one year of use"
     },
     {
       "id": "R039",
       "title": "Why add a QR menu",
       "pillar": "tip",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 20,
         "planned_date": "2026-11-05",
@@ -2572,14 +4301,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Reprint the menu every price change?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Your own ordering website",
+          "visual": "assets/shots/w-home.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Straight to kitchen",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Every void and discount is logged",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/w-home.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Your own ordering website"
+        }
+      ],
+      "trust_line": "Every void and discount is logged"
     },
     {
       "id": "R040",
       "title": "HR letters and attendance",
       "pillar": "feature",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 20,
         "planned_date": "2026-11-05",
@@ -2635,14 +4409,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Appointment letter in Word again?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Attendance to salary slip",
+          "visual": "assets/shots/payroll.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "One place for HR",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Bangla and English screens and guides",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/payroll.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Attendance to salary slip"
+        }
+      ],
+      "trust_line": "Bangla and English screens and guides"
     },
     {
       "id": "R041",
       "title": "Friday close-out checklist",
       "pillar": "tip",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 21,
         "planned_date": "2026-11-06",
@@ -2696,14 +4515,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "The weekend is your biggest window.",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "One system for the whole restaurant",
+          "visual": "assets/shots/dash.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Brief staff",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Try the free demo before you decide",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/dash.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "One system for the whole restaurant"
+        }
+      ],
+      "trust_line": "Try the free demo before you decide"
     },
     {
       "id": "R042",
       "title": "Rafiq bhai tries the free demo",
       "pillar": "story",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 21,
         "planned_date": "2026-11-06",
@@ -2759,14 +4623,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Can I try before I pay?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "One system for the whole restaurant",
+          "visual": "assets/shots/settings.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "On your own menu",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "We install it for you, local support",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/settings.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "One system for the whole restaurant"
+        }
+      ],
+      "trust_line": "We install it for you, local support"
     },
     {
       "id": "R043",
       "title": "What does FIFO mean?",
       "pillar": "tip",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 22,
         "planned_date": "2026-11-07",
@@ -2818,14 +4727,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Quick kitchen quiz.",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Count the shelf, see the difference",
+          "visual": "assets/shots/stockcount.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Log spoilage with a reason",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Your own system and your own database",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/stockcount.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Count the shelf, see the difference"
+        }
+      ],
+      "trust_line": "Your own system and your own database"
     },
     {
       "id": "R044",
       "title": "Which dish really makes money?",
       "pillar": "feature",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 22,
         "planned_date": "2026-11-07",
@@ -2881,14 +4835,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Your best seller may be losing money.",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Cost of every dish",
+          "visual": "assets/shots/recipes.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Promote . Reprice . Drop",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Daily backups of your data",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/recipes.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Cost of every dish"
+        }
+      ],
+      "trust_line": "Daily backups of your data"
     },
     {
       "id": "R045",
       "title": "Myth: only big restaurants need software",
       "pillar": "tip",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 23,
         "planned_date": "2026-11-08",
@@ -2941,14 +4940,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "One-counter cafe. Do you need this?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "One system for the whole restaurant",
+          "visual": "assets/shots/settings.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Add modules as you grow",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Installation fee refundable after one year of use",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/settings.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "One system for the whole restaurant"
+        }
+      ],
+      "trust_line": "Installation fee refundable after one year of use"
     },
     {
       "id": "R046",
       "title": "Refundable installation",
       "pillar": "offer",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 23,
         "planned_date": "2026-11-08",
@@ -3005,14 +5049,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "What if I want to leave?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "One system for the whole restaurant",
+          "visual": "assets/shots/settings.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Daily backups",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Every void and discount is logged",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/settings.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "One system for the whole restaurant"
+        }
+      ],
+      "trust_line": "Every void and discount is logged"
     },
     {
       "id": "R047",
       "title": "Reports for your accountant",
       "pillar": "feature",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 24,
         "planned_date": "2026-11-09",
@@ -3064,14 +5153,64 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "PDF and Excel in one click.",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Every branch on one screen",
+          "visual": "assets/shots/dash.jpg cropped to (197, 745, 1392, 135)"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Export PDF / Excel",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Bangla and English screens and guides",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/dash.jpg",
+          "crop_xywh_on_1600x880": [
+            197,
+            745,
+            1392,
+            135
+          ],
+          "callout": "Every branch on one screen"
+        }
+      ],
+      "trust_line": "Bangla and English screens and guides"
     },
     {
       "id": "R048",
       "title": "Training the team in Bangla",
       "pillar": "story",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 24,
         "planned_date": "2026-11-09",
@@ -3128,14 +5267,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "How long to train my cashier?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "One system for the whole restaurant",
+          "visual": "assets/shots/settings.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Start small",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Try the free demo before you decide",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/settings.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "One system for the whole restaurant"
+        }
+      ],
+      "trust_line": "Try the free demo before you decide"
     },
     {
       "id": "R049",
       "title": "How a guest orders online",
       "pillar": "tip",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 25,
         "planned_date": "2026-11-10",
@@ -3187,14 +5371,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "What does your customer see?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Your own ordering website",
+          "visual": "assets/shots/w-home.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Ticket lands in kitchen",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "We install it for you, local support",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/w-home.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "Your own ordering website"
+        }
+      ],
+      "trust_line": "We install it for you, local support"
     },
     {
       "id": "R050",
       "title": "From order to profit",
       "pillar": "feature",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 25,
         "planned_date": "2026-11-10",
@@ -3252,14 +5481,64 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "One sale. Five updates.",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "Net profit, built up daily",
+          "visual": "assets/shots/dash.jpg cropped to (897, 525, 690, 205)"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Accounting entries",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Your own system and your own database",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/dash.jpg",
+          "crop_xywh_on_1600x880": [
+            897,
+            525,
+            690,
+            205
+          ],
+          "callout": "Net profit, built up daily"
+        }
+      ],
+      "trust_line": "Your own system and your own database"
     },
     {
       "id": "R051",
       "title": "How do we get you live?",
       "pillar": "tip",
       "format": "MG",
-      "format_note": "Motion graphic reel built locally (ffmpeg): existing post graphics and product screenshots, animated text, voice-over, burned-in captions.",
+      "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
         "day_number": 26,
         "planned_date": "2026-11-11",
@@ -3313,14 +5592,59 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Going live is easier than you think.",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "One system for the whole restaurant",
+          "visual": "assets/shots/settings.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "Go live",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Daily backups of your data",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/settings.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "One system for the whole restaurant"
+        }
+      ],
+      "trust_line": "Daily backups of your data"
     },
     {
       "id": "R052",
       "title": "Comment DEMO",
       "pillar": "offer",
       "format": "SK",
-      "format_note": "Character skit: 3 to 4 AI video clips (6 to 8 s each, Grok Imagine first) with the recurring characters, voice-over, burned-in captions and a motion-graphic end card.",
+      "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
         "day_number": 26,
         "planned_date": "2026-11-11",
@@ -3377,7 +5701,52 @@
         "messages": null,
         "leads": null
       },
-      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video"
+      "ai_disclosure": "Label as AI-generated when characters or scenes are AI video",
+      "story_arc": [
+        {
+          "beat": "1_problem",
+          "seconds": "0-6",
+          "what": "The real-life problem, one concrete moment",
+          "text": "Ready to see it?",
+          "visual": "AI clip of the character (SK) or a problem card (MG)"
+        },
+        {
+          "beat": "2_solution_on_screen",
+          "seconds": "6-20",
+          "what": "The DT Restora screen that solves it, with highlight and callout",
+          "text": "One system for the whole restaurant",
+          "visual": "assets/shots/settings.jpg"
+        },
+        {
+          "beat": "3_result",
+          "seconds": "20-25",
+          "what": "What changes for the owner",
+          "text": "No pressure",
+          "visual": "second DT Restora screen or the same screen zoomed"
+        },
+        {
+          "beat": "4_trust",
+          "seconds": "25-29",
+          "what": "Why owners can rely on it (real facts only)",
+          "text": "Installation fee refundable after one year of use",
+          "visual": "trust card with the DT Restora logo"
+        },
+        {
+          "beat": "5_cta",
+          "seconds": "29-33",
+          "what": "Free demo, call or WhatsApp",
+          "text": "Free demo: 01304734623",
+          "visual": "phone number end card"
+        }
+      ],
+      "software_scenes": [
+        {
+          "shot": "docs/marketing/assets/shots/settings.jpg",
+          "crop_xywh_on_1600x880": null,
+          "callout": "One system for the whole restaurant"
+        }
+      ],
+      "trust_line": "Installation fee refundable after one year of use"
     }
   ]
 }
