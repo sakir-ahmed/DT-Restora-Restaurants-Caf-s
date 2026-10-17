@@ -1,0 +1,57 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "Lunch rush.",
+    "Rice finished.",
+    "What now?"
+   ],
+   "small": "",
+   "caption": "It is lunch time.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "ingredients.jpg",
+   "crop": [
+    194,
+    105,
+    760,
+    330
+   ],
+   "callout": "Reorder alerts",
+   "caption": "Full house. Then the cook says, rice is finished. Customers wait, some leave.",
+   "dur": 7.1
+  },
+  {
+   "kind": "screen",
+   "shot": "kds.jpg",
+   "crop": [
+    190,
+    70,
+    760,
+    430
+   ],
+   "callout": "One live kitchen screen",
+   "caption": "This happens when stock is a guess. Link recipes to stock. Each sale reduces ingredients, and you get a reorder alert before it is too late.",
+   "dur": 8.0
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "We install it for you",
+    "Local support, Bangla and English",
+    "First month free after installation"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or WhatsApp.",
+   "dur": 4.0
+  }
+ ]
+}

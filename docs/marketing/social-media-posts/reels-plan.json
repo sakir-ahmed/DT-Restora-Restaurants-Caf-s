@@ -169,9 +169,9 @@
       "youtube_shorts",
       "tiktok"
     ],
-    "schedule_note": "Reels slots 10:30 and 18:30 are chosen to sit between the post slots (09:00, 12:30, 16:00, 20:00, 22:00). Times are Bangladesh time.",
+    "schedule_note": "Reels run 18:30 on 2026-10-17, then 10:30 and 18:30 daily from 2026-10-18 to 2026-11-12 (52 reels). Music is picked from the Facebook audio library in the reel composer (instrumental).",
     "story_arc_standard": "Problem (real-life restaurant pain) -> DT Restora screen solves it (feature callout) -> result for the owner -> trust (real facts: own data, daily backups, refundable installation, logged actions, Bangla/English) -> free demo CTA",
-    "voice_status": "macOS 'say' is blocked in this sandbox. Voice-over must come from Grok or Gemini text-to-speech, which needs downloaded audio files (waiting for user permission). Until then reels are produced as captioned, muted-friendly versions."
+    "voice_status": "No voice-over: reels are captioned and use Facebook library music chosen in the composer. Voice can be added later if audio files are allowed to be downloaded."
   },
   "reels": [
     {
@@ -181,10 +181,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 1,
+        "day_number": null,
         "planned_date": "2026-10-17",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "Restaurant owners, one minute please.",
@@ -207,18 +207,18 @@
         ],
         "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
       },
-      "caption": "Restaurant owners, one minute please.\n\nHello, we are DT Restora. We built one system for restaurants and cafes in Bangladesh. POS, kitchen screen, stock, staff, loyalty, delivery and accounts. So you see your real profit, not just your sales. Follow this page, we will share simple tips every day.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#DTRestora #RestaurantSoftware #BangladeshRestaurants #Reels",
+      "caption": "Restaurant owners, one minute please.\n\nFull tables. But is the pocket full? Food cost, waste and salary are shown every day. The kitchen sees every order instantly. Stock alerts come before you run out. Pay day without the lost weekend. See which branch earns the most.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#DTRestora #RestaurantSoftware #BangladeshRestaurants #Reels",
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
         "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
         "is_posted_tiktok": false,
-        "note": "Silent captioned pilot (software-first) rendered locally: reels/output/R001.mp4. Voice-over pending (needs downloaded Grok/Gemini audio). Not scheduled yet."
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R001.mp4",
@@ -278,7 +278,12 @@
           "callout": "One system for the whole restaurant"
         }
       ],
-      "trust_line": "Your own system and your own database"
+      "trust_line": "Your own system and your own database",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Happy Days",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R002",
@@ -287,10 +292,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 1,
-        "planned_date": "2026-10-17",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-10-18",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "Sales were high. Why was the bank balance low?",
@@ -315,17 +320,18 @@
         ],
         "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
       },
-      "caption": "Sales were high. Why was the bank balance low?\n\nRafiq bhai had a full restaurant every night. But at month end, the money was not there. Nusrat apu showed him the numbers. Food cost, waste, salary, all eating his sales. Profit was small. He said, I never saw this before. Now he checks profit every day.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RestaurantProfit #OwnerStory #DTRestora #Reels",
+      "caption": "Sales were high. Why was the bank balance low?\n\nRafiq bhai had a full restaurant every night. But at month end, the money was not there. Nusrat apu showed him the numbers. Food cost, waste, salary, all eating his sales. Profit was small. He said, I never saw this before. Now he checks profit every day.\n\nThe characters in this story are fictional.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RestaurantProfit #OwnerStory #DTRestora #Reels",
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R002.mp4",
@@ -390,7 +396,12 @@
           "callout": "Net profit, built up daily"
         }
       ],
-      "trust_line": "Daily backups of your data"
+      "trust_line": "Daily backups of your data",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Feelings",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R003",
@@ -399,10 +410,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 2,
+        "day_number": null,
         "planned_date": "2026-10-18",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "Be honest. Can you answer these three?",
@@ -428,13 +439,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R003.mp4",
@@ -499,7 +511,12 @@
           "callout": "Sales, food cost, profit: today"
         }
       ],
-      "trust_line": "Installation fee refundable after one year of use"
+      "trust_line": "Installation fee refundable after one year of use",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Bloom",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R004",
@@ -508,10 +525,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 2,
-        "planned_date": "2026-10-18",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-10-19",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "New cashier on day one. Scared?",
@@ -536,17 +553,18 @@
         ],
         "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
       },
-      "caption": "New cashier on day one. Scared?\n\nTanvir is a new cashier. First day, he was nervous. But the screen was simple. Pick the table, tap the dishes, take payment, print the receipt. In a few minutes he was selling like a pro. Training does not need a whole week.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RestaurantPOS #CashierTraining #DTRestora #Reels",
+      "caption": "New cashier on day one. Scared?\n\nTanvir is a new cashier. First day, he was nervous. But the screen was simple. Pick the table, tap the dishes, take payment, print the receipt. In a few minutes he was selling like a pro. Training does not need a whole week.\n\nThe characters in this story are fictional.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RestaurantPOS #CashierTraining #DTRestora #Reels",
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R004.mp4",
@@ -606,7 +624,12 @@
           "callout": "Pick . Tap . Pay . Print"
         }
       ],
-      "trust_line": "Every void and discount is logged"
+      "trust_line": "Every void and discount is logged",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Smile",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R005",
@@ -615,10 +638,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 3,
+        "day_number": null,
         "planned_date": "2026-10-19",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "1,000 taka a month. Really?",
@@ -645,13 +668,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R005.mp4",
@@ -711,7 +735,12 @@
           "callout": "One system for the whole restaurant"
         }
       ],
-      "trust_line": "Bangla and English screens and guides"
+      "trust_line": "Bangla and English screens and guides",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Happy Days",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R006",
@@ -720,10 +749,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 3,
-        "planned_date": "2026-10-19",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-10-20",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "Hand-written bill. Can you trust it?",
@@ -750,17 +779,18 @@
         ],
         "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
       },
-      "caption": "Hand-written bill. Can you trust it?\n\nKarim bhai writes every bill by hand. Stock is counted by guess. At month end, nobody knows where the money went. Paper hides leaks. When you go digital, every leak becomes visible. Then you can fix it.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#PaperToDigital #RestaurantOwners #DTRestora #Reels",
+      "caption": "Hand-written bill. Can you trust it?\n\nKarim bhai writes every bill by hand. Stock is counted by guess. At month end, nobody knows where the money went. Paper hides leaks. When you go digital, every leak becomes visible. Then you can fix it.\n\nThe characters in this story are fictional.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#PaperToDigital #RestaurantOwners #DTRestora #Reels",
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R006.mp4",
@@ -820,7 +850,12 @@
           "callout": "One system for the whole restaurant"
         }
       ],
-      "trust_line": "Try the free demo before you decide"
+      "trust_line": "Try the free demo before you decide",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Feelings",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R007",
@@ -829,10 +864,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 4,
+        "day_number": null,
         "planned_date": "2026-10-20",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "Order shouting in your kitchen?",
@@ -858,13 +893,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R007.mp4",
@@ -924,7 +960,12 @@
           "callout": "One live kitchen screen"
         }
       ],
-      "trust_line": "We install it for you, local support"
+      "trust_line": "We install it for you, local support",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Bloom",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R008",
@@ -933,10 +974,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 4,
-        "planned_date": "2026-10-20",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-10-21",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "Lunch rush. Rice finished. What now?",
@@ -967,13 +1008,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R008.mp4",
@@ -1033,7 +1075,12 @@
           "callout": "Reorder alerts per ingredient"
         }
       ],
-      "trust_line": "Your own system and your own database"
+      "trust_line": "Your own system and your own database",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Smile",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R009",
@@ -1042,10 +1089,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 5,
+        "day_number": null,
         "planned_date": "2026-10-21",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "Do you know your food cost percentage?",
@@ -1071,13 +1118,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R009.mp4",
@@ -1137,7 +1185,12 @@
           "callout": "Cost of every dish"
         }
       ],
-      "trust_line": "Daily backups of your data"
+      "trust_line": "Daily backups of your data",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Happy Days",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R010",
@@ -1146,10 +1199,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 5,
-        "planned_date": "2026-10-21",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-10-22",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "Cash short again?",
@@ -1175,17 +1228,18 @@
         ],
         "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
       },
-      "caption": "Cash short again?\n\nAt night, Nusrat apu counts the drawer. The system already shows expected cash, counted cash and the difference. If something is short, she knows today, not at month end. Every discount and void is in the log too.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#CashControl #ShiftClose #DTRestora #Reels",
+      "caption": "Cash short again?\n\nAt night, Nusrat apu counts the drawer. The system already shows expected cash, counted cash and the difference. If something is short, she knows today, not at month end. Every discount and void is in the log too.\n\nThe characters in this story are fictional.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#CashControl #ShiftClose #DTRestora #Reels",
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R010.mp4",
@@ -1245,7 +1299,12 @@
           "callout": "Shift cash counted, difference shown"
         }
       ],
-      "trust_line": "Installation fee refundable after one year of use"
+      "trust_line": "Installation fee refundable after one year of use",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Feelings",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R011",
@@ -1254,10 +1313,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 6,
+        "day_number": null,
         "planned_date": "2026-10-22",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "Waste is real money.",
@@ -1285,13 +1344,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R011.mp4",
@@ -1351,7 +1411,12 @@
           "callout": "Every loss logged with a reason"
         }
       ],
-      "trust_line": "Every void and discount is logged"
+      "trust_line": "Every void and discount is logged",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Bloom",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R012",
@@ -1360,10 +1425,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 6,
-        "planned_date": "2026-10-22",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-10-23",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "Orders on three tablets. Headache!",
@@ -1389,17 +1454,18 @@
         ],
         "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
       },
-      "caption": "Orders on three tablets. Headache!\n\nRafiq bhai had three tablets for three delivery apps. Orders typed again by hand, commission hidden. Now every channel is on one screen, tagged and costed. Profit is shown after commission. Much calmer, na?\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#DeliveryApps #Foodpanda #DTRestora #Reels",
+      "caption": "Orders on three tablets. Headache!\n\nRafiq bhai had three tablets for three delivery apps. Orders typed again by hand, commission hidden. Now every channel is on one screen, tagged and costed. Profit is shown after commission. Much calmer, na?\n\nThe characters in this story are fictional.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#DeliveryApps #Foodpanda #DTRestora #Reels",
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R012.mp4",
@@ -1459,7 +1525,12 @@
           "callout": "Every channel, commission costed"
         }
       ],
-      "trust_line": "Bangla and English screens and guides"
+      "trust_line": "Bangla and English screens and guides",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Smile",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R013",
@@ -1468,10 +1539,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 7,
+        "day_number": null,
         "planned_date": "2026-10-23",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "Stop paying commission on every order.",
@@ -1497,13 +1568,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R013.mp4",
@@ -1563,7 +1635,12 @@
           "callout": "Your own ordering website"
         }
       ],
-      "trust_line": "Try the free demo before you decide"
+      "trust_line": "Try the free demo before you decide",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Happy Days",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R014",
@@ -1572,10 +1649,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 7,
-        "planned_date": "2026-10-23",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-10-24",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "Guests scan, order, and your waiter relaxes.",
@@ -1605,13 +1682,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R014.mp4",
@@ -1671,7 +1749,12 @@
           "callout": "Your own ordering website"
         }
       ],
-      "trust_line": "We install it for you, local support"
+      "trust_line": "We install it for you, local support",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Feelings",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R015",
@@ -1680,10 +1763,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 8,
+        "day_number": null,
         "planned_date": "2026-10-24",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "Short cash every week?",
@@ -1711,13 +1794,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R015.mp4",
@@ -1777,7 +1861,12 @@
           "callout": "Shift cash counted, difference shown"
         }
       ],
-      "trust_line": "Your own system and your own database"
+      "trust_line": "Your own system and your own database",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Bloom",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R016",
@@ -1786,10 +1875,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 8,
-        "planned_date": "2026-10-24",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-10-25",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "Pay day took the whole weekend.",
@@ -1816,17 +1905,18 @@
         ],
         "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
       },
-      "caption": "Pay day took the whole weekend.\n\nEvery month, pay day ate Karim bhai's weekend. Attendance register, advances, calculations. Now attendance flows from a fingerprint device, advances are deducted automatically, and the salary slip prints in a click. Weekend saved.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#Payroll #StaffAttendance #DTRestora #Reels",
+      "caption": "Pay day took the whole weekend.\n\nEvery month, pay day ate Karim bhai's weekend. Attendance register, advances, calculations. Now attendance flows from a fingerprint device, advances are deducted automatically, and the salary slip prints in a click. Weekend saved.\n\nThe characters in this story are fictional.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#Payroll #StaffAttendance #DTRestora #Reels",
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R016.mp4",
@@ -1886,7 +1976,12 @@
           "callout": "Attendance to salary slip"
         }
       ],
-      "trust_line": "Daily backups of your data"
+      "trust_line": "Daily backups of your data",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Smile",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R017",
@@ -1895,10 +1990,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 9,
+        "day_number": null,
         "planned_date": "2026-10-25",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "Five minutes every week saves your month.",
@@ -1925,13 +2020,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R017.mp4",
@@ -1991,7 +2087,12 @@
           "callout": "Count the shelf, see the difference"
         }
       ],
-      "trust_line": "Installation fee refundable after one year of use"
+      "trust_line": "Installation fee refundable after one year of use",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Happy Days",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R018",
@@ -2000,10 +2101,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 9,
-        "planned_date": "2026-10-25",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-10-26",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "Who gave that discount?",
@@ -2034,13 +2135,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R018.mp4",
@@ -2100,7 +2202,12 @@
           "callout": "Who changed what, and when"
         }
       ],
-      "trust_line": "Every void and discount is logged"
+      "trust_line": "Every void and discount is logged",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Feelings",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R019",
@@ -2109,10 +2216,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 10,
+        "day_number": null,
         "planned_date": "2026-10-26",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "Five friends, three ways to pay.",
@@ -2138,13 +2245,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R019.mp4",
@@ -2204,7 +2312,12 @@
           "callout": "Cash + bKash + Nagad + card"
         }
       ],
-      "trust_line": "Bangla and English screens and guides"
+      "trust_line": "Bangla and English screens and guides",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Bloom",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R020",
@@ -2213,10 +2326,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 10,
-        "planned_date": "2026-10-26",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-10-27",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "Three branches. One owner. How?",
@@ -2243,17 +2356,18 @@
         ],
         "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
       },
-      "caption": "Three branches. One owner. How?\n\nRafiq bhai has three branches and one body. He cannot be in every kitchen. The dashboard shows sales, food cost and profit for each branch. The comparison table shows who is best. Managers see only their branch.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#MultiBranch #RestaurantGroup #DTRestora #Reels",
+      "caption": "Three branches. One owner. How?\n\nRafiq bhai has three branches and one body. He cannot be in every kitchen. The dashboard shows sales, food cost and profit for each branch. The comparison table shows who is best. Managers see only their branch.\n\nThe characters in this story are fictional.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#MultiBranch #RestaurantGroup #DTRestora #Reels",
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R020.mp4",
@@ -2318,7 +2432,12 @@
           "callout": "Every branch on one screen"
         }
       ],
-      "trust_line": "Try the free demo before you decide"
+      "trust_line": "Try the free demo before you decide",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Smile",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R021",
@@ -2327,10 +2446,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 11,
+        "day_number": null,
         "planned_date": "2026-10-27",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "33 taka a day. What do you get?",
@@ -2357,13 +2476,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R021.mp4",
@@ -2423,7 +2543,12 @@
           "callout": "One system for the whole restaurant"
         }
       ],
-      "trust_line": "We install it for you, local support"
+      "trust_line": "We install it for you, local support",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Happy Days",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R022",
@@ -2432,10 +2557,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 11,
-        "planned_date": "2026-10-27",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-10-28",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "How do you make guests come back?",
@@ -2466,13 +2591,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R022.mp4",
@@ -2532,7 +2658,12 @@
           "callout": "Points on every order"
         }
       ],
-      "trust_line": "Your own system and your own database"
+      "trust_line": "Your own system and your own database",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Feelings",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R023",
@@ -2541,10 +2672,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 12,
+        "day_number": null,
         "planned_date": "2026-10-28",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "Are you copying your competitor's price?",
@@ -2571,13 +2702,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R023.mp4",
@@ -2637,7 +2769,12 @@
           "callout": "Cost of every dish"
         }
       ],
-      "trust_line": "Daily backups of your data"
+      "trust_line": "Daily backups of your data",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Bloom",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R024",
@@ -2646,10 +2783,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 12,
-        "planned_date": "2026-10-28",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-10-29",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "The accountant calls every month.",
@@ -2675,17 +2812,18 @@
         ],
         "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
       },
-      "caption": "The accountant calls every month.\n\nEvery month, the accountant chased Rafiq bhai for papers. Sales, purchases, expenses, salary, all different notebooks. Now everything posts to one ledger. The accountant opens the trial balance. Month end is a review, not a rescue.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RestaurantAccounting #MonthEnd #DTRestora #Reels",
+      "caption": "The accountant calls every month.\n\nEvery month, the accountant chased Rafiq bhai for papers. Sales, purchases, expenses, salary, all different notebooks. Now everything posts to one ledger. The accountant opens the trial balance. Month end is a review, not a rescue.\n\nThe characters in this story are fictional.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RestaurantAccounting #MonthEnd #DTRestora #Reels",
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R024.mp4",
@@ -2745,7 +2883,12 @@
           "callout": "Books that write themselves"
         }
       ],
-      "trust_line": "Installation fee refundable after one year of use"
+      "trust_line": "Installation fee refundable after one year of use",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Smile",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R025",
@@ -2754,10 +2897,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 13,
+        "day_number": null,
         "planned_date": "2026-10-29",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "Load shedding at lunch?",
@@ -2783,13 +2926,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R025.mp4",
@@ -2849,7 +2993,12 @@
           "callout": "Offline orders sync later"
         }
       ],
-      "trust_line": "Every void and discount is logged"
+      "trust_line": "Every void and discount is logged",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Happy Days",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R026",
@@ -2858,10 +3007,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 13,
-        "planned_date": "2026-10-29",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-10-30",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "Why is service slow at peak hours?",
@@ -2892,13 +3041,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R026.mp4",
@@ -2958,7 +3108,12 @@
           "callout": "One live kitchen screen"
         }
       ],
-      "trust_line": "Bangla and English screens and guides"
+      "trust_line": "Bangla and English screens and guides",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Feelings",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R027",
@@ -2967,10 +3122,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 14,
+        "day_number": null,
         "planned_date": "2026-10-30",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "Before you buy a POS, ask five questions.",
@@ -2999,13 +3154,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R027.mp4",
@@ -3065,7 +3221,12 @@
           "callout": "Pick . Tap . Pay . Print"
         }
       ],
-      "trust_line": "Try the free demo before you decide"
+      "trust_line": "Try the free demo before you decide",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Bloom",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R028",
@@ -3074,10 +3235,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 14,
-        "planned_date": "2026-10-30",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-10-31",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "People order what they can see.",
@@ -3107,13 +3268,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R028.mp4",
@@ -3173,7 +3335,12 @@
           "callout": "Photos and videos per dish"
         }
       ],
-      "trust_line": "We install it for you, local support"
+      "trust_line": "We install it for you, local support",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Smile",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R029",
@@ -3182,10 +3349,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 15,
+        "day_number": null,
         "planned_date": "2026-10-31",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "Never run dry mid-service.",
@@ -3212,13 +3379,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R029.mp4",
@@ -3278,7 +3446,12 @@
           "callout": "Reorder alerts per ingredient"
         }
       ],
-      "trust_line": "Your own system and your own database"
+      "trust_line": "Your own system and your own database",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Happy Days",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R030",
@@ -3287,10 +3460,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 15,
-        "planned_date": "2026-10-31",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-11-01",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "A void without a reason?",
@@ -3317,17 +3490,18 @@
         ],
         "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
       },
-      "caption": "A void without a reason?\n\nTanvir voids an order. The system asks for a reason. Above the limit it needs manager approval, and stock is restored. Everything lands in the log. Easy to review later, and nobody argues.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#CashControl #ActivityLog #DTRestora #Reels",
+      "caption": "A void without a reason?\n\nTanvir voids an order. The system asks for a reason. Above the limit it needs manager approval, and stock is restored. Everything lands in the log. Easy to review later, and nobody argues.\n\nThe characters in this story are fictional.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#CashControl #ActivityLog #DTRestora #Reels",
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R030.mp4",
@@ -3387,7 +3561,12 @@
           "callout": "Who changed what, and when"
         }
       ],
-      "trust_line": "Daily backups of your data"
+      "trust_line": "Daily backups of your data",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Feelings",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R031",
@@ -3396,10 +3575,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 16,
+        "day_number": null,
         "planned_date": "2026-11-01",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "What does one plate really cost?",
@@ -3425,13 +3604,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R031.mp4",
@@ -3491,7 +3671,12 @@
           "callout": "Cost of every dish"
         }
       ],
-      "trust_line": "Installation fee refundable after one year of use"
+      "trust_line": "Installation fee refundable after one year of use",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Bloom",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R032",
@@ -3500,10 +3685,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 16,
-        "planned_date": "2026-11-01",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-11-02",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "Month end stress?",
@@ -3530,17 +3715,18 @@
         ],
         "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
       },
-      "caption": "Month end stress?\n\nMonth end. Rafiq bhai used to panic. Where is the sales sheet, where are the bills. Now books are ready every day. Sales, VAT and costs post automatically. Month end becomes a calm review.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#Accounting #MonthEnd #DTRestora #Reels",
+      "caption": "Month end stress?\n\nMonth end. Rafiq bhai used to panic. Where is the sales sheet, where are the bills. Now books are ready every day. Sales, VAT and costs post automatically. Month end becomes a calm review.\n\nThe characters in this story are fictional.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#Accounting #MonthEnd #DTRestora #Reels",
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R032.mp4",
@@ -3600,7 +3786,12 @@
           "callout": "Books that write themselves"
         }
       ],
-      "trust_line": "Every void and discount is logged"
+      "trust_line": "Every void and discount is logged",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Smile",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R033",
@@ -3609,10 +3800,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 17,
+        "day_number": null,
         "planned_date": "2026-11-02",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "Protect the owner and the cashier.",
@@ -3638,13 +3829,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R033.mp4",
@@ -3704,7 +3896,12 @@
           "callout": "Shift cash counted, difference shown"
         }
       ],
-      "trust_line": "Bangla and English screens and guides"
+      "trust_line": "Bangla and English screens and guides",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Happy Days",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R034",
@@ -3713,10 +3910,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 17,
-        "planned_date": "2026-11-02",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-11-03",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "Is there a catch?",
@@ -3743,17 +3940,18 @@
         ],
         "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
       },
-      "caption": "Is there a catch?\n\nNusrat apu asks, is the first month really free? Yes. After installation, your first month costs nothing. Then one thousand taka per month, instead of five thousand seven hundred. Installation is two thousand five hundred, one time.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#FirstMonthFree #LaunchOffer #DTRestora #Reels",
+      "caption": "Is there a catch?\n\nNusrat apu asks, is the first month really free? Yes. After installation, your first month costs nothing. Then one thousand taka per month, instead of five thousand seven hundred. Installation is two thousand five hundred, one time.\n\nThe characters in this story are fictional.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#FirstMonthFree #LaunchOffer #DTRestora #Reels",
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R034.mp4",
@@ -3813,7 +4011,12 @@
           "callout": "One system for the whole restaurant"
         }
       ],
-      "trust_line": "Try the free demo before you decide"
+      "trust_line": "Try the free demo before you decide",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Feelings",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R035",
@@ -3822,10 +4025,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 18,
+        "day_number": null,
         "planned_date": "2026-11-03",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "Customers search on their phone.",
@@ -3852,13 +4055,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R035.mp4",
@@ -3918,7 +4122,12 @@
           "callout": "One system for the whole restaurant"
         }
       ],
-      "trust_line": "We install it for you, local support"
+      "trust_line": "We install it for you, local support",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Bloom",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R036",
@@ -3927,10 +4136,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 18,
-        "planned_date": "2026-11-03",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-11-04",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "Where is my food?",
@@ -3961,13 +4170,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R036.mp4",
@@ -4027,7 +4237,12 @@
           "callout": "Every channel, commission costed"
         }
       ],
-      "trust_line": "Your own system and your own database"
+      "trust_line": "Your own system and your own database",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Smile",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R037",
@@ -4036,10 +4251,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 19,
+        "day_number": null,
         "planned_date": "2026-11-04",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "Loyalty is cheaper than advertising.",
@@ -4067,13 +4282,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R037.mp4",
@@ -4133,7 +4349,12 @@
           "callout": "Points on every order"
         }
       ],
-      "trust_line": "Daily backups of your data"
+      "trust_line": "Daily backups of your data",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Happy Days",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R038",
@@ -4142,10 +4363,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 19,
-        "planned_date": "2026-11-04",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-11-05",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "Why does the cashier see the profit?",
@@ -4172,17 +4393,18 @@
         ],
         "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
       },
-      "caption": "Why does the cashier see the profit?\n\nIn a small restaurant, everyone sees everything. Not here. Owner sees the dashboard, manager sees daily operations, cashier sees POS and shifts, kitchen sees the display. Training is faster and data stays safe.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RolesAndPermissions #RestaurantSecurity #DTRestora #Reels",
+      "caption": "Why does the cashier see the profit?\n\nIn a small restaurant, everyone sees everything. Not here. Owner sees the dashboard, manager sees daily operations, cashier sees POS and shifts, kitchen sees the display. Training is faster and data stays safe.\n\nThe characters in this story are fictional.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RolesAndPermissions #RestaurantSecurity #DTRestora #Reels",
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R038.mp4",
@@ -4242,7 +4464,12 @@
           "callout": "Each role sees only its job"
         }
       ],
-      "trust_line": "Installation fee refundable after one year of use"
+      "trust_line": "Installation fee refundable after one year of use",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Feelings",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R039",
@@ -4251,10 +4478,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 20,
+        "day_number": null,
         "planned_date": "2026-11-05",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "Reprint the menu every price change?",
@@ -4280,13 +4507,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R039.mp4",
@@ -4346,7 +4574,12 @@
           "callout": "Your own ordering website"
         }
       ],
-      "trust_line": "Every void and discount is logged"
+      "trust_line": "Every void and discount is logged",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Bloom",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R040",
@@ -4355,10 +4588,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 20,
-        "planned_date": "2026-11-05",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-11-06",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "Appointment letter in Word again?",
@@ -4384,17 +4617,18 @@
         ],
         "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
       },
-      "caption": "Appointment letter in Word again?\n\nKarim bhai writes appointment letters in scattered Word files. Now he writes the letter in the system and prints it on the restaurant letterhead. Warnings and experience certificates stay in one place.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#HRLetters #RestaurantAdmin #DTRestora #Reels",
+      "caption": "Appointment letter in Word again?\n\nKarim bhai writes appointment letters in scattered Word files. Now he writes the letter in the system and prints it on the restaurant letterhead. Warnings and experience certificates stay in one place.\n\nThe characters in this story are fictional.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#HRLetters #RestaurantAdmin #DTRestora #Reels",
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R040.mp4",
@@ -4454,7 +4688,12 @@
           "callout": "Attendance to salary slip"
         }
       ],
-      "trust_line": "Bangla and English screens and guides"
+      "trust_line": "Bangla and English screens and guides",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Smile",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R041",
@@ -4463,10 +4702,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 21,
+        "day_number": null,
         "planned_date": "2026-11-06",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "The weekend is your biggest window.",
@@ -4494,13 +4733,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R041.mp4",
@@ -4560,7 +4800,12 @@
           "callout": "One system for the whole restaurant"
         }
       ],
-      "trust_line": "Try the free demo before you decide"
+      "trust_line": "Try the free demo before you decide",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Happy Days",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R042",
@@ -4569,10 +4814,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 21,
-        "planned_date": "2026-11-06",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-11-07",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "Can I try before I pay?",
@@ -4598,17 +4843,18 @@
         ],
         "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
       },
-      "caption": "Can I try before I pay?\n\nRafiq bhai was not sure. So he tried the free live demo. He clicked every screen as owner, cashier and kitchen. Then we showed it on his own menu. Free, no pressure, nothing to install to try.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#FreeDemo #TryBeforeYouBuy #DTRestora #Reels",
+      "caption": "Can I try before I pay?\n\nRafiq bhai was not sure. So he tried the free live demo. He clicked every screen as owner, cashier and kitchen. Then we showed it on his own menu. Free, no pressure, nothing to install to try.\n\nThe characters in this story are fictional.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#FreeDemo #TryBeforeYouBuy #DTRestora #Reels",
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R042.mp4",
@@ -4668,7 +4914,12 @@
           "callout": "One system for the whole restaurant"
         }
       ],
-      "trust_line": "We install it for you, local support"
+      "trust_line": "We install it for you, local support",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Feelings",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R043",
@@ -4677,10 +4928,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 22,
+        "day_number": null,
         "planned_date": "2026-11-07",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "Quick kitchen quiz.",
@@ -4706,13 +4957,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R043.mp4",
@@ -4772,7 +5024,12 @@
           "callout": "Count the shelf, see the difference"
         }
       ],
-      "trust_line": "Your own system and your own database"
+      "trust_line": "Your own system and your own database",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Bloom",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R044",
@@ -4781,10 +5038,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 22,
-        "planned_date": "2026-11-07",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-11-08",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "Your best seller may be losing money.",
@@ -4814,13 +5071,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R044.mp4",
@@ -4880,7 +5138,12 @@
           "callout": "Cost of every dish"
         }
       ],
-      "trust_line": "Daily backups of your data"
+      "trust_line": "Daily backups of your data",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Smile",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R045",
@@ -4889,10 +5152,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 23,
+        "day_number": null,
         "planned_date": "2026-11-08",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "One-counter cafe. Do you need this?",
@@ -4919,13 +5182,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R045.mp4",
@@ -4985,7 +5249,12 @@
           "callout": "One system for the whole restaurant"
         }
       ],
-      "trust_line": "Installation fee refundable after one year of use"
+      "trust_line": "Installation fee refundable after one year of use",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Happy Days",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R046",
@@ -4994,10 +5263,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 23,
-        "planned_date": "2026-11-08",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-11-09",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "What if I want to leave?",
@@ -5028,13 +5297,14 @@
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R046.mp4",
@@ -5094,7 +5364,12 @@
           "callout": "One system for the whole restaurant"
         }
       ],
-      "trust_line": "Every void and discount is logged"
+      "trust_line": "Every void and discount is logged",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Feelings",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R047",
@@ -5103,10 +5378,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 24,
+        "day_number": null,
         "planned_date": "2026-11-09",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "PDF and Excel in one click.",
@@ -5128,17 +5403,18 @@
         ],
         "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
       },
-      "caption": "PDF and Excel in one click.\n\nDaily sales, item-wise sales, channel and payment reports, cashier performance, wastage, stock value, branch profit and loss. Filter by date and branch, then export to PDF or Excel.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RestaurantReports #SalesReport #DTRestora #Reels",
+      "caption": "PDF and Excel in one click.\n\nFilter by date and branch, then export to PDF or Excel.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RestaurantReports #SalesReport #DTRestora #Reels",
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
-        "is_video_generated": false,
+        "is_video_generated": true,
         "is_edited": false,
-        "is_scheduled_facebook_reel": false,
+        "is_scheduled_facebook_reel": true,
         "is_posted_facebook_reel": false,
         "is_posted_instagram_reel": false,
         "is_posted_youtube_shorts": false,
-        "is_posted_tiktok": false
+        "is_posted_tiktok": false,
+        "note": "Scheduled in Meta Business Suite with Facebook library music (no voice-over)"
       },
       "files": {
         "video": "reels/output/R047.mp4",
@@ -5203,7 +5479,12 @@
           "callout": "Every branch on one screen"
         }
       ],
-      "trust_line": "Bangla and English screens and guides"
+      "trust_line": "Bangla and English screens and guides",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Bloom",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R048",
@@ -5212,10 +5493,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 24,
-        "planned_date": "2026-11-09",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-11-10",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "How long to train my cashier?",
@@ -5242,7 +5523,7 @@
         ],
         "note": "Use the image files of these posts (content-plan.json) and screenshots in docs/marketing/assets/shots."
       },
-      "caption": "How long to train my cashier?\n\nTraining is short because each role sees one clean screen. Screens, messages and guides are in Bangla and English, so the team learns in their own language. Start small, grow later.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#BanglaPOS #StaffTraining #DTRestora #Reels",
+      "caption": "How long to train my cashier?\n\nTraining is short because each role sees one clean screen. Screens, messages and guides are in Bangla and English, so the team learns in their own language. Start small, grow later.\n\nThe characters in this story are fictional.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#BanglaPOS #StaffTraining #DTRestora #Reels",
       "status": {
         "is_script_approved": false,
         "is_voice_generated": false,
@@ -5312,7 +5593,12 @@
           "callout": "One system for the whole restaurant"
         }
       ],
-      "trust_line": "Try the free demo before you decide"
+      "trust_line": "Try the free demo before you decide",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Smile",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R049",
@@ -5321,10 +5607,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 25,
+        "day_number": null,
         "planned_date": "2026-11-10",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "What does your customer see?",
@@ -5416,7 +5702,12 @@
           "callout": "Your own ordering website"
         }
       ],
-      "trust_line": "We install it for you, local support"
+      "trust_line": "We install it for you, local support",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Happy Days",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R050",
@@ -5425,10 +5716,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 25,
-        "planned_date": "2026-11-10",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-11-11",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "One sale. Five updates.",
@@ -5531,7 +5822,12 @@
           "callout": "Net profit, built up daily"
         }
       ],
-      "trust_line": "Your own system and your own database"
+      "trust_line": "Your own system and your own database",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Feelings",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R051",
@@ -5540,10 +5836,10 @@
       "format": "MG",
       "format_note": "Software-first reel: problem card, then real DT Restora screens with highlight callouts, result, trust card, CTA. All motion graphics built locally.",
       "schedule": {
-        "day_number": 26,
+        "day_number": null,
         "planned_date": "2026-11-11",
-        "slot": "A",
-        "time_bd": "10:30"
+        "slot": "B",
+        "time_bd": "18:30"
       },
       "script": {
         "hook_0_3s": "Going live is easier than you think.",
@@ -5637,7 +5933,12 @@
           "callout": "One system for the whole restaurant"
         }
       ],
-      "trust_line": "Daily backups of your data"
+      "trust_line": "Daily backups of your data",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Bloom",
+        "filters": "Confident, no vocals"
+      }
     },
     {
       "id": "R052",
@@ -5646,10 +5947,10 @@
       "format": "SK",
       "format_note": "Software-first story: one short AI clip (4 to 6 s) for the human problem moment, then the real DT Restora screens solving it, result, trust card, CTA. The AI clip is never the main content.",
       "schedule": {
-        "day_number": 26,
-        "planned_date": "2026-11-11",
-        "slot": "B",
-        "time_bd": "18:30"
+        "day_number": null,
+        "planned_date": "2026-11-12",
+        "slot": "A",
+        "time_bd": "10:30"
       },
       "script": {
         "hook_0_3s": "Ready to see it?",
@@ -5746,7 +6047,12 @@
           "callout": "One system for the whole restaurant"
         }
       ],
-      "trust_line": "Installation fee refundable after one year of use"
+      "trust_line": "Installation fee refundable after one year of use",
+      "music": {
+        "source": "Facebook audio library",
+        "track": "Smile",
+        "filters": "Confident, no vocals"
+      }
     }
   ]
 }

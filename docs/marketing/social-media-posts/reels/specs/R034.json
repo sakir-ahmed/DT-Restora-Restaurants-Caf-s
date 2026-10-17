@@ -1,0 +1,69 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "Is there a",
+    "catch?"
+   ],
+   "small": "",
+   "caption": "Nusrat apu asks, is the first month really free?",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "dash.jpg",
+   "crop": [
+    196,
+    137,
+    1392,
+    82
+   ],
+   "callout": "Sales, food cost, profit: today",
+   "caption": "Yes.",
+   "dur": 4.4
+  },
+  {
+   "kind": "screen",
+   "shot": "kds.jpg",
+   "crop": [
+    190,
+    70,
+    760,
+    430
+   ],
+   "callout": "One live kitchen screen",
+   "caption": "After installation, your first month costs nothing.",
+   "dur": 4.5
+  },
+  {
+   "kind": "screen",
+   "shot": "pos-cart.jpg",
+   "crop": [
+    1230,
+    640,
+    360,
+    230
+   ],
+   "callout": "Tap, pay, print",
+   "caption": "Then one thousand taka per month, instead of five thousand seven hundred. Installation is two thousand five hundred, one time.",
+   "dur": 8.0
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "Every void and discount is logged",
+    "Your own database, daily backups",
+    "Bangla and English screens"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or WhatsApp.",
+   "dur": 4.0
+  }
+ ]
+}

@@ -1,0 +1,57 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "Hand-written",
+    "bill. Can you",
+    "trust it?"
+   ],
+   "small": "",
+   "caption": "Karim bhai writes every bill by hand.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "dash.jpg",
+   "crop": [
+    196,
+    137,
+    1392,
+    82
+   ],
+   "callout": "Sales, food cost, profit: today",
+   "caption": "Stock is counted by guess. At month end, nobody knows where the money went.",
+   "dur": 7.5
+  },
+  {
+   "kind": "screen",
+   "shot": "dash.jpg",
+   "crop": [
+    897,
+    525,
+    690,
+    205
+   ],
+   "callout": "Net profit, built up daily",
+   "caption": "Paper hides leaks. When you go digital, every leak becomes visible. Then you can fix it.",
+   "dur": 8.0
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "Your own system and database",
+    "Daily backups of your data",
+    "Installation refundable after one year"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or WhatsApp.",
+   "dur": 4.0
+  }
+ ]
+}
