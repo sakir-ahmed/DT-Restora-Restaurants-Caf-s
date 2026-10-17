@@ -1,0 +1,19 @@
+POST 146 | Launch starter | English
+Folder: 14-launch-starters/146-sales-is-not-profit
+Images: 1, 1080x1350 (4:5).
+Contact line on every post: Md. Sakir Ahmed 01304734623
+Status and schedule are tracked in content-plan.json (id P146). Links are not used in captions.
+
+=== FACEBOOK ===
+Sales is not profit.
+
+Food cost, waste, salary, rent and bills all come out of your sales. Most owners only learn what is left weeks later. DT Restora shows your net profit every day, so a bad week gets fixed in the same week.
+
+(The chart is an illustration, not real data.)
+
+To book a free demo, contact Md. Sakir Ahmed: 01304734623
+
+#SalesVsProfit #RestaurantProfit #OwnerDashboard #DTRestora #RestaurantSoftware #BangladeshRestaurants
+
+=== IMAGE ALT TEXT ===
+image-01.png: Bar chart showing costs eating into sales with profit shown as question marks

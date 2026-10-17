@@ -1,0 +1,17 @@
+POST 153 | Launch starter | English
+Folder: 14-launch-starters/153-comment-demo
+Images: 1, 1080x1350 (4:5).
+Contact line on every post: Md. Sakir Ahmed 01304734623
+Status and schedule are tracked in content-plan.json (id P153). Links are not used in captions.
+
+=== FACEBOOK ===
+Comment DEMO and we will message you a free walkthrough.
+
+Free, on your own menu, no pressure. You can also call or WhatsApp us directly.
+
+To book a free demo, contact Md. Sakir Ahmed: 01304734623
+
+#FreeDemo #RestaurantOwners #CafeOwners #DTRestora #RestaurantSoftware #BangladeshRestaurants
+
+=== IMAGE ALT TEXT ===
+image-01.png: Comment DEMO call to action

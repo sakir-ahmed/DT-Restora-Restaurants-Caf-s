@@ -42,10 +42,26 @@
       ]
     },
     "counts": {
-      "posts": 146,
+      "posts": 156,
       "videos": 25,
       "scheduled_posts": 90,
       "reserve_posts": 56
+    },
+    "facebook_scheduling": {
+      "scheduled_posts": 126,
+      "posts_per_day": 5,
+      "time_slots": [
+        "09:00",
+        "12:30",
+        "16:00",
+        "20:00",
+        "22:00"
+      ],
+      "first_date": "2026-10-17",
+      "last_date": "2026-11-11",
+      "whatsapp_button": "on all single-image posts; multi-image carousels (12) go without it because Meta does not allow the button on multi-photo posts",
+      "language": "English only (Bangla posts and the Bangla launch post P085 are not scheduled; the intro P000 includes both English and Bangla)",
+      "note": "is_scheduled_facebook=true means scheduled in Meta Business Suite, not yet published. After each post goes live, set status.is_posted_facebook to true."
     }
   },
   "posts": [
@@ -67,7 +83,7 @@
       "schedule": {
         "day_number": 1,
         "planned_date": "2026-10-19",
-        "best_time_bd": "Mon 8:00 pm",
+        "best_time_bd": "20:00",
         "phase": "launch-30"
       },
       "planned_platforms": [
@@ -85,9 +101,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-19T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -112,7 +131,7 @@
         "demos_booked": null
       },
       "content": {
-        "facebook": "Hello, we are DT Restora.\n\nWe built a restaurant and cafe system so owners can see their real profit, not just their sales.\n\nIn one system you get a fast POS, a live kitchen screen, recipes and stock, staff attendance and payroll, loyalty and coupons, your own ordering website, delivery tools and accounting.\n\nFollow this page for practical tips, short demos and honest answers to owner questions.\n\nFree live demo: contact Md. Sakir Ahmed on 01304734623.\n\n#DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants",
+        "facebook": "Hello, we are DT Restora.\n\nWe built a restaurant and cafe system so owners can see their real profit, not just their sales.\n\nIn one system you get a fast POS, a live kitchen screen, recipes and stock, staff attendance and payroll, loyalty and coupons, your own ordering website, delivery tools and accounting.\n\nFollow this page for practical tips, short demos and honest answers to owner questions.\n\nFree live demo: contact Md. Sakir Ahmed on 01304734623.\n\n#DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants\n\nআসসালামু আলাইকুম, আমরা DT Restora।\n\nআমরা রেস্টুরেন্ট ও ক্যাফের জন্য এমন একটি সিস্টেম বানিয়েছি, যাতে মালিক শুধু বিক্রি নয়, নিজের আসল লাভটাও দেখতে পান।\n\nএক সিস্টেমে আছে দ্রুত পিওএস, সরাসরি কিচেন স্ক্রিন, রেসিপি ও স্টক, কর্মীর হাজিরা ও বেতন, লয়্যালটি ও কুপন, নিজস্ব অর্ডারের ওয়েবসাইট, ডেলিভারি আর হিসাব।\n\nকাজের টিপস, ছোট ডেমো আর মালিকদের প্রশ্নের সৎ উত্তর পেতে পেজটি ফলো করুন।\n\nফ্রি লাইভ ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed 01304734623",
         "facebook_bn": "আসসালামু আলাইকুম, আমরা DT Restora।\n\nআমরা রেস্টুরেন্ট ও ক্যাফের জন্য এমন একটি সিস্টেম বানিয়েছি, যাতে মালিক শুধু বিক্রি নয়, নিজের আসল লাভটাও দেখতে পান।\n\nএক সিস্টেমে আছে দ্রুত পিওএস, সরাসরি কিচেন স্ক্রিন, রেসিপি ও স্টক, কর্মীর হাজিরা ও বেতন, লয়্যালটি ও কুপন, নিজস্ব অর্ডারের ওয়েবসাইট, ডেলিভারি আর হিসাব।\n\nকাজের টিপস, ছোট ডেমো আর মালিকদের প্রশ্নের সৎ উত্তর পেতে পেজটি ফলো করুন।\n\nফ্রি লাইভ ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed 01304734623",
         "instagram": "Hello, we are DT Restora.\n\nWe built a restaurant and cafe system so owners can see their real profit, not just their sales.\n\nIn one system you get a fast POS, a live kitchen screen, recipes and stock, staff attendance and payroll, loyalty and coupons, your own ordering website, delivery tools and accounting.\n\nFollow this page for practical tips, short demos and honest answers to owner questions.\n\nFree live demo: contact Md. Sakir Ahmed on 01304734623.\n\n#DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants",
         "linkedin": "Hello, we are DT Restora.\n\nWe built a restaurant and cafe system so owners can see their real profit, not just their sales.\n\nIn one system you get a fast POS, a live kitchen screen, recipes and stock, staff attendance and payroll, loyalty and coupons, your own ordering website, delivery tools and accounting.\n\nFollow this page for practical tips, short demos and honest answers to owner questions.\n\nFree live demo: contact Md. Sakir Ahmed on 01304734623.\n\n#DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants",
@@ -140,9 +159,9 @@
       ],
       "schedule": {
         "day_number": 35,
-        "planned_date": "2026-11-22",
-        "best_time_bd": "Wed 12:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-25",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -161,9 +180,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-25T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -207,7 +229,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P002",
@@ -226,9 +249,9 @@
       ],
       "schedule": {
         "day_number": 36,
-        "planned_date": "2026-11-23",
-        "best_time_bd": "Thu 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-25",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -244,9 +267,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-25T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -290,7 +316,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P003",
@@ -309,9 +336,9 @@
       ],
       "schedule": {
         "day_number": 43,
-        "planned_date": "2026-11-30",
-        "best_time_bd": "Fri 4:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-26",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -330,9 +357,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-26T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -376,7 +406,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P004",
@@ -395,9 +426,9 @@
       ],
       "schedule": {
         "day_number": 45,
-        "planned_date": "2026-12-02",
-        "best_time_bd": "Sat 8:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-27",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -413,9 +444,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-27T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -459,7 +493,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P005",
@@ -478,9 +513,9 @@
       ],
       "schedule": {
         "day_number": 6,
-        "planned_date": "2026-10-24",
-        "best_time_bd": "Sun 8:00 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-20",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -499,9 +534,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-20T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -545,7 +583,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P006",
@@ -564,9 +603,9 @@
       ],
       "schedule": {
         "day_number": 9,
-        "planned_date": "2026-10-27",
-        "best_time_bd": "Mon 12:30 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-20",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -582,9 +621,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-20T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -628,7 +670,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P007",
@@ -647,9 +690,9 @@
       ],
       "schedule": {
         "day_number": 46,
-        "planned_date": "2026-12-03",
-        "best_time_bd": "Tue 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-27",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -667,9 +710,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-27T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -713,7 +759,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P008",
@@ -732,9 +779,9 @@
       ],
       "schedule": {
         "day_number": 50,
-        "planned_date": "2026-12-07",
-        "best_time_bd": "Wed 12:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-28",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -753,9 +800,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-28T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -799,7 +849,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P009",
@@ -818,9 +869,9 @@
       ],
       "schedule": {
         "day_number": 61,
-        "planned_date": "2026-12-18",
-        "best_time_bd": "Thu 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-30",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -836,9 +887,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-30T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -882,7 +936,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P010",
@@ -901,9 +956,9 @@
       ],
       "schedule": {
         "day_number": 63,
-        "planned_date": "2026-12-20",
-        "best_time_bd": "Fri 4:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-30",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -922,9 +977,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-30T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -968,7 +1026,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P011",
@@ -987,9 +1046,9 @@
       ],
       "schedule": {
         "day_number": 68,
-        "planned_date": "2026-12-25",
-        "best_time_bd": "Sat 8:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-31",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -1005,9 +1064,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-31T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -1051,7 +1113,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P012",
@@ -1070,9 +1133,9 @@
       ],
       "schedule": {
         "day_number": 4,
-        "planned_date": "2026-10-22",
-        "best_time_bd": "Sun 8:00 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-19",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -1091,9 +1154,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-19T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -1137,7 +1203,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P013",
@@ -1156,9 +1223,9 @@
       ],
       "schedule": {
         "day_number": 78,
-        "planned_date": "2027-01-04",
-        "best_time_bd": "Mon 12:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-11-02",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -1174,9 +1241,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-02T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -1220,7 +1290,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P014",
@@ -1239,9 +1310,9 @@
       ],
       "schedule": {
         "day_number": 79,
-        "planned_date": "2027-01-05",
-        "best_time_bd": "Tue 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-11-02",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -1259,9 +1330,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-02T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -1305,7 +1379,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P015",
@@ -1324,9 +1399,9 @@
       ],
       "schedule": {
         "day_number": 85,
-        "planned_date": "2027-01-11",
-        "best_time_bd": "Wed 12:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-11-04",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -1345,9 +1420,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-04T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -1391,7 +1469,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P016",
@@ -1410,9 +1489,9 @@
       ],
       "schedule": {
         "day_number": 18,
-        "planned_date": "2026-11-05",
-        "best_time_bd": "Thu 8:00 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-22",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -1428,9 +1507,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-22T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -1474,7 +1556,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P017",
@@ -1493,9 +1576,9 @@
       ],
       "schedule": {
         "day_number": 89,
-        "planned_date": "2027-01-15",
-        "best_time_bd": "Fri 4:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-11-04",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -1514,9 +1597,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-04T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -1560,7 +1646,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P018",
@@ -1579,9 +1666,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Sat 8:30 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-04",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -1597,9 +1684,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-04T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -1643,7 +1733,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P019",
@@ -1662,9 +1753,9 @@
       ],
       "schedule": {
         "day_number": 11,
-        "planned_date": "2026-10-29",
-        "best_time_bd": "Sun 8:00 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-20",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -1683,9 +1774,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-20T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -1729,7 +1823,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P020",
@@ -1748,9 +1843,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Mon 12:30 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-04",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -1766,9 +1861,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-04T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -1812,7 +1910,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P021",
@@ -1831,9 +1930,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Tue 8:00 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-04",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -1851,9 +1950,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-04T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -1897,7 +1999,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P022",
@@ -1916,9 +2019,9 @@
       ],
       "schedule": {
         "day_number": 24,
-        "planned_date": "2026-11-11",
-        "best_time_bd": "Wed 12:30 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-23",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -1937,9 +2040,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-23T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -1983,7 +2089,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P023",
@@ -2002,9 +2109,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Thu 8:00 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-05",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -2020,9 +2127,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-05T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -2066,7 +2176,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P024",
@@ -2085,9 +2196,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Fri 4:00 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-05",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -2106,9 +2217,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-05T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -2152,7 +2266,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P025",
@@ -2171,9 +2286,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Sat 8:30 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-05",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -2189,9 +2304,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-05T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -2235,7 +2353,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P026",
@@ -2254,9 +2373,9 @@
       ],
       "schedule": {
         "day_number": 20,
-        "planned_date": "2026-11-07",
-        "best_time_bd": "Sun 8:00 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-22",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -2275,9 +2394,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-22T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -2321,7 +2443,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P027",
@@ -2340,9 +2463,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Mon 12:30 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-05",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -2358,9 +2481,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-05T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -2404,7 +2530,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P028",
@@ -2423,9 +2550,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Tue 8:00 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-05",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -2443,9 +2570,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-05T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -2489,7 +2619,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P029",
@@ -2508,9 +2639,9 @@
       ],
       "schedule": {
         "day_number": 15,
-        "planned_date": "2026-11-02",
-        "best_time_bd": "Wed 12:30 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-21",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -2529,9 +2660,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-21T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -2575,7 +2709,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P030",
@@ -2594,9 +2729,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Thu 8:00 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-06",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -2612,9 +2747,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-06T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -2658,7 +2796,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P031",
@@ -2677,9 +2816,9 @@
       ],
       "schedule": {
         "day_number": 31,
-        "planned_date": "2026-11-18",
-        "best_time_bd": "Fri 4:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-24",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -2698,9 +2837,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-24T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -2744,7 +2886,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P032",
@@ -2763,9 +2906,9 @@
       ],
       "schedule": {
         "day_number": 32,
-        "planned_date": "2026-11-19",
-        "best_time_bd": "Sat 8:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-24",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -2781,9 +2924,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-24T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -2827,7 +2973,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P033",
@@ -2846,9 +2993,9 @@
       ],
       "schedule": {
         "day_number": 33,
-        "planned_date": "2026-11-20",
-        "best_time_bd": "Sun 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-24",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -2867,9 +3014,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-24T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -2913,7 +3063,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P034",
@@ -2932,9 +3083,9 @@
       ],
       "schedule": {
         "day_number": 34,
-        "planned_date": "2026-11-21",
-        "best_time_bd": "Mon 12:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-24",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -2950,9 +3101,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-24T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -2996,7 +3150,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P035",
@@ -3015,9 +3170,9 @@
       ],
       "schedule": {
         "day_number": 3,
-        "planned_date": "2026-10-21",
-        "best_time_bd": "Tue 8:00 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-19",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -3035,9 +3190,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-19T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -3081,7 +3239,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P036",
@@ -3100,9 +3259,9 @@
       ],
       "schedule": {
         "day_number": 16,
-        "planned_date": "2026-11-03",
-        "best_time_bd": "Wed 12:30 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-21",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -3121,9 +3280,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-21T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -3167,7 +3329,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P037",
@@ -3186,9 +3349,9 @@
       ],
       "schedule": {
         "day_number": 37,
-        "planned_date": "2026-11-24",
-        "best_time_bd": "Thu 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-25",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -3204,9 +3367,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-25T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -3250,7 +3416,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P038",
@@ -3269,9 +3436,9 @@
       ],
       "schedule": {
         "day_number": 38,
-        "planned_date": "2026-11-25",
-        "best_time_bd": "Fri 4:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-25",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -3290,9 +3457,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-25T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -3336,7 +3506,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P039",
@@ -3355,9 +3526,9 @@
       ],
       "schedule": {
         "day_number": 39,
-        "planned_date": "2026-11-26",
-        "best_time_bd": "Sat 8:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-25",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -3373,9 +3544,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-25T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -3419,7 +3593,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P040",
@@ -3438,9 +3613,9 @@
       ],
       "schedule": {
         "day_number": 40,
-        "planned_date": "2026-11-27",
-        "best_time_bd": "Sun 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-26",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -3459,9 +3634,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-26T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -3505,7 +3683,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P041",
@@ -3524,9 +3703,9 @@
       ],
       "schedule": {
         "day_number": 41,
-        "planned_date": "2026-11-28",
-        "best_time_bd": "Mon 12:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-26",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -3542,9 +3721,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-26T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -3588,7 +3770,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P042",
@@ -3607,9 +3790,9 @@
       ],
       "schedule": {
         "day_number": 42,
-        "planned_date": "2026-11-29",
-        "best_time_bd": "Tue 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-26",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -3627,9 +3810,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-26T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -3673,7 +3859,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P043",
@@ -3692,9 +3879,9 @@
       ],
       "schedule": {
         "day_number": 2,
-        "planned_date": "2026-10-20",
-        "best_time_bd": "Wed 12:30 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-19",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -3716,9 +3903,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-19T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -3763,7 +3953,8 @@
         ]
       },
       "video_script": null,
-      "notes": "Pin this post on the Facebook page for the whole launch period."
+      "notes": "Pin this post on the Facebook page for the whole launch period.",
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P044",
@@ -3782,9 +3973,9 @@
       ],
       "schedule": {
         "day_number": 44,
-        "planned_date": "2026-12-01",
-        "best_time_bd": "Thu 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-26",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -3803,9 +3994,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-26T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -3849,7 +4043,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P045",
@@ -3868,9 +4063,9 @@
       ],
       "schedule": {
         "day_number": 26,
-        "planned_date": "2026-11-13",
-        "best_time_bd": "Fri 4:00 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-23",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -3892,9 +4087,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-23T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -3938,7 +4136,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P046",
@@ -3957,9 +4156,9 @@
       ],
       "schedule": {
         "day_number": 30,
-        "planned_date": "2026-11-17",
-        "best_time_bd": "Sat 8:30 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-24",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -3978,9 +4177,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-24T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -4024,7 +4226,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P047",
@@ -4043,9 +4246,9 @@
       ],
       "schedule": {
         "day_number": 47,
-        "planned_date": "2026-12-04",
-        "best_time_bd": "Sun 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-27",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -4067,9 +4270,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-27T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -4113,7 +4319,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P048",
@@ -4132,9 +4339,9 @@
       ],
       "schedule": {
         "day_number": 48,
-        "planned_date": "2026-12-05",
-        "best_time_bd": "Mon 12:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-27",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -4153,9 +4360,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-27T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -4199,7 +4409,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P049",
@@ -4218,9 +4429,9 @@
       ],
       "schedule": {
         "day_number": 49,
-        "planned_date": "2026-12-06",
-        "best_time_bd": "Tue 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-27",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -4241,9 +4452,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-27T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -4287,7 +4501,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P050",
@@ -4306,9 +4521,9 @@
       ],
       "schedule": {
         "day_number": 7,
-        "planned_date": "2026-10-25",
-        "best_time_bd": "Wed 12:30 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-20",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -4330,9 +4545,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-20T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -4376,7 +4594,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P051",
@@ -4395,9 +4614,9 @@
       ],
       "schedule": {
         "day_number": 51,
-        "planned_date": "2026-12-08",
-        "best_time_bd": "Thu 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-28",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -4413,9 +4632,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-28T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -4459,7 +4681,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P052",
@@ -4478,9 +4701,9 @@
       ],
       "schedule": {
         "day_number": 52,
-        "planned_date": "2026-12-09",
-        "best_time_bd": "Fri 4:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-28",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -4499,9 +4722,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-28T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -4545,7 +4771,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P053",
@@ -4564,9 +4791,9 @@
       ],
       "schedule": {
         "day_number": 53,
-        "planned_date": "2026-12-10",
-        "best_time_bd": "Sat 8:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-28",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -4582,9 +4809,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-28T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -4628,7 +4858,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P054",
@@ -4647,9 +4878,9 @@
       ],
       "schedule": {
         "day_number": 54,
-        "planned_date": "2026-12-11",
-        "best_time_bd": "Sun 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-28",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -4668,9 +4899,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-28T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -4714,7 +4948,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P055",
@@ -4733,9 +4968,9 @@
       ],
       "schedule": {
         "day_number": 55,
-        "planned_date": "2026-12-12",
-        "best_time_bd": "Mon 12:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-29",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -4751,9 +4986,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-29T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -4797,7 +5035,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P056",
@@ -4816,9 +5055,9 @@
       ],
       "schedule": {
         "day_number": 56,
-        "planned_date": "2026-12-13",
-        "best_time_bd": "Tue 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-29",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -4836,9 +5075,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-29T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -4882,7 +5124,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P057",
@@ -4901,9 +5144,9 @@
       ],
       "schedule": {
         "day_number": 57,
-        "planned_date": "2026-12-14",
-        "best_time_bd": "Wed 12:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-29",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -4922,9 +5165,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-29T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -4968,7 +5214,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P058",
@@ -4987,9 +5234,9 @@
       ],
       "schedule": {
         "day_number": 58,
-        "planned_date": "2026-12-15",
-        "best_time_bd": "Thu 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-29",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -5005,9 +5252,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-29T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -5051,7 +5301,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P059",
@@ -5070,9 +5321,9 @@
       ],
       "schedule": {
         "day_number": 59,
-        "planned_date": "2026-12-16",
-        "best_time_bd": "Fri 4:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-29",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -5091,9 +5342,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-29T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -5137,7 +5391,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P060",
@@ -5156,9 +5411,9 @@
       ],
       "schedule": {
         "day_number": 60,
-        "planned_date": "2026-12-17",
-        "best_time_bd": "Sat 8:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-30",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -5174,9 +5429,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-30T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -5220,7 +5478,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P061",
@@ -5275,9 +5534,9 @@
       ],
       "schedule": {
         "day_number": 12,
-        "planned_date": "2026-10-30",
-        "best_time_bd": "Sun 8:00 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-21",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -5296,9 +5555,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-21T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -5362,7 +5624,8 @@
         "Video description: From a free look at the demo to your first day of live sales. You do not need to be technical. Swipe through the five steps from trying the demo to your first live day, and decide how fast to move. Contact: Md. Sakir Ahmed 01304734623",
         "Video tags: how to digitalize a restaurant, restaurant software, restaurant pos bangladesh, DT Restora"
       ],
-      "linked_video_id": "V-061"
+      "linked_video_id": "V-061",
+      "facebook_whatsapp_button": false
     },
     {
       "id": "P062",
@@ -5411,9 +5674,9 @@
       ],
       "schedule": {
         "day_number": 62,
-        "planned_date": "2026-12-19",
-        "best_time_bd": "Mon 12:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-30",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -5429,9 +5692,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-30T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -5493,7 +5759,8 @@
         "Video description: What happens after a single sale. One sale touches five things. In DT Restora they all update by themselves, so nobody types the same sale twice. Contact: Md. Sakir Ahmed 01304734623",
         "Video tags: restaurant order flow automation, restaurant software, restaurant pos bangladesh, DT Restora"
       ],
-      "linked_video_id": "V-062"
+      "linked_video_id": "V-062",
+      "facebook_whatsapp_button": false
     },
     {
       "id": "P063",
@@ -5542,9 +5809,9 @@
       ],
       "schedule": {
         "day_number": 21,
-        "planned_date": "2026-11-08",
-        "best_time_bd": "Tue 8:00 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-22",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -5562,9 +5829,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-22T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -5626,7 +5896,8 @@
         "Video description: Open, sell, split, close. All on one screen. Here is what a cashier does with DT Restora, from opening cash in the morning to the closing count at night. Contact: Md. Sakir Ahmed 01304734623",
         "Video tags: restaurant cashier workflow pos, restaurant software, restaurant pos bangladesh, DT Restora"
       ],
-      "linked_video_id": "V-063"
+      "linked_video_id": "V-063",
+      "facebook_whatsapp_button": false
     },
     {
       "id": "P064",
@@ -5669,9 +5940,9 @@
       ],
       "schedule": {
         "day_number": 64,
-        "planned_date": "2026-12-21",
-        "best_time_bd": "Wed 12:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-30",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -5690,9 +5961,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-30T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -5752,7 +6026,8 @@
         "Video description: No shouting. No missed orders. The kitchen display replaces paper slips and shouting. Here is how a shift looks for the cook and the kitchen manager. Contact: Md. Sakir Ahmed 01304734623",
         "Video tags: kitchen display workflow restaurant, restaurant software, restaurant pos bangladesh, DT Restora"
       ],
-      "linked_video_id": "V-064"
+      "linked_video_id": "V-064",
+      "facebook_whatsapp_button": false
     },
     {
       "id": "P065",
@@ -5801,9 +6076,9 @@
       ],
       "schedule": {
         "day_number": 65,
-        "planned_date": "2026-12-22",
-        "best_time_bd": "Thu 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-31",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -5819,9 +6094,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-31T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -5883,7 +6161,8 @@
         "Video description: Four things to look at before the day starts. Owners do not need to stand in every kitchen. This two-minute routine tells you how yesterday went and what to watch today. Contact: Md. Sakir Ahmed 01304734623",
         "Video tags: restaurant owner daily routine dashboard, restaurant software, restaurant pos bangladesh, DT Restora"
       ],
-      "linked_video_id": "V-065"
+      "linked_video_id": "V-065",
+      "facebook_whatsapp_button": false
     },
     {
       "id": "P066",
@@ -5932,9 +6211,9 @@
       ],
       "schedule": {
         "day_number": 66,
-        "planned_date": "2026-12-23",
-        "best_time_bd": "Fri 4:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-31",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -5953,9 +6232,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-31T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -6017,7 +6299,8 @@
         "Video description: Four taps from hungry to happy. This is the customer journey on your own ordering website, and what your team sees on the other side. Contact: Md. Sakir Ahmed 01304734623",
         "Video tags: online food ordering customer journey, restaurant software, restaurant pos bangladesh, DT Restora"
       ],
-      "linked_video_id": "V-066"
+      "linked_video_id": "V-066",
+      "facebook_whatsapp_button": false
     },
     {
       "id": "P067",
@@ -6060,9 +6343,9 @@
       ],
       "schedule": {
         "day_number": 67,
-        "planned_date": "2026-12-24",
-        "best_time_bd": "Sat 8:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-31",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -6078,9 +6361,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-31T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -6140,7 +6426,8 @@
         "Video description: Your books are ready every day. Month-end should be a review, not a rescue. See how automatic accounting removes the scramble. Contact: Md. Sakir Ahmed 01304734623",
         "Video tags: restaurant month end accounting, restaurant software, restaurant pos bangladesh, DT Restora"
       ],
-      "linked_video_id": "V-067"
+      "linked_video_id": "V-067",
+      "facebook_whatsapp_button": false
     },
     {
       "id": "P068",
@@ -6195,9 +6482,9 @@
       ],
       "schedule": {
         "day_number": 29,
-        "planned_date": "2026-11-16",
-        "best_time_bd": "Sun 8:00 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-23",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -6216,9 +6503,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-23T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -6282,7 +6572,8 @@
         "Video description: Do not buy a till when you need a system. A good question list saves months of regret. Here are five to ask any POS vendor, including us. Contact: Md. Sakir Ahmed 01304734623",
         "Video tags: questions to ask before buying restaurant pos, restaurant software, restaurant pos bangladesh, DT Restora"
       ],
-      "linked_video_id": "V-068"
+      "linked_video_id": "V-068",
+      "facebook_whatsapp_button": false
     },
     {
       "id": "P069",
@@ -6325,9 +6616,9 @@
       ],
       "schedule": {
         "day_number": 69,
-        "planned_date": "2026-12-26",
-        "best_time_bd": "Mon 12:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-10-31",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -6343,9 +6634,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-31T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -6405,7 +6699,8 @@
         "Video description: Order, pay, print. Three moves cover most counter work: build the order, take payment, print the receipt. Swipe to see each one. Contact: Md. Sakir Ahmed 01304734623",
         "Video tags: how a restaurant pos works, restaurant software, restaurant pos bangladesh, DT Restora"
       ],
-      "linked_video_id": "V-069"
+      "linked_video_id": "V-069",
+      "facebook_whatsapp_button": false
     },
     {
       "id": "P070",
@@ -6454,9 +6749,9 @@
       ],
       "schedule": {
         "day_number": 70,
-        "planned_date": "2026-12-27",
-        "best_time_bd": "Tue 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-11-01",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -6474,9 +6769,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-01T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -6538,7 +6836,8 @@
         "Video description: Four steps, no spreadsheets. Pay day should not take a weekend. See how attendance becomes a salary slip. Contact: Md. Sakir Ahmed 01304734623",
         "Video tags: attendance to payroll restaurant, restaurant software, restaurant pos bangladesh, DT Restora"
       ],
-      "linked_video_id": "V-070"
+      "linked_video_id": "V-070",
+      "facebook_whatsapp_button": false
     },
     {
       "id": "P071",
@@ -6581,9 +6880,9 @@
       ],
       "schedule": {
         "day_number": 71,
-        "planned_date": "2026-12-28",
-        "best_time_bd": "Wed 12:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-11-01",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -6602,9 +6901,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-01T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -6664,7 +6966,8 @@
         "Video description: How points bring guests back. Loyalty works when it is simple. Guests earn at the counter, spend online and see the same balance everywhere. Contact: Md. Sakir Ahmed 01304734623",
         "Video tags: restaurant loyalty points how it works, restaurant software, restaurant pos bangladesh, DT Restora"
       ],
-      "linked_video_id": "V-071"
+      "linked_video_id": "V-071",
+      "facebook_whatsapp_button": false
     },
     {
       "id": "P072",
@@ -6713,9 +7016,9 @@
       ],
       "schedule": {
         "day_number": 72,
-        "planned_date": "2026-12-29",
-        "best_time_bd": "Thu 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-11-01",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -6731,9 +7034,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-01T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -6795,7 +7101,8 @@
         "Video description: Four steps of stock control. Stock control is a chain. DT Restora links each step so the numbers agree from the supplier to the guest. Contact: Md. Sakir Ahmed 01304734623",
         "Video tags: restaurant stock from purchase to plate, restaurant software, restaurant pos bangladesh, DT Restora"
       ],
-      "linked_video_id": "V-072"
+      "linked_video_id": "V-072",
+      "facebook_whatsapp_button": false
     },
     {
       "id": "P073",
@@ -6814,9 +7121,9 @@
       ],
       "schedule": {
         "day_number": 73,
-        "planned_date": "2026-12-30",
-        "best_time_bd": "Fri 4:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-11-01",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -6836,9 +7143,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-01T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -6882,7 +7192,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P074",
@@ -6901,9 +7212,9 @@
       ],
       "schedule": {
         "day_number": 74,
-        "planned_date": "2026-12-31",
-        "best_time_bd": "Sat 8:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-11-01",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -6920,9 +7231,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-01T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -6966,7 +7280,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P075",
@@ -6985,9 +7300,9 @@
       ],
       "schedule": {
         "day_number": 75,
-        "planned_date": "2027-01-01",
-        "best_time_bd": "Sun 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-11-02",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -7007,9 +7322,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-02T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -7053,7 +7371,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P076",
@@ -7072,9 +7391,9 @@
       ],
       "schedule": {
         "day_number": 76,
-        "planned_date": "2027-01-02",
-        "best_time_bd": "Mon 12:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-11-02",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -7091,9 +7410,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-02T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -7137,7 +7459,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P077",
@@ -7156,9 +7479,9 @@
       ],
       "schedule": {
         "day_number": 77,
-        "planned_date": "2027-01-03",
-        "best_time_bd": "Tue 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-11-02",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -7177,9 +7500,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-02T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -7223,7 +7549,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P078",
@@ -7242,9 +7569,9 @@
       ],
       "schedule": {
         "day_number": 19,
-        "planned_date": "2026-11-06",
-        "best_time_bd": "Wed 12:30 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-22",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -7263,9 +7590,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-22T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -7309,7 +7639,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P079",
@@ -7328,9 +7659,9 @@
       ],
       "schedule": {
         "day_number": 5,
-        "planned_date": "2026-10-23",
-        "best_time_bd": "Thu 8:00 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-19",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -7346,9 +7677,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-19T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -7392,7 +7726,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P080",
@@ -7411,9 +7746,9 @@
       ],
       "schedule": {
         "day_number": 80,
-        "planned_date": "2027-01-06",
-        "best_time_bd": "Fri 4:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-11-03",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -7432,9 +7767,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-03T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -7478,7 +7816,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P081",
@@ -7497,9 +7836,9 @@
       ],
       "schedule": {
         "day_number": 81,
-        "planned_date": "2027-01-07",
-        "best_time_bd": "Sat 8:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-11-03",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -7515,9 +7854,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-03T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -7561,7 +7903,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P082",
@@ -7580,9 +7923,9 @@
       ],
       "schedule": {
         "day_number": 82,
-        "planned_date": "2027-01-08",
-        "best_time_bd": "Sun 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-11-03",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -7601,9 +7944,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-03T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -7647,7 +7993,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P083",
@@ -7666,9 +8013,9 @@
       ],
       "schedule": {
         "day_number": 83,
-        "planned_date": "2027-01-09",
-        "best_time_bd": "Mon 12:30 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-11-03",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -7684,9 +8031,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-03T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -7730,7 +8080,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P084",
@@ -7749,9 +8100,9 @@
       ],
       "schedule": {
         "day_number": 84,
-        "planned_date": "2027-01-10",
-        "best_time_bd": "Tue 8:00 pm",
-        "phase": "scale-90"
+        "planned_date": "2026-11-03",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -7769,9 +8120,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-03T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -7815,7 +8169,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P085",
@@ -9731,9 +10086,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Thu 8:00 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-06",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -9751,9 +10106,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-06T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -9797,7 +10155,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P108",
@@ -9816,9 +10175,9 @@
       ],
       "schedule": {
         "day_number": 23,
-        "planned_date": "2026-11-10",
-        "best_time_bd": "Fri 4:00 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-22",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -9836,9 +10195,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-22T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -9882,7 +10244,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P109",
@@ -9901,9 +10264,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Sat 8:30 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-06",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -9921,9 +10284,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-06T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -9967,7 +10333,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P110",
@@ -9986,9 +10353,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Sun 8:00 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-06",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -10006,9 +10373,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-06T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -10052,7 +10422,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P111",
@@ -10071,9 +10442,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Mon 12:30 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-06",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -10091,9 +10462,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-06T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -10137,7 +10511,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P112",
@@ -10156,9 +10531,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Tue 8:00 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-07",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -10176,9 +10551,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-07T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -10222,7 +10600,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P113",
@@ -10241,9 +10620,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Wed 12:30 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-07",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -10261,9 +10640,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-07T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -10307,7 +10689,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P114",
@@ -10326,9 +10709,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Thu 8:00 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-07",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -10346,9 +10729,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-07T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -10392,7 +10778,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P115",
@@ -10411,9 +10798,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Fri 4:00 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-07",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -10431,9 +10818,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-07T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -10477,7 +10867,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P116",
@@ -10666,9 +11057,9 @@
       ],
       "schedule": {
         "day_number": 17,
-        "planned_date": "2026-11-04",
-        "best_time_bd": "Mon 12:30 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-21",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -10685,9 +11076,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-21T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -10731,7 +11125,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P119",
@@ -10750,9 +11145,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Tue 8:00 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-07",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -10769,9 +11164,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-07T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -10815,7 +11213,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P120",
@@ -10834,9 +11233,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Wed 12:30 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-08",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -10853,9 +11252,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-08T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -10899,7 +11301,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P121",
@@ -10918,9 +11321,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Thu 8:00 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-08",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -10937,9 +11340,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-08T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -10983,7 +11389,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P122",
@@ -11002,9 +11409,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Fri 4:00 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-08",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -11021,9 +11428,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-08T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -11067,7 +11477,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P123",
@@ -11086,9 +11497,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Sat 8:30 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-08",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -11105,9 +11516,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-08T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -11151,7 +11565,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P124",
@@ -11340,9 +11755,9 @@
       ],
       "schedule": {
         "day_number": 10,
-        "planned_date": "2026-10-28",
-        "best_time_bd": "Tue 8:00 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-20",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -11359,9 +11774,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-20T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -11405,7 +11823,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P127",
@@ -11424,9 +11843,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Wed 12:30 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-08",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -11443,9 +11862,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-08T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -11489,7 +11911,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P128",
@@ -11508,9 +11931,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Thu 8:00 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-09",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -11527,9 +11950,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-09T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -11573,7 +11999,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P129",
@@ -11592,9 +12019,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Fri 4:00 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-09",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -11611,9 +12038,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-09T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -11657,7 +12087,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P130",
@@ -11676,9 +12107,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Sat 8:30 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-09",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -11695,9 +12126,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-09T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -11741,7 +12175,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P131",
@@ -11845,9 +12280,9 @@
       ],
       "schedule": {
         "day_number": 14,
-        "planned_date": "2026-11-01",
-        "best_time_bd": "Mon 12:30 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-21",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -11864,9 +12299,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-21T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -11910,7 +12348,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P133",
@@ -11929,9 +12368,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Tue 8:00 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-09",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -11948,9 +12387,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-09T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -11994,7 +12436,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P134",
@@ -12013,9 +12456,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Wed 12:30 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-09",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -12032,9 +12475,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-09T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -12078,7 +12524,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P135",
@@ -12097,9 +12544,9 @@
       ],
       "schedule": {
         "day_number": 27,
-        "planned_date": "2026-11-14",
-        "best_time_bd": "Thu 8:00 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-23",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -12116,9 +12563,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-23T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -12162,7 +12612,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P136",
@@ -12181,9 +12632,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Fri 4:00 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-10",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -12200,9 +12651,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-10T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -12227,9 +12681,9 @@
         "demos_booked": null
       },
       "content": {
-        "facebook": "Can I try before paying?\n\nYes. Open the live demo and sign in as owner, cashier or kitchen to click every screen. When you are ready, book a walkthrough and we will use your menu and branches.\n\n- Free live demo\n- WhatsApp 8801304734623\n- Nothing to install to try\n\n#OwnerQuestions #FreeDemo #TryBeforeYouBuy #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement",
+        "facebook": "Can I try before paying?\n\nYes. Open the live demo and sign in as owner, cashier or kitchen to click every screen. When you are ready, book a walkthrough and we will use your menu and branches.\n\n- Free live demo\n- WhatsApp 8801304734623\n- Nothing to install to try\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#OwnerQuestions #FreeDemo #TryBeforeYouBuy #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement",
         "instagram": "Can I try before paying?\n\nYes. Open the live demo and sign in as owner, cashier or kitchen to click every screen. When you are ready, book a walkthrough and we will use your menu and branches.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623 (or DM \"DEMO\").\n\n#OwnerQuestions #FreeDemo #TryBeforeYouBuy #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem",
-        "linkedin": "Can I try before paying?\n\nYes. Open the live demo and sign in as owner, cashier or kitchen to click every screen. When you are ready, book a walkthrough and we will use your menu and branches.\n\nKey points:\n- Free live demo\n- WhatsApp 8801304734623\n- Nothing to install to try\n\n#OwnerQuestions #FreeDemo #TryBeforeYouBuy #DTRestora #SaaS",
+        "linkedin": "Can I try before paying?\n\nYes. Open the live demo and sign in as owner, cashier or kitchen to click every screen. When you are ready, book a walkthrough and we will use your menu and branches.\n\nKey points:\n- Free live demo\n- WhatsApp 8801304734623\n- Nothing to install to try\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#OwnerQuestions #FreeDemo #TryBeforeYouBuy #DTRestora #SaaS",
         "x": "Can I try before paying?\n\nOwner asks, we answer.\n\nMd. Sakir Ahmed 01304734623\n\n#OwnerQuestions #FreeDemo",
         "x_thread": [],
         "google_business": "Owner asks, we answer. Try the free demo. Call Md. Sakir Ahmed: 01304734623."
@@ -12246,7 +12700,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P137",
@@ -12350,9 +12805,9 @@
       ],
       "schedule": {
         "day_number": 25,
-        "planned_date": "2026-11-12",
-        "best_time_bd": "Sun 8:00 pm",
-        "phase": "launch-30"
+        "planned_date": "2026-10-23",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -12369,9 +12824,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-10-23T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -12415,7 +12873,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P139",
@@ -12434,9 +12893,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Mon 12:30 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-10",
+        "best_time_bd": "12:30",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -12453,9 +12912,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-10T12:30 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -12499,7 +12961,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P140",
@@ -12518,9 +12981,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Tue 8:00 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-10",
+        "best_time_bd": "16:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -12537,9 +13000,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-10T16:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -12583,7 +13049,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P141",
@@ -12602,9 +13069,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Wed 12:30 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-10",
+        "best_time_bd": "20:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -12621,9 +13088,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-10T20:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -12667,7 +13137,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P142",
@@ -12686,9 +13157,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Thu 8:00 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-10",
+        "best_time_bd": "22:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -12705,9 +13176,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-10T22:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -12751,7 +13225,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P143",
@@ -12770,9 +13245,9 @@
       ],
       "schedule": {
         "day_number": null,
-        "planned_date": null,
-        "best_time_bd": "Fri 4:00 pm",
-        "phase": "reserve"
+        "planned_date": "2026-11-11",
+        "best_time_bd": "09:00",
+        "phase": "launch-5-per-day"
       },
       "planned_platforms": [
         "facebook",
@@ -12789,9 +13264,12 @@
         "is_posted_facebook_story": false,
         "is_posted_instagram_story": false,
         "is_posted_whatsapp_status": false,
-        "is_posted_threads": false
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
       },
-      "posted_at": {},
+      "posted_at": {
+        "facebook": "scheduled 2026-11-11T09:00 (Meta Business Suite, not yet published)"
+      },
       "post_urls": {},
       "cta": {
         "keyword": "DEMO",
@@ -12835,7 +13313,8 @@
           "restaurant pos system dhaka"
         ]
       },
-      "video_script": null
+      "video_script": null,
+      "facebook_whatsapp_button": true
     },
     {
       "id": "P144",
@@ -13006,6 +13485,806 @@
         ]
       },
       "video_script": null
+    },
+    {
+      "id": "P144",
+      "title": "We are LIVE.",
+      "category": "Launch starter",
+      "language": "en",
+      "type": "single_image",
+      "folder": "posts/14-launch-starters/144-we-are-live",
+      "images": [
+        {
+          "id": "IMG-144-01",
+          "file": "posts/14-launch-starters/144-we-are-live/image-01.png",
+          "size": "1080x1350",
+          "alt_text": "Dashboard screenshot with the headline We are live"
+        }
+      ],
+      "schedule": {
+        "day_number": null,
+        "planned_date": "2026-10-17",
+        "best_time_bd": "09:00",
+        "phase": "pre-launch-starter"
+      },
+      "planned_platforms": [
+        "facebook",
+        "instagram"
+      ],
+      "status": {
+        "is_posted_facebook": false,
+        "is_posted_instagram": false,
+        "is_posted_linkedin": false,
+        "is_posted_x": false,
+        "is_posted_google_business": false,
+        "is_posted_facebook_story": false,
+        "is_posted_instagram_story": false,
+        "is_posted_whatsapp_status": false,
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
+      },
+      "posted_at": {
+        "facebook": "scheduled 2026-10-17T09:00 (Meta Business Suite, not yet published)"
+      },
+      "post_urls": {},
+      "cta": {
+        "keyword": "DEMO",
+        "lead_source_code": "P144",
+        "contact_name": "Md. Sakir Ahmed",
+        "contact_phone": "01304734623"
+      },
+      "boost": {
+        "recommended": true,
+        "is_boosted": false,
+        "budget_bdt": null,
+        "objective": "messages"
+      },
+      "performance": {
+        "reach": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "saves": null,
+        "messages": null,
+        "leads": null,
+        "demos_booked": null
+      },
+      "content": {
+        "facebook": "We are live.\n\nDT Restora is the owner control system for restaurants and cafes in Bangladesh. One system for your POS, kitchen, stock, staff, loyalty, website, delivery and accounts, so you see your real profit and not just your sales.\n\n- Sell faster\n- Waste less\n- Know your profit\n\nFollow this page for tips, short demos and launch offers.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#DTRestora #NowLive #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #CafeBusiness",
+        "instagram": "We are live.\n\nDT Restora is the owner control system for restaurants and cafes in Bangladesh. One system for your POS, kitchen, stock, staff, loyalty, website, delivery and accounts, so you see your real profit and not just your sales.\n\n- Sell faster\n- Waste less\n- Know your profit\n\nFollow this page for tips, short demos and launch offers.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#DTRestora #NowLive #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #CafeBusiness",
+        "linkedin": null,
+        "x": null,
+        "x_thread": [],
+        "google_business": null
+      },
+      "seo": {
+        "title": "We are LIVE. | DT Restora",
+        "description": "We are live.",
+        "primary_keyword": "restaurant software bangladesh",
+        "secondary_keywords": []
+      },
+      "video_script": null,
+      "facebook_whatsapp_button": true
+    },
+    {
+      "id": "P145",
+      "title": "One system. Eight jobs.",
+      "category": "Launch starter",
+      "language": "en",
+      "type": "single_image",
+      "folder": "posts/14-launch-starters/145-meet-dt-restora",
+      "images": [
+        {
+          "id": "IMG-145-01",
+          "file": "posts/14-launch-starters/145-meet-dt-restora/image-01.png",
+          "size": "1080x1350",
+          "alt_text": "Eight tiles listing the DT Restora modules"
+        }
+      ],
+      "schedule": {
+        "day_number": null,
+        "planned_date": "2026-10-17",
+        "best_time_bd": "12:30",
+        "phase": "pre-launch-starter"
+      },
+      "planned_platforms": [
+        "facebook",
+        "instagram"
+      ],
+      "status": {
+        "is_posted_facebook": false,
+        "is_posted_instagram": false,
+        "is_posted_linkedin": false,
+        "is_posted_x": false,
+        "is_posted_google_business": false,
+        "is_posted_facebook_story": false,
+        "is_posted_instagram_story": false,
+        "is_posted_whatsapp_status": false,
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
+      },
+      "posted_at": {
+        "facebook": "scheduled 2026-10-17T12:30 (Meta Business Suite, not yet published)"
+      },
+      "post_urls": {},
+      "cta": {
+        "keyword": "DEMO",
+        "lead_source_code": "P145",
+        "contact_name": "Md. Sakir Ahmed",
+        "contact_phone": "01304734623"
+      },
+      "boost": {
+        "recommended": false,
+        "is_boosted": false,
+        "budget_bdt": null,
+        "objective": "messages"
+      },
+      "performance": {
+        "reach": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "saves": null,
+        "messages": null,
+        "leads": null,
+        "demos_booked": null
+      },
+      "content": {
+        "facebook": "Meet DT Restora.\n\nEight jobs in one system, so you stop juggling separate apps, notebooks and spreadsheets.\n\n1. POS and billing\n2. Kitchen display\n3. Recipes and stock\n4. Staff and payroll\n5. Loyalty and coupons\n6. Ordering website\n7. Delivery tools\n8. Accounts and reports\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#DTRestora #AllInOne #RestaurantSoftware #CafePOS #FoodBusinessBD #RestaurantManagement",
+        "instagram": "Meet DT Restora.\n\nEight jobs in one system, so you stop juggling separate apps, notebooks and spreadsheets.\n\n1. POS and billing\n2. Kitchen display\n3. Recipes and stock\n4. Staff and payroll\n5. Loyalty and coupons\n6. Ordering website\n7. Delivery tools\n8. Accounts and reports\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#DTRestora #AllInOne #RestaurantSoftware #CafePOS #FoodBusinessBD #RestaurantManagement",
+        "linkedin": null,
+        "x": null,
+        "x_thread": [],
+        "google_business": null
+      },
+      "seo": {
+        "title": "One system. Eight jobs. | DT Restora",
+        "description": "Meet DT Restora.",
+        "primary_keyword": "all in one restaurant software",
+        "secondary_keywords": []
+      },
+      "video_script": null,
+      "facebook_whatsapp_button": true
+    },
+    {
+      "id": "P146",
+      "title": "Sales is not profit.",
+      "category": "Launch starter",
+      "language": "en",
+      "type": "single_image",
+      "folder": "posts/14-launch-starters/146-sales-is-not-profit",
+      "images": [
+        {
+          "id": "IMG-146-01",
+          "file": "posts/14-launch-starters/146-sales-is-not-profit/image-01.png",
+          "size": "1080x1350",
+          "alt_text": "Bar chart showing costs eating into sales with profit shown as question marks"
+        }
+      ],
+      "schedule": {
+        "day_number": null,
+        "planned_date": "2026-10-17",
+        "best_time_bd": "16:00",
+        "phase": "pre-launch-starter"
+      },
+      "planned_platforms": [
+        "facebook",
+        "instagram"
+      ],
+      "status": {
+        "is_posted_facebook": false,
+        "is_posted_instagram": false,
+        "is_posted_linkedin": false,
+        "is_posted_x": false,
+        "is_posted_google_business": false,
+        "is_posted_facebook_story": false,
+        "is_posted_instagram_story": false,
+        "is_posted_whatsapp_status": false,
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
+      },
+      "posted_at": {
+        "facebook": "scheduled 2026-10-17T16:00 (Meta Business Suite, not yet published)"
+      },
+      "post_urls": {},
+      "cta": {
+        "keyword": "DEMO",
+        "lead_source_code": "P146",
+        "contact_name": "Md. Sakir Ahmed",
+        "contact_phone": "01304734623"
+      },
+      "boost": {
+        "recommended": false,
+        "is_boosted": false,
+        "budget_bdt": null,
+        "objective": "messages"
+      },
+      "performance": {
+        "reach": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "saves": null,
+        "messages": null,
+        "leads": null,
+        "demos_booked": null
+      },
+      "content": {
+        "facebook": "Sales is not profit.\n\nFood cost, waste, salary, rent and bills all come out of your sales. Most owners only learn what is left weeks later. DT Restora shows your net profit every day, so a bad week gets fixed in the same week.\n\n(The chart is an illustration, not real data.)\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#SalesVsProfit #RestaurantProfit #OwnerDashboard #DTRestora #RestaurantSoftware #BangladeshRestaurants",
+        "instagram": "Sales is not profit.\n\nFood cost, waste, salary, rent and bills all come out of your sales. Most owners only learn what is left weeks later. DT Restora shows your net profit every day, so a bad week gets fixed in the same week.\n\n(The chart is an illustration, not real data.)\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#SalesVsProfit #RestaurantProfit #OwnerDashboard #DTRestora #RestaurantSoftware #BangladeshRestaurants",
+        "linkedin": null,
+        "x": null,
+        "x_thread": [],
+        "google_business": null
+      },
+      "seo": {
+        "title": "Sales is not profit. | DT Restora",
+        "description": "Sales is not profit.",
+        "primary_keyword": "restaurant profit",
+        "secondary_keywords": []
+      },
+      "video_script": null,
+      "facebook_whatsapp_button": true
+    },
+    {
+      "id": "P147",
+      "title": "Is it for you?",
+      "category": "Launch starter",
+      "language": "en",
+      "type": "single_image",
+      "folder": "posts/14-launch-starters/147-is-it-for-you",
+      "images": [
+        {
+          "id": "IMG-147-01",
+          "file": "posts/14-launch-starters/147-is-it-for-you/image-01.png",
+          "size": "1080x1350",
+          "alt_text": "List of business types DT Restora is built for"
+        }
+      ],
+      "schedule": {
+        "day_number": null,
+        "planned_date": "2026-10-17",
+        "best_time_bd": "20:00",
+        "phase": "pre-launch-starter"
+      },
+      "planned_platforms": [
+        "facebook",
+        "instagram"
+      ],
+      "status": {
+        "is_posted_facebook": false,
+        "is_posted_instagram": false,
+        "is_posted_linkedin": false,
+        "is_posted_x": false,
+        "is_posted_google_business": false,
+        "is_posted_facebook_story": false,
+        "is_posted_instagram_story": false,
+        "is_posted_whatsapp_status": false,
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
+      },
+      "posted_at": {
+        "facebook": "scheduled 2026-10-17T20:00 (Meta Business Suite, not yet published)"
+      },
+      "post_urls": {},
+      "cta": {
+        "keyword": "DEMO",
+        "lead_source_code": "P147",
+        "contact_name": "Md. Sakir Ahmed",
+        "contact_phone": "01304734623"
+      },
+      "boost": {
+        "recommended": false,
+        "is_boosted": false,
+        "budget_bdt": null,
+        "objective": "messages"
+      },
+      "performance": {
+        "reach": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "saves": null,
+        "messages": null,
+        "leads": null,
+        "demos_booked": null
+      },
+      "content": {
+        "facebook": "Is DT Restora for you? If you run a kitchen, yes.\n\n- Cafes and bakeries\n- Restaurants and fast food\n- Cloud kitchens\n- Multi-branch groups\n\nStart small with the till and kitchen screen, and add stock, staff, delivery and your website when you are ready.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#CafeOwners #RestaurantOwners #CloudKitchen #DTRestora #RestaurantSoftware #BangladeshRestaurants",
+        "instagram": "Is DT Restora for you? If you run a kitchen, yes.\n\n- Cafes and bakeries\n- Restaurants and fast food\n- Cloud kitchens\n- Multi-branch groups\n\nStart small with the till and kitchen screen, and add stock, staff, delivery and your website when you are ready.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#CafeOwners #RestaurantOwners #CloudKitchen #DTRestora #RestaurantSoftware #BangladeshRestaurants",
+        "linkedin": null,
+        "x": null,
+        "x_thread": [],
+        "google_business": null
+      },
+      "seo": {
+        "title": "Is it for you? | DT Restora",
+        "description": "Is DT Restora for you? If you run a kitchen, yes.",
+        "primary_keyword": "software for cafes and restaurants",
+        "secondary_keywords": []
+      },
+      "video_script": null,
+      "facebook_whatsapp_button": true
+    },
+    {
+      "id": "P148",
+      "title": "What to expect",
+      "category": "Launch starter",
+      "language": "en",
+      "type": "single_image",
+      "folder": "posts/14-launch-starters/148-what-to-expect",
+      "images": [
+        {
+          "id": "IMG-148-01",
+          "file": "posts/14-launch-starters/148-what-to-expect/image-01.png",
+          "size": "1080x1350",
+          "alt_text": "Four things this page will share"
+        }
+      ],
+      "schedule": {
+        "day_number": null,
+        "planned_date": "2026-10-17",
+        "best_time_bd": "22:00",
+        "phase": "pre-launch-starter"
+      },
+      "planned_platforms": [
+        "facebook",
+        "instagram"
+      ],
+      "status": {
+        "is_posted_facebook": false,
+        "is_posted_instagram": false,
+        "is_posted_linkedin": false,
+        "is_posted_x": false,
+        "is_posted_google_business": false,
+        "is_posted_facebook_story": false,
+        "is_posted_instagram_story": false,
+        "is_posted_whatsapp_status": false,
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
+      },
+      "posted_at": {
+        "facebook": "scheduled 2026-10-17T22:00 (Meta Business Suite, not yet published)"
+      },
+      "post_urls": {},
+      "cta": {
+        "keyword": "DEMO",
+        "lead_source_code": "P148",
+        "contact_name": "Md. Sakir Ahmed",
+        "contact_phone": "01304734623"
+      },
+      "boost": {
+        "recommended": false,
+        "is_boosted": false,
+        "budget_bdt": null,
+        "objective": "messages"
+      },
+      "performance": {
+        "reach": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "saves": null,
+        "messages": null,
+        "leads": null,
+        "demos_booked": null
+      },
+      "content": {
+        "facebook": "Here is what to expect from this page:\n\n1. Daily owner tips on waste, stock, cash and profit\n2. Short demos of the real system, no slides\n3. Honest answers to your questions in the comments\n4. Launch offers, including the first month free after installation\n\nTap Follow so you do not miss a post.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#FollowUs #RestaurantTips #DTRestora #RestaurantSoftware #BangladeshRestaurants #FoodBusinessBD",
+        "instagram": "Here is what to expect from this page:\n\n1. Daily owner tips on waste, stock, cash and profit\n2. Short demos of the real system, no slides\n3. Honest answers to your questions in the comments\n4. Launch offers, including the first month free after installation\n\nTap Follow so you do not miss a post.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#FollowUs #RestaurantTips #DTRestora #RestaurantSoftware #BangladeshRestaurants #FoodBusinessBD",
+        "linkedin": null,
+        "x": null,
+        "x_thread": [],
+        "google_business": null
+      },
+      "seo": {
+        "title": "What to expect | DT Restora",
+        "description": "Here is what to expect from this page:",
+        "primary_keyword": "restaurant owner tips",
+        "secondary_keywords": []
+      },
+      "video_script": null,
+      "facebook_whatsapp_button": true
+    },
+    {
+      "id": "P149",
+      "title": "3 honest questions",
+      "category": "Launch starter",
+      "language": "en",
+      "type": "single_image",
+      "folder": "posts/14-launch-starters/149-three-honest-questions",
+      "images": [
+        {
+          "id": "IMG-149-01",
+          "file": "posts/14-launch-starters/149-three-honest-questions/image-01.png",
+          "size": "1080x1350",
+          "alt_text": "Three self-check questions for restaurant owners"
+        }
+      ],
+      "schedule": {
+        "day_number": null,
+        "planned_date": "2026-10-18",
+        "best_time_bd": "09:00",
+        "phase": "pre-launch-starter"
+      },
+      "planned_platforms": [
+        "facebook",
+        "instagram"
+      ],
+      "status": {
+        "is_posted_facebook": false,
+        "is_posted_instagram": false,
+        "is_posted_linkedin": false,
+        "is_posted_x": false,
+        "is_posted_google_business": false,
+        "is_posted_facebook_story": false,
+        "is_posted_instagram_story": false,
+        "is_posted_whatsapp_status": false,
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
+      },
+      "posted_at": {
+        "facebook": "scheduled 2026-10-18T09:00 (Meta Business Suite, not yet published)"
+      },
+      "post_urls": {},
+      "cta": {
+        "keyword": "DEMO",
+        "lead_source_code": "P149",
+        "contact_name": "Md. Sakir Ahmed",
+        "contact_phone": "01304734623"
+      },
+      "boost": {
+        "recommended": false,
+        "is_boosted": false,
+        "budget_bdt": null,
+        "objective": "messages"
+      },
+      "performance": {
+        "reach": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "saves": null,
+        "messages": null,
+        "leads": null,
+        "demos_booked": null
+      },
+      "content": {
+        "facebook": "3 questions. Be honest.\n\n1. Do you know today's profit?\n2. Do you know this week's waste?\n3. Does the cash drawer match every night?\n\nComment your score from 0 to 3. If any answer is no, this page is for you.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RestaurantOwners #OwnerQuiz #RestaurantProfit #DTRestora #RestaurantSoftware #BangladeshRestaurants",
+        "instagram": "3 questions. Be honest.\n\n1. Do you know today's profit?\n2. Do you know this week's waste?\n3. Does the cash drawer match every night?\n\nComment your score from 0 to 3. If any answer is no, this page is for you.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RestaurantOwners #OwnerQuiz #RestaurantProfit #DTRestora #RestaurantSoftware #BangladeshRestaurants",
+        "linkedin": null,
+        "x": null,
+        "x_thread": [],
+        "google_business": null
+      },
+      "seo": {
+        "title": "3 honest questions | DT Restora",
+        "description": "3 questions. Be honest.",
+        "primary_keyword": "restaurant management tips",
+        "secondary_keywords": []
+      },
+      "video_script": null,
+      "facebook_whatsapp_button": true
+    },
+    {
+      "id": "P150",
+      "title": "See it. Do not just read it.",
+      "category": "Launch starter",
+      "language": "en",
+      "type": "single_image",
+      "folder": "posts/14-launch-starters/150-see-it-not-read-it",
+      "images": [
+        {
+          "id": "IMG-150-01",
+          "file": "posts/14-launch-starters/150-see-it-not-read-it/image-01.png",
+          "size": "1080x1350",
+          "alt_text": "POS and kitchen display screenshots"
+        }
+      ],
+      "schedule": {
+        "day_number": null,
+        "planned_date": "2026-10-18",
+        "best_time_bd": "12:30",
+        "phase": "pre-launch-starter"
+      },
+      "planned_platforms": [
+        "facebook",
+        "instagram"
+      ],
+      "status": {
+        "is_posted_facebook": false,
+        "is_posted_instagram": false,
+        "is_posted_linkedin": false,
+        "is_posted_x": false,
+        "is_posted_google_business": false,
+        "is_posted_facebook_story": false,
+        "is_posted_instagram_story": false,
+        "is_posted_whatsapp_status": false,
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
+      },
+      "posted_at": {
+        "facebook": "scheduled 2026-10-18T12:30 (Meta Business Suite, not yet published)"
+      },
+      "post_urls": {},
+      "cta": {
+        "keyword": "DEMO",
+        "lead_source_code": "P150",
+        "contact_name": "Md. Sakir Ahmed",
+        "contact_phone": "01304734623"
+      },
+      "boost": {
+        "recommended": true,
+        "is_boosted": false,
+        "budget_bdt": null,
+        "objective": "messages"
+      },
+      "performance": {
+        "reach": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "saves": null,
+        "messages": null,
+        "leads": null,
+        "demos_booked": null
+      },
+      "content": {
+        "facebook": "See it. Do not just read it.\n\nThis is the real DT Restora: the POS screen your cashier uses and the kitchen display your cooks see. Message us and we will show you the rest on a call or in person.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RestaurantPOS #KitchenDisplay #DTRestora #RestaurantSoftware #CafePOS #BangladeshRestaurants",
+        "instagram": "See it. Do not just read it.\n\nThis is the real DT Restora: the POS screen your cashier uses and the kitchen display your cooks see. Message us and we will show you the rest on a call or in person.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#RestaurantPOS #KitchenDisplay #DTRestora #RestaurantSoftware #CafePOS #BangladeshRestaurants",
+        "linkedin": null,
+        "x": null,
+        "x_thread": [],
+        "google_business": null
+      },
+      "seo": {
+        "title": "See it. Do not just read it. | DT Restora",
+        "description": "See it. Do not just read it.",
+        "primary_keyword": "restaurant pos screenshot",
+        "secondary_keywords": []
+      },
+      "video_script": null,
+      "facebook_whatsapp_button": true
+    },
+    {
+      "id": "P151",
+      "title": "Free demo in 3 steps",
+      "category": "Launch starter",
+      "language": "en",
+      "type": "single_image",
+      "folder": "posts/14-launch-starters/151-free-demo-in-three-steps",
+      "images": [
+        {
+          "id": "IMG-151-01",
+          "file": "posts/14-launch-starters/151-free-demo-in-three-steps/image-01.png",
+          "size": "1080x1350",
+          "alt_text": "Three steps to book a free demo"
+        }
+      ],
+      "schedule": {
+        "day_number": null,
+        "planned_date": "2026-10-18",
+        "best_time_bd": "16:00",
+        "phase": "pre-launch-starter"
+      },
+      "planned_platforms": [
+        "facebook",
+        "instagram"
+      ],
+      "status": {
+        "is_posted_facebook": false,
+        "is_posted_instagram": false,
+        "is_posted_linkedin": false,
+        "is_posted_x": false,
+        "is_posted_google_business": false,
+        "is_posted_facebook_story": false,
+        "is_posted_instagram_story": false,
+        "is_posted_whatsapp_status": false,
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
+      },
+      "posted_at": {
+        "facebook": "scheduled 2026-10-18T16:00 (Meta Business Suite, not yet published)"
+      },
+      "post_urls": {},
+      "cta": {
+        "keyword": "DEMO",
+        "lead_source_code": "P151",
+        "contact_name": "Md. Sakir Ahmed",
+        "contact_phone": "01304734623"
+      },
+      "boost": {
+        "recommended": false,
+        "is_boosted": false,
+        "budget_bdt": null,
+        "objective": "messages"
+      },
+      "performance": {
+        "reach": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "saves": null,
+        "messages": null,
+        "leads": null,
+        "demos_booked": null
+      },
+      "content": {
+        "facebook": "A free demo in 3 steps.\n\n1. Message or call us (WhatsApp works best)\n2. Pick a time, today or tomorrow\n3. See it on your own menu, your dishes and your branches\n\nFree, no pressure, nothing to install to try.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#FreeDemo #TryBeforeYouBuy #DTRestora #RestaurantSoftware #BangladeshRestaurants #CafeOwners",
+        "instagram": "A free demo in 3 steps.\n\n1. Message or call us (WhatsApp works best)\n2. Pick a time, today or tomorrow\n3. See it on your own menu, your dishes and your branches\n\nFree, no pressure, nothing to install to try.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#FreeDemo #TryBeforeYouBuy #DTRestora #RestaurantSoftware #BangladeshRestaurants #CafeOwners",
+        "linkedin": null,
+        "x": null,
+        "x_thread": [],
+        "google_business": null
+      },
+      "seo": {
+        "title": "Free demo in 3 steps | DT Restora",
+        "description": "A free demo in 3 steps.",
+        "primary_keyword": "free restaurant software demo",
+        "secondary_keywords": []
+      },
+      "video_script": null,
+      "facebook_whatsapp_button": true
+    },
+    {
+      "id": "P152",
+      "title": "Local team. Local support.",
+      "category": "Launch starter",
+      "language": "en",
+      "type": "single_image",
+      "folder": "posts/14-launch-starters/152-local-team-local-support",
+      "images": [
+        {
+          "id": "IMG-152-01",
+          "file": "posts/14-launch-starters/152-local-team-local-support/image-01.png",
+          "size": "1080x1350",
+          "alt_text": "Local team and support promise"
+        }
+      ],
+      "schedule": {
+        "day_number": null,
+        "planned_date": "2026-10-18",
+        "best_time_bd": "20:00",
+        "phase": "pre-launch-starter"
+      },
+      "planned_platforms": [
+        "facebook",
+        "instagram"
+      ],
+      "status": {
+        "is_posted_facebook": false,
+        "is_posted_instagram": false,
+        "is_posted_linkedin": false,
+        "is_posted_x": false,
+        "is_posted_google_business": false,
+        "is_posted_facebook_story": false,
+        "is_posted_instagram_story": false,
+        "is_posted_whatsapp_status": false,
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
+      },
+      "posted_at": {
+        "facebook": "scheduled 2026-10-18T20:00 (Meta Business Suite, not yet published)"
+      },
+      "post_urls": {},
+      "cta": {
+        "keyword": "DEMO",
+        "lead_source_code": "P152",
+        "contact_name": "Md. Sakir Ahmed",
+        "contact_phone": "01304734623"
+      },
+      "boost": {
+        "recommended": false,
+        "is_boosted": false,
+        "budget_bdt": null,
+        "objective": "messages"
+      },
+      "performance": {
+        "reach": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "saves": null,
+        "messages": null,
+        "leads": null,
+        "demos_booked": null
+      },
+      "content": {
+        "facebook": "Local team. Local support.\n\nDT Restora is built by Datatech BD Ltd for the way Bangladesh restaurants and cafes really work.\n\n- Bangla and English screens, guides and messages\n- bKash, Nagad, cash and card\n- We install it for you, as your own system with your own database\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#DatatechBD #LocalSupport #BanglaPOS #DTRestora #RestaurantSoftware #BangladeshRestaurants",
+        "instagram": "Local team. Local support.\n\nDT Restora is built by Datatech BD Ltd for the way Bangladesh restaurants and cafes really work.\n\n- Bangla and English screens, guides and messages\n- bKash, Nagad, cash and card\n- We install it for you, as your own system with your own database\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#DatatechBD #LocalSupport #BanglaPOS #DTRestora #RestaurantSoftware #BangladeshRestaurants",
+        "linkedin": null,
+        "x": null,
+        "x_thread": [],
+        "google_business": null
+      },
+      "seo": {
+        "title": "Local team. Local support. | DT Restora",
+        "description": "Local team. Local support.",
+        "primary_keyword": "bangla restaurant software",
+        "secondary_keywords": []
+      },
+      "video_script": null,
+      "facebook_whatsapp_button": true
+    },
+    {
+      "id": "P153",
+      "title": "Comment DEMO",
+      "category": "Launch starter",
+      "language": "en",
+      "type": "single_image",
+      "folder": "posts/14-launch-starters/153-comment-demo",
+      "images": [
+        {
+          "id": "IMG-153-01",
+          "file": "posts/14-launch-starters/153-comment-demo/image-01.png",
+          "size": "1080x1350",
+          "alt_text": "Comment DEMO call to action"
+        }
+      ],
+      "schedule": {
+        "day_number": null,
+        "planned_date": "2026-10-18",
+        "best_time_bd": "22:00",
+        "phase": "pre-launch-starter"
+      },
+      "planned_platforms": [
+        "facebook",
+        "instagram"
+      ],
+      "status": {
+        "is_posted_facebook": false,
+        "is_posted_instagram": false,
+        "is_posted_linkedin": false,
+        "is_posted_x": false,
+        "is_posted_google_business": false,
+        "is_posted_facebook_story": false,
+        "is_posted_instagram_story": false,
+        "is_posted_whatsapp_status": false,
+        "is_posted_threads": false,
+        "is_scheduled_facebook": true
+      },
+      "posted_at": {
+        "facebook": "scheduled 2026-10-18T22:00 (Meta Business Suite, not yet published)"
+      },
+      "post_urls": {},
+      "cta": {
+        "keyword": "DEMO",
+        "lead_source_code": "P153",
+        "contact_name": "Md. Sakir Ahmed",
+        "contact_phone": "01304734623"
+      },
+      "boost": {
+        "recommended": false,
+        "is_boosted": false,
+        "budget_bdt": null,
+        "objective": "messages"
+      },
+      "performance": {
+        "reach": null,
+        "reactions": null,
+        "comments": null,
+        "shares": null,
+        "saves": null,
+        "messages": null,
+        "leads": null,
+        "demos_booked": null
+      },
+      "content": {
+        "facebook": "Comment DEMO and we will message you a free walkthrough.\n\nFree, on your own menu, no pressure. You can also call or WhatsApp us directly.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#FreeDemo #RestaurantOwners #CafeOwners #DTRestora #RestaurantSoftware #BangladeshRestaurants",
+        "instagram": "Comment DEMO and we will message you a free walkthrough.\n\nFree, on your own menu, no pressure. You can also call or WhatsApp us directly.\n\nTo book a free demo, contact Md. Sakir Ahmed: 01304734623\n\n#FreeDemo #RestaurantOwners #CafeOwners #DTRestora #RestaurantSoftware #BangladeshRestaurants",
+        "linkedin": null,
+        "x": null,
+        "x_thread": [],
+        "google_business": null
+      },
+      "seo": {
+        "title": "Comment DEMO | DT Restora",
+        "description": "Comment DEMO and we will message you a free walkthrough.",
+        "primary_keyword": "restaurant software demo",
+        "secondary_keywords": []
+      },
+      "video_script": null,
+      "facebook_whatsapp_button": true
     }
   ]
 }
