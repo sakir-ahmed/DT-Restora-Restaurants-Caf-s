@@ -5,6 +5,7 @@ import AppIcon from '@/components/AppIcon.vue';
 import SeoHead from '@/components/site/SeoHead.vue';
 import LanguageSwitch from '@/components/ui-kit/LanguageSwitch.vue';
 import ThemeToggle from '@/components/ui-kit/ThemeToggle.vue';
+import { track } from '@/lib/demoTracker';
 import { t } from '@/lib/i18n';
 import { cartCount, cartSubtotal } from '@/lib/cart';
 import { formatMoney } from '@/lib/format';
@@ -20,6 +21,8 @@ const drawerOpen = ref(false);
 const customer = computed(() => page.props.auth?.customer ?? null);
 const staff = computed(() => page.props.auth?.user ?? null);
 const branches = computed(() => page.props.site?.branches ?? []);
+// Demo sites expose the back office login, which is otherwise hidden from the public site.
+const showAdminDemo = computed(() => page.props.isDemo === true && ! staff.value);
 
 const accountLink = computed(() => {
     if (staff.value) {
@@ -131,6 +134,16 @@ onBeforeUnmount(() => {
                 </nav>
 
                 <div class="ml-auto flex items-center gap-2">
+                    <Link
+                        v-if="showAdminDemo"
+                        href="/login"
+                        class="demo-admin-cta hidden h-9 items-center gap-1.5 rounded-lg border border-accent/60 bg-accent/10 px-3 text-sm font-semibold text-foreground transition hover:bg-accent hover:text-accent-foreground sm:inline-flex"
+                        @click="track('cta_click', 'admin_header')"
+                    >
+                        <AppIcon name="user-shield" size="14" />
+                        {{ t('demo.admin_cta') }}
+                    </Link>
+
                     <Link :href="accountLink.href" class="hidden h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-medium text-muted hover:text-foreground md:inline-flex">
                         <AppIcon v-if="accountLink.icon" :name="accountLink.icon" size="14" />
                         {{ accountLink.label }}
@@ -190,6 +203,15 @@ onBeforeUnmount(() => {
                     <Link href="/menu" class="flex h-11 items-center justify-center gap-2 rounded-lg bg-accent text-base font-semibold text-accent-foreground ">
                         <AppIcon name="bag-shopping" size="16" />
                         {{ t('site.nav_order') }}
+                    </Link>
+                    <Link
+                        v-if="showAdminDemo"
+                        href="/login"
+                        class="flex h-10 items-center justify-center gap-2 rounded-lg border border-accent/60 bg-accent/10 text-sm font-semibold"
+                        @click="track('cta_click', 'admin_drawer')"
+                    >
+                        <AppIcon name="user-shield" size="14" />
+                        {{ t('demo.admin_cta') }}
                     </Link>
                     <Link :href="accountLink.href" class="flex h-10 items-center justify-center gap-2 rounded-lg border border-border bg-surface text-sm font-medium">
                         <AppIcon v-if="accountLink.icon" :name="accountLink.icon" size="14" />

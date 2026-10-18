@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\MenuCategory;
 use App\Models\RestaurantTable;
+use App\Services\PublicCache;
 use App\Services\SeoBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -19,6 +20,39 @@ class MenuController extends Controller
     public function __construct(private readonly SeoBuilder $seo) {}
 
     public function __invoke(Request $request, ?string $branchCode = null): Response
+    {
+        $locale = app()->getLocale();
+
+        /** @var array{branch: array<string, mixed>, categories: list<array<string, mixed>>, seo: array<string, mixed>} $page */
+        $page = PublicCache::remember('menu:'.$locale.':'.($branchCode ?? 'default'), fn (): array => $this->pageData($branchCode));
+
+        // QR table ordering: /menu?table=T3 or /q/{code}
+        $tableCode = $request->string('table')->toString();
+        $table = $tableCode !== ''
+            ? RestaurantTable::query()->where('branch_id', $page['branch']['id'])->where('is_active', true)->where('name', $tableCode)->first()
+            : null;
+
+        if ($tableCode !== '' && $table === null) {
+            abort(404);
+        }
+
+        session(['web_branch_id' => $page['branch']['id']]);
+
+        // Table QR links are per-table duplicates of the same menu.
+        $page['seo']['noindex'] = $table !== null;
+
+        return Inertia::render('web/Menu', [
+            ...$page,
+            'table' => $table?->only(['id', 'name']),
+        ]);
+    }
+
+    /**
+     * The part of the menu page that is the same for every visitor.
+     *
+     * @return array{branch: array<string, mixed>, categories: list<array<string, mixed>>, seo: array<string, mixed>}
+     */
+    private function pageData(?string $branchCode): array
     {
         $branch = Branch::query()
             ->where('is_active', true)
@@ -34,24 +68,11 @@ class MenuController extends Controller
             ->with(['items' => fn ($query) => $query->available()->with(['variants', 'addOns', 'media'])->orderBy('sort_order')])
             ->get();
 
-        // QR table ordering: /menu?table=T3 or /q/{code}
-        $tableCode = $request->string('table')->toString();
-        $table = $tableCode !== ''
-            ? RestaurantTable::query()->where('branch_id', $branch->id)->where('is_active', true)->where('name', $tableCode)->first()
-            : null;
-
-        if ($tableCode !== '' && $table === null) {
-            abort(404);
-        }
-
-        session(['web_branch_id' => $branch->id]);
-
-        return Inertia::render('web/Menu', [
+        return [
             'branch' => $branch->only(['id', 'name', 'name_bn', 'code', 'address', 'phone', 'opening_hours']) + ['slug' => $branch->publicSlug()],
-            'categories' => $categories,
-            'table' => $table?->only(['id', 'name']),
-            'seo' => $this->seoData($branch, $categories, $table !== null),
-        ]);
+            'categories' => $categories->toArray(),
+            'seo' => $this->seoData($branch, $categories, false),
+        ];
     }
 
     /**

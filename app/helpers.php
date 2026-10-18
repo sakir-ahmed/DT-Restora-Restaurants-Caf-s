@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use Illuminate\Support\Facades\Cache;
 
 if (! function_exists('normalize_bd_mobile')) {
     /**
@@ -59,25 +60,32 @@ if (! function_exists('flat_translations')) {
             return [];
         }
 
-        $flat = [];
+        $files = glob($path.'/*.php') ?: [];
 
-        foreach (glob($path.'/*.php') ?: [] as $file) {
-            $group = basename($file, '.php');
+        // The signature changes when any lang file is edited, so a deploy never serves stale text.
+        $signature = md5(implode('|', array_map(fn (string $file): string => $file.filemtime($file), $files)).json_encode($groups));
 
-            if ($groups !== null && ! in_array($group, $groups, true)) {
-                continue;
-            }
+        return Cache::remember("translations:{$locale}:{$signature}", 86400, function () use ($files, $groups): array {
+            $flat = [];
 
-            $lines = require $file;
+            foreach ($files as $file) {
+                $group = basename($file, '.php');
 
-            foreach (array_dot($lines) as $key => $value) {
-                if (is_string($value)) {
-                    $flat[$group.'.'.$key] = $value;
+                if ($groups !== null && ! in_array($group, $groups, true)) {
+                    continue;
+                }
+
+                $lines = require $file;
+
+                foreach (array_dot($lines) as $key => $value) {
+                    if (is_string($value)) {
+                        $flat[$group.'.'.$key] = $value;
+                    }
                 }
             }
-        }
 
-        return $flat;
+            return $flat;
+        });
     }
 }
 

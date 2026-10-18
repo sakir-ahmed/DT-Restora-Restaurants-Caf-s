@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\FlushesPublicCache;
 use App\Services\BlogMarkdown;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,6 +14,7 @@ use Illuminate\Support\Str;
 
 class BlogPost extends Model
 {
+    use FlushesPublicCache;
     use HasFactory;
 
     public const STATUS_DRAFT = 'draft';

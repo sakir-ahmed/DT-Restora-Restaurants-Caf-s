@@ -1,4 +1,8 @@
 import {
+    faLightbulb,
+    faRocket,
+    faHeadset,
+    faRoute,
     faArrowDown,
     faArrowRight,
     faArrowUp,
@@ -250,6 +254,10 @@ export const icons = {
     'wheat-awn': faWheatAwn,
     'bell-concierge': faBellConcierge,
     'arrow-up-right': faArrowUpRightFromSquare,
+    lightbulb: faLightbulb,
+    rocket: faRocket,
+    headset: faHeadset,
+    route: faRoute,
 };
 
 export function getIcon(name) {

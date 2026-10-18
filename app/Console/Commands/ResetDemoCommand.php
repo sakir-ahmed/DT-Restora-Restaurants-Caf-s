@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Services\DemoJourneyArchive;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -14,6 +15,11 @@ use Illuminate\Support\Facades\Cache;
 #[Description('Rebuild the database from migrations and seeders. Runs only when IS_DEMO is true.')]
 class ResetDemoCommand extends Command
 {
+    public function __construct(private readonly DemoJourneyArchive $journeys)
+    {
+        parent::__construct();
+    }
+
     public function handle(): int
     {
         if (config('app.is_demo') !== true) {
@@ -44,10 +50,18 @@ class ResetDemoCommand extends Command
             ini_set('memory_limit', '1G');
             $this->info('Resetting the demo database.');
 
-            return $this->call('migrate:fresh', [
+            $snapshot = $this->journeys->snapshot();
+
+            $status = $this->call('migrate:fresh', [
                 '--seed' => true,
                 '--force' => true,
             ]);
+
+            if ($status === self::SUCCESS) {
+                $this->info('Restored '.$this->journeys->restore($snapshot).' demo journey rows.');
+            }
+
+            return $status;
         } finally {
             $lock->release();
         }

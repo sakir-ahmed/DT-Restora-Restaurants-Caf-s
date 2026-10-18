@@ -6,10 +6,13 @@ namespace App\Http\Middleware;
 
 use App\Models\Branch;
 use App\Models\User;
+use App\Services\DemoJourney;
 use App\Services\DemoSmsInbox;
 use App\Services\Metrics\MetricsService;
+use App\Services\PublicCache;
 use App\Services\SmsService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -21,7 +24,7 @@ class HandleInertiaRequests extends Middleware
      */
     private const PUBLIC_TRANSLATION_GROUPS = [
         'common', 'web', 'site', 'auth', 'coupons', 'orders', 'payment_method',
-        'payments', 'status', 'menu', 'loyalty', 'errors', 'staff', 'nav', 'legal', 'receipt', 'reasons', 'sync',
+        'payments', 'status', 'menu', 'loyalty', 'errors', 'staff', 'nav', 'legal', 'receipt', 'reasons', 'sync', 'demo',
     ];
 
     public function share(Request $request): array
@@ -33,6 +36,7 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'appName' => config('app.name'),
             'isDemo' => config('app.is_demo') === true,
+            'demoSession' => fn () => config('app.is_demo') === true ? app(DemoJourney::class)->shared($request) : null,
             'locale' => app()->getLocale(),
             'translations' => flat_translations(app()->getLocale(), $request->routeIs('web.*') ? self::PUBLIC_TRANSLATION_GROUPS : null),
             'auth' => [
@@ -66,9 +70,9 @@ class HandleInertiaRequests extends Middleware
                 : [],
             'smsDemo' => SmsService::isDemo(),
             'demoSms' => fn () => app(DemoSmsInbox::class)->drain($request),
-            'site' => fn () => $request->routeIs('web.*') ? $this->siteData() : null,
+            'site' => fn () => $request->routeIs('web.*') ? PublicCache::remember('site', fn (): array => $this->siteData()) : null,
             'currentBranchId' => $user ? $this->currentBranchId($user) : null,
-            'notifications' => $user ? $this->notifications($user) : [],
+            'notifications' => $user ? $this->cachedNotifications($user) : [],
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
@@ -96,6 +100,19 @@ class HandleInertiaRequests extends Middleware
         $first = Branch::query()->orderBy('id')->value('id');
 
         return $first !== null ? (int) $first : null;
+    }
+
+    /**
+     * Stock and wastage alerts only change as orders are rung up, so a minute-old answer is fine
+     * and saves two aggregate queries on every admin navigation.
+     *
+     * @return array<int, array{id: string, icon: string, title: string, body: string, href: string}>
+     */
+    private function cachedNotifications(User $user): array
+    {
+        $branchId = $this->currentBranchId($user);
+
+        return Cache::remember('admin-alerts:'.($branchId ?? 'all').':'.app()->getLocale(), 60, fn (): array => $this->notifications($user));
     }
 
     /**

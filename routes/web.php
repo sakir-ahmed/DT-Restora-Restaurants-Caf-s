@@ -55,6 +55,7 @@ use App\Http\Controllers\Web\CheckoutController;
 use App\Http\Controllers\Web\ContactController;
 use App\Http\Controllers\Web\CustomerAuthController;
 use App\Http\Controllers\Web\CustomerGoogleController;
+use App\Http\Controllers\Web\DemoSessionController;
 use App\Http\Controllers\Web\FaqController;
 use App\Http\Controllers\Web\GalleryController;
 use App\Http\Controllers\Web\HomeController;
@@ -128,6 +129,13 @@ Route::get('/sitemap.xml', SitemapController::class)->name('web.sitemap');
 Route::get('/robots.txt', RobotsController::class)->name('web.robots');
 
 Route::post('/locale', LocaleController::class)->name('locale.switch');
+
+// Demo sites only: visitor session started with a mobile number, and its journey events.
+Route::prefix('demo')->name('demo.')->group(function (): void {
+    Route::post('session', [DemoSessionController::class, 'start'])->name('start')->middleware('throttle:10,1');
+    Route::post('events', [DemoSessionController::class, 'events'])->name('events')->middleware('throttle:120,1');
+    Route::delete('session', [DemoSessionController::class, 'end'])->name('end');
+});
 
 // Aggregator webhooks: public, one per channel, CSRF-excluded.
 Route::post('/webhooks/aggregators/{key}', AggregatorWebhookController::class)->name('aggregators.webhook');

@@ -1,4 +1,5 @@
 import { reactive, watch } from 'vue';
+import { track } from './demoTracker';
 
 const STORAGE_KEY = 'web-cart';
 
@@ -25,6 +26,8 @@ watch(() => cart.lines, (lines) => {
 }, { deep: true });
 
 export function addToCart(item, variant = null, addOns = []) {
+    track('add_to_cart', item.name, { item_id: item.id, price: Number(variant?.price ?? item.base_price) });
+
     const variantId = variant?.id ?? null;
     const addOnKey = addOns.map((addOn) => addOn.id).sort().join('-');
 

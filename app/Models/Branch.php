@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\FlushesPublicCache;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,6 +14,7 @@ use Illuminate\Support\Str;
 /** @use HasMany<User, $this> */
 class Branch extends Model
 {
+    use FlushesPublicCache;
     use HasFactory;
 
     protected $fillable = [

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToBranch;
+use App\Models\Concerns\FlushesPublicCache;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 class MenuItem extends Model
 {
     use BelongsToBranch, HasFactory;
+    use FlushesPublicCache;
 
     protected $fillable = [
         'branch_id', 'menu_category_id', 'name', 'name_bn',

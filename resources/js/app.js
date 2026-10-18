@@ -3,10 +3,14 @@ import 'vue-sonner/style.css';
 
 import { createInertiaApp, usePage } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
-import { createApp, createSSRApp, defineComponent, h, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { createApp, createSSRApp, defineAsyncComponent, defineComponent, h, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { Toaster } from 'vue-sonner';
 import { ZiggyVue, route as routeFn } from 'ziggy-js';
 import DemoBanner from './components/DemoBanner.vue';
+
+// Demo-only UI is a separate chunk, so the normal site never downloads it.
+const DemoExperience = defineAsyncComponent(() => import('./components/demo/DemoExperience.vue'));
+
 import ConfirmHost from './components/ui-kit/ConfirmHost.vue';
 import UpdatePrompt from './components/ui-kit/UpdatePrompt.vue';
 import { Workbox } from 'workbox-window';
@@ -58,6 +62,7 @@ createInertiaApp({
                             class: 'pointer-events-none fixed bottom-3 left-3 z-[60] max-w-[calc(100vw-1.5rem)] rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-muted shadow-sm',
                         }, t('common.demo_sms_badge'))
                         : null,
+                    mounted.value && page.props?.isDemo ? h(DemoExperience) : null,
                     mounted.value ? h(ConfirmHost) : null,
                     mounted.value ? h(UpdatePrompt) : null,
                     mounted.value

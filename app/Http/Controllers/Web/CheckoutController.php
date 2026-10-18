@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web;
 
 use App\Actions\Sales\CreateOrderAction;
+use App\Enums\DemoEventType;
 use App\Enums\OrderChannel;
 use App\Enums\OrderType;
 use App\Events\OrderCreated;
@@ -15,6 +16,7 @@ use App\Models\Customer;
 use App\Models\DeliveryZone;
 use App\Models\RestaurantTable;
 use App\Services\CouponService;
+use App\Services\DemoJourney;
 use App\Services\OtpService;
 use App\Services\SmsService;
 use App\Services\TurnstileService;
@@ -219,6 +221,8 @@ class CheckoutController extends Controller
             'order_type' => $order->order_type->value,
             'items' => $order->items->map(fn ($item) => ['name' => $item->name, 'quantity' => $item->quantity])->all(),
         ]));
+
+        app(DemoJourney::class)->recordFor($request, DemoEventType::OrderPlaced, $order->invoice_no);
 
         SendSmsJob::deliver($customer->mobile, __('web.sms_order_confirmed', ['invoice' => $order->invoice_no, 'total' => $order->total]));
 

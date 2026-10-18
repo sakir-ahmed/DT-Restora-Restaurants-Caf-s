@@ -11,6 +11,7 @@ use App\Models\DeliveryZone;
 use App\Models\Media;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
+use App\Services\PublicCache;
 use App\Services\SeoBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -22,6 +23,16 @@ class HomeController extends Controller
     public function __construct(private readonly SeoBuilder $seo) {}
 
     public function __invoke(Request $request): Response
+    {
+        $locale = app()->getLocale();
+
+        return Inertia::render('web/Home', PublicCache::remember('home:'.$locale, fn (): array => $this->props()));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function props(): array
     {
         $branches = Branch::query()
             ->where('is_active', true)
@@ -49,10 +60,10 @@ class HomeController extends Controller
             ->map(fn (MenuCategory $category): array => ['name' => $category->name, 'name_bn' => $category->name_bn])
             ->values();
 
-        return Inertia::render('web/Home', [
-            'branches' => $branches,
-            'featured' => $featured,
-            'categories' => $categories,
+        return [
+            'branches' => $branches->toArray(),
+            'featured' => $featured->toArray(),
+            'categories' => $categories->all(),
             'gallery' => $this->galleryPreview(),
             'posts' => BlogPost::query()->published()->orderByDesc('published_at')->limit(3)->get()->map(fn (BlogPost $post): array => [
                 'id' => $post->id,
@@ -64,14 +75,14 @@ class HomeController extends Controller
                 'cover_alt' => $post->cover_alt ?: $post->text('title', app()->getLocale()),
                 'published_at' => $post->published_at?->toIso8601String(),
                 'reading_minutes' => $post->readingMinutes(app()->getLocale()),
-            ])->values(),
+            ])->values()->all(),
             'stats' => [
                 'branches' => $branches->count(),
                 'dishes' => MenuItem::query()->available()->whereIn('branch_id', $branches->pluck('id'))->count(),
                 'areas' => DeliveryZone::query()->where('is_active', true)->whereIn('branch_id', $branches->pluck('id'))->count(),
             ],
             'seo' => $this->seoData($branches),
-        ]);
+        ];
     }
 
     /**
