@@ -1,7 +1,11 @@
 <script setup>
 import { computed } from 'vue';
+import { config } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { getIcon } from './icons';
+
+// The icon CSS is bundled in app.css; do not inject it again at runtime.
+config.autoAddCss = false;
 
 const props = defineProps({
     name: { type: String, required: true },

@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 
+/* Icon sizing ships with the stylesheet, so server rendered icons never show oversized before JavaScript loads. */
+@import '@fortawesome/fontawesome-svg-core/styles.css';
+
 @import '@fontsource/inter/400.css';
 @import '@fontsource/inter/500.css';
 @import '@fontsource/inter/600.css';

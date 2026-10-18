@@ -11,7 +11,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#1f1612">
+    <meta name="theme-color" content="#fafafa">
     <link rel="manifest" href="/manifest.webmanifest">
     <meta data-inertia="robots" name="robots" content="{{ $robots }}">
 
@@ -48,7 +48,7 @@
             try {
                 var theme = localStorage.getItem('theme');
 
-                if (theme === 'dark' || (! theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                if (theme === 'dark') {
                     document.documentElement.classList.add('dark');
                 }
             } catch (e) {
