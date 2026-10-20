@@ -1074,24 +1074,24 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
     <div class="flex h-[calc(100vh-3.5rem-var(--demo-banner-h))] flex-col gap-2 overflow-hidden p-2 lg:flex-row">
         <!-- Left: categories + items -->
         <section class="flex min-w-0 flex-1 flex-col gap-2">
-            <div class="flex items-center gap-2">
-                <div class="flex h-11 flex-1 items-center gap-2 rounded-lg border border-border bg-surface px-3">
-                    <AppIcon name="magnifying-glass" size="16" class="text-muted" />
+            <div class="flex flex-wrap items-center gap-1" role="tablist">
+                <div class="flex h-7 w-full items-center gap-1.5 rounded-md border border-border bg-surface px-2 sm:w-52">
+                    <AppIcon name="magnifying-glass" size="12" class="text-muted" />
                     <input
                         ref="searchRef"
                         v-model="search"
                         data-pos-search
                         type="search"
                         :placeholder="t('menu.search_items')"
-                        class="w-full border-0 bg-transparent text-base text-foreground outline-none placeholder:text-muted/60"
+                        class="w-full border-0 bg-transparent text-[13px] text-foreground outline-none placeholder:text-muted/60"
                     >
                 </div>
-            </div>
 
-            <div class="flex flex-wrap gap-1.5">
                 <button
                     type="button"
-                    class="h-9 rounded-lg border px-3 text-sm font-medium"
+                    role="tab"
+                    :aria-selected="activeCategory === null"
+                    class="h-7 rounded-md border px-2 text-[13px] font-medium leading-none"
                     :class="activeCategory === null ? 'border-accent bg-accent/15 text-accent-foreground' : 'border-border bg-surface text-muted hover:text-foreground'"
                     @click="activeCategory = null"
                 >
@@ -1101,7 +1101,9 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                     v-for="category in categories"
                     :key="category.id"
                     type="button"
-                    class="h-9 rounded-lg border px-3 text-sm font-medium"
+                    role="tab"
+                    :aria-selected="activeCategory === category.id"
+                    class="h-7 rounded-md border px-2 text-[13px] font-medium leading-none"
                     :class="activeCategory === category.id ? 'border-accent bg-accent/15 text-accent-foreground' : 'border-border bg-surface text-muted hover:text-foreground'"
                     @click="activeCategory = category.id"
                 >

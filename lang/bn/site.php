@@ -22,6 +22,8 @@ return [
     'hero_badge_fresh' => 'অর্ডার পেলেই রান্না',
     'hero_badge_tracking' => 'সরাসরি ট্র্যাকিং',
     'hero_badge_qr' => 'টেবিলে QR অর্ডার',
+    'hero_showcase' => 'বিশেষ খাবার',
+    'hero_title_short' => 'তাজা রান্না, যত্নে পরিবেশন',
     'scroll_hint' => 'নিচে স্ক্রল করুন',
 
     'stat_branches' => 'শাখা',

@@ -30,7 +30,7 @@ onBeforeUnmount(() => {
     <div
         ref="bar"
         role="status"
-        class="demo-banner sticky top-0 z-20 border-b border-accent-foreground/15 bg-accent px-3 py-1 text-center text-[11px] leading-tight font-medium text-accent-foreground print:hidden"
+        class="demo-banner sticky top-0 z-20 border-b border-white/15 bg-[#0b63ce] px-3 py-1 text-center text-[11px] leading-tight font-medium text-white print:hidden"
     >
         <p class="mx-auto flex max-w-6xl items-start justify-center gap-1.5 sm:items-center">
             <AppIcon name="circle-info" size="12" class="mt-px shrink-0 sm:mt-0" />

@@ -22,6 +22,8 @@ return [
     'hero_badge_fresh' => 'Cooked to order',
     'hero_badge_tracking' => 'Live tracking',
     'hero_badge_qr' => 'Table QR ordering',
+    'hero_showcase' => 'Featured dishes',
+    'hero_title_short' => 'Cooked fresh, served with care',
     'scroll_hint' => 'Scroll to explore',
 
     'stat_branches' => 'Branches',

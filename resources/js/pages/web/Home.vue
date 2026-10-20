@@ -7,7 +7,7 @@ import CountUp from '@/components/site/CountUp.vue';
 import CtaBanner from '@/components/site/CtaBanner.vue';
 import DishCard from '@/components/site/DishCard.vue';
 import FaqList from '@/components/site/FaqList.vue';
-import DishArt from '@/components/site/DishArt.vue';
+import HeroShowcase from '@/components/site/HeroShowcase.vue';
 import PostCard from '@/components/site/PostCard.vue';
 import Reveal from '@/components/site/Reveal.vue';
 import SectionHeading from '@/components/site/SectionHeading.vue';
@@ -83,9 +83,7 @@ const statTiles = computed(() => [
                     </ul>
                 </div>
 
-                <div class="rounded-xl border border-border bg-background p-6 lg:justify-self-end">
-                    <div class="mx-auto aspect-square w-full max-w-xs sm:max-w-sm"><DishArt kind="bowl" :seed="2" /></div>
-                </div>
+                <HeroShowcase :items="featured" class="w-full lg:max-w-lg lg:justify-self-end" />
             </div>
         </section>
 
