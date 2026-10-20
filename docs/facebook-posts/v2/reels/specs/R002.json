@@ -17,10 +17,10 @@
    "kind": "screen",
    "shot": "dash.jpg",
    "crop": [
-    897,
-    525,
-    690,
-    205
+    916,
+    636,
+    668,
+    232
    ],
    "callout": "Net profit, built up daily",
    "caption": "But at month end, the money was not there. Nusrat apu showed him the numbers. Food cost, waste, salary, all eating his sales.",
@@ -30,12 +30,12 @@
    "kind": "screen",
    "shot": "dash.jpg",
    "crop": [
-    196,
-    137,
-    1392,
-    82
+    236,
+    166,
+    1348,
+    104
    ],
-   "callout": "Sales, food cost, profit: today",
+   "callout": "Sales, food cost and profit at a glance",
    "caption": "Profit was small. He said, I never saw this before. Now he checks profit every day.",
    "dur": 8.0
   },

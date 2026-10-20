@@ -16,12 +16,12 @@
    "kind": "screen",
    "shot": "dash.jpg",
    "crop": [
-    196,
-    137,
-    1392,
-    82
+    236,
+    166,
+    1348,
+    104
    ],
-   "callout": "Sales, food cost, profit: today",
+   "callout": "Sales, food cost and profit at a glance",
    "caption": "Claim your Google Business Profile. Add real photos every week.",
    "dur": 5.8
   },

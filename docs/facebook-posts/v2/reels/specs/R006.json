@@ -16,12 +16,12 @@
    "kind": "screen",
    "shot": "dash.jpg",
    "crop": [
-    196,
-    137,
-    1392,
-    82
+    236,
+    166,
+    1348,
+    104
    ],
-   "callout": "Sales, food cost, profit: today",
+   "callout": "Sales, food cost and profit at a glance",
    "caption": "Stock is counted by guess. At month end, nobody knows where the money went.",
    "dur": 7.5
   },
@@ -29,10 +29,10 @@
    "kind": "screen",
    "shot": "dash.jpg",
    "crop": [
-    897,
-    525,
-    690,
-    205
+    916,
+    636,
+    668,
+    232
    ],
    "callout": "Net profit, built up daily",
    "caption": "Paper hides leaks. When you go digital, every leak becomes visible. Then you can fix it.",

@@ -28,9 +28,9 @@
    "kind": "screen",
    "shot": "kds.jpg",
    "crop": [
-    190,
+    240,
     70,
-    760,
+    900,
     430
    ],
    "callout": "One live kitchen screen",

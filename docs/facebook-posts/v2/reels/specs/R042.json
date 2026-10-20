@@ -15,12 +15,12 @@
    "kind": "screen",
    "shot": "dash.jpg",
    "crop": [
-    196,
-    137,
-    1392,
-    82
+    236,
+    166,
+    1348,
+    104
    ],
-   "callout": "Sales, food cost, profit: today",
+   "callout": "Sales, food cost and profit at a glance",
    "caption": "So he tried the free live demo.",
    "dur": 4.5
   },
@@ -28,9 +28,9 @@
    "kind": "screen",
    "shot": "kds.jpg",
    "crop": [
-    190,
+    240,
     70,
-    760,
+    900,
     430
    ],
    "callout": "One live kitchen screen",
@@ -41,10 +41,10 @@
    "kind": "screen",
    "shot": "pos-cart.jpg",
    "crop": [
-    1230,
-    640,
-    360,
-    230
+    1165,
+    600,
+    410,
+    270
    ],
    "callout": "Tap, pay, print",
    "caption": "Then we showed it on his own menu. Free, no pressure, nothing to install to try.",

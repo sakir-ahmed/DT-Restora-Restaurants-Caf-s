@@ -17,10 +17,10 @@
    "kind": "screen",
    "shot": "pos-cart.jpg",
    "crop": [
-    1230,
-    640,
-    360,
-    230
+    1165,
+    600,
+    410,
+    270
    ],
    "callout": "Tap, pay, print",
    "caption": "Does it track recipe-level stock? Is staff payroll included?",
@@ -30,10 +30,10 @@
    "kind": "screen",
    "shot": "pos-paid.jpg",
    "crop": [
-    1230,
+    1165,
     560,
-    360,
-    300
+    410,
+    310
    ],
    "callout": "Payment done, receipt ready",
    "caption": "Can customers order online? Can I try a live demo first? If the answer is no, you will run spreadsheets next to it.",

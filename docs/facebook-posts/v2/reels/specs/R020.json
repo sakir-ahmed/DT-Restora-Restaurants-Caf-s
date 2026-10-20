@@ -14,12 +14,12 @@
   },
   {
    "kind": "screen",
-   "shot": "dash.jpg",
+   "shot": "dash-bottom.jpg",
    "crop": [
-    197,
-    745,
-    900,
-    135
+    236,
+    494,
+    1348,
+    170
    ],
    "callout": "Every branch, one screen",
    "caption": "He cannot be in every kitchen. The dashboard shows sales, food cost and profit for each branch.",
@@ -29,10 +29,10 @@
    "kind": "screen",
    "shot": "dash.jpg",
    "crop": [
-    897,
-    525,
-    690,
-    205
+    916,
+    636,
+    668,
+    232
    ],
    "callout": "Net profit, built up daily",
    "caption": "The comparison table shows who is best. Managers see only their branch.",

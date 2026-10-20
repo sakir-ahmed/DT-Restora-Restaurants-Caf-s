@@ -17,9 +17,9 @@
    "kind": "screen",
    "shot": "w-home.jpg",
    "crop": [
-    250,
+    230,
     40,
-    1000,
+    1140,
     520
    ],
    "callout": "Your own ordering website",

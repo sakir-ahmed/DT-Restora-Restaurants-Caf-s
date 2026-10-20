@@ -15,10 +15,10 @@
    "kind": "screen",
    "shot": "pos-paid.jpg",
    "crop": [
-    1230,
+    1165,
     560,
-    360,
-    300
+    410,
+    310
    ],
    "callout": "Payment done, receipt ready",
    "caption": "The system already shows expected cash, counted cash and the difference. If something is short, she knows today, not at month end.",

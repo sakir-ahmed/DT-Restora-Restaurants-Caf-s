@@ -8,7 +8,7 @@ F = {
  'profit':   ('dash.jpg', [916, 636, 668, 232], 'Net profit, built up daily'),
  'cards':    ('dash.jpg', [236, 166, 1348, 104], 'Sales, food cost and profit at a glance'),
  'topitems': ('dash.jpg', [236, 636, 668, 232], 'Top selling dishes'),
- 'branches': ('dash.jpg', [197, 745, 900, 135], 'Every branch, one screen'),
+ 'branches': ('dash-bottom.jpg', [236, 494, 1348, 170], 'Every branch, one screen'),
  'pos':      ('pos-cart.jpg', [1165, 600, 410, 270], 'Tap, pay, print'),
  'split':    ('pos-split.jpg', [1165, 600, 410, 270], 'Cash + bKash + Nagad + card'),
  'paid':     ('pos-paid.jpg', [1165, 560, 410, 310], 'Payment done, receipt ready'),

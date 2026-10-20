@@ -1,3 +1,11 @@
+# Shared log rotation for every long-running service: keep 3 rotated files of 10 MB.
+# See docs/docker.md ("Docker log management").
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
 
   app:
@@ -18,7 +26,8 @@ services:
       mysql:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
+    logging: *default-logging
     restart: no
 
   nginx:
@@ -30,6 +39,7 @@ services:
       - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - app
+    logging: *default-logging
     restart: no
 
   mysql:
@@ -46,12 +56,19 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+    logging: *default-logging
     restart: no
 
   redis:
     image: redis:7-alpine
     volumes:
       - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    logging: *default-logging
     restart: no
 
   queue:
@@ -70,7 +87,11 @@ services:
       SESSION_DRIVER: redis
       QUEUE_CONNECTION: redis
     depends_on:
-      - app
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    logging: *default-logging
     restart: no
 
   scheduler:
@@ -89,7 +110,11 @@ services:
       SESSION_DRIVER: redis
       QUEUE_CONNECTION: redis
     depends_on:
-      - app
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    logging: *default-logging
     restart: no
 
   reverb:
@@ -111,6 +136,7 @@ services:
       QUEUE_CONNECTION: redis
     depends_on:
       - app
+    logging: *default-logging
     restart: no
 
 volumes:

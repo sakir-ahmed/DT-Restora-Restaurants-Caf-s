@@ -29,10 +29,10 @@
    "kind": "screen",
    "shot": "pos-cart.jpg",
    "crop": [
-    1230,
-    640,
-    360,
-    230
+    1165,
+    600,
+    410,
+    270
    ],
    "callout": "Tap, pay, print",
    "caption": "Cash orders are saved locally and sync when the connection returns. Receipts still print. No duplicate orders.",

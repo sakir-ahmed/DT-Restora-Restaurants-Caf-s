@@ -16,9 +16,9 @@
    "kind": "screen",
    "shot": "kds.jpg",
    "crop": [
-    190,
+    240,
     70,
-    760,
+    900,
     430
    ],
    "callout": "One live kitchen screen",
@@ -29,12 +29,12 @@
    "kind": "screen",
    "shot": "dash.jpg",
    "crop": [
-    196,
-    137,
-    1392,
-    82
+    236,
+    166,
+    1348,
+    104
    ],
-   "callout": "Sales, food cost, profit: today",
+   "callout": "Sales, food cost and profit at a glance",
    "caption": "On one kitchen board with a timer, the pass moves faster. Hold and resume tickets at the till. Fewer forgotten orders.",
    "dur": 8.0
   },

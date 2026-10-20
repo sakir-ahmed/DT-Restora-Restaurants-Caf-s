@@ -17,12 +17,12 @@
    "kind": "screen",
    "shot": "dash.jpg",
    "crop": [
-    196,
-    137,
-    1392,
-    82
+    236,
+    166,
+    1348,
+    104
    ],
-   "callout": "Sales, food cost, profit: today",
+   "callout": "Sales, food cost and profit at a glance",
    "caption": "Two, do you know this week's waste? Three, does your cash drawer match every night?",
    "dur": 7.9
   },
@@ -30,10 +30,10 @@
    "kind": "screen",
    "shot": "dash.jpg",
    "crop": [
-    897,
-    525,
-    690,
-    205
+    916,
+    636,
+    668,
+    232
    ],
    "callout": "Net profit, built up daily",
    "caption": "If any answer is no, you are guessing. And guessing costs money. A simple system can answer all three.",

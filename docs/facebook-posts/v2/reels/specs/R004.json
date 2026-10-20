@@ -16,10 +16,10 @@
    "kind": "screen",
    "shot": "pos-cart.jpg",
    "crop": [
-    1230,
-    640,
-    360,
-    230
+    1165,
+    600,
+    410,
+    270
    ],
    "callout": "Tap, pay, print",
    "caption": "First day, he was nervous. But the screen was simple.",
@@ -29,10 +29,10 @@
    "kind": "screen",
    "shot": "pos-paid.jpg",
    "crop": [
-    1230,
+    1165,
     560,
-    360,
-    300
+    410,
+    310
    ],
    "callout": "Payment done, receipt ready",
    "caption": "Pick the table, tap the dishes, take payment, print the receipt. In a few minutes he was selling like a pro. Training does not need a whole week.",

@@ -1,0 +1,79 @@
+# Local development overrides. Merged automatically by `docker compose up`.
+# This file is a template: it is committed as docker-compose.override.yml.example.
+# The real file is git-ignored, so tweak your copy freely:
+#
+#   cp docker-compose.override.yml.example docker-compose.override.yml
+#
+# To run production-like WITHOUT the overrides:
+#
+#   docker compose -f docker-compose.yml up -d
+#
+# Optional tools profile (Adminer + RedisInsight):
+#
+#   docker compose --profile tools up -d
+
+services:
+
+  # Expose the data services on the host for local tools (TablePlus, phpMyAdmin,
+  # running artisan from the host, ...). Change the host side in .env, e.g.
+  # MYSQL_PORT=3307, if the default port is already taken on your machine.
+  mysql:
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+
+  redis:
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+
+  # Local mail catcher: every outgoing mail is kept in Mailpit, nothing is sent.
+  # Join the same default network as app, so Laravel reaches it as host "mailpit".
+  # To use it, set these lines in .env:
+  #
+  #   MAIL_MAILER=smtp
+  #   MAIL_HOST=mailpit
+  #   MAIL_PORT=1025
+  #
+  # Web UI: http://localhost:8025 (change with MAILPIT_UI in .env)
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "${MAILPIT_UI:-8025}:8025"
+      - "${MAILPIT_SMTP:-1025}:1025"
+
+  # ---- Xdebug (disabled by default) ----
+  # xdebug is NOT part of docker/Dockerfile yet. To debug step-by-step:
+  #   1. Add to the Dockerfile before the pecl redis block:
+  #        RUN pecl install xdebug && docker-php-ext-enable xdebug
+  #      and rebuild: docker compose up -d --build app
+  #   2. Uncomment this block (IDE listens on port 9003, server name "localhost"):
+  #
+  #  app:
+  #    environment:
+  #      XDEBUG_MODE: develop,debug
+  #      PHP_IDE_CONFIG: serverName=localhost
+  #
+  #   3. Start "Listen for Debug Connections" in your IDE, then set a breakpoint.
+
+  # ---- profile: tools ----
+  # Web UI for MySQL. System "MySQL", server "mysql", user dt_restora / secret
+  # (or your .env values). Reverb already uses host port 8080, so Adminer
+  # defaults to 8081.
+  adminer:
+    image: adminer:latest
+    profiles: ["tools"]
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql
+    ports:
+      - "${ADMINER_PORT:-8081}:8080"
+    depends_on:
+      - mysql
+
+  # Redis GUI: browse cache, session and queue keys.
+  # In the UI add a database: host "redis", port 6379 (no password by default).
+  redisinsight:
+    image: redis/redisinsight:latest
+    profiles: ["tools"]
+    ports:
+      - "${REDISINSIGHT_PORT:-5540}:5540"
+    depends_on:
+      - redis

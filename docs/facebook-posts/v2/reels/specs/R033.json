@@ -16,10 +16,10 @@
    "kind": "screen",
    "shot": "pos-paid.jpg",
    "crop": [
-    1230,
+    1165,
     560,
-    360,
-    300
+    410,
+    310
    ],
    "callout": "Payment done, receipt ready",
    "caption": "One cashier per drawer per shift. Count at open and close.",

@@ -17,12 +17,12 @@
    "kind": "screen",
    "shot": "dash.jpg",
    "crop": [
-    196,
-    137,
-    1392,
-    82
+    236,
+    166,
+    1348,
+    104
    ],
-   "callout": "Sales, food cost, profit: today",
+   "callout": "Sales, food cost and profit at a glance",
    "caption": "Count and compare cash. Review the week's waste. Check low stock alerts.",
    "dur": 6.6
   },
@@ -30,10 +30,10 @@
    "kind": "screen",
    "shot": "dash.jpg",
    "crop": [
-    897,
-    525,
-    690,
-    205
+    916,
+    636,
+    668,
+    232
    ],
    "callout": "Net profit, built up daily",
    "caption": "Reorder what the weekend needs. Brief staff on specials. Never be surprised when it matters most.",

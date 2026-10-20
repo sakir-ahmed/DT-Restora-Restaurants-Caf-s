@@ -54,6 +54,7 @@ All project documentation lives in `docs/`. AI coding agents read `CLAUDE.md` fi
 | `docs/architecture.md` | Tech stack, folder structure, coding rules, Definition of Done    |
 | `docs/api.md`          | API conventions, endpoints, payment gateway flows                 |
 | `docs/design.md`       | Design system, components, icons, sizing, tables, dialogs, charts |
+| `docs/docker.md`       | Docker services, commands and the logging standard               |
 | `docs/roadmap.md`      | Build phases with acceptance criteria                             |
 | `docs/ui-preview.html` | Static visual mockup of the intended UI (open in a browser)       |
 
@@ -95,6 +96,16 @@ ADMIN_PASSWORD=
 ```
 
 Never commit real credentials. Change the default password before deploying.
+
+### Docker
+
+Full service list, common commands and the logging standard: [docs/docker.md](docs/docker.md). The essentials:
+
+```sh
+cp docker-compose.override.yml.example docker-compose.override.yml   # local overrides (git-ignored)
+docker compose up -d --build
+docker compose logs -f app
+```
 
 ### Background processes
 

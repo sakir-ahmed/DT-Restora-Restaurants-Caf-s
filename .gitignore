@@ -27,3 +27,6 @@ Homestead.yaml
 Thumbs.db
 /bootstrap/ssr
 /database/e2e.sqlite
+
+# Docker local override (copy of docker-compose.override.yml.example)
+/docker-compose.override.yml

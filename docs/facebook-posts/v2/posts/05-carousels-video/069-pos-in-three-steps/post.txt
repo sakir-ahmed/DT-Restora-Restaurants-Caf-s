@@ -27,7 +27,7 @@ Order, pay, print.
 
 Datatech BD Ltd. +880 1575-888775
 #POS #RestaurantPOS
-(characters counted by X: 99 of 280)
+(characters counted by X: 101 of 280)
 
 Optional thread (one tweet per slide, attach the matching image):
 1/ Build the order - Search or tap categories, choose size and add-ons.

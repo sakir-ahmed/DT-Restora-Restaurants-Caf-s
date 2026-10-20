@@ -27,7 +27,7 @@ The stock quantity that tells you to buy again.
 
 Datatech BD Ltd. +880 1575-888775
 #Inventory #ReorderLevel
-(characters counted by X: 131 of 280)
+(characters counted by X: 133 of 280)
 
 === INSTAGRAM ===
 What is a reorder level?
