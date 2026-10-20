@@ -1,0 +1,56 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "Waste is real",
+    "money."
+   ],
+   "small": "",
+   "caption": "Five ways to cut waste.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "wastage.jpg",
+   "crop": [
+    900,
+    140,
+    690,
+    230
+   ],
+   "callout": "Every loss logged with a reason",
+   "caption": "One, log every loss with a reason. Two, count stock on a schedule. Three, cook to forecast, not to fear.",
+   "dur": 8.0
+  },
+  {
+   "kind": "screen",
+   "shot": "dash.jpg",
+   "crop": [
+    897,
+    525,
+    690,
+    205
+   ],
+   "callout": "Net profit, built up daily",
+   "caption": "Four, first in, first out. Five, review waste every week. What you measure, you can reduce.",
+   "dur": 8.0
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "We install it for you",
+    "Local support, Bangla and English",
+    "First month free after installation"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or email us.",
+   "dur": 4.0
+  }
+ ]
+}

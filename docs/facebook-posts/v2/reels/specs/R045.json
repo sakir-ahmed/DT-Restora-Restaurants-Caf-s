@@ -1,0 +1,70 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "One-counter",
+    "cafe. Do you",
+    "need this?"
+   ],
+   "small": "",
+   "caption": "Waste, cash gaps and guessed stock hurt a one-counter cafe as much as a chain.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "dash.jpg",
+   "crop": [
+    196,
+    137,
+    1392,
+    82
+   ],
+   "callout": "Sales, food cost, profit: today",
+   "caption": "Start small with POS and kitchen.",
+   "dur": 4.4
+  },
+  {
+   "kind": "screen",
+   "shot": "kds.jpg",
+   "crop": [
+    190,
+    70,
+    760,
+    430
+   ],
+   "callout": "One live kitchen screen",
+   "caption": "Add stock, staff, delivery and website when you are ready.",
+   "dur": 5.8
+  },
+  {
+   "kind": "screen",
+   "shot": "pos-cart.jpg",
+   "crop": [
+    1230,
+    640,
+    360,
+    230
+   ],
+   "callout": "Tap, pay, print",
+   "caption": "Add stock, staff, delivery and website when you are ready.",
+   "dur": 5.8
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "Your own system and database",
+    "Daily backups of your data",
+    "Installation refundable after one year"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or email us.",
+   "dur": 4.0
+  }
+ ]
+}

@@ -1,0 +1,56 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "Quick kitchen",
+    "quiz."
+   ],
+   "small": "",
+   "caption": "FIFO.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "stockcount.jpg",
+   "crop": [
+    600,
+    90,
+    990,
+    230
+   ],
+   "callout": "Count the shelf, see the difference",
+   "caption": "First in, first out. Use the oldest stock first, so food does not expire on the shelf.",
+   "dur": 8.0
+  },
+  {
+   "kind": "screen",
+   "shot": "ingredients.jpg",
+   "crop": [
+    194,
+    105,
+    760,
+    330
+   ],
+   "callout": "Reorder alerts",
+   "caption": "Count stock every week and log spoilage with a reason. Small habit, less waste.",
+   "dur": 7.5
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "Every void and discount is logged",
+    "Your own database, daily backups",
+    "Bangla and English screens"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or email us.",
+   "dur": 4.0
+  }
+ ]
+}

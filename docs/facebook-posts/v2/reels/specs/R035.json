@@ -1,0 +1,57 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "Customers",
+    "search on",
+    "their phone."
+   ],
+   "small": "",
+   "caption": "Most people search for food near them on their phone.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "dash.jpg",
+   "crop": [
+    196,
+    137,
+    1392,
+    82
+   ],
+   "callout": "Sales, food cost, profit: today",
+   "caption": "Claim your Google Business Profile. Add real photos every week.",
+   "dur": 5.8
+  },
+  {
+   "kind": "screen",
+   "shot": "accounting.jpg",
+   "crop": [
+    900,
+    150,
+    690,
+    260
+   ],
+   "callout": "Profit and loss, ready",
+   "caption": "Keep hours and phone correct. Reply to every review. Then a search can become an order.",
+   "dur": 8.0
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "We install it for you",
+    "Local support, Bangla and English",
+    "First month free after installation"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or email us.",
+   "dur": 4.0
+  }
+ ]
+}

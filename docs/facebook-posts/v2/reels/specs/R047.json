@@ -1,0 +1,56 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "PDF and Excel",
+    "in one click."
+   ],
+   "small": "",
+   "caption": "PDF and Excel in one click.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "accounting.jpg",
+   "crop": [
+    900,
+    150,
+    690,
+    260
+   ],
+   "callout": "Profit and loss, ready",
+   "caption": "Filter by date and branch, then export to PDF or Excel.",
+   "dur": 6.2
+  },
+  {
+   "kind": "screen",
+   "shot": "reports.jpg",
+   "crop": [
+    190,
+    50,
+    1000,
+    430
+   ],
+   "callout": "Reports for PDF and Excel",
+   "caption": "Filter by date and branch, then export to PDF or Excel.",
+   "dur": 6.2
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "We install it for you",
+    "Local support, Bangla and English",
+    "First month free after installation"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or email us.",
+   "dur": 4.0
+  }
+ ]
+}

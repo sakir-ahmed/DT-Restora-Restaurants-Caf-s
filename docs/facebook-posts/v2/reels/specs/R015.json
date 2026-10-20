@@ -1,0 +1,56 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "Short cash",
+    "every week?"
+   ],
+   "small": "",
+   "caption": "When many people touch one drawer, a shortage is a mystery.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "pos-paid.jpg",
+   "crop": [
+    1230,
+    560,
+    360,
+    300
+   ],
+   "callout": "Payment done, receipt ready",
+   "caption": "Tie cash to a shift. One cashier, one drawer, counted at open and at close.",
+   "dur": 7.9
+  },
+  {
+   "kind": "screen",
+   "shot": "activity.jpg",
+   "crop": [
+    200,
+    110,
+    1200,
+    300
+   ],
+   "callout": "Who changed what, and when",
+   "caption": "Approve big discounts. Record every void with a reason. Mystery solved.",
+   "dur": 6.2
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "Your own system and database",
+    "Daily backups of your data",
+    "Installation refundable after one year"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or email us.",
+   "dur": 4.0
+  }
+ ]
+}

@@ -1,0 +1,57 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "Appointment",
+    "letter in Word",
+    "again?"
+   ],
+   "small": "",
+   "caption": "Karim bhai writes appointment letters in scattered Word files.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "payroll.jpg",
+   "crop": [
+    900,
+    105,
+    690,
+    320
+   ],
+   "callout": "Attendance to salary slip",
+   "caption": "Now he writes the letter in the system and prints it on the restaurant letterhead.",
+   "dur": 7.9
+  },
+  {
+   "kind": "screen",
+   "shot": "attendance.jpg",
+   "crop": [
+    190,
+    50,
+    1000,
+    430
+   ],
+   "callout": "Daily attendance for payroll",
+   "caption": "Warnings and experience certificates stay in one place.",
+   "dur": 5.0
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "Every void and discount is logged",
+    "Your own database, daily backups",
+    "Bangla and English screens"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or email us.",
+   "dur": 4.0
+  }
+ ]
+}

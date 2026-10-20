@@ -23,6 +23,13 @@ const snap = async (name, o = {}) => {
 };
 const go = async (path, o = {}) => { await page.goto(BASE + path); await settle(o.wait); };
 
+// ---- demo letters for the Letters screen (the seed has none)
+const sql = (q) => execSync(`sqlite3 ${process.env.SHOTS_DB} "${q}"`);
+if (Number(sql('select count(*) from letters').toString().trim()) === 0) {
+  sql(`insert into letters (branch_id, author_id, title, recipient, subject, body, letter_date, created_at, updated_at) values (1,1,'Appointment letter','Mizanur Rahman','Appointment as Kitchen Manager','We are pleased to offer you the position of Kitchen Manager.','2026-10-18',datetime('now'),datetime('now')),(1,1,'Experience certificate','Karim Uddin','Experience certificate','This is to certify that Karim Uddin worked with us as Head Chef.','2026-10-15',datetime('now'),datetime('now')),(1,1,'Salary increment','Farhana Akter','Salary increment from November','Your monthly salary is revised with effect from 1 November 2026.','2026-10-12',datetime('now'),datetime('now'))`);
+}
+const attendanceDay = sql('select max(work_date) from staff_attendances').toString().trim().slice(0, 10);
+
 // ---- sign in
 await page.goto(BASE + '/login');
 await page.locator('input[type="text"]').first().fill(process.env.SHOTS_LOGIN);
@@ -34,7 +41,7 @@ await theme('light');
 
 // ---- admin pages (light)
 const admin = {
-  dash: '/admin?period=month', accounting: '/admin/accounting', activity: '/admin/activity-log', aggr: '/admin/aggregators', attendance: '/admin/attendance',
+  dash: '/admin?period=month', accounting: '/admin/accounting', activity: '/admin/activity-log', aggr: '/admin/aggregators', attendance: '/admin/attendance?date=' + attendanceDay,
   blogadmin: '/admin/blog', branches: '/admin/branches', careers: '/admin/careers', coupons: '/admin/coupons', customers: '/admin/customers',
   delivery: '/admin/delivery', dishmedia: '/admin/media', expenses: '/admin/expenses', ingredients: '/admin/ingredients', kds: '/admin/kds',
   letters: '/admin/letters', loyalty: '/admin/loyalty', menu: '/admin/menu', orders: '/admin/orders', payroll: '/admin/payroll',
@@ -42,6 +49,7 @@ const admin = {
   stockcount: '/admin/stock-counts', sync: '/admin/sync-conflicts', tables: '/admin/tables', transfers: '/admin/stock-transfers', wastage: '/admin/wastage',
 };
 for (const [name, path] of Object.entries(admin)) { if (only && !only.test(name)) continue; await go(path, { wait: 1400 }); await snap(name); }
+if (!only || only.test('dash-bottom')) { await go('/admin?period=month', { wait: 1400 }); await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await page.waitForTimeout(600); await snap('dash-bottom'); }
 if (!only || only.test('dash-crop')) { await go('/admin?period=month', { wait: 1400 }); await page.screenshot({ path: OUT + 'dash-crop.jpg', type: 'jpeg', quality: 90, clip: { x: 0, y: 0, width: 1600, height: 665 } }); console.log('shot dash-crop'); }
 
 // ---- dark

@@ -1,0 +1,23 @@
+POST 144 | Launch starter | English
+Folder: 14-launch-starters/144-we-are-live
+Images: 1, 1080x1350 (4:5).
+Contact line on every post: Datatech BD Ltd. +8801575888775, sales@datatechbd.com
+Status and schedule are tracked in content-plan.json (id P144). Links are not used in captions.
+
+=== FACEBOOK ===
+We are live.
+
+DT Restora is the owner control system for restaurants and cafes in Bangladesh. One system for your POS, kitchen, stock, staff, loyalty, website, delivery and accounts, so you see your real profit and not just your sales.
+
+- Sell faster
+- Waste less
+- Know your profit
+
+Follow this page for tips, short demos and launch offers.
+
+To book a free demo, contact Datatech BD Ltd.: +8801575888775, sales@datatechbd.com
+
+#DTRestora #NowLive #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #CafeBusiness
+
+=== IMAGE ALT TEXT ===
+image-01.png: Dashboard screenshot with the headline We are live

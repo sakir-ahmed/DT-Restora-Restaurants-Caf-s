@@ -1,0 +1,69 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "Ready to see",
+    "it?"
+   ],
+   "small": "",
+   "caption": "If you run a restaurant or a cafe, this is for you.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "dash.jpg",
+   "crop": [
+    196,
+    137,
+    1392,
+    82
+   ],
+   "callout": "Sales, food cost, profit: today",
+   "caption": "Comment DEMO and we will message you a free walkthrough on your own menu.",
+   "dur": 7.5
+  },
+  {
+   "kind": "screen",
+   "shot": "kds.jpg",
+   "crop": [
+    190,
+    70,
+    760,
+    430
+   ],
+   "callout": "One live kitchen screen",
+   "caption": "Or call us directly.",
+   "dur": 4.4
+  },
+  {
+   "kind": "screen",
+   "shot": "pos-cart.jpg",
+   "crop": [
+    1230,
+    640,
+    360,
+    230
+   ],
+   "callout": "Tap, pay, print",
+   "caption": "Free, no pressure.",
+   "dur": 4.4
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "Every void and discount is logged",
+    "Your own database, daily backups",
+    "Bangla and English screens"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or email us.",
+   "dur": 4.0
+  }
+ ]
+}
