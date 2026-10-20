@@ -9,7 +9,7 @@ MARK = os.path.abspath(os.path.join(BASE, '..'))          # docs/marketing
 W, H, FPS = 1080, 1920, 30
 AV = '/System/Library/Fonts/Avenir Next.ttc'
 INK, AMBER, WHITE = (15, 23, 42), (245, 158, 11), (255, 255, 255)
-PHONE = '01304734623'
+PHONE = '+880 1575-888775'
 
 
 def font(size, idx=8):

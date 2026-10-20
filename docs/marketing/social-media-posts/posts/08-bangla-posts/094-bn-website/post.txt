@@ -2,7 +2,7 @@ POST 094 | Bangla post | Bangla
 Folder: 08-bangla-posts/094-bn-website
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Fri 4:00 pm
-Contact line on every post: Md. Sakir Ahmed 01304734623
+Contact line on every post: Md. Sakir Ahmed +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P094). Links are not used in captions.
 
 === FACEBOOK ===
@@ -17,7 +17,7 @@ Status and schedule are tracked in content-plan.json (id P094). Links are not us
 - সরাসরি ট্র্যাকিং
 - গুগলে খুঁজে পাওয়া যায়
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed 01304734623
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
 
 #অনলাইনঅর্ডার #রেস্টুরেন্টওয়েবসাইট #কিউআরমেনু #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -36,7 +36,7 @@ Status and schedule are tracked in content-plan.json (id P094). Links are not us
 
 আপনার রেস্টুরেন্ট বা ক্যাফের জন্য সঠিক সমাধান নিয়ে কথা বলতে ইনবক্স করুন।
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed 01304734623
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
 
 #অনলাইনঅর্ডার #রেস্টুরেন্টওয়েবসাইট #কিউআরমেনু #DTRestora #SaaS
 
@@ -45,7 +45,7 @@ Status and schedule are tracked in content-plan.json (id P094). Links are not us
 
 অর্ডার সরাসরি আসে আপনার রান্নাঘরে।
 
-Md. Sakir Ahmed 01304734623
+Md. Sakir Ahmed +880 1575-888775
 
 #অনলাইনঅর্ডার #রেস্টুরেন্টওয়েবসাইট
 (characters counted by X: 132 of 280)
@@ -55,12 +55,12 @@ Md. Sakir Ahmed 01304734623
 
 প্রতিটি অনলাইন অর্ডারে অন্যকে কমিশন দেওয়া বন্ধ করুন। DT Restora-র সাথে পাচ্ছেন বাংলা ও ইংরেজি ভাষার, মোবাইল-বান্ধব ওয়েবসাইট, যেখানে মেনু, খাবারের ছবি ও ভিডিও, চেকআউট আর সরাসরি অর্ডার ট্র্যাকিং আছে। অর্ডার সোজা কিচেন স্ক্রিনে চলে যায়।
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed 01304734623
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
 
 #অনলাইনঅর্ডার #রেস্টুরেন্টওয়েবসাইট #কিউআরমেনু #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-অর্ডার সরাসরি আসে আপনার রান্নাঘরে। ফ্রি ডেমো দেখুন। যোগাযোগ: Md. Sakir Ahmed 01304734623।
+অর্ডার সরাসরি আসে আপনার রান্নাঘরে। ফ্রি ডেমো দেখুন। যোগাযোগ: Md. Sakir Ahmed +880 1575-888775।
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: আপনার নিজের অর্ডারের ওয়েবসাইট | DT Restora

@@ -3,7 +3,7 @@ import re, html as _h
 
 ROOT = '/Users/sakir.ahmed/web-artisan/practices/dt-top-ten/DT-Restora-Restaurants-Caf-s/docs/marketing/'
 SITE = 'https://dt-restora.datatechbd.com'
-WA = 'https://wa.me/8801304734623'
+WA = 'https://wa.me/8801575888775'
 ASPECT = 0.55  # desktop screenshots are 1600x880
 
 # symbols (logo mark + icons) shared with the cards
@@ -296,8 +296,8 @@ def t_cta(p, pid, bn, total):
     wa = 'মোবাইল ও হোয়াটসঅ্যাপ' if bn else 'Mobile and WhatsApp'
     inner = (header(p['label']) + f'<h2 class="t" style="font-size:{fsize(plain(t), bn, (92, 84, 74, 64))}px">{em(t)}</h2><p class="sub">{sub}</p>'
              + f'<div class="body"><div class="ctab"><div style="font-size:42px;font-weight:800">{name}</div><div style="font-size:23px;color:#94A3B8;margin-top:-10px">{role}</div>'
-             + f'<div class="cline">{ic("phone")}<span>8801304734623 <small style="font-size:22px;color:#94A3B8;font-weight:500">{wa}</small></span></div>'
-             + f'<div class="cline">{ic("mail")}sakir.ahmed@datatechbd.com</div><div class="cline">{ic("globe")}dt-restora.datatechbd.com</div></div>'
+             + f'<div class="cline">{ic("phone")}<span>+880 1575-888775 <small style="font-size:22px;color:#94A3B8;font-weight:500">{wa}</small></span></div>'
+             + f'<div class="cline">{ic("mail")}info@datatechbd.com</div><div class="cline">{ic("globe")}dt-restora.datatechbd.com</div></div>'
              + f'<div class="bar-cta"><span>{"ফ্রি ডেমো দেখুন" if bn else "Try the live demo"}</span>{ic("arrow")}</div></div>' + footer(bn=bn))
     return wrap(pid, 'dark', bn, inner)
 

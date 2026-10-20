@@ -2,7 +2,7 @@ POST 009 | Feature spotlight | English
 Folder: 01-feature-spotlights/009-purchasing-suppliers
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Thu 8:00 pm
-Contact line on every post: Md. Sakir Ahmed 01304734623
+Contact line on every post: Md. Sakir Ahmed +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P009). Links are not used in captions.
 
 === FACEBOOK ===
@@ -14,7 +14,7 @@ Record suppliers, raise purchase orders and receive goods against them. Each rec
 - Goods received
 - Price history
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
 
 #Purchasing #SupplierManagement #RestaurantCosts #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -28,7 +28,7 @@ Key points:
 - Goods received
 - Price history
 
-If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: 01304734623
+If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: +880 1575-888775
 
 #Purchasing #SupplierManagement #RestaurantCosts #DTRestora #SaaS
 
@@ -37,7 +37,7 @@ Suppliers, purchase orders and price history
 
 Know what you bought, at what price, from whom.
 
-Md. Sakir Ahmed 01304734623
+Md. Sakir Ahmed +880 1575-888775
 
 #Purchasing #SupplierManagement
 (characters counted by X: 155 of 280)
@@ -47,12 +47,12 @@ Suppliers, purchase orders and price history
 
 Record suppliers, raise purchase orders and receive goods against them. Each receipt updates stock and ingredient cost, and the price history helps you spot a supplier who quietly raised rates.
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623 (or DM "DEMO").
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775 (or DM "DEMO").
 
 #Purchasing #SupplierManagement #RestaurantCosts #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-Know what you bought, at what price, from whom. Try the free demo. Call Md. Sakir Ahmed: 01304734623.
+Know what you bought, at what price, from whom. Try the free demo. Call Md. Sakir Ahmed: +880 1575-888775.
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: Suppliers, purchase orders and price history | DT Restora

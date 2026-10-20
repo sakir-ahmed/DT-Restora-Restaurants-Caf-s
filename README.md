@@ -1,7 +1,6 @@
 # DT Restora
 
-**Owner Control System for restaurants and cafes in Bangladesh.**
-Developed by **Datatech BD Ltd**, Dhaka.
+**DT Restora** — restaurant owner control system, a product of **Datatech BD Ltd** (datatechbd.com) — _Software that runs business._ An Owner Control System for restaurants and cafes in Bangladesh.
 
 DT Restora goes beyond a standard POS. It gives owners clear financial visibility across branches (profit, recipe costing, wastage, inventory, full accounting) and runs the customer side too: online ordering, loyalty, delivery tracking and delivery-app order intake. The interface is fully bilingual (English and Bangla).
 
@@ -189,7 +188,12 @@ tests/              Pest tests
 
 ## Support
 
-Datatech BD Ltd, Dhaka, Bangladesh.
+**DT Restora** is a product of **Datatech BD Ltd** — datatechbd.com — _Software that runs business._
+
+- Email: info@datatechbd.com
+- Phone: +880 1575-888775
+- WhatsApp: +880 1575-888775
+- Address: Flat 4-A, Dhumketu Shikder Tower, Holding No. 66, Paschim Monipur, Mirpur, Dhaka-1216, Bangladesh
 
 ## License
 

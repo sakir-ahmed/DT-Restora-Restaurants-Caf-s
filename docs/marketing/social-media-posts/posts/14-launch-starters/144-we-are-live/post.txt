@@ -1,7 +1,7 @@
 POST 144 | Launch starter | English
 Folder: 14-launch-starters/144-we-are-live
 Images: 1, 1080x1350 (4:5).
-Contact line on every post: Md. Sakir Ahmed 01304734623
+Contact line on every post: Md. Sakir Ahmed +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P144). Links are not used in captions.
 
 === FACEBOOK ===
@@ -15,7 +15,7 @@ DT Restora is the owner control system for restaurants and cafes in Bangladesh. 
 
 Follow this page for tips, short demos and launch offers.
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
 
 #DTRestora #NowLive #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #CafeBusiness
 

@@ -1,7 +1,7 @@
 POST 151 | Launch starter | English
 Folder: 14-launch-starters/151-free-demo-in-three-steps
 Images: 1, 1080x1350 (4:5).
-Contact line on every post: Md. Sakir Ahmed 01304734623
+Contact line on every post: Md. Sakir Ahmed +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P151). Links are not used in captions.
 
 === FACEBOOK ===
@@ -13,7 +13,7 @@ A free demo in 3 steps.
 
 Free, no pressure, nothing to install to try.
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
 
 #FreeDemo #TryBeforeYouBuy #DTRestora #RestaurantSoftware #BangladeshRestaurants #CafeOwners
 

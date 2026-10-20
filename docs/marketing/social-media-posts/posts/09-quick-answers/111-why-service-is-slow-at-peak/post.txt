@@ -2,7 +2,7 @@ POST 111 | Quick answer | English
 Folder: 09-quick-answers/111-why-service-is-slow-at-peak
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Mon 12:30 pm
-Contact line on every post: Md. Sakir Ahmed 01304734623
+Contact line on every post: Md. Sakir Ahmed +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P111). Links are not used in captions.
 
 === FACEBOOK ===
@@ -14,7 +14,7 @@ Peak hour exposes every small delay. Orders from the counter, QR tables and your
 - Hold and resume tickets at the till
 - QR ordering frees your waiters
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
 
 #KitchenDisplay #RestaurantService #PeakHour #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -28,7 +28,7 @@ Key points:
 - Hold and resume tickets at the till
 - QR ordering frees your waiters
 
-If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: 01304734623
+If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: +880 1575-888775
 
 #KitchenDisplay #RestaurantService #PeakHour #DTRestora #SaaS
 
@@ -37,7 +37,7 @@ Why is service slow at peak hours?
 
 Paper slips, shouting and re-typing add minutes to every order.
 
-Md. Sakir Ahmed 01304734623
+Md. Sakir Ahmed +880 1575-888775
 
 #KitchenDisplay #RestaurantService
 (characters counted by X: 164 of 280)
@@ -47,12 +47,12 @@ Why is service slow at peak hours?
 
 Peak hour exposes every small delay. Orders from the counter, QR tables and your website land on one kitchen board with a timer on every ticket, so the pass moves faster and fewer orders are forgotten.
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623 (or DM "DEMO").
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775 (or DM "DEMO").
 
 #KitchenDisplay #RestaurantService #PeakHour #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-Paper slips, shouting and re-typing add minutes to every order. Try the free demo. Call Md. Sakir Ahmed: 01304734623.
+Paper slips, shouting and re-typing add minutes to every order. Try the free demo. Call Md. Sakir Ahmed: +880 1575-888775.
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: Why is service slow at peak hours? | DT Restora

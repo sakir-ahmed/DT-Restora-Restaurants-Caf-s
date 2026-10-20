@@ -2,6 +2,8 @@
 
 > Same for every product. Copy unchanged. Product-specific screens are listed in `prd.md`.
 
+**Brand:** DT Restora is a product of **Datatech BD Ltd** (datatechbd.com) — _Software that runs business._ Brand colors: Datatech Blue `#0B63CE` (primary), Midnight Navy `#0A1428`, Bright Sky `#38A8FF` (accent), Slate `#4A5568`, Soft Grey `#AFC0D6`, Cloud `#F5F7FA`. Fonts: Poppins (headlines), Inter (body), Hind Siliguri (Bangla). Logo assets live in `public/images/brand/` (`logo-mark.svg`, `logo-primary.png`, `logo-primary-reversed.png`, `logo-512.png`); `public/favicon.svg` is the same product mark.
+
 ---
 
 ## 1. Principles

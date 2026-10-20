@@ -20,7 +20,7 @@ In one system you get a fast POS, a live kitchen screen, recipes and stock, staf
 
 Follow this page for practical tips, short demos and honest answers to owner questions.
 
-Free live demo: contact Md. Sakir Ahmed, WhatsApp or call 01304734623
+Free live demo: contact Md. Sakir Ahmed, WhatsApp or call +880 1575-888775
 
 #dt.restora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants
 
@@ -34,7 +34,7 @@ Free live demo: contact Md. Sakir Ahmed, WhatsApp or call 01304734623
 
 কাজের টিপস, ছোট ডেমো আর মালিকদের প্রশ্নের সৎ উত্তর পেতে পেজটি ফলো করুন।
 
-ফ্রি লাইভ ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed 01304734623
+ফ্রি লাইভ ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
 
 ### Day 2: Launch offer (pin this post)
 

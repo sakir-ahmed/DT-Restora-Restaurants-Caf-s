@@ -2,7 +2,7 @@ POST 128 | Myth vs fact | English
 Folder: 11-myth-vs-fact/128-myth-no-internet-no-sales
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Thu 8:00 pm
-Contact line on every post: Md. Sakir Ahmed 01304734623
+Contact line on every post: Md. Sakir Ahmed +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P128). Links are not used in captions.
 
 === FACEBOOK ===
@@ -14,7 +14,7 @@ The POS and kitchen screen keep working without internet. Cash orders are saved 
 - Receipts still print
 - No duplicate orders on sync
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
 
 #MythBusting #OfflinePOS #LoadShedding #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -28,7 +28,7 @@ Key points:
 - Receipts still print
 - No duplicate orders on sync
 
-If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: 01304734623
+If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: +880 1575-888775
 
 #MythBusting #OfflinePOS #LoadShedding #DTRestora #SaaS
 
@@ -37,7 +37,7 @@ Myth: no internet means no sales
 
 Fact check on connectivity.
 
-Md. Sakir Ahmed 01304734623
+Md. Sakir Ahmed +880 1575-888775
 
 #MythBusting #OfflinePOS
 (characters counted by X: 116 of 280)
@@ -47,12 +47,12 @@ Myth: no internet means no sales
 
 The POS and kitchen screen keep working without internet. Cash orders are saved locally and sync when the connection returns. Online payments, SMS and website orders do need internet.
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623 (or DM "DEMO").
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775 (or DM "DEMO").
 
 #MythBusting #OfflinePOS #LoadShedding #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-Fact check on connectivity. Try the free demo. Call Md. Sakir Ahmed: 01304734623.
+Fact check on connectivity. Try the free demo. Call Md. Sakir Ahmed: +880 1575-888775.
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: Myth: no internet means no sales | DT Restora

@@ -6,7 +6,7 @@ Post graphics and reels for the DT Restora product, built with the Datatech BD L
 - **Fonts:** Poppins for headlines, Inter for body text, Hind Siliguri for Bangla.
 - **Product mark and wordmark:** the DT Restora mark from the brand kit (`docs/brand-design/7-Products/dt-restora`), "DT" in the text colour and "Restora" in blue.
 - **Common frame:** every post and every reel frame carries the same minimal frame, a thin inset border with Bright Sky or Datatech Blue corner brackets.
-- **Contact details:** Datatech BD Ltd., +8801575888775, sales@datatechbd.com, Flat 4-A, Dhumketu Shikder Tower, Holding No. 66, Paschim Monipur, Mirpur, Dhaka-1216. No WhatsApp or personal contact is used.
+- **Contact details:** Datatech BD Ltd., +880 1575-888775, info@datatechbd.com, Flat 4-A, Dhumketu Shikder Tower, Holding No. 66, Paschim Monipur, Mirpur, Dhaka-1216. No WhatsApp or personal contact is used.
 - **Screenshots:** taken from the restyled app on a freshly seeded database (`docs/marketing/capture-shots.mjs`).
 
 ```

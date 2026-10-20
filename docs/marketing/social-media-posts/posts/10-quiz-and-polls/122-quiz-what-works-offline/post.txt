@@ -2,7 +2,7 @@ POST 122 | Quiz | English
 Folder: 10-quiz-and-polls/122-quiz-what-works-offline
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Fri 4:00 pm
-Contact line on every post: Md. Sakir Ahmed 01304734623
+Contact line on every post: Md. Sakir Ahmed +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P122). Links are not used in captions.
 
 === FACEBOOK ===
@@ -13,7 +13,7 @@ Network drops should not stop your counter. Cash orders work offline and sync la
 - Receipts still print
 - No duplicate orders
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
 
 #OfflinePOS #RestaurantQuiz #LoadShedding #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -26,7 +26,7 @@ Key points:
 - Receipts still print
 - No duplicate orders
 
-If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: 01304734623
+If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: +880 1575-888775
 
 #OfflinePOS #RestaurantQuiz #LoadShedding #DTRestora #SaaS
 
@@ -35,7 +35,7 @@ Which of these works offline in DT Restora?
 
 Load shedding quiz.
 
-Md. Sakir Ahmed 01304734623
+Md. Sakir Ahmed +880 1575-888775
 
 #OfflinePOS #RestaurantQuiz
 (characters counted by X: 122 of 280)
@@ -45,12 +45,12 @@ Which of these works offline in DT Restora?
 
 Network drops should not stop your counter. Cash orders work offline and sync later. Online payments, SMS and delivery-app intake need internet, and the screen says so clearly.
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623 (or DM "DEMO").
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775 (or DM "DEMO").
 
 #OfflinePOS #RestaurantQuiz #LoadShedding #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-Load shedding quiz. Try the free demo. Call Md. Sakir Ahmed: 01304734623.
+Load shedding quiz. Try the free demo. Call Md. Sakir Ahmed: +880 1575-888775.
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: Which of these works offline in DT Restora? | DT Restora

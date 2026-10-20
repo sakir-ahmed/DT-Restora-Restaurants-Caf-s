@@ -10,7 +10,7 @@ SRC = os.path.join(BASE, '_source')
 W, H, FPS = 1080, 1920, 30
 INK, AMBER, WHITE = (10, 20, 40), (56, 168, 255), (255, 255, 255)   # Midnight Navy, Bright Sky (accent on dark), white
 BLUE = (11, 99, 206)                                                 # Datatech Blue
-PHONE, EMAIL = '+8801575888775', 'sales@datatechbd.com'
+PHONE, EMAIL = '+880 1575-888775', 'info@datatechbd.com'
 
 
 def font(size, idx=8):

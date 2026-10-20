@@ -17,12 +17,12 @@ Fill the page in this order. Facebook changes its screens often, so use the labe
 | Field               | Value                                                                                                                                                  |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Website             | https://dt-restora.datatechbd.com                                                                                                                      |
-| Phone               | +880 1304-734623                                                                                                                                       |
-| WhatsApp            | https://wa.me/8801304734623 (link it to the page if Facebook offers the WhatsApp option)                                                               |
-| Email               | sakir.ahmed@datatechbd.com                                                                                                                             |
+| Phone               | +880 1575-888775                                                                                                                                       |
+| WhatsApp            | https://wa.me/8801575888775 (link it to the page if Facebook offers the WhatsApp option)                                                               |
+| Email               | info@datatechbd.com                                                                                                                             |
 | Company             | Datatech BD Ltd                                                                                                                                        |
 | Contact person      | Md. Sakir Ahmed, Managing Director                                                                                                                     |
-| Address             | `[ADD]` your office address in Dhaka. If customers do not visit, choose "Hide address" or set the page as a service-area business.                     |
+| Address             | Flat 4-A, Dhumketu Shikder Tower, Holding No. 66, Paschim Monipur, Mirpur, Dhaka-1216, Bangladesh (hide the map pin if customers do not visit)          |
 | Opening hours       | `[ADD]` real hours, for example the days and times someone answers calls and messages. Mark "Available by appointment" if you prefer demos by booking. |
 | Privacy policy link | `[ADD]` a URL on datatechbd.com. Meta asks for one when you run lead ads or collect messages.                                                          |
 
@@ -30,7 +30,7 @@ Fill the page in this order. Facebook changes its screens often, so use the labe
 
 Choose one, in this order of preference:
 
-1. **WhatsApp message** to https://wa.me/8801304734623 (fastest for Bangladesh owners), or
+1. **WhatsApp message** to https://wa.me/8801575888775 (fastest for Bangladesh owners), or
 2. **Send message** (Messenger), or
 3. **Learn more** or **Book now** pointing to https://dt-restora.datatechbd.com
 

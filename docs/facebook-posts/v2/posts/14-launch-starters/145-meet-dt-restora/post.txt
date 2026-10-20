@@ -1,7 +1,7 @@
 POST 145 | Launch starter | English
 Folder: 14-launch-starters/145-meet-dt-restora
 Images: 1, 1080x1350 (4:5).
-Contact line on every post: Datatech BD Ltd. +8801575888775, sales@datatechbd.com
+Contact line on every post: Datatech BD Ltd. +880 1575-888775, info@datatechbd.com
 Status and schedule are tracked in content-plan.json (id P145). Links are not used in captions.
 
 === FACEBOOK ===
@@ -18,7 +18,7 @@ Eight jobs in one system, so you stop juggling separate apps, notebooks and spre
 7. Delivery tools
 8. Accounts and reports
 
-To book a free demo, contact Datatech BD Ltd.: +8801575888775, sales@datatechbd.com
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, info@datatechbd.com
 
 #DTRestora #AllInOne #RestaurantSoftware #CafePOS #FoodBusinessBD #RestaurantManagement
 

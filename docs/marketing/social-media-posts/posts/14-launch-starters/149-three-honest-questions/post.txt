@@ -1,7 +1,7 @@
 POST 149 | Launch starter | English
 Folder: 14-launch-starters/149-three-honest-questions
 Images: 1, 1080x1350 (4:5).
-Contact line on every post: Md. Sakir Ahmed 01304734623
+Contact line on every post: Md. Sakir Ahmed +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P149). Links are not used in captions.
 
 === FACEBOOK ===
@@ -13,7 +13,7 @@ Status and schedule are tracked in content-plan.json (id P149). Links are not us
 
 Comment your score from 0 to 3. If any answer is no, this page is for you.
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
 
 #RestaurantOwners #OwnerQuiz #RestaurantProfit #DTRestora #RestaurantSoftware #BangladeshRestaurants
 

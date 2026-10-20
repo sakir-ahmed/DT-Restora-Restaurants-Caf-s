@@ -2,7 +2,7 @@ POST 103 | Bangla post | Bangla
 Folder: 08-bangla-posts/103-bn-not-tech
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Sun 8:00 pm
-Contact line on every post: Md. Sakir Ahmed 01304734623
+Contact line on every post: Md. Sakir Ahmed +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P103). Links are not used in captions.
 
 === FACEBOOK ===
@@ -10,7 +10,7 @@ Status and schedule are tracked in content-plan.json (id P103). Links are not us
 
 প্রতিটি ভূমিকা শুধু নিজের টুলসহ সহজ স্ক্রিন দেখে, আর বাংলা ও ইংরেজিতে ছোট নির্দেশিকা দেওয়া হয়। হোয়াটসঅ্যাপ চালাতে পারলে DT Restora-ও চালাতে পারবেন।
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed 01304734623
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
 
 #সহজব্যবহার #প্রশিক্ষণ #রেস্টুরেন্টমালিক #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -21,7 +21,7 @@ Status and schedule are tracked in content-plan.json (id P103). Links are not us
 
 আপনার রেস্টুরেন্ট বা ক্যাফের জন্য সঠিক সমাধান নিয়ে কথা বলতে ইনবক্স করুন।
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed 01304734623
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
 
 #সহজব্যবহার #প্রশিক্ষণ #রেস্টুরেন্টমালিক #DTRestora #SaaS
 
@@ -30,7 +30,7 @@ Status and schedule are tracked in content-plan.json (id P103). Links are not us
 
 পারার দরকারও নেই।
 
-Md. Sakir Ahmed 01304734623
+Md. Sakir Ahmed +880 1575-888775
 
 #সহজব্যবহার #প্রশিক্ষণ
 (characters counted by X: 100 of 280)
@@ -40,12 +40,12 @@ Md. Sakir Ahmed 01304734623
 
 প্রতিটি ভূমিকা শুধু নিজের টুলসহ সহজ স্ক্রিন দেখে, আর বাংলা ও ইংরেজিতে ছোট নির্দেশিকা দেওয়া হয়। হোয়াটসঅ্যাপ চালাতে পারলে DT Restora-ও চালাতে পারবেন।
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed 01304734623
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
 
 #সহজব্যবহার #প্রশিক্ষণ #রেস্টুরেন্টমালিক #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-পারার দরকারও নেই। ফ্রি ডেমো দেখুন। যোগাযোগ: Md. Sakir Ahmed 01304734623।
+পারার দরকারও নেই। ফ্রি ডেমো দেখুন। যোগাযোগ: Md. Sakir Ahmed +880 1575-888775।
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: "আমি কম্পিউটার ভালো পারি না" | DT Restora

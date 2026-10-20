@@ -23,10 +23,10 @@ DT Restora-য় মেসেজ করার জন্য ধন্যবা�
 ## 3. Away message (outside business hours)
 
 **English**
-Thanks for your message. We are away right now and will reply when we are back `[ADD working hours]`. In the meantime, try the free live demo: https://dt-restora.datatechbd.com or WhatsApp us on 8801304734623.
+Thanks for your message. We are away right now and will reply when we are back `[ADD working hours]`. In the meantime, try the free live demo: https://dt-restora.datatechbd.com or WhatsApp us on +880 1575-888775.
 
 **Bangla**
-মেসেজের জন্য ধন্যবাদ। আমরা এখন অফিসে নেই, কাজের সময় `[ADD সময়]` ফিরেই উত্তর দেব। ততক্ষণ ফ্রি লাইভ ডেমো দেখুন: https://dt-restora.datatechbd.com অথবা হোয়াটসঅ্যাপ করুন 8801304734623 নম্বরে।
+মেসেজের জন্য ধন্যবাদ। আমরা এখন অফিসে নেই, কাজের সময় `[ADD সময়]` ফিরেই উত্তর দেব। ততক্ষণ ফ্রি লাইভ ডেমো দেখুন: https://dt-restora.datatechbd.com অথবা হোয়াটসঅ্যাপ করুন +880 1575-888775 নম্বরে।
 
 ## 4. Frequently asked questions (add as Messenger FAQ buttons, up to 6 visible)
 
@@ -76,7 +76,7 @@ Thank you for your time yesterday. Do you have any questions about what you saw?
 A quick idea from our customers: many owners start with POS and kitchen first, then add stock and the website. Would you like us to prepare your menu in a trial setup?
 
 **not-now**
-No problem at all. We will keep your details and send occasional tips. If you want a demo later, message us anytime or WhatsApp 8801304734623.
+No problem at all. We will keep your details and send occasional tips. If you want a demo later, message us anytime or WhatsApp +880 1575-888775.
 
 **thanks-review**
 Thank you for trying DT Restora! If you were happy, a short review on our page helps other restaurant owners find us. We would be grateful.

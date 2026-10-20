@@ -49,8 +49,8 @@ What you get in one system:
 Launch offer: 1,000 BDT per month (regular price 5,700 BDT). One-time installation 2,500 BDT, refundable after one year of use if you cancel. First month free after installation. Yearly plan: 2 months free.
 
 Try the free live demo: https://dt-restora.datatechbd.com
-Talk to us on WhatsApp: https://wa.me/8801304734623
-Email: sakir.ahmed@datatechbd.com
+Talk to us on WhatsApp: https://wa.me/8801575888775
+Email: info@datatechbd.com
 
 **Bangla**
 
@@ -73,8 +73,8 @@ DT Restora ঢাকার ডাটাটেক বিডি লিমিটে
 বিশেষ অফার: মাসে ১,০০০ টাকা (নিয়মিত মূল্য ৫,৭০০ টাকা)। এককালীন ইনস্টলেশন ২,৫০০ টাকা, এক বছর ব্যবহারের পর বাতিল করলে ফেরতযোগ্য। ইনস্টলেশনের পর প্রথম মাস ফ্রি। বার্ষিক প্ল্যানে ২ মাস ফ্রি।
 
 ফ্রি লাইভ ডেমো দেখুন: https://dt-restora.datatechbd.com
-হোয়াটসঅ্যাপে কথা বলুন: https://wa.me/8801304734623
-ইমেইল: sakir.ahmed@datatechbd.com
+হোয়াটসঅ্যাপে কথা বলুন: https://wa.me/8801575888775
+ইমেইল: info@datatechbd.com
 
 ## 4. Mission and values (for the Page info or a pinned story)
 

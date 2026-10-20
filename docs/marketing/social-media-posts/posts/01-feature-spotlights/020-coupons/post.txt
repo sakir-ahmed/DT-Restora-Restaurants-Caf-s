@@ -2,7 +2,7 @@ POST 020 | Feature spotlight | English
 Folder: 01-feature-spotlights/020-coupons
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Mon 12:30 pm
-Contact line on every post: Md. Sakir Ahmed 01304734623
+Contact line on every post: Md. Sakir Ahmed +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P020). Links are not used in captions.
 
 === FACEBOOK ===
@@ -14,7 +14,7 @@ Create a coupon code, choose percent or fixed, set a minimum order, validity dat
 - Minimum order and dates
 - Usage limits
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
 
 #Coupons #RestaurantPromotion #FoodOffers #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -28,7 +28,7 @@ Key points:
 - Minimum order and dates
 - Usage limits
 
-If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: 01304734623
+If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: +880 1575-888775
 
 #Coupons #RestaurantPromotion #FoodOffers #DTRestora #SaaS
 
@@ -37,7 +37,7 @@ Coupons that you control
 
 Percent or fixed, with limits per customer.
 
-Md. Sakir Ahmed 01304734623
+Md. Sakir Ahmed +880 1575-888775
 
 #Coupons #RestaurantPromotion
 (characters counted by X: 129 of 280)
@@ -47,12 +47,12 @@ Coupons that you control
 
 Create a coupon code, choose percent or fixed, set a minimum order, validity dates and usage limits, and apply it to a channel or branch. Run a weekend offer without giving away margin you did not plan to.
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623 (or DM "DEMO").
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775 (or DM "DEMO").
 
 #Coupons #RestaurantPromotion #FoodOffers #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-Percent or fixed, with limits per customer. Try the free demo. Call Md. Sakir Ahmed: 01304734623.
+Percent or fixed, with limits per customer. Try the free demo. Call Md. Sakir Ahmed: +880 1575-888775.
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: Coupons that you control | DT Restora

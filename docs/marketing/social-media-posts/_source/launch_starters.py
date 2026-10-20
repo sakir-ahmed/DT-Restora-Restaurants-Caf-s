@@ -8,7 +8,7 @@ S = 2
 W, H = 1080, 1350
 AV = '/System/Library/Fonts/Avenir Next.ttc'
 INK, INK2, AMBER, DEEP, SOFT, PAPER, WHITE = '#0F172A', '#1E293B', '#F59E0B', '#B45309', '#FEF3C7', '#F8FAFC', '#FFFFFF'
-PHONE, NAME = '01304734623', 'Md. Sakir Ahmed'
+PHONE, NAME = '+880 1575-888775', 'Md. Sakir Ahmed'
 
 
 def font(size, w='heavy'):

@@ -149,6 +149,8 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 # Project Instructions
 
+**DT Restora** is a restaurant owner control system and a product of **Datatech BD Ltd** (datatechbd.com) — _Software that runs business._
+
 This is a Laravel 13 project built from the specification in `docs/`.
 
 Read these files before writing any code, in this order:

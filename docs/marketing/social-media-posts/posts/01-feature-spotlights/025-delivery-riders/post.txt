@@ -2,7 +2,7 @@ POST 025 | Feature spotlight | English
 Folder: 01-feature-spotlights/025-delivery-riders
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Sat 8:30 pm
-Contact line on every post: Md. Sakir Ahmed 01304734623
+Contact line on every post: Md. Sakir Ahmed +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P025). Links are not used in captions.
 
 === FACEBOOK ===
@@ -14,7 +14,7 @@ Managers assign a rider from the dispatch board, and the rider uses a simple mob
 - Rider mobile page
 - Cash on delivery check
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
 
 #DeliveryManagement #RiderApp #FoodDelivery #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -28,7 +28,7 @@ Key points:
 - Rider mobile page
 - Cash on delivery check
 
-If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: 01304734623
+If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: +880 1575-888775
 
 #DeliveryManagement #RiderApp #FoodDelivery #DTRestora #SaaS
 
@@ -37,7 +37,7 @@ Assign riders. Track every trip.
 
 Dispatch board, rider mobile page and cash on delivery.
 
-Md. Sakir Ahmed 01304734623
+Md. Sakir Ahmed +880 1575-888775
 
 #DeliveryManagement #RiderApp
 (characters counted by X: 149 of 280)
@@ -47,12 +47,12 @@ Assign riders. Track every trip.
 
 Managers assign a rider from the dispatch board, and the rider uses a simple mobile page to update status and share location. Customers can follow the trip, and cash on delivery is reconciled per rider.
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623 (or DM "DEMO").
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775 (or DM "DEMO").
 
 #DeliveryManagement #RiderApp #FoodDelivery #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-Dispatch board, rider mobile page and cash on delivery. Try the free demo. Call Md. Sakir Ahmed: 01304734623.
+Dispatch board, rider mobile page and cash on delivery. Try the free demo. Call Md. Sakir Ahmed: +880 1575-888775.
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: Assign riders. Track every trip. | DT Restora

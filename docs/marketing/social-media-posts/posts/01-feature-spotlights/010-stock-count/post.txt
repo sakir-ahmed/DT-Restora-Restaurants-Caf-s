@@ -2,7 +2,7 @@ POST 010 | Feature spotlight | English
 Folder: 01-feature-spotlights/010-stock-count
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Fri 4:00 pm
-Contact line on every post: Md. Sakir Ahmed 01304734623
+Contact line on every post: Md. Sakir Ahmed +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P010). Links are not used in captions.
 
 === FACEBOOK ===
@@ -10,7 +10,7 @@ Count the shelf. See the difference.
 
 Run a periodic stock count and let DT Restora compare it with the system quantity. The variance report shows what is missing or extra, and the difference is posted so your books stay honest.
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
 
 #StockCount #InventoryAudit #RestaurantOps #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -19,7 +19,7 @@ Count the shelf. See the difference.
 
 Run a periodic stock count and let DT Restora compare it with the system quantity. The variance report shows what is missing or extra, and the difference is posted so your books stay honest.
 
-If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: 01304734623
+If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: +880 1575-888775
 
 #StockCount #InventoryAudit #RestaurantOps #DTRestora #SaaS
 
@@ -28,7 +28,7 @@ Count the shelf. See the difference.
 
 Physical stock counts with a variance report.
 
-Md. Sakir Ahmed 01304734623
+Md. Sakir Ahmed +880 1575-888775
 
 #StockCount #InventoryAudit
 (characters counted by X: 141 of 280)
@@ -38,12 +38,12 @@ Count the shelf. See the difference.
 
 Run a periodic stock count and let DT Restora compare it with the system quantity. The variance report shows what is missing or extra, and the difference is posted so your books stay honest.
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623 (or DM "DEMO").
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775 (or DM "DEMO").
 
 #StockCount #InventoryAudit #RestaurantOps #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-Physical stock counts with a variance report. Try the free demo. Call Md. Sakir Ahmed: 01304734623.
+Physical stock counts with a variance report. Try the free demo. Call Md. Sakir Ahmed: +880 1575-888775.
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: Count the shelf. See the difference. | DT Restora

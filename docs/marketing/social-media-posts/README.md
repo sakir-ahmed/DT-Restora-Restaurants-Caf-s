@@ -1,6 +1,6 @@
 # DT Restora social media posts
 
-Contact on every post: Md. Sakir Ahmed, 01304734623. No links in captions.
+Contact on every post: Md. Sakir Ahmed, +880 1575-888775. No links in captions.
 
 ```
 content-plan.json   master tracker: 146 posts (images, captions per platform, schedule, is_posted_* flags, performance)

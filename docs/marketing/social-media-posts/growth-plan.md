@@ -1,6 +1,6 @@
 # DT Restora: self-driven growth plan for a brand-new page
 
-Owner and face of the brand: Md. Sakir Ahmed, 01304734623 (phone and WhatsApp).
+Owner and face of the brand: Md. Sakir Ahmed, +880 1575-888775 (phone and WhatsApp).
 Schedule start: Monday 2026-10-19 (change `schedule_start_date` in the JSON files if you start later).
 All budget, reach and conversion figures are planning assumptions. Replace them with real numbers after week 3.
 
@@ -11,7 +11,7 @@ A page with no followers does not win on posting alone. People buy a restaurant 
 1. **Person to person (80 percent of early effort):** your personal profile, WhatsApp, groups, phone calls, visits. The page is the proof that the business is real.
 2. **Page content (20 percent, then growing):** daily posts and 2 videos a week from `content-plan.json` and `video-plan.json`, boosted only after they prove themselves.
 
-Every post and video ends with one action: message or call Md. Sakir Ahmed on 01304734623, or comment/DM the word DEMO. No links are used, so the number is the funnel.
+Every post and video ends with one action: message or call Md. Sakir Ahmed on +880 1575-888775, or comment/DM the word DEMO. No links are used, so the number is the funnel.
 
 ## Phase 0: before day 1 (2 to 3 days)
 
@@ -74,7 +74,7 @@ Rule: **never boost a post that has not proven itself organically.** Wait 24 hou
 
 ## Easy ways for people to connect
 
-- One number everywhere: 01304734623 (phone, WhatsApp, Messenger).
+- One number everywhere: +880 1575-888775 (phone, WhatsApp, Messenger).
 - Comment "DEMO" on any post and reply with a private message the same hour.
 - Weekly live demo with Q&A, same day and time.
 - Free 15-minute profit check.

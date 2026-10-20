@@ -160,7 +160,7 @@ P('chat', 'chat-our-network-drops-at-lunch', 'chat', 'Our network drops at lunch
   ['OwnerQuestions', 'OfflinePOS', 'LoadShedding'], 'pos network drops restaurant', bg='cream',
   chat=[('q', 'Our network drops at lunch. What now?'), ('a', 'Keep selling. Cash orders are saved on the device.'), ('q', 'Will they sync?'), ('a', 'Automatically when the internet returns, with no duplicates.')], cap='Sync'),
 P('chat', 'chat-can-i-try-before-paying', 'chat', 'Can I try before paying?', 'Owner asks, we answer.',
-  ['Free live demo', 'WhatsApp 8801304734623', 'Nothing to install to try'], 'dash:0.62,0.55,1.1',
+  ['Free live demo', 'WhatsApp +880 1575-888775', 'Nothing to install to try'], 'dash:0.62,0.55,1.1',
   'Yes. Open the live demo and sign in as owner, cashier or kitchen to click every screen. When you are ready, book a walkthrough and we will use your menu and branches.',
   ['OwnerQuestions', 'FreeDemo', 'TryBeforeYouBuy'], 'restaurant software free demo', bg='rose',
   chat=[('q', 'Can I try before paying?'), ('a', 'Yes. Open the live demo and sign in as owner, cashier or kitchen.'), ('q', 'Can you show my own menu?'), ('a', 'Book a demo and we will walk through it with your menu and branches.')], cap='Live demo'),

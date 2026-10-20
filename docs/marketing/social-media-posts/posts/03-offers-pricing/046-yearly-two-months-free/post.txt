@@ -2,7 +2,7 @@ POST 046 | Launch offer | English
 Folder: 03-offers-pricing/046-yearly-two-months-free
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Sat 8:30 pm
-Contact line on every post: Md. Sakir Ahmed 01304734623
+Contact line on every post: Md. Sakir Ahmed +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P046). Links are not used in captions.
 
 === FACEBOOK ===
@@ -14,7 +14,7 @@ Prefer one payment instead of twelve? Choose the yearly plan and get two months 
 - Same features included
 - First month still free
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
 
 #YearlyPlan #SaveMoney #RestaurantSoftware #DTRestora #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -28,7 +28,7 @@ Key points:
 - Same features included
 - First month still free
 
-If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: 01304734623
+If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: +880 1575-888775
 
 #YearlyPlan #SaveMoney #RestaurantSoftware #DTRestora #SaaS
 
@@ -37,7 +37,7 @@ Pay yearly. Get 2 months free.
 
 Pay for ten months and use twelve.
 
-Md. Sakir Ahmed 01304734623
+Md. Sakir Ahmed +880 1575-888775
 
 #YearlyPlan #SaveMoney
 (characters counted by X: 119 of 280)
@@ -47,12 +47,12 @@ Pay yearly. Get 2 months free.
 
 Prefer one payment instead of twelve? Choose the yearly plan and get two months free. Pay for ten months, use the system for twelve.
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623 (or DM "DEMO").
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775 (or DM "DEMO").
 
 #YearlyPlan #SaveMoney #RestaurantSoftware #DTRestora #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-Pay for ten months and use twelve. Try the free demo. Call Md. Sakir Ahmed: 01304734623.
+Pay for ten months and use twelve. Try the free demo. Call Md. Sakir Ahmed: +880 1575-888775.
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: Pay yearly. Get 2 months free. | DT Restora

@@ -2,7 +2,7 @@ POST 093 | Bangla post | Bangla
 Folder: 08-bangla-posts/093-bn-loyalty
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Thu 8:00 pm
-Contact line on every post: Md. Sakir Ahmed 01304734623
+Contact line on every post: Md. Sakir Ahmed +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P093). Links are not used in captions.
 
 === FACEBOOK ===
@@ -14,7 +14,7 @@ Status and schedule are tracked in content-plan.json (id P093). Links are not us
 - সিলভার ও গোল্ড স্তর
 - পয়েন্টের খতিয়ান
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed 01304734623
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
 
 #লয়্যালটি #গ্রাহকসেবা #ক্যাফে #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -30,7 +30,7 @@ Status and schedule are tracked in content-plan.json (id P093). Links are not us
 
 আপনার রেস্টুরেন্ট বা ক্যাফের জন্য সঠিক সমাধান নিয়ে কথা বলতে ইনবক্স করুন।
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed 01304734623
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
 
 #লয়্যালটি #গ্রাহকসেবা #ক্যাফে #DTRestora #SaaS
 
@@ -39,7 +39,7 @@ Status and schedule are tracked in content-plan.json (id P093). Links are not us
 
 কাউন্টার ও অনলাইনে একই লয়্যালটি পয়েন্ট।
 
-Md. Sakir Ahmed 01304734623
+Md. Sakir Ahmed +880 1575-888775
 
 #লয়্যালটি #গ্রাহকসেবা
 (characters counted by X: 129 of 280)
@@ -49,12 +49,12 @@ Md. Sakir Ahmed 01304734623
 
 গ্রাহক প্রতিটি পরিশোধিত অর্ডারে পয়েন্ট পান, আর সেই পয়েন্ট কাউন্টারে বা আপনার ওয়েবসাইটে খরচ করতে পারেন। পয়েন্টের হার, মূল্য ও মেয়াদ আপনি ঠিক করেন। জন্মদিনের অফার আর অনেকদিন না আসা গ্রাহককে ফিরিয়ে আনার এসএমএসও পাঠানো যায়।
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed 01304734623
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
 
 #লয়্যালটি #গ্রাহকসেবা #ক্যাফে #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-কাউন্টার ও অনলাইনে একই লয়্যালটি পয়েন্ট। ফ্রি ডেমো দেখুন। যোগাযোগ: Md. Sakir Ahmed 01304734623।
+কাউন্টার ও অনলাইনে একই লয়্যালটি পয়েন্ট। ফ্রি ডেমো দেখুন। যোগাযোগ: Md. Sakir Ahmed +880 1575-888775।
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: প্রথমবারের গ্রাহককে বানান নিয়মিত | DT Restora

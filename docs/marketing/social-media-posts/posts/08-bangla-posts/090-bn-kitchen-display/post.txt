@@ -2,7 +2,7 @@ POST 090 | Bangla post | Bangla
 Folder: 08-bangla-posts/090-bn-kitchen-display
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Mon 12:30 pm
-Contact line on every post: Md. Sakir Ahmed 01304734623
+Contact line on every post: Md. Sakir Ahmed +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P090). Links are not used in captions.
 
 === FACEBOOK ===
@@ -14,7 +14,7 @@ Status and schedule are tracked in content-plan.json (id P090). Links are not us
 - প্রতিটি টিকেটে সময়
 - এক ট্যাপেই পরের ধাপ
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed 01304734623
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
 
 #কিচেনডিসপ্লে #রান্নাঘর #রেস্টুরেন্টসফটওয়্যার #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -30,7 +30,7 @@ Status and schedule are tracked in content-plan.json (id P090). Links are not us
 
 আপনার রেস্টুরেন্ট বা ক্যাফের জন্য সঠিক সমাধান নিয়ে কথা বলতে ইনবক্স করুন।
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed 01304734623
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
 
 #কিচেনডিসপ্লে #রান্নাঘর #রেস্টুরেন্টসফটওয়্যার #DTRestora #SaaS
 
@@ -39,7 +39,7 @@ Status and schedule are tracked in content-plan.json (id P090). Links are not us
 
 চেঁচামেচি নেই, কাগজের স্লিপ হারানোর ভয়ও নেই।
 
-Md. Sakir Ahmed 01304734623
+Md. Sakir Ahmed +880 1575-888775
 
 #কিচেনডিসপ্লে #রান্নাঘর
 (characters counted by X: 130 of 280)
@@ -49,12 +49,12 @@ Md. Sakir Ahmed 01304734623
 
 কাউন্টার, ওয়েবসাইট বা কিউআর টেবিল, যেখান থেকেই অর্ডার আসুক, সব টিকেট এক সরাসরি বোর্ডে দেখা যায়। বাবুর্চি রান্না শুরু করে, শেষে পরিবেশিত দেন। কোন অর্ডার কতক্ষণ ধরে অপেক্ষা করছে, তাও দেখা যায়।
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed 01304734623
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
 
 #কিচেনডিসপ্লে #রান্নাঘর #রেস্টুরেন্টসফটওয়্যার #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-চেঁচামেচি নেই, কাগজের স্লিপ হারানোর ভয়ও নেই। ফ্রি ডেমো দেখুন। যোগাযোগ: Md. Sakir Ahmed 01304734623।
+চেঁচামেচি নেই, কাগজের স্লিপ হারানোর ভয়ও নেই। ফ্রি ডেমো দেখুন। যোগাযোগ: Md. Sakir Ahmed +880 1575-888775।
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: রান্নাঘর অর্ডার দেখে তৎক্ষণাৎ | DT Restora

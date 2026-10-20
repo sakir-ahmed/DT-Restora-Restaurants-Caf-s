@@ -2,7 +2,7 @@ POST 007 | Feature spotlight | English
 Folder: 01-feature-spotlights/007-auto-stock-deduction
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Tue 8:00 pm
-Contact line on every post: Md. Sakir Ahmed 01304734623
+Contact line on every post: Md. Sakir Ahmed +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P007). Links are not used in captions.
 
 === FACEBOOK ===
@@ -14,7 +14,7 @@ Manual stock books are always behind. When a recipe is linked to a menu item, ea
 - Voids restore stock
 - Reorder alerts
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
 
 #InventoryManagement #StockControl #RestaurantInventory #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -28,7 +28,7 @@ Key points:
 - Voids restore stock
 - Reorder alerts
 
-If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: 01304734623
+If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: +880 1575-888775
 
 #InventoryManagement #StockControl #RestaurantInventory #DTRestora #SaaS
 
@@ -37,7 +37,7 @@ Stock that reduces itself with every sale
 
 Sell a biryani and the rice, meat and spice stock drops automatically.
 
-Md. Sakir Ahmed 01304734623
+Md. Sakir Ahmed +880 1575-888775
 
 #InventoryManagement #StockControl
 (characters counted by X: 178 of 280)
@@ -47,12 +47,12 @@ Stock that reduces itself with every sale
 
 Manual stock books are always behind. When a recipe is linked to a menu item, each confirmed order reduces the right ingredients in that branch. If an order is voided, the stock comes back. Low stock raises an alert before you run out.
 
-To book a free demo, contact Md. Sakir Ahmed: 01304734623 (or DM "DEMO").
+To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775 (or DM "DEMO").
 
 #InventoryManagement #StockControl #RestaurantInventory #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-Sell a biryani and the rice, meat and spice stock drops automatically. Try the free demo. Call Md. Sakir Ahmed: 01304734623.
+Sell a biryani and the rice, meat and spice stock drops automatically. Try the free demo. Call Md. Sakir Ahmed: +880 1575-888775.
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: Stock that reduces itself with every sale | DT Restora
