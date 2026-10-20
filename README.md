@@ -201,7 +201,7 @@ tests/              Pest tests
 
 **DT Restora** is a product of **Datatech BD Ltd** — datatechbd.com — _Software that runs business._
 
-- Email: info@datatechbd.com
+- Email: sales@datatechbd.com
 - Phone: +880 1575-888775
 - WhatsApp: +880 1575-888775
 - Address: Flat 4-A, Dhumketu Shikder Tower, Holding No. 66, Paschim Monipur, Mirpur, Dhaka-1216, Bangladesh
