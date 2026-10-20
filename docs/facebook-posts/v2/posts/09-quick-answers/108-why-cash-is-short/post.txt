@@ -12,7 +12,7 @@ A shortage is hard to trace without structure. In DT Restora each cashier opens 
 - Discounts above the limit need approval
 - Every override lands in the log
 
-To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, info@datatechbd.com
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
 
 #CashHandling #ShiftClose #RestaurantControl #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -43,7 +43,7 @@ Why is the cash drawer short every week?
 
 A shortage is hard to trace without structure. In DT Restora each cashier opens and closes a shift with counted cash, the system shows expected against counted and the difference, and every discount override and void is written to the activity log.
 
-To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, info@datatechbd.com (or DM "DEMO").
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com (or DM "DEMO").
 
 #CashHandling #ShiftClose #RestaurantControl #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 

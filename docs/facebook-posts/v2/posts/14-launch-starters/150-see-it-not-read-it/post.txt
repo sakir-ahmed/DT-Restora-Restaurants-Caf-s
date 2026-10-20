@@ -1,7 +1,7 @@
 POST 150 | Launch starter | English
 Folder: 14-launch-starters/150-see-it-not-read-it
 Images: 1, 1080x1350 (4:5).
-Contact line on every post: Datatech BD Ltd. +880 1575-888775, info@datatechbd.com
+Contact line on every post: Datatech BD Ltd. +880 1575-888775, sales@datatechbd.com
 Status and schedule are tracked in content-plan.json (id P150). Links are not used in captions.
 
 === FACEBOOK ===
@@ -9,7 +9,7 @@ See it. Do not just read it.
 
 This is the real DT Restora: the POS screen your cashier uses and the kitchen display your cooks see. Message us and we will show you the rest on a call or in person.
 
-To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, info@datatechbd.com
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
 
 #RestaurantPOS #KitchenDisplay #DTRestora #RestaurantSoftware #CafePOS #BangladeshRestaurants
 

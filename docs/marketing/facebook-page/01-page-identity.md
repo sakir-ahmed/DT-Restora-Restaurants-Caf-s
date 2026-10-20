@@ -19,7 +19,7 @@ Fill the page in this order. Facebook changes its screens often, so use the labe
 | Website             | https://dt-restora.datatechbd.com                                                                                                                      |
 | Phone               | +880 1575-888775                                                                                                                                       |
 | WhatsApp            | https://wa.me/8801575888775 (link it to the page if Facebook offers the WhatsApp option)                                                               |
-| Email               | info@datatechbd.com                                                                                                                             |
+| Email               | sales@datatechbd.com                                                                                                                             |
 | Company             | Datatech BD Ltd                                                                                                                                        |
 | Contact person      | Md. Sakir Ahmed, Managing Director                                                                                                                     |
 | Address             | Flat 4-A, Dhumketu Shikder Tower, Holding No. 66, Paschim Monipur, Mirpur, Dhaka-1216, Bangladesh (hide the map pin if customers do not visit)          |

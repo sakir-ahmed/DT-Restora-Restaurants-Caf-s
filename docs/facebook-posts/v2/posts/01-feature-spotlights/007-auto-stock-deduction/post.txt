@@ -12,7 +12,7 @@ Manual stock books are always behind. When a recipe is linked to a menu item, ea
 - Voids restore stock
 - Reorder alerts
 
-To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, info@datatechbd.com
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
 
 #InventoryManagement #StockControl #RestaurantInventory #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -43,7 +43,7 @@ Stock that reduces itself with every sale
 
 Manual stock books are always behind. When a recipe is linked to a menu item, each confirmed order reduces the right ingredients in that branch. If an order is voided, the stock comes back. Low stock raises an alert before you run out.
 
-To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, info@datatechbd.com (or DM "DEMO").
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com (or DM "DEMO").
 
 #InventoryManagement #StockControl #RestaurantInventory #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 

@@ -335,7 +335,7 @@ def t_cta(p, pid, bn, total):
     inner = (header(p['label']) + f'<h2 class="t" style="font-size:{fsize(plain(t), bn, (92, 84, 74, 64))}px">{em(t)}</h2><p class="sub">{sub}</p>'
              + f'<div class="body"><div class="ctab"><div style="font-size:42px;font-weight:800">{name}</div><div style="font-size:23px;color:#AFC0D6;margin-top:-10px">{role}</div>'
              + f'<div class="cline">{ic("phone")}<span>+880 1575-888775</span></div>'
-             + f'<div class="cline">{ic("mail")}<span>info@datatechbd.com <small style="font-size:22px;color:#AFC0D6;font-weight:500">{sales}</small></span></div>'
+             + f'<div class="cline">{ic("mail")}<span>sales@datatechbd.com <small style="font-size:22px;color:#AFC0D6;font-weight:500">{sales}</small></span></div>'
              + f'<div class="cline">{ic("globe")}dt-restora.datatechbd.com</div>'
              + f'<div class="cline" style="font-size:23px;font-weight:500;align-items:flex-start;line-height:1.35">{ic("pin")}<span>{addr}</span></div></div>'
              + f'<div class="bar-cta"><span>{"ফ্রি ডেমো দেখুন" if bn else "Try the live demo"}</span>{ic("arrow")}</div></div>' + footer(bn=bn))

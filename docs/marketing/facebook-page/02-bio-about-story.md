@@ -50,7 +50,7 @@ Launch offer: 1,000 BDT per month (regular price 5,700 BDT). One-time installati
 
 Try the free live demo: https://dt-restora.datatechbd.com
 Talk to us on WhatsApp: https://wa.me/8801575888775
-Email: info@datatechbd.com
+Email: sales@datatechbd.com
 
 **Bangla**
 
@@ -74,7 +74,7 @@ DT Restora ঢাকার ডাটাটেক বিডি লিমিটে
 
 ফ্রি লাইভ ডেমো দেখুন: https://dt-restora.datatechbd.com
 হোয়াটসঅ্যাপে কথা বলুন: https://wa.me/8801575888775
-ইমেইল: info@datatechbd.com
+ইমেইল: sales@datatechbd.com
 
 ## 4. Mission and values (for the Page info or a pinned story)
 

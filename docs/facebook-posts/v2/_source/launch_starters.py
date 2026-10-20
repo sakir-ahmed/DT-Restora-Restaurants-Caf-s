@@ -8,7 +8,7 @@ S = 2
 W, H = 1080, 1350
 FONTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fonts') + '/'
 INK, INK2, AMBER, DEEP, SOFT, PAPER, WHITE = '#0A1428', '#13213D', '#38A8FF', '#0B63CE', '#E3F0FF', '#F8FAFC', '#FFFFFF'
-PHONE, NAME, EMAIL = '+880 1575-888775', 'Datatech BD Ltd.', 'info@datatechbd.com'
+PHONE, NAME, EMAIL = '+880 1575-888775', 'Datatech BD Ltd.', 'sales@datatechbd.com'
 BLUE = '#0B63CE'
 
 
