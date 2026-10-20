@@ -19,7 +19,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-    restart: unless-stopped
+    restart: no
 
   nginx:
     image: nginx:1.27-alpine
@@ -30,7 +30,7 @@ services:
       - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - app
-    restart: unless-stopped
+    restart: no
 
   mysql:
     image: mysql:8.4
@@ -46,13 +46,13 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
-    restart: unless-stopped
+    restart: no
 
   redis:
     image: redis:7-alpine
     volumes:
       - redis-data:/data
-    restart: unless-stopped
+    restart: no
 
   queue:
     build:
@@ -71,7 +71,7 @@ services:
       QUEUE_CONNECTION: redis
     depends_on:
       - app
-    restart: unless-stopped
+    restart: no
 
   scheduler:
     build:
@@ -90,7 +90,7 @@ services:
       QUEUE_CONNECTION: redis
     depends_on:
       - app
-    restart: unless-stopped
+    restart: no
 
   reverb:
     build:
@@ -111,7 +111,7 @@ services:
       QUEUE_CONNECTION: redis
     depends_on:
       - app
-    restart: unless-stopped
+    restart: no
 
 volumes:
   mysql-data:
