@@ -42,13 +42,26 @@ class HomeController extends Controller
             ->get()
             ->each(fn (Branch $branch) => $branch->setAttribute('slug', $branch->publicSlug()));
 
+        $featuredNames = [
+            'Kacchi Biryani',
+            'Chicken Biryani',
+            'Beef Tehari',
+            'Morog Polao',
+            'Beef Bhuna',
+            'Kala Bhuna',
+            'Fuchka',
+            'Chingri Malai Curry',
+        ];
+        $featuredOrder = array_flip($featuredNames);
         $featured = MenuItem::query()
+            ->where('branch_id', $branches->first()?->id)
+            ->whereIn('name', $featuredNames)
             ->available()
             ->whereHas('category', fn ($query) => $query->where('is_active', true))
             ->with(['category:id,name,name_bn', 'variants', 'media'])
-            ->orderByDesc('id')
-            ->limit(8)
-            ->get();
+            ->get()
+            ->sortBy(fn (MenuItem $item): int => $featuredOrder[$item->name])
+            ->values();
 
         $categories = MenuCategory::query()
             ->active()

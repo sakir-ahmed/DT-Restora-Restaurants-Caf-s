@@ -101,7 +101,7 @@ onBeforeUnmount(stop);
                     height="480"
                     :loading="index === 0 ? 'eager' : 'lazy'"
                     decoding="async"
-                    class="hero-photo h-full w-full object-cover"
+                    class="hero-photo h-full w-full object-contain p-5"
                 >
                 <div v-else class="hero-art h-3/5 w-3/5 max-w-72"><DishArt :kind="slide.kind" :seed="slide.seed" /></div>
             </div>

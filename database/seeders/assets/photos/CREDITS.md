@@ -2,6 +2,8 @@
 
 Dish photos below are from Wikimedia Commons and are used under the stated licences (attribution required). All other photos in this folder are generic stock.
 
+Transparent PNG variants are cutouts made from the corresponding credited source photo; they retain that photo's attribution and licence.
+
 | Key | File | Author | Licence | Source |
 |---|---|---|---|---|
 | biryani | Basmati Kacchi Biryani (2).jpg | Nahian | CC BY 4.0 | https://commons.wikimedia.org/wiki/File:Basmati_Kacchi_Biryani_(2).jpg |

@@ -7,7 +7,7 @@ namespace Database\Seeders\Support;
 use Illuminate\Support\Facades\File;
 
 /**
- * Optimized WebP photographs shipped with the demo (food and dining rooms).
+ * Optimized demo photographs shipped with the app (food and dining rooms).
  * Seeding copies them into the public disk so the site can serve them.
  */
 final class DemoPhotos
@@ -60,6 +60,8 @@ final class DemoPhotos
 
     private static function assetPath(string $key): string
     {
-        return database_path('seeders/assets/photos/'.$key.'.webp');
+        $png = database_path('seeders/assets/photos/'.$key.'.png');
+
+        return is_file($png) ? $png : database_path('seeders/assets/photos/'.$key.'.webp');
     }
 }

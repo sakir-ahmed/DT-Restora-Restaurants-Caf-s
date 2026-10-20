@@ -13,6 +13,7 @@ const props = defineProps({
     branchCode: { type: String, required: true },
     showAdd: { type: Boolean, default: false },
     categoryName: { type: String, default: null },
+    imageFit: { type: String, default: 'cover' },
 });
 
 const emit = defineEmits(['add']);
@@ -40,7 +41,7 @@ const lowestPrice = computed(() => {
                 height="480"
                 loading="lazy"
                 decoding="async"
-                class="h-full w-full object-cover"
+                :class="imageFit === 'contain' ? 'h-full w-full object-contain p-3' : 'h-full w-full object-cover'"
             >
             <div v-else class="flex h-full w-full items-center justify-center p-6">
                 <div class="h-full max-h-44 w-full max-w-44 drop-"><DishArt :kind="kind" :seed="item.id" /></div>

@@ -123,7 +123,7 @@ const statTiles = computed(() => [
 
             <ul class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 <Reveal v-for="(item, index) in featured" :key="item.id" as="li" :delay="(index % 4) * 90">
-                    <DishCard :item="item" :branch-code="branches.find((branch) => branch.id === item.branch_id)?.code ?? firstBranch.code" />
+                    <DishCard :item="item" :branch-code="branches.find((branch) => branch.id === item.branch_id)?.code ?? firstBranch.code" image-fit="contain" />
                 </Reveal>
             </ul>
         </section>
