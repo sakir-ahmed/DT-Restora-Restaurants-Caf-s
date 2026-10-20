@@ -99,7 +99,7 @@ const statTiles = computed(() => [
             <div class="grid gap-4 sm:grid-cols-3">
                 <Reveal v-for="(tile, index) in statTiles" :key="tile.label" :delay="index * 100">
                     <TiltCard class="bg-surface border border-border flex items-center gap-4 rounded-xl p-6 shadow-sm">
-                        <span class="flex h-11 w-14 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent-foreground">
+                        <span class="flex h-11 w-14 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-primary">
                             <AppIcon :name="tile.icon" size="22" />
                         </span>
                         <div>
@@ -153,7 +153,7 @@ const statTiles = computed(() => [
             <ul class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 <Reveal v-for="(feature, index) in features" :key="feature.key" as="li" :delay="(index % 3) * 100">
                     <TiltCard class="h-full rounded-xl border border-border bg-surface p-5 shadow-sm">
-                        <span class="flex h-11 w-14 items-center justify-center rounded-xl bg-accent/15 text-accent-foreground">
+                        <span class="flex h-11 w-14 items-center justify-center rounded-xl bg-accent/15 text-primary">
                             <AppIcon :name="feature.icon" size="22" />
                         </span>
                         <h3 class="mt-5 text-xl font-bold">{{ t(`site.feature_${feature.key}_title`) }}</h3>

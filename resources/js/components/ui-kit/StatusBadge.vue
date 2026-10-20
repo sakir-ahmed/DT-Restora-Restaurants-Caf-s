@@ -16,7 +16,7 @@ const MAP = {
     paid: { classes: 'bg-success/10 text-success', icon: 'circle-check' },
     pending: { classes: 'bg-warning/15 text-warning', icon: 'clock' },
     preparing: { classes: 'bg-warning/15 text-warning', icon: 'hourglass-half' },
-    ready: { classes: 'bg-accent/15 text-accent-foreground', icon: 'bell' },
+    ready: { classes: 'bg-accent/15 text-primary', icon: 'bell' },
     served: { classes: 'bg-success/10 text-success', icon: 'circle-check' },
     delivered: { classes: 'bg-success/10 text-success', icon: 'motorcycle' },
     void: { classes: 'bg-danger/10 text-danger', icon: 'circle-xmark' },
@@ -29,7 +29,7 @@ const MAP = {
     closed: { classes: 'bg-muted/10 text-muted', icon: 'lock' },
     free: { classes: 'bg-success/10 text-success', icon: 'circle-check' },
     occupied: { classes: 'bg-warning/15 text-warning', icon: 'utensils' },
-    reserved: { classes: 'bg-accent/15 text-accent-foreground', icon: 'bell-concierge' },
+    reserved: { classes: 'bg-accent/15 text-primary', icon: 'bell-concierge' },
     low: { classes: 'bg-warning/15 text-warning', icon: 'triangle-exclamation' },
     high: { classes: 'bg-danger/10 text-danger', icon: 'triangle-exclamation' },
 };

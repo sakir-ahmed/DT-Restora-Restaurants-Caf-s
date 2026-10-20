@@ -73,7 +73,7 @@ const tiles = computed(() => [
                 <ul class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <Reveal v-for="(value, index) in values" :key="value.key" as="li" :delay="index * 60">
                         <div class="h-full rounded-xl border border-border bg-background p-5">
-                            <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/15 text-accent-foreground">
+                            <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/15 text-primary">
                                 <AppIcon :name="value.icon" size="16" />
                             </span>
                             <h3 class="mt-4 text-lg font-semibold">{{ t(`site.value_${value.key}_title`) }}</h3>
@@ -90,7 +90,7 @@ const tiles = computed(() => [
 
             <ol class="relative mt-8 grid gap-10 md:grid-cols-4">
                 <Reveal v-for="step in process" :key="step.number" as="li" :delay="step.number * 100" class="relative text-center">
-                    <div class="relative mx-auto flex h-14 w-14 items-center justify-center rounded-lg border border-border bg-accent/15 text-accent-foreground ">
+                    <div class="relative mx-auto flex h-14 w-14 items-center justify-center rounded-lg border border-border bg-accent/15 text-primary ">
                         <AppIcon :name="step.icon" size="22" />
                         <span class="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">{{ step.number }}</span>
                     </div>

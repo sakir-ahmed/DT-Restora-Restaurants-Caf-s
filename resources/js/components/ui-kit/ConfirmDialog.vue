@@ -34,7 +34,7 @@ const variantMeta = computed(() => ({
 
 const buttonClasses = computed(() => ({
     danger: 'bg-danger text-white hover:bg-danger/90',
-    warning: 'bg-warning text-accent-foreground hover:bg-warning/90',
+    warning: 'bg-warning text-[#0a1428] hover:bg-warning/90',
     info: 'bg-primary text-primary-foreground hover:bg-primary/90',
     success: 'bg-success text-white hover:bg-success/90',
 })[props.variant] ?? 'bg-primary text-primary-foreground hover:bg-primary/90');

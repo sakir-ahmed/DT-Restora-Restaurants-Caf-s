@@ -37,15 +37,15 @@ const crumbs = computed(() => [
 
                         <address class="mt-5 space-y-3 text-base not-italic">
                             <p class="flex items-start gap-3">
-                                <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent-foreground"><AppIcon name="location-dot" size="14" /></span>
+                                <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-primary"><AppIcon name="location-dot" size="14" /></span>
                                 <span><span class="block text-xs font-semibold uppercase tracking-widest text-muted">{{ t('site.contact_visit') }}</span>{{ [branch.address, branch.city].filter(Boolean).join(', ') }}</span>
                             </p>
                             <p v-if="branch.phone" class="flex items-start gap-3">
-                                <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent-foreground"><AppIcon name="phone" size="14" /></span>
+                                <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-primary"><AppIcon name="phone" size="14" /></span>
                                 <span><span class="block text-xs font-semibold uppercase tracking-widest text-muted">{{ t('site.contact_call') }}</span><a :href="`tel:${branch.phone}`" class="font-semibold hover:underline">{{ branch.phone }}</a></span>
                             </p>
                             <div class="flex items-start gap-3">
-                                <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent-foreground"><AppIcon name="clock" size="14" /></span>
+                                <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-primary"><AppIcon name="clock" size="14" /></span>
                                 <div class="flex-1">
                                     <span class="mb-1 block text-xs font-semibold uppercase tracking-widest text-muted">{{ t('site.location_hours_title') }}</span>
                                     <HoursList :hours="branch.hours" />

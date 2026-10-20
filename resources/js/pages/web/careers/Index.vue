@@ -35,7 +35,7 @@ const benefits = [
             <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <Reveal v-for="benefit in benefits" :key="benefit.n" as="li" :delay="benefit.n * 50">
                     <div class="h-full rounded-xl border border-border bg-surface p-5">
-                        <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/15 text-accent-foreground"><AppIcon :name="benefit.icon" size="16" /></span>
+                        <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/15 text-primary"><AppIcon :name="benefit.icon" size="16" /></span>
                         <h3 class="mt-4 text-lg font-semibold">{{ t(`site.careers_benefit_${benefit.n}_title`) }}</h3>
                         <p class="mt-1.5 text-sm leading-relaxed text-muted">{{ t(`site.careers_benefit_${benefit.n}_text`) }}</p>
                     </div>
@@ -53,7 +53,7 @@ const benefits = [
                     <Reveal v-for="(opening, index) in openings" :key="opening.id" as="li" :delay="(index % 2) * 60">
                         <article class="flex h-full flex-col rounded-xl border border-border bg-background p-5">
                             <div class="flex flex-wrap gap-2 text-xs font-medium">
-                                <span class="rounded-md bg-accent/15 px-2 py-0.5 text-accent-foreground">{{ t(`site.job_type_${opening.employment_type}`) }}</span>
+                                <span class="rounded-md bg-accent/15 px-2 py-0.5 text-primary">{{ t(`site.job_type_${opening.employment_type}`) }}</span>
                                 <span v-if="opening.department" class="rounded-md border border-border px-2 py-0.5 text-muted">{{ opening.department }}</span>
                             </div>
                             <h3 class="mt-3 text-xl font-semibold">

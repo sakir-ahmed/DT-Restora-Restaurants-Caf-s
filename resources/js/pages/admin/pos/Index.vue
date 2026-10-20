@@ -1092,7 +1092,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                     role="tab"
                     :aria-selected="activeCategory === null"
                     class="h-7 rounded-md border px-2 text-[13px] font-medium leading-none"
-                    :class="activeCategory === null ? 'border-accent bg-accent/15 text-accent-foreground' : 'border-border bg-surface text-muted hover:text-foreground'"
+                    :class="activeCategory === null ? 'border-accent bg-accent/15 text-primary' : 'border-border bg-surface text-muted hover:text-foreground'"
                     @click="activeCategory = null"
                 >
                     {{ t('menu.all_items') }}
@@ -1104,7 +1104,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                     role="tab"
                     :aria-selected="activeCategory === category.id"
                     class="h-7 rounded-md border px-2 text-[13px] font-medium leading-none"
-                    :class="activeCategory === category.id ? 'border-accent bg-accent/15 text-accent-foreground' : 'border-border bg-surface text-muted hover:text-foreground'"
+                    :class="activeCategory === category.id ? 'border-accent bg-accent/15 text-primary' : 'border-border bg-surface text-muted hover:text-foreground'"
                     @click="activeCategory = category.id"
                 >
                     {{ category.name }}
@@ -1211,7 +1211,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                         :disabled="!! openShift"
                         @click="openShiftDialog"
                     >
-                        <span class="h-1.5 w-1.5 rounded-full" :class="openShift ? 'bg-success' : 'bg-accent-foreground'" />
+                        <span class="h-1.5 w-1.5 rounded-full" :class="openShift ? 'bg-success' : 'bg-foreground'" />
                         {{ openShift ? t('orders.shift_open_status') : t('orders.open_shift') }}
                     </button>
                 </div>

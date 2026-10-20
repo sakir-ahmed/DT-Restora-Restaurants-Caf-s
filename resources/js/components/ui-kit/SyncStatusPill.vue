@@ -59,7 +59,7 @@ const waiting = computed(() => props.pendingCount + localPending.value);
 
 const meta = computed(() => {
     if (syncing.value) {
-        return { icon: 'rotate', classes: 'bg-accent/15 text-accent-foreground', label: t('sync.syncing') };
+        return { icon: 'rotate', classes: 'bg-accent/15 text-primary', label: t('sync.syncing') };
     }
 
     return online.value

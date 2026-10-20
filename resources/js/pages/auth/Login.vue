@@ -195,7 +195,7 @@ async function submit() {
                             :aria-label="`${t('auth.demo_login')} ${user.name}`"
                             @click="loginAs(user.id)"
                         >
-                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-accent/15 text-xs font-semibold text-accent-foreground">
+                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-accent/15 text-xs font-semibold text-primary">
                                 {{ initials(user.name) }}
                             </span>
                             <span class="min-w-0 flex-1">

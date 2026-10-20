@@ -45,8 +45,8 @@
 
     --color-primary: #0b63ce; /* Datatech Blue */
     --color-primary-foreground: #ffffff;
-    --color-accent: #38a8ff; /* Bright Sky */
-    --color-accent-foreground: #0a1428;
+    --color-accent: #1c6fe0; /* Sky Blue, deep enough for white text */
+    --color-accent-foreground: #ffffff;
     --color-success: oklch(0.596 0.145 163); /* emerald-600 */
     --color-success-foreground: oklch(0.98 0.003 248);
     --color-danger: oklch(0.586 0.253 17); /* rose-600 */
@@ -62,7 +62,7 @@
     --color-border: #22345a;
     --color-primary: #38a8ff;
     --color-primary-foreground: #0a1428;
-    --color-accent-foreground: #0a1428;
+    --color-accent-foreground: #ffffff;
 }
 
 html {

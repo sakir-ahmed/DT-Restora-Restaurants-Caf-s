@@ -153,7 +153,7 @@ function pay(order) {
                 :key="filter.value"
                 type="button"
                 class="h-7 rounded-full border px-2.5 text-xs font-medium"
-                :class="(filters.status ?? '') === filter.value ? 'border-accent bg-accent/15 text-accent-foreground' : 'border-border bg-surface text-muted hover:text-foreground'"
+                :class="(filters.status ?? '') === filter.value ? 'border-accent bg-accent/15 text-primary' : 'border-border bg-surface text-muted hover:text-foreground'"
                 @click="setFilter('status', filter.value)"
             >
                 {{ filter.label }}

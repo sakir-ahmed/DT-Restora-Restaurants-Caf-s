@@ -104,7 +104,7 @@ function riderLabel(rider) {
                 :key="status"
                 type="button"
                 class="h-7 rounded-full border px-2.5 text-xs font-medium"
-                :class="(statusFilter ?? '') === status ? 'border-accent bg-accent/15 text-accent-foreground' : 'border-border bg-surface text-muted'"
+                :class="(statusFilter ?? '') === status ? 'border-accent bg-accent/15 text-primary' : 'border-border bg-surface text-muted'"
                 @click="router.get(route('admin.delivery.index'), { status }, { preserveState: true })"
             >
                 {{ status === '' ? t('common.status') : t('status.' + status, {}) === 'status.' + status ? status : t('status.' + status) }}
