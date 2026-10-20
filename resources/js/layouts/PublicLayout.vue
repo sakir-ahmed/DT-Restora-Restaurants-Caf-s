@@ -2,6 +2,8 @@
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
+import BrandMark from '@/components/ui-kit/BrandMark.vue';
+import BrandName from '@/components/ui-kit/BrandName.vue';
 import SeoHead from '@/components/site/SeoHead.vue';
 import LanguageSwitch from '@/components/ui-kit/LanguageSwitch.vue';
 import ThemeToggle from '@/components/ui-kit/ThemeToggle.vue';
@@ -115,10 +117,10 @@ onBeforeUnmount(() => {
         >
             <div class="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
                 <Link href="/" class="group flex items-center gap-2.5" :aria-label="page.props.appName">
-                    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-accent-foreground duration-300 group-hover:rotate-[-8deg] group-">
-                        <AppIcon name="utensils" size="16" />
+                    <span class="flex h-10 w-10 items-center justify-center duration-300 group-hover:rotate-[-8deg]">
+                        <BrandMark :size="40" />
                     </span>
-                    <span class="text-lg font-bold">{{ page.props.appName }}</span>
+                    <BrandName class="text-lg font-bold" :name="page.props.appName" />
                 </Link>
 
                 <nav class="ml-6 hidden items-center lg:flex" aria-label="Main">
@@ -229,10 +231,8 @@ onBeforeUnmount(() => {
             <div class="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-4">
                 <div class="sm:col-span-2 lg:col-span-1">
                     <Link href="/" class="flex items-center gap-2.5 text-foreground">
-                        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                            <AppIcon name="utensils" size="16" />
-                        </span>
-                        <span class="text-lg font-bold">{{ page.props.appName }}</span>
+                        <BrandMark :size="36" />
+                        <BrandName class="text-lg font-bold" :name="page.props.appName" />
                     </Link>
                     <p class="mt-4 max-w-xs text-sm leading-relaxed">{{ t('site.footer_text') }}</p>
                 </div>
@@ -270,7 +270,7 @@ onBeforeUnmount(() => {
 
             <div class="border-t border-border">
                 <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-5 text-sm text-muted">
-                    <p>&copy; {{ new Date().getFullYear() }} {{ page.props.appName }}. {{ t('site.footer_rights') }} Datatech BD Ltd, Dhaka.</p>
+                    <p>&copy; {{ new Date().getFullYear() }} {{ page.props.appName }}. {{ t('site.footer_rights') }} A Datatech product by Datatech BD Ltd.</p>
                     <a href="#main" class="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 transition-colors hover:border-accent hover:text-foreground">
                         <AppIcon name="arrow-up" size="11" />
                         {{ t('site.back_to_top') }}

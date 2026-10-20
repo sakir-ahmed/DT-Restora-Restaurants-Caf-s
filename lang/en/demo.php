@@ -7,7 +7,7 @@ return [
     'gate_subtitle' => 'See how a restaurant runs on one system: website, ordering, kitchen, POS, stock and accounts. Enter your mobile number to start your demo journey.',
     'mobile_label' => 'Your mobile number',
     'mobile_invalid' => 'Enter a valid Bangladesh mobile number, like 01712345678.',
-    'consent' => 'I agree that Datatech may contact me about this demo on this number.',
+    'consent' => 'I agree that Datatech BD Ltd. may contact me about this demo on this number.',
     'consent_required' => 'Please tick the box to continue.',
     'privacy_note' => 'We do not send an OTP and never share your number. Your clicks in this demo are saved so we can help you better.',
     'start' => 'Start the demo',
@@ -43,7 +43,7 @@ return [
 
     'call_title' => 'Want this for your restaurant?',
     'call_body' => 'We set it up with your menu, branches and staff. Call us, we reply the same day.',
-    'call_button' => 'Call 01304734623',
+    'call_button' => 'Call +8801575888775',
 
     'nudge_dismiss' => 'Not now',
     'nudge_more' => 'Show more ideas',

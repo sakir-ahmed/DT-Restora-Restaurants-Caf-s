@@ -38,7 +38,7 @@ onBeforeUnmount(() => {
                 <span class="font-semibold">{{ t('common.demo_banner_title') }}</span>
                 {{ t('common.demo_banner') }}
                 {{ t('common.demo_banner_call') }}
-                <a href="tel:01304734623" class="font-semibold underline underline-offset-2">01304734623</a>.
+                <a href="tel:+8801575888775" class="font-semibold underline underline-offset-2">+8801575888775</a>.
             </span>
         </p>
     </div>

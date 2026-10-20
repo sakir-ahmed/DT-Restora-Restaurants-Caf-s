@@ -21,8 +21,8 @@ export default defineConfig({
                 name: 'DT Restora POS',
                 short_name: 'DT Restora',
                 description: 'Offline-first restaurant POS',
-                theme_color: '#0f172a',
-                background_color: '#f8fafc',
+                theme_color: '#0b63ce',
+                background_color: '#f5f7fa',
                 display: 'standalone',
                 icons: [
                     { src: '/favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },

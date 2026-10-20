@@ -108,12 +108,12 @@ function go(step) {
                         <p class="text-[12px] leading-snug text-muted">{{ t('demo.call_body') }}</p>
                     </div>
                     <a
-                        href="tel:01304734623"
+                        href="tel:+8801575888775"
                         class="inline-flex h-8 shrink-0 items-center rounded-md bg-primary px-2.5 text-[12px] font-semibold text-primary-foreground hover:opacity-90"
                         @click="track('cta_click', 'call')"
                     >
                         <AppIcon name="phone" size="12" class="mr-1.5" />
-                        01304734623
+                        +8801575888775
                     </a>
                 </div>
             </div>

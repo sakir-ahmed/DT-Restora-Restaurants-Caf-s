@@ -61,12 +61,12 @@ function setRange({ from, to, preset }) {
 }
 
 const chartColors = {
-    primary: 'rgba(15, 23, 42, 0.85)',
-    primaryFill: 'rgba(15, 23, 42, 0.08)',
-    accent: 'rgba(217, 119, 6, 0.85)',
+    primary: 'rgba(11, 99, 206, 0.9)',
+    primaryFill: 'rgba(11, 99, 206, 0.10)',
+    accent: 'rgba(56, 168, 255, 0.9)',
     success: 'rgba(5, 150, 105, 0.85)',
     danger: 'rgba(225, 29, 72, 0.85)',
-    muted: 'rgba(100, 116, 139, 0.7)',
+    muted: 'rgba(74, 85, 104, 0.7)',
 };
 
 const salesTrendData = computed(() => ({

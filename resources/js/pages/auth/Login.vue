@@ -2,6 +2,7 @@
 import { usePage, useForm } from '@inertiajs/vue3';
 import { nextTick, onMounted, ref } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
+import BrandMark from '@/components/ui-kit/BrandMark.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
 import { t } from '@/lib/i18n';
 
@@ -71,9 +72,7 @@ async function submit() {
                 <div class="pointer-events-none absolute right-10 bottom-8 h-16 w-16 rounded-full bg-primary-foreground/10" aria-hidden="true" />
 
                 <div class="relative flex items-center gap-2">
-                    <span class="flex h-8 w-8 items-center justify-center rounded-md bg-accent text-accent-foreground">
-                        <AppIcon name="utensils" size="16" />
-                    </span>
+                    <BrandMark :size="32" />
                     <span class="text-sm font-semibold">{{ page.props.appName }}</span>
                 </div>
 
@@ -90,7 +89,7 @@ async function submit() {
                     </li>
                 </ul>
 
-                <p class="relative mt-8 text-xs text-primary-foreground/70">Datatech BD Ltd, Dhaka</p>
+                <p class="relative mt-8 text-xs text-primary-foreground/70">A Datatech product by Datatech BD Ltd.</p>
             </section>
 
             <section class="flex flex-col bg-surface px-5 py-16 sm:px-8 lg:py-10">

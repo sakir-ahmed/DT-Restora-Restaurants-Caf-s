@@ -2,6 +2,8 @@
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, ref } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
+import BrandMark from '@/components/ui-kit/BrandMark.vue';
+import BrandName from '@/components/ui-kit/BrandName.vue';
 import CommandPalette from '@/components/ui-kit/CommandPalette.vue';
 import LanguageSwitch from '@/components/ui-kit/LanguageSwitch.vue';
 import NotificationBell from '@/components/ui-kit/NotificationBell.vue';
@@ -166,10 +168,8 @@ function openCommandPalette() {
             ]"
         >
             <div class="flex h-12 shrink-0 items-center gap-2 border-b border-border px-3">
-                <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                    <AppIcon name="utensils" size="14" />
-                </span>
-                <span v-if="!sidebarCollapsed" class="truncate text-sm font-semibold">{{ page.props.appName }}</span>
+                <BrandMark :size="28" />
+                <span v-if="!sidebarCollapsed" class="truncate text-sm font-semibold"><BrandName :name="page.props.appName" /></span>
             </div>
 
             <nav class="thin-scrollbar flex-1 space-y-3 overflow-y-auto p-2" aria-label="Main">

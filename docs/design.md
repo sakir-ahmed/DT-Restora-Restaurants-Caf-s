@@ -26,38 +26,41 @@ Define tokens once in `resources/css/app.css`. Components use token classes (`bg
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --font-sans:
-        "Inter", "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "Inter", "Hind Siliguri", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Poppins", "Hind Siliguri", ui-sans-serif, system-ui, sans-serif;
 
-    --color-background: oklch(0.985 0.002 247);
-    --color-surface: oklch(1 0 0);
-    --color-foreground: oklch(0.21 0.034 265);
-    --color-muted: oklch(0.55 0.02 255);
-    --color-border: oklch(0.92 0.005 255);
+    /* Datatech BD Ltd. brand kit: Cloud, Midnight Navy, Datatech Blue, Bright Sky, Slate */
+    --color-background: #f5f7fa;
+    --color-surface: #ffffff;
+    --color-foreground: #0a1428; /* Midnight Navy */
+    --color-muted: #4a5568; /* Slate */
+    --color-border: #dfe6f0;
 
-    --color-primary: oklch(0.21 0.034 265); /* slate-900 */
-    --color-primary-foreground: oklch(0.98 0.003 248);
-    --color-accent: oklch(0.769 0.188 70); /* amber-500 */
-    --color-accent-foreground: oklch(0.279 0.077 45);
+    --color-primary: #0b63ce; /* Datatech Blue */
+    --color-primary-foreground: #ffffff;
+    --color-accent: #38a8ff; /* Bright Sky */
+    --color-accent-foreground: #0a1428;
     --color-success: oklch(0.596 0.145 163); /* emerald-600 */
     --color-danger: oklch(0.586 0.253 17); /* rose-600 */
+    --color-warning: oklch(0.769 0.188 70); /* amber-500, status only */
 }
 
 .dark {
-    --color-background: oklch(0.129 0.042 265); /* slate-950 */
-    --color-surface: oklch(0.208 0.042 265); /* slate-900 */
-    --color-foreground: oklch(0.984 0.003 248);
-    --color-muted: oklch(0.704 0.04 256);
-    --color-border: oklch(0.279 0.041 260);
-    --color-primary: oklch(0.984 0.003 248);
-    --color-primary-foreground: oklch(0.21 0.034 265);
+    --color-background: #0a1428; /* Midnight Navy */
+    --color-surface: #101d36;
+    --color-foreground: #f5f7fa;
+    --color-muted: #afc0d6; /* Soft Grey */
+    --color-border: #22345a;
+    --color-primary: #38a8ff;
+    --color-primary-foreground: #0a1428;
 }
 ```
 
 **Meaning of colors**
 
-- Primary (slate): navigation, main buttons, headers.
-- Accent (amber): active tab, pending status, highlights, warnings.
+- Primary (Datatech Blue): main buttons, links, brand marks, headers.
+- Accent (Bright Sky): active tab, selection, highlights, focus rings.
+- Warning (amber): pending and attention statuses only; it is no longer a brand colour.
 - Success (emerald): profit, positive margin, completed payment, in-stock.
 - Danger (rose): loss, expense spike, wastage, low stock, void, delete.
 
@@ -67,7 +70,8 @@ Adjust token values to taste, but keep the names stable.
 
 ## 3. Typography
 
-- **Fonts:** `Inter` for Latin, **`Noto Sans Bengali`** for Bangla (Inter has no Bangla glyphs). Self-host fonts; don't depend on a CDN.
+- **Fonts (Datatech brand kit):** `Poppins` (SemiBold, Bold) for headlines and the wordmark, `Inter` for body text and controls, **`Hind Siliguri`** for Bangla (Inter has no Bangla glyphs). Self-host fonts (files in `resources/css/fonts/`); don't depend on a CDN.
+- **Brand mark:** the DT Restora mark and wordmark ("DT" in the text colour, "Restora" in Datatech Blue) come from the Datatech brand kit, rendered by `BrandMark.vue` and `BrandName.vue`.
 - Bangla text needs slightly more line height: use `leading-relaxed` when the locale is `bn`.
 
 | Use                     | Classes                                                                     |
@@ -485,7 +489,7 @@ Mixed heights inside one row are not allowed: if a button sits next to an input,
 ### Buttons
 
 - Radius 6px (`rounded-md`), horizontal padding 10px (`px-2.5`), weight 500, no uppercase, no shadow. Icon-only buttons are square (28x28).
-- Variants: **primary** (slate solid), **secondary** (white / surface with border), **ghost** (no border, for toolbars and row actions), **accent** (amber, only the main call to action on POS), **destructive** (rose). Use **one primary button per region**; everything else is secondary or ghost.
+- Variants: **primary** (Datatech Blue solid), **secondary** (white / surface with border), **ghost** (no border, for toolbars and row actions), **accent** (amber, only the main call to action on POS), **destructive** (rose). Use **one primary button per region**; everything else is secondary or ghost.
 - Button groups: 8px gap, aligned right in forms and dialogs, Cancel (secondary) left of the primary action.
 - States: hover = slight tone change (100ms), pressed, focus = 2px accent ring with 1px offset, disabled = 50% opacity with `cursor-not-allowed` and an explanatory tooltip, loading = spinner replaces the icon and the width does not change.
 

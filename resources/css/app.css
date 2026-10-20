@@ -7,10 +7,15 @@
 @import '@fontsource/inter/500.css';
 @import '@fontsource/inter/600.css';
 @import '@fontsource/inter/700.css';
-@import '@fontsource/noto-sans-bengali/400.css';
-@import '@fontsource/noto-sans-bengali/500.css';
-@import '@fontsource/noto-sans-bengali/600.css';
-@import '@fontsource/noto-sans-bengali/700.css';
+
+/* Datatech brand fonts, self hosted: Poppins for headlines, Hind Siliguri for Bangla (Inter stays the body face). */
+@font-face { font-family: 'Poppins'; font-weight: 500; font-display: swap; src: url('./fonts/poppins-latin-500.woff2') format('woff2'); }
+@font-face { font-family: 'Poppins'; font-weight: 600; font-display: swap; src: url('./fonts/poppins-latin-600.woff2') format('woff2'); }
+@font-face { font-family: 'Poppins'; font-weight: 700; font-display: swap; src: url('./fonts/poppins-latin-700.woff2') format('woff2'); }
+@font-face { font-family: 'Hind Siliguri'; font-weight: 400; font-display: swap; src: url('./fonts/hind-siliguri-bengali-400.woff2') format('woff2'); unicode-range: U+0951-0952, U+0964-0965, U+0980-09FE, U+1CD0-1CF9, U+200C-200D, U+20B9, U+25CC; }
+@font-face { font-family: 'Hind Siliguri'; font-weight: 500; font-display: swap; src: url('./fonts/hind-siliguri-bengali-500.woff2') format('woff2'); unicode-range: U+0951-0952, U+0964-0965, U+0980-09FE, U+1CD0-1CF9, U+200C-200D, U+20B9, U+25CC; }
+@font-face { font-family: 'Hind Siliguri'; font-weight: 600; font-display: swap; src: url('./fonts/hind-siliguri-bengali-600.woff2') format('woff2'); unicode-range: U+0951-0952, U+0964-0965, U+0980-09FE, U+1CD0-1CF9, U+200C-200D, U+20B9, U+25CC; }
+@font-face { font-family: 'Hind Siliguri'; font-weight: 700; font-display: swap; src: url('./fonts/hind-siliguri-bengali-700.woff2') format('woff2'); unicode-range: U+0951-0952, U+0964-0965, U+0980-09FE, U+1CD0-1CF9, U+200C-200D, U+20B9, U+25CC; }
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -28,38 +33,47 @@
 }
 
 @theme {
-    --font-sans: 'Inter', 'Noto Sans Bengali', ui-sans-serif, system-ui, sans-serif;
+    --font-sans: 'Inter', 'Hind Siliguri', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Poppins', 'Hind Siliguri', ui-sans-serif, system-ui, sans-serif;
 
-    --color-background: oklch(0.985 0.002 247);
-    --color-surface: oklch(1 0 0);
-    --color-foreground: oklch(0.21 0.034 265);
-    --color-muted: oklch(0.55 0.02 255);
-    --color-border: oklch(0.92 0.005 255);
+    /* Datatech BD Ltd. brand: Cloud, Midnight Navy, Datatech Blue, Bright Sky, Slate. */
+    --color-background: #f5f7fa; /* Cloud */
+    --color-surface: #ffffff;
+    --color-foreground: #0a1428; /* Midnight Navy */
+    --color-muted: #4a5568; /* Slate */
+    --color-border: #dfe6f0;
 
-    --color-primary: oklch(0.21 0.034 265); /* slate-900 */
-    --color-primary-foreground: oklch(0.98 0.003 248);
-    --color-accent: oklch(0.769 0.188 70); /* amber-500 */
-    --color-accent-foreground: oklch(0.279 0.077 45);
+    --color-primary: #0b63ce; /* Datatech Blue */
+    --color-primary-foreground: #ffffff;
+    --color-accent: #38a8ff; /* Bright Sky */
+    --color-accent-foreground: #0a1428;
     --color-success: oklch(0.596 0.145 163); /* emerald-600 */
     --color-success-foreground: oklch(0.98 0.003 248);
     --color-danger: oklch(0.586 0.253 17); /* rose-600 */
     --color-danger-foreground: oklch(0.98 0.003 248);
-    --color-warning: oklch(0.769 0.188 70);
+    --color-warning: oklch(0.769 0.188 70); /* amber-500, status colour only */
 }
 
 .dark {
-    --color-background: oklch(0.129 0.042 265); /* slate-950 */
-    --color-surface: oklch(0.208 0.042 265); /* slate-900 */
-    --color-foreground: oklch(0.984 0.003 248);
-    --color-muted: oklch(0.704 0.04 256);
-    --color-border: oklch(0.279 0.041 260);
-    --color-primary: oklch(0.984 0.003 248);
-    --color-primary-foreground: oklch(0.21 0.034 265);
-    --color-accent-foreground: oklch(0.97 0.02 85);
+    --color-background: #0a1428; /* Midnight Navy */
+    --color-surface: #101d36;
+    --color-foreground: #f5f7fa;
+    --color-muted: #afc0d6; /* Soft Grey */
+    --color-border: #22345a;
+    --color-primary: #38a8ff;
+    --color-primary-foreground: #0a1428;
+    --color-accent-foreground: #0a1428;
 }
 
 html {
     background-color: var(--color-background);
+}
+
+/* Headlines use the Datatech headline face. */
+h1,
+h2,
+h3 {
+    font-family: var(--font-display);
 }
 
 /* Bangla text needs slightly more line height. */
