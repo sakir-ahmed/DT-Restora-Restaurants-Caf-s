@@ -113,7 +113,7 @@ function go(step) {
                         @click="track('cta_click', 'call')"
                     >
                         <AppIcon name="phone" size="12" class="mr-1.5" />
-                        +8801575888775
+                        +880 1575-888775
                     </a>
                 </div>
             </div>

@@ -43,7 +43,7 @@ return [
 
     'call_title' => 'Want this for your restaurant?',
     'call_body' => 'We set it up with your menu, branches and staff. Call us, we reply the same day.',
-    'call_button' => 'Call +8801575888775',
+    'call_button' => 'Call +880 1575-888775',
 
     'nudge_dismiss' => 'Not now',
     'nudge_more' => 'Show more ideas',
