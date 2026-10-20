@@ -2,7 +2,7 @@ POST 001 | Feature spotlight | English
 Folder: 01-feature-spotlights/001-pos-terminal
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Wed 12:30 pm
-Contact line on every post: Md. Sakir Ahmed +880 1575-888775
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P001). Links are not used in captions.
 
 === FACEBOOK ===
@@ -14,7 +14,7 @@ Training a new cashier should not take a week. DT Restora gives your counter one
 - Sizes and add-ons
 - 80mm receipts
 
-To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
 
 #RestaurantPOS #POSSystem #CafePOS #DTRestora #RestaurantSoftware #BangladeshRestaurants #RestaurantManagement
 
@@ -28,7 +28,7 @@ Key points:
 - Sizes and add-ons
 - 80mm receipts
 
-If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: +880 1575-888775
+If you run or advise a restaurant or cafe group, message or call Datatech BD Ltd.: +880 1575-888775
 
 #RestaurantPOS #POSSystem #CafePOS #DTRestora #SaaS
 
@@ -37,7 +37,7 @@ A till your cashier learns in minutes
 
 Tables, hold orders, sizes, add-ons and receipts on one fast screen.
 
-Md. Sakir Ahmed +880 1575-888775
+Datatech BD Ltd. +880 1575-888775
 
 #RestaurantPOS #POSSystem
 (characters counted by X: 163 of 280)
@@ -47,12 +47,12 @@ A till your cashier learns in minutes
 
 Training a new cashier should not take a week. DT Restora gives your counter one clean POS screen: pick the table, tap the dishes, choose size and add-ons, take payment and print the receipt. Park a ticket while guests decide and bring it back with one tap.
 
-To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775 (or DM "DEMO").
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com (or DM "DEMO").
 
 #RestaurantPOS #POSSystem #CafePOS #DTRestora #RestaurantSoftware #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-Tables, hold orders, sizes, add-ons and receipts on one fast screen. Try the free demo. Call Md. Sakir Ahmed: +880 1575-888775.
+Tables, hold orders, sizes, add-ons and receipts on one fast screen. Try the free demo. Call Datatech BD Ltd.: +880 1575-888775.
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: A till your cashier learns in minutes | DT Restora

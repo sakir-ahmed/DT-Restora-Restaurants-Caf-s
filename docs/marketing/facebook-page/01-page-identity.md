@@ -21,7 +21,7 @@ Fill the page in this order. Facebook changes its screens often, so use the labe
 | WhatsApp            | https://wa.me/8801575888775 (link it to the page if Facebook offers the WhatsApp option)                                                               |
 | Email               | sales@datatechbd.com                                                                                                                             |
 | Company             | Datatech BD Ltd                                                                                                                                        |
-| Contact person      | Md. Sakir Ahmed, Managing Director                                                                                                                     |
+| Contact person      | Datatech BD Ltd., Managing Director                                                                                                                     |
 | Address             | Flat 4-A, Dhumketu Shikder Tower, Holding No. 66, Paschim Monipur, Mirpur, Dhaka-1216, Bangladesh (hide the map pin if customers do not visit)          |
 | Opening hours       | `[ADD]` real hours, for example the days and times someone answers calls and messages. Mark "Available by appointment" if you prefer demos by booking. |
 | Privacy policy link | `[ADD]` a URL on datatechbd.com. Meta asks for one when you run lead ads or collect messages.                                                          |

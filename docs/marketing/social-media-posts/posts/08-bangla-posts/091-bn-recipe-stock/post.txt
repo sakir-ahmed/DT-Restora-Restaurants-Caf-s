@@ -2,7 +2,7 @@ POST 091 | Bangla post | Bangla
 Folder: 08-bangla-posts/091-bn-recipe-stock
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Tue 8:00 pm
-Contact line on every post: Md. Sakir Ahmed +880 1575-888775
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P091). Links are not used in captions.
 
 === FACEBOOK ===
@@ -10,7 +10,7 @@ Status and schedule are tracked in content-plan.json (id P091). Links are not us
 
 রেসিপিতে প্রতিটি উপকরণের সঠিক পরিমাণ দিন। এরপর প্রতিটি বিক্রিতে সেই উপকরণ নিজে থেকেই স্টক থেকে কমে যায়, আর সর্বশেষ কেনা দামে প্রতি পদের খাবারের খরচ হিসাব হয়। দাম ঠিক করুন আন্দাজে নয়, হিসাবে।
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Datatech BD Ltd. +880 1575-888775
 
 #রেসিপি #স্টকম্যানেজমেন্ট #খাবারেরখরচ #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -21,7 +21,7 @@ Status and schedule are tracked in content-plan.json (id P091). Links are not us
 
 আপনার রেস্টুরেন্ট বা ক্যাফের জন্য সঠিক সমাধান নিয়ে কথা বলতে ইনবক্স করুন।
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Datatech BD Ltd. +880 1575-888775
 
 #রেসিপি #স্টকম্যানেজমেন্ট #খাবারেরখরচ #DTRestora #SaaS
 
@@ -30,7 +30,7 @@ Status and schedule are tracked in content-plan.json (id P091). Links are not us
 
 রেসিপি একবার বানান, স্টক নিজে কমবে।
 
-Md. Sakir Ahmed +880 1575-888775
+Datatech BD Ltd. +880 1575-888775
 
 #রেসিপি #স্টকম্যানেজমেন্ট
 (characters counted by X: 119 of 280)
@@ -40,12 +40,12 @@ Md. Sakir Ahmed +880 1575-888775
 
 রেসিপিতে প্রতিটি উপকরণের সঠিক পরিমাণ দিন। এরপর প্রতিটি বিক্রিতে সেই উপকরণ নিজে থেকেই স্টক থেকে কমে যায়, আর সর্বশেষ কেনা দামে প্রতি পদের খাবারের খরচ হিসাব হয়। দাম ঠিক করুন আন্দাজে নয়, হিসাবে।
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Datatech BD Ltd. +880 1575-888775
 
 #রেসিপি #স্টকম্যানেজমেন্ট #খাবারেরখরচ #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-রেসিপি একবার বানান, স্টক নিজে কমবে। ফ্রি ডেমো দেখুন। যোগাযোগ: Md. Sakir Ahmed +880 1575-888775।
+রেসিপি একবার বানান, স্টক নিজে কমবে। ফ্রি ডেমো দেখুন। যোগাযোগ: Datatech BD Ltd. +880 1575-888775।
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: প্রতিটি পদের আসল খরচ জানুন | DT Restora

@@ -2,7 +2,7 @@ POST 137 | Owner chat | Bangla
 Folder: 12-owner-chat/137-bn-chat-first-month-free
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Sat 8:30 pm
-Contact line on every post: Md. Sakir Ahmed +880 1575-888775
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P137). Links are not used in captions.
 
 === FACEBOOK ===
@@ -14,7 +14,7 @@ Status and schedule are tracked in content-plan.json (id P137). Links are not us
 - বার্ষিক প্ল্যানে ২ মাস ফ্রি
 - মডিউলের জন্য আলাদা ফি নেই
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Datatech BD Ltd. +880 1575-888775
 
 #মালিকেরপ্রশ্ন #বিশেষঅফার #রেস্টুরেন্টসফটওয়্যার #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -30,7 +30,7 @@ Status and schedule are tracked in content-plan.json (id P137). Links are not us
 
 আপনার রেস্টুরেন্ট বা ক্যাফের জন্য সঠিক সমাধান নিয়ে কথা বলতে ইনবক্স করুন।
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Datatech BD Ltd. +880 1575-888775
 
 #মালিকেরপ্রশ্ন #বিশেষঅফার #রেস্টুরেন্টসফটওয়্যার #DTRestora #SaaS
 
@@ -39,7 +39,7 @@ Status and schedule are tracked in content-plan.json (id P137). Links are not us
 
 মালিক জিজ্ঞেস করেন, আমরা উত্তর দিই।
 
-Md. Sakir Ahmed +880 1575-888775
+Datatech BD Ltd. +880 1575-888775
 
 #মালিকেরপ্রশ্ন #বিশেষঅফার
 (characters counted by X: 118 of 280)
@@ -49,12 +49,12 @@ Md. Sakir Ahmed +880 1575-888775
 
 দামের প্রশ্ন আমরা রোজই পাই। ইনস্টলেশনের পর প্রথম মাসের কোনো বিল নেই, তারপর মাসে ১,০০০ টাকা, যেখানে নিয়মিত মূল্য ৫,৭০০ টাকা। ইনস্টলেশন এককালীন ২,৫০০ টাকা।
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Datatech BD Ltd. +880 1575-888775
 
 #মালিকেরপ্রশ্ন #বিশেষঅফার #রেস্টুরেন্টসফটওয়্যার #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-মালিক জিজ্ঞেস করেন, আমরা উত্তর দিই। ফ্রি ডেমো দেখুন। যোগাযোগ: Md. Sakir Ahmed +880 1575-888775।
+মালিক জিজ্ঞেস করেন, আমরা উত্তর দিই। ফ্রি ডেমো দেখুন। যোগাযোগ: Datatech BD Ltd. +880 1575-888775।
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: প্রথম মাস কি সত্যিই ফ্রি? | DT Restora

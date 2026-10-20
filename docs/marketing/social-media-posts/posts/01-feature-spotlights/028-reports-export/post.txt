@@ -2,7 +2,7 @@ POST 028 | Feature spotlight | English
 Folder: 01-feature-spotlights/028-reports-export
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Tue 8:00 pm
-Contact line on every post: Md. Sakir Ahmed +880 1575-888775
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P028). Links are not used in captions.
 
 === FACEBOOK ===
@@ -14,7 +14,7 @@ Daily sales, item-wise sales, channel and payment-method reports, cashier perfor
 - By channel and payment
 - Export in one click
 
-To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
 
 #RestaurantReports #SalesReport #ExcelReport #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -28,7 +28,7 @@ Key points:
 - By channel and payment
 - Export in one click
 
-If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: +880 1575-888775
+If you run or advise a restaurant or cafe group, message or call Datatech BD Ltd.: +880 1575-888775
 
 #RestaurantReports #SalesReport #ExcelReport #DTRestora #SaaS
 
@@ -37,7 +37,7 @@ Reports ready for PDF and Excel
 
 Sales, items, channels, cashiers and more.
 
-Md. Sakir Ahmed +880 1575-888775
+Datatech BD Ltd. +880 1575-888775
 
 #RestaurantReports #SalesReport
 (characters counted by X: 137 of 280)
@@ -47,12 +47,12 @@ Reports ready for PDF and Excel
 
 Daily sales, item-wise sales, channel and payment-method reports, cashier performance, wastage, stock valuation and branch profit and loss. Filter by date and branch, then export to PDF or Excel for your accountant.
 
-To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775 (or DM "DEMO").
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com (or DM "DEMO").
 
 #RestaurantReports #SalesReport #ExcelReport #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-Sales, items, channels, cashiers and more. Try the free demo. Call Md. Sakir Ahmed: +880 1575-888775.
+Sales, items, channels, cashiers and more. Try the free demo. Call Datatech BD Ltd.: +880 1575-888775.
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: Reports ready for PDF and Excel | DT Restora

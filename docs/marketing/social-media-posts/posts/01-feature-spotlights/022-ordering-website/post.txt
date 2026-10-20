@@ -2,7 +2,7 @@ POST 022 | Feature spotlight | English
 Folder: 01-feature-spotlights/022-ordering-website
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Wed 12:30 pm
-Contact line on every post: Md. Sakir Ahmed +880 1575-888775
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P022). Links are not used in captions.
 
 === FACEBOOK ===
@@ -17,7 +17,7 @@ Stop paying commission on every online order. DT Restora includes a bilingual, m
 - Order tracking
 - Search-friendly
 
-To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
 
 #OnlineOrdering #RestaurantWebsite #FoodDeliveryBD #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -34,7 +34,7 @@ Key points:
 - Order tracking
 - Search-friendly
 
-If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: +880 1575-888775
+If you run or advise a restaurant or cafe group, message or call Datatech BD Ltd.: +880 1575-888775
 
 #OnlineOrdering #RestaurantWebsite #FoodDeliveryBD #DTRestora #SaaS
 
@@ -43,7 +43,7 @@ Your own ordering website
 
 Menu, photos, checkout and tracking, all feeding your kitchen.
 
-Md. Sakir Ahmed +880 1575-888775
+Datatech BD Ltd. +880 1575-888775
 
 #OnlineOrdering #RestaurantWebsite
 (characters counted by X: 154 of 280)
@@ -53,12 +53,12 @@ Your own ordering website
 
 Stop paying commission on every online order. DT Restora includes a bilingual, mobile-first website with your menu, dish photos and videos, checkout and live tracking. Orders go straight to your kitchen screen, and the pages are built to be found on Google.
 
-To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775 (or DM "DEMO").
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com (or DM "DEMO").
 
 #OnlineOrdering #RestaurantWebsite #FoodDeliveryBD #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-Menu, photos, checkout and tracking, all feeding your kitchen. Try the free demo. Call Md. Sakir Ahmed: +880 1575-888775.
+Menu, photos, checkout and tracking, all feeding your kitchen. Try the free demo. Call Datatech BD Ltd.: +880 1575-888775.
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: Your own ordering website | DT Restora

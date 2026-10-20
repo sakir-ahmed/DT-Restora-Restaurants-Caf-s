@@ -2,7 +2,7 @@ POST 012 | Feature spotlight | English
 Folder: 01-feature-spotlights/012-owner-dashboard
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Sun 8:00 pm
-Contact line on every post: Md. Sakir Ahmed +880 1575-888775
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P012). Links are not used in captions.
 
 === FACEBOOK ===
@@ -14,7 +14,7 @@ The owner dashboard turns daily orders into answers: gross and net sales, food c
 - By branch
 - By channel
 
-To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
 
 #OwnerDashboard #RestaurantProfit #BusinessInsights #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -28,7 +28,7 @@ Key points:
 - By branch
 - By channel
 
-If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: +880 1575-888775
+If you run or advise a restaurant or cafe group, message or call Datatech BD Ltd.: +880 1575-888775
 
 #OwnerDashboard #RestaurantProfit #BusinessInsights #DTRestora #SaaS
 
@@ -37,7 +37,7 @@ See your profit before the day ends
 
 Sales, food cost, waste and net profit on one screen.
 
-Md. Sakir Ahmed +880 1575-888775
+Datatech BD Ltd. +880 1575-888775
 
 #OwnerDashboard #RestaurantProfit
 (characters counted by X: 154 of 280)
@@ -47,12 +47,12 @@ See your profit before the day ends
 
 The owner dashboard turns daily orders into answers: gross and net sales, food cost, wastage, salary, expenses and estimated net profit, with alerts for low stock and waste spikes. Switch between today, the week and the month.
 
-To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775 (or DM "DEMO").
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com (or DM "DEMO").
 
 #OwnerDashboard #RestaurantProfit #BusinessInsights #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-Sales, food cost, waste and net profit on one screen. Try the free demo. Call Md. Sakir Ahmed: +880 1575-888775.
+Sales, food cost, waste and net profit on one screen. Try the free demo. Call Datatech BD Ltd.: +880 1575-888775.
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: See your profit before the day ends | DT Restora

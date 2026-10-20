@@ -2,7 +2,7 @@ POST 008 | Feature spotlight | English
 Folder: 01-feature-spotlights/008-wastage-log
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Wed 12:30 pm
-Contact line on every post: Md. Sakir Ahmed +880 1575-888775
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P008). Links are not used in captions.
 
 === FACEBOOK ===
@@ -16,7 +16,7 @@ Waste is real money. DT Restora asks for a reason every time food is lost, calcu
 - Shows in your profit
 - Posted to accounts automatically
 
-To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
 
 #FoodWaste #WastageControl #ReduceWaste #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -32,7 +32,7 @@ Key points:
 - Shows in your profit
 - Posted to accounts automatically
 
-If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: +880 1575-888775
+If you run or advise a restaurant or cafe group, message or call Datatech BD Ltd.: +880 1575-888775
 
 #FoodWaste #WastageControl #ReduceWaste #DTRestora #SaaS
 
@@ -41,7 +41,7 @@ Every loss logged with a reason and a cost
 
 You cannot reduce waste you never measure.
 
-Md. Sakir Ahmed +880 1575-888775
+Datatech BD Ltd. +880 1575-888775
 
 #FoodWaste #WastageControl
 (characters counted by X: 143 of 280)
@@ -51,12 +51,12 @@ Every loss logged with a reason and a cost
 
 Waste is real money. DT Restora asks for a reason every time food is lost, calculates the cost from current ingredient prices, and includes it in your profit and accounting. A spike above the recent average raises an alert.
 
-To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775 (or DM "DEMO").
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com (or DM "DEMO").
 
 #FoodWaste #WastageControl #ReduceWaste #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-You cannot reduce waste you never measure. Try the free demo. Call Md. Sakir Ahmed: +880 1575-888775.
+You cannot reduce waste you never measure. Try the free demo. Call Datatech BD Ltd.: +880 1575-888775.
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: Every loss logged with a reason and a cost | DT Restora

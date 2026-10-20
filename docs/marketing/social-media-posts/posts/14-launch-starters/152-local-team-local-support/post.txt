@@ -1,7 +1,7 @@
 POST 152 | Launch starter | English
 Folder: 14-launch-starters/152-local-team-local-support
 Images: 1, 1080x1350 (4:5).
-Contact line on every post: Md. Sakir Ahmed +880 1575-888775
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P152). Links are not used in captions.
 
 === FACEBOOK ===
@@ -13,7 +13,7 @@ DT Restora is built by Datatech BD Ltd for the way Bangladesh restaurants and ca
 - bKash, Nagad, cash and card
 - We install it for you, as your own system with your own database
 
-To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
 
 #DatatechBD #LocalSupport #BanglaPOS #DTRestora #RestaurantSoftware #BangladeshRestaurants
 

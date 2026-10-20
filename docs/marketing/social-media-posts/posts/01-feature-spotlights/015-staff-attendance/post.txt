@@ -2,7 +2,7 @@ POST 015 | Feature spotlight | English
 Folder: 01-feature-spotlights/015-staff-attendance
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Wed 12:30 pm
-Contact line on every post: Md. Sakir Ahmed +880 1575-888775
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P015). Links are not used in captions.
 
 === FACEBOOK ===
@@ -14,7 +14,7 @@ Connect a ZKTeco attendance device and punches flow into DT Restora automaticall
 - Manual clock in and out
 - Feeds payroll
 
-To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
 
 #StaffAttendance #ZKTeco #RestaurantStaff #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -28,7 +28,7 @@ Key points:
 - Manual clock in and out
 - Feeds payroll
 
-If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: +880 1575-888775
+If you run or advise a restaurant or cafe group, message or call Datatech BD Ltd.: +880 1575-888775
 
 #StaffAttendance #ZKTeco #RestaurantStaff #DTRestora #SaaS
 
@@ -37,7 +37,7 @@ Attendance from a fingerprint device
 
 ZKTeco punches arrive on their own. Manual entry for everyone else.
 
-Md. Sakir Ahmed +880 1575-888775
+Datatech BD Ltd. +880 1575-888775
 
 #StaffAttendance #ZKTeco
 (characters counted by X: 160 of 280)
@@ -47,12 +47,12 @@ Attendance from a fingerprint device
 
 Connect a ZKTeco attendance device and punches flow into DT Restora automatically. For staff without a device, record clock-in and clock-out manually. Attendance becomes the base for payroll, so there are no arguments about who worked.
 
-To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775 (or DM "DEMO").
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com (or DM "DEMO").
 
 #StaffAttendance #ZKTeco #RestaurantStaff #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-ZKTeco punches arrive on their own. Manual entry for everyone else. Try the free demo. Call Md. Sakir Ahmed: +880 1575-888775.
+ZKTeco punches arrive on their own. Manual entry for everyone else. Try the free demo. Call Datatech BD Ltd.: +880 1575-888775.
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: Attendance from a fingerprint device | DT Restora

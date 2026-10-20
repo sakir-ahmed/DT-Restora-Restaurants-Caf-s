@@ -2,7 +2,7 @@ POST 117 | Quick answer | Bangla
 Folder: 09-quick-answers/117-bn-why-stock-runs-out
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Sun 8:00 pm
-Contact line on every post: Md. Sakir Ahmed +880 1575-888775
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P117). Links are not used in captions.
 
 === FACEBOOK ===
@@ -14,7 +14,7 @@ Status and schedule are tracked in content-plan.json (id P117). Links are not us
 - প্রতিটি বিক্রিতে স্টক নিজে কমুক
 - প্রতি সপ্তাহে তাক গুনে মিলিয়ে নিন
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Datatech BD Ltd. +880 1575-888775
 
 #স্টকম্যানেজমেন্ট #ইনভেন্টরি #রেস্টুরেন্টটিপস #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -30,7 +30,7 @@ Status and schedule are tracked in content-plan.json (id P117). Links are not us
 
 আপনার রেস্টুরেন্ট বা ক্যাফের জন্য সঠিক সমাধান নিয়ে কথা বলতে ইনবক্স করুন।
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Datatech BD Ltd. +880 1575-888775
 
 #স্টকম্যানেজমেন্ট #ইনভেন্টরি #রেস্টুরেন্টটিপস #DTRestora #SaaS
 
@@ -39,7 +39,7 @@ Status and schedule are tracked in content-plan.json (id P117). Links are not us
 
 কারণ কোন উপকরণ কত আছে, তা কেউ ঠিকঠাক জানে না।
 
-Md. Sakir Ahmed +880 1575-888775
+Datatech BD Ltd. +880 1575-888775
 
 #স্টকম্যানেজমেন্ট #ইনভেন্টরি
 (characters counted by X: 138 of 280)
@@ -49,12 +49,12 @@ Md. Sakir Ahmed +880 1575-888775
 
 দুপুরের ভিড়ের সময় উপকরণ ফুরিয়ে গেলে বিক্রি আর গ্রাহকের আস্থা দুটোই যায়। রেসিপির সাথে যুক্ত স্টক প্রতিটি অর্ডারে ঠিক উপকরণ কমিয়ে দেয়, রিঅর্ডার সীমার নিচে নামলে আগেই সতর্কতা আসে, আর সাপ্তাহিক গণনায় তাক ও সিস্টেমের গরমিল ধরা পড়ে।
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Datatech BD Ltd. +880 1575-888775
 
 #স্টকম্যানেজমেন্ট #ইনভেন্টরি #রেস্টুরেন্টটিপস #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-কারণ কোন উপকরণ কত আছে, তা কেউ ঠিকঠাক জানে না। ফ্রি ডেমো দেখুন। যোগাযোগ: Md. Sakir Ahmed +880 1575-888775।
+কারণ কোন উপকরণ কত আছে, তা কেউ ঠিকঠাক জানে না। ফ্রি ডেমো দেখুন। যোগাযোগ: Datatech BD Ltd. +880 1575-888775।
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: রান্নাঘরে স্টক ফুরিয়ে যায় কেন? | DT Restora

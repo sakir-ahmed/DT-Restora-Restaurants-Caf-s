@@ -2,7 +2,7 @@ POST 135 | Owner chat | English
 Folder: 12-owner-chat/135-chat-our-network-drops-at-lunch
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Thu 8:00 pm
-Contact line on every post: Md. Sakir Ahmed +880 1575-888775
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P135). Links are not used in captions.
 
 === FACEBOOK ===
@@ -14,7 +14,7 @@ A weak network should not cost you lunch sales. Cash orders are saved on the dev
 - Receipts still print
 - Syncs without duplicates
 
-To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
 
 #OwnerQuestions #OfflinePOS #LoadShedding #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -28,7 +28,7 @@ Key points:
 - Receipts still print
 - Syncs without duplicates
 
-If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: +880 1575-888775
+If you run or advise a restaurant or cafe group, message or call Datatech BD Ltd.: +880 1575-888775
 
 #OwnerQuestions #OfflinePOS #LoadShedding #DTRestora #SaaS
 
@@ -37,7 +37,7 @@ Our network drops at lunch
 
 Owner asks, we answer.
 
-Md. Sakir Ahmed +880 1575-888775
+Datatech BD Ltd. +880 1575-888775
 
 #OwnerQuestions #OfflinePOS
 (characters counted by X: 108 of 280)
@@ -47,12 +47,12 @@ Our network drops at lunch
 
 A weak network should not cost you lunch sales. Cash orders are saved on the device and sync automatically when the connection returns, without creating duplicate orders.
 
-To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775 (or DM "DEMO").
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com (or DM "DEMO").
 
 #OwnerQuestions #OfflinePOS #LoadShedding #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-Owner asks, we answer. Try the free demo. Call Md. Sakir Ahmed: +880 1575-888775.
+Owner asks, we answer. Try the free demo. Call Datatech BD Ltd.: +880 1575-888775.
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: Our network drops at lunch | DT Restora

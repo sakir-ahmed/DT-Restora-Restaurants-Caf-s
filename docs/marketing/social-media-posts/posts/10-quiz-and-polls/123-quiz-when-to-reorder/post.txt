@@ -2,7 +2,7 @@ POST 123 | Quiz | English
 Folder: 10-quiz-and-polls/123-quiz-when-to-reorder
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Sat 8:30 pm
-Contact line on every post: Md. Sakir Ahmed +880 1575-888775
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P123). Links are not used in captions.
 
 === FACEBOOK ===
@@ -13,7 +13,7 @@ A reorder level is the quantity that triggers a new order. It covers your delive
 - Set it per ingredient
 - Alerts warn you early
 
-To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
 
 #ReorderLevel #RestaurantQuiz #InventoryTips #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -26,7 +26,7 @@ Key points:
 - Set it per ingredient
 - Alerts warn you early
 
-If you run or advise a restaurant or cafe group, message or call Md. Sakir Ahmed: +880 1575-888775
+If you run or advise a restaurant or cafe group, message or call Datatech BD Ltd.: +880 1575-888775
 
 #ReorderLevel #RestaurantQuiz #InventoryTips #DTRestora #SaaS
 
@@ -35,7 +35,7 @@ When should you reorder an ingredient?
 
 Do not wait until the shelf is empty.
 
-Md. Sakir Ahmed +880 1575-888775
+Datatech BD Ltd. +880 1575-888775
 
 #ReorderLevel #RestaurantQuiz
 (characters counted by X: 137 of 280)
@@ -45,12 +45,12 @@ When should you reorder an ingredient?
 
 A reorder level is the quantity that triggers a new order. It covers your delivery time so you never run dry mid-service. Set one for every important ingredient.
 
-To book a free demo, contact Md. Sakir Ahmed: +880 1575-888775 (or DM "DEMO").
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com (or DM "DEMO").
 
 #ReorderLevel #RestaurantQuiz #InventoryTips #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-Do not wait until the shelf is empty. Try the free demo. Call Md. Sakir Ahmed: +880 1575-888775.
+Do not wait until the shelf is empty. Try the free demo. Call Datatech BD Ltd.: +880 1575-888775.
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: When should you reorder an ingredient? | DT Restora

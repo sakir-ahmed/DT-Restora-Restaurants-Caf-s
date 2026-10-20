@@ -2,7 +2,7 @@ POST 098 | Bangla post | Bangla
 Folder: 08-bangla-posts/098-bn-delivery-apps
 Images: 1, 1080x1350 (4:5).
 Best time to post (Bangladesh time): Tue 8:00 pm
-Contact line on every post: Md. Sakir Ahmed +880 1575-888775
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
 Status and schedule are tracked in content-plan.json (id P098). Links are not used in captions.
 
 === FACEBOOK ===
@@ -10,7 +10,7 @@ Status and schedule are tracked in content-plan.json (id P098). Links are not us
 
 ডেলিভারি অ্যাপের অর্ডার আসে আলাদা ট্যাবলেটে, হাতে আবার টাইপ করতে হয়, আর কমিশন চোখেই পড়ে না। DT Restora-য় সব চ্যানেল এক স্ক্রিনে, কমিশনসহ, তাই কমিশন কাটার পরের আসল লাভ দেখা যায়।
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Datatech BD Ltd. +880 1575-888775
 
 #ডেলিভারিঅ্যাপ #ফুডপান্ডা #পাঠাওফুড #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
 
@@ -21,7 +21,7 @@ Status and schedule are tracked in content-plan.json (id P098). Links are not us
 
 আপনার রেস্টুরেন্ট বা ক্যাফের জন্য সঠিক সমাধান নিয়ে কথা বলতে ইনবক্স করুন।
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Datatech BD Ltd. +880 1575-888775
 
 #ডেলিভারিঅ্যাপ #ফুডপান্ডা #পাঠাওফুড #DTRestora #SaaS
 
@@ -30,7 +30,7 @@ Status and schedule are tracked in content-plan.json (id P098). Links are not us
 
 ডেলিভারি অ্যাপের অর্ডার আলাদা আলাদা ডিভাইসে হারিয়ে যায়।
 
-Md. Sakir Ahmed +880 1575-888775
+Datatech BD Ltd. +880 1575-888775
 
 #ডেলিভারিঅ্যাপ #ফুডপান্ডা
 (characters counted by X: 141 of 280)
@@ -40,12 +40,12 @@ Md. Sakir Ahmed +880 1575-888775
 
 ডেলিভারি অ্যাপের অর্ডার আসে আলাদা ট্যাবলেটে, হাতে আবার টাইপ করতে হয়, আর কমিশন চোখেই পড়ে না। DT Restora-য় সব চ্যানেল এক স্ক্রিনে, কমিশনসহ, তাই কমিশন কাটার পরের আসল লাভ দেখা যায়।
 
-ফ্রি ডেমোর জন্য যোগাযোগ করুন: Md. Sakir Ahmed +880 1575-888775
+ফ্রি ডেমোর জন্য যোগাযোগ করুন: Datatech BD Ltd. +880 1575-888775
 
 #ডেলিভারিঅ্যাপ #ফুডপান্ডা #পাঠাওফুড #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
 
 === GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
-ডেলিভারি অ্যাপের অর্ডার আলাদা আলাদা ডিভাইসে হারিয়ে যায়। ফ্রি ডেমো দেখুন। যোগাযোগ: Md. Sakir Ahmed +880 1575-888775।
+ডেলিভারি অ্যাপের অর্ডার আলাদা আলাদা ডিভাইসে হারিয়ে যায়। ফ্রি ডেমো দেখুন। যোগাযোগ: Datatech BD Ltd. +880 1575-888775।
 
 === SEO (use for a blog post, landing page or video description) ===
 SEO title: তিনটি ট্যাবলেট, তিন ঝামেলা | DT Restora

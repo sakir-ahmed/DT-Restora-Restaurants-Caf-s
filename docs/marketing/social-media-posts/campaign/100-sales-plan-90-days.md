@@ -1,6 +1,6 @@
 # DT Restora: plan to sell to 100 restaurants and cafes in 90 days
 
-Owner: Md. Sakir Ahmed, Managing Director, Datatech BD Ltd
+Owner: Datatech BD Ltd., Managing Director, Datatech BD Ltd
 Offer: 1,000 BDT per month (regular 5,700 BDT), 2,500 BDT one-time installation (refundable after one year of use if the customer cancels), first month free after installation, yearly plan with 2 months free.
 Demo: https://dt-restora.datatechbd.com  |  WhatsApp: https://wa.me/8801575888775
 
