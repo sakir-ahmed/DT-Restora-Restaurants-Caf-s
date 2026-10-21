@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Models\AggregatorChannel;
 use App\Services\Aggregators\AggregatorOrderService;
 use App\Services\Aggregators\Foodpanda\FoodpandaAdapter;
+use App\Services\Aggregators\PlatformAdapters;
+use App\Services\Aggregators\UberEats\UberEatsAdapter;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Throwable;
@@ -28,6 +30,10 @@ class AggregatorWebhookController extends Controller
 
         if ($channel === null) {
             return response('Unknown channel', 400);
+        }
+
+        if ($channel->isUberEats()) {
+            return $this->uberEats($request, $channel);
         }
 
         if (! $this->signatureValid($request, $channel)) {
@@ -111,5 +117,34 @@ class AggregatorWebhookController extends Controller
         }
 
         return response('OK');
+    }
+
+    /**
+     * Uber Eats signs the raw body with HMAC SHA-256 using the client secret
+     * (X-Uber-Signature, lowercase hex). A valid call is acknowledged with an
+     * empty 200; failures to process are logged on the channel, since Uber
+     * retries on 5xx.
+     */
+    private function uberEats(Request $request, AggregatorChannel $channel): Response
+    {
+        $secret = (string) $channel->client_secret;
+        $given = strtolower((string) $request->header('X-Uber-Signature', $request->header('X-Postmates-Signature', '')));
+
+        if ($secret === '' || $given === '' || ! hash_equals(hash_hmac('sha256', $request->getContent(), $secret), $given)) {
+            return response('Invalid signature', 401);
+        }
+
+        $adapter = PlatformAdapters::for($channel);
+
+        if ($adapter instanceof UberEatsAdapter) {
+            try {
+                $adapter->handleWebhook($request->all());
+            } catch (Throwable $exception) {
+                $channel->forceFill(['last_error' => mb_substr($exception->getMessage(), 0, 500)])->save();
+                report($exception);
+            }
+        }
+
+        return response('', 200);
     }
 }

@@ -12,6 +12,8 @@ class AggregatorChannel extends Model
 {
     public const FOODPANDA = 'foodpanda';
 
+    public const UBEREATS = 'ubereats';
+
     protected $fillable = [
         'key', 'name', 'commission_percent', 'webhook_secret', 'is_active',
         'environment', 'chain_id', 'client_id', 'client_secret', 'vendor_map',
@@ -46,12 +48,17 @@ class AggregatorChannel extends Model
         return $this->key === self::FOODPANDA;
     }
 
+    public function isUberEats(): bool
+    {
+        return $this->key === self::UBEREATS;
+    }
+
     /**
      * Whether the platform API credentials are filled in.
      */
     public function hasApiCredentials(): bool
     {
-        return filled($this->chain_id) && filled($this->client_id) && filled($this->client_secret);
+        return ($this->isUberEats() || filled($this->chain_id)) && filled($this->client_id) && filled($this->client_secret);
     }
 
     /**

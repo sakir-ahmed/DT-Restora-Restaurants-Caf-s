@@ -29,18 +29,19 @@ class DemoAggregatorSeeder extends Seeder
             ['foodi', 'Foodi', '18.00'],
             ['hungrynaki', 'HungryNaki', '22.00'],
             ['shohoz_food', 'Shohoz Food', '20.00'],
+            ['ubereats', 'Uber Eats', '25.00'],
         ] as [$key, $name, $commission]) {
             $channel = AggregatorChannel::query()->updateOrCreate(
                 ['key' => $key],
                 ['name' => $name, 'commission_percent' => $commission, 'is_active' => true],
             );
 
-            if ($key === 'foodpanda') {
+            if (in_array($key, ['foodpanda', 'ubereats'], true)) {
                 $channel->forceFill([
                     'environment' => 'sandbox',
-                    'chain_id' => 'ch-dtrestora-demo',
+                    'chain_id' => $key === 'foodpanda' ? 'ch-dtrestora-demo' : null,
                     'client_id' => 'demo-client',
-                    'vendor_map' => $branches->mapWithKeys(fn (Branch $branch): array => [(string) $branch->id => 'FP-'.$branch->code])->all(),
+                    'vendor_map' => $branches->mapWithKeys(fn (Branch $branch): array => [(string) $branch->id => strtoupper(substr($key, 0, 2)).'-'.$branch->code])->all(),
                 ])->save();
             }
 

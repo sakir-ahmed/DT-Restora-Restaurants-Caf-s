@@ -13,6 +13,7 @@ const props = defineProps({
 const BRANDS = {
     foodpanda: { color: '#d70f64', short: 'FP' },
     pathao_food: { color: '#e5262b', short: 'PF' },
+    ubereats: { color: '#06c167', short: 'UE' },
     foodi: { color: '#f58220', short: 'FD' },
     hungrynaki: { color: '#7a3ff2', short: 'HN' },
     shohoz_food: { color: '#00a651', short: 'SF' },

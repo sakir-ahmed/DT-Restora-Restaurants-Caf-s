@@ -12,8 +12,9 @@ use App\Models\Branch;
 use App\Models\MenuItem;
 use App\Models\Order;
 use App\Services\Aggregators\AggregatorOrderService;
-use App\Services\Aggregators\Foodpanda\FoodpandaAdapter;
 use App\Services\Aggregators\Foodpanda\FoodpandaClient;
+use App\Services\Aggregators\PlatformAdapters;
+use App\Services\Aggregators\UberEats\UberEatsClient;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -149,8 +150,10 @@ class AggregatorController extends Controller
 
         $channel = $order->aggregatorChannel;
 
-        if ($channel?->isFoodpanda() && $channel->hasApiCredentials() && $validated['decision'] === 'reject') {
-            $pushed = app(FoodpandaAdapter::class, ['channel' => $channel])->pushStatus($order, 'reject', $validated['reason'] ?? null);
+        $platform = PlatformAdapters::for($channel);
+
+        if ($platform !== null && $validated['decision'] === 'reject') {
+            $pushed = $platform->pushStatus($order, 'reject', $validated['reason'] ?? null);
 
             if (! $pushed) {
                 return back()->with('error', __('aggregators.push_failed', ['error' => (string) $channel->fresh()?->last_error]));
@@ -205,9 +208,9 @@ class AggregatorController extends Controller
     {
         $this->authorize('aggregators.manage');
 
-        if ($channel->isFoodpanda() && $channel->hasApiCredentials()) {
-            $adapter = app(FoodpandaAdapter::class, ['channel' => $channel]);
+        $adapter = PlatformAdapters::for($channel);
 
+        if ($adapter !== null) {
             try {
                 $adapter->syncMenu($channel);
             } catch (Throwable $exception) {
@@ -239,10 +242,10 @@ class AggregatorController extends Controller
     public function testConnection(Request $request, AggregatorChannel $channel): RedirectResponse
     {
         $this->authorize('aggregators.manage');
-        abort_unless($channel->isFoodpanda(), 404);
+        abort_unless($channel->isFoodpanda() || $channel->isUberEats(), 404);
 
         try {
-            (new FoodpandaClient($channel))->token(fresh: true);
+            $channel->isUberEats() ? (new UberEatsClient($channel))->token(fresh: true) : (new FoodpandaClient($channel))->token(fresh: true);
         } catch (Throwable $exception) {
             $channel->forceFill(['last_error' => mb_substr($exception->getMessage(), 0, 500)])->save();
 
@@ -260,7 +263,7 @@ class AggregatorController extends Controller
     public function outletStatus(Request $request, AggregatorChannel $channel): RedirectResponse
     {
         $this->authorize('aggregators.manage');
-        abort_unless($channel->isFoodpanda(), 404);
+        abort_unless($channel->isFoodpanda() || $channel->isUberEats(), 404);
 
         $validated = $request->validate([
             'branch_id' => ['required', 'integer', 'exists:branches,id'],
@@ -278,12 +281,20 @@ class AggregatorController extends Controller
         }
 
         try {
-            (new FoodpandaClient($channel))->setVendorStatus(
-                $vendorId,
-                $validated['status'],
-                $validated['closed_reason'] ?? 'OTHER',
-                isset($validated['closed_until']) ? CarbonImmutable::parse($validated['closed_until'])->utc()->format('Y-m-d\TH:i:s\Z') : null,
-            );
+            if ($channel->isUberEats()) {
+                (new UberEatsClient($channel))->setStoreStatus(
+                    $vendorId,
+                    $validated['status'] === 'OPEN' ? 'ONLINE' : 'PAUSED',
+                    $validated['status'] === 'OPEN' ? null : ($validated['closed_reason'] ?? 'OTHER'),
+                );
+            } else {
+                (new FoodpandaClient($channel))->setVendorStatus(
+                    $vendorId,
+                    $validated['status'],
+                    $validated['closed_reason'] ?? 'OTHER',
+                    isset($validated['closed_until']) ? CarbonImmutable::parse($validated['closed_until'])->utc()->format('Y-m-d\TH:i:s\Z') : null,
+                );
+            }
         } catch (Throwable $exception) {
             $channel->forceFill(['last_error' => mb_substr($exception->getMessage(), 0, 500)])->save();
 
@@ -301,10 +312,11 @@ class AggregatorController extends Controller
     public function importOrders(Request $request, AggregatorChannel $channel): RedirectResponse
     {
         $this->authorize('aggregators.manage');
-        abort_unless($channel->isFoodpanda() && $channel->hasApiCredentials(), 404);
+        $adapter = PlatformAdapters::for($channel);
+        abort_unless($adapter !== null, 404);
 
         try {
-            $result = app(FoodpandaAdapter::class, ['channel' => $channel])->importRecent();
+            $result = $adapter->importRecent();
         } catch (Throwable $exception) {
             $channel->forceFill(['last_error' => mb_substr($exception->getMessage(), 0, 500)])->save();
 

@@ -27,7 +27,10 @@ const props = defineProps({
 const channelOpen = ref(false);
 const editingChannelId = ref(null);
 const editingHasSecret = ref(false);
-const isFoodpandaForm = computed(() => channelForm.key === 'foodpanda');
+const platformKeys = ['foodpanda', 'ubereats'];
+const isFoodpandaForm = computed(() => platformKeys.includes(channelForm.key));
+const needsChain = computed(() => channelForm.key === 'foodpanda');
+const apiReady = (channel) => channel.has_client_secret && (channel.key === 'ubereats' || channel.chain_id);
 const orderOpen = ref(false);
 const payoutChannel = ref(null);
 const payoutOpen = ref(false);
@@ -255,10 +258,10 @@ function decide(order, decision) {
                     <span class="font-semibold text-foreground tabular-nums">{{ Number(channel.commission_percent).toFixed(2) }}%</span>
                 </p>
 
-                <div v-if="channel.key === 'foodpanda'" class="mt-2 space-y-1 text-xs">
+                <div v-if="platformKeys.includes(channel.key)" class="mt-2 space-y-1 text-xs">
                     <p class="flex items-center gap-1.5 text-muted">
-                        <AppIcon :name="channel.has_client_secret && channel.chain_id ? 'circle-check' : 'circle-xmark'" size="11" :class="channel.has_client_secret && channel.chain_id ? 'text-success' : 'text-muted'" />
-                        {{ channel.has_client_secret && channel.chain_id ? t('aggregators.api_connected', { environment: channel.environment }) : t('aggregators.api_not_set') }}
+                        <AppIcon :name="apiReady(channel) ? 'circle-check' : 'circle-xmark'" size="11" :class="apiReady(channel) ? 'text-success' : 'text-muted'" />
+                        {{ apiReady(channel) ? t('aggregators.api_connected', { environment: channel.environment }) : t('aggregators.api_not_set') }}
                     </p>
                     <p v-if="channel.last_synced_at" class="text-muted">{{ t('aggregators.last_synced') }}: <DateText :value="channel.last_synced_at" relative /></p>
                     <p v-if="channel.last_error" class="break-words text-danger">{{ channel.last_error }}</p>
@@ -268,7 +271,7 @@ function decide(order, decision) {
                     <button type="button" class="h-6 rounded border border-border px-1.5 text-[11px] hover:bg-background" @click="openChannel(channel)">{{ t('common.edit') }}</button>
                     <button type="button" class="h-6 rounded border border-border px-1.5 text-[11px] hover:bg-background" @click="syncMenu(channel)">{{ t('aggregators.sync_menu') }}</button>
                     <button type="button" class="h-6 rounded border border-border px-1.5 text-[11px] hover:bg-background" @click="openPayout(channel)">{{ t('aggregators.payout') }}</button>
-                    <template v-if="channel.key === 'foodpanda' && channel.has_client_secret">
+                    <template v-if="platformKeys.includes(channel.key) && channel.has_client_secret">
                         <button type="button" class="h-6 rounded border border-border px-1.5 text-[11px] hover:bg-background" @click="testConnection(channel)">{{ t('aggregators.test_connection') }}</button>
                         <button type="button" class="h-6 rounded border border-border px-1.5 text-[11px] hover:bg-background" @click="importOrders(channel)">{{ t('aggregators.import_orders') }}</button>
                         <button type="button" class="h-6 rounded border border-border px-1.5 text-[11px] hover:bg-background" @click="openOutlet(channel)">{{ t('aggregators.outlet_status') }}</button>
@@ -337,7 +340,7 @@ function decide(order, decision) {
                             </template>
                         </FormField>
 
-                        <FormField :label="t('aggregators.chain_id')" :error="channelForm.errors.chain_id">
+                        <FormField v-if="needsChain" :label="t('aggregators.chain_id')" :error="channelForm.errors.chain_id">
                             <template #default="{ id }">
                                 <input :id="id" v-model="channelForm.chain_id" type="text" class="h-7 w-full rounded-md border border-border bg-surface px-2 font-mono text-[13px]">
                             </template>

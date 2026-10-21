@@ -19,7 +19,7 @@ use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Shift;
-use App\Services\Aggregators\Foodpanda\FoodpandaAdapter;
+use App\Services\Aggregators\PlatformAdapters;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -265,11 +265,11 @@ class OrderController extends Controller
     {
         $channel = $order->aggregatorChannel;
 
-        if ($channel === null || ! $channel->isFoodpanda() || ! $channel->hasApiCredentials()) {
+        $adapter = PlatformAdapters::for($channel);
+
+        if ($adapter === null) {
             return;
         }
-
-        $adapter = app(FoodpandaAdapter::class, ['channel' => $channel]);
 
         if ($cart) {
             $adapter->pushCart($order);
