@@ -119,6 +119,12 @@ return [
     'selling_price' => 'Selling price',
     'margin' => 'Margin',
     'cost_missing' => 'No purchase cost yet for: :names. Receive a purchase to price them.',
+    'how_calculated' => 'How this is calculated',
+    'calc_note_line' => 'Line cost = quantity x average purchase cost of that ingredient in this branch.',
+    'calc_note_unit' => 'Quantities and costs use the smallest unit: grams for kg, millilitres for litres, pieces for pcs. So the cost is per gram, not per kg.',
+    'calc_note_total' => 'Food cost = the sum of all line costs for one serving.',
+    'calc_note_percent' => 'Food cost % = food cost / selling price x 100. Margin = selling price - food cost. Above 40% turns red.',
+    'calc_note_example' => 'Example: beef bought at Tk 680 per kg costs Tk 0.68 per gram, so 200 g costs Tk 136.',
 ];
 
 // extra keys used by the dashboard alert

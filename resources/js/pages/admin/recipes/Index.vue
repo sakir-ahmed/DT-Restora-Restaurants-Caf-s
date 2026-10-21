@@ -264,6 +264,17 @@ function save() {
                             </tfoot>
                         </table>
 
+                        <div class="mt-3 rounded-md border border-border bg-surface p-2.5 text-xs leading-relaxed text-muted">
+                            <p class="mb-1 font-semibold text-foreground">{{ t('inventory.how_calculated') }}</p>
+                            <ul class="list-disc space-y-0.5 pl-4">
+                                <li>{{ t('inventory.calc_note_line') }}</li>
+                                <li>{{ t('inventory.calc_note_unit') }}</li>
+                                <li>{{ t('inventory.calc_note_total') }}</li>
+                                <li>{{ t('inventory.calc_note_percent') }}</li>
+                                <li>{{ t('inventory.calc_note_example') }}</li>
+                            </ul>
+                        </div>
+
                         <p v-if="costing.missingCost.length > 0" class="mt-2 text-xs text-warning">
                             {{ t('inventory.cost_missing', { names: costing.missingCost.join(', ') }) }}
                         </p>
