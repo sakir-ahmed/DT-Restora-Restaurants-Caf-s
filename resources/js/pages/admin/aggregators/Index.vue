@@ -2,6 +2,7 @@
 import { router, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
+import ChannelBadge from '@/components/ChannelBadge.vue';
 import DataTable from '@/components/ui-kit/DataTable.vue';
 import DateText from '@/components/ui-kit/DateText.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
@@ -243,9 +244,15 @@ function decide(order, decision) {
         <section class="mb-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             <article v-for="channel in channels" :key="channel.id" class="rounded-lg border border-border bg-surface p-3">
                 <div class="flex items-start justify-between">
-                    <div>
-                        <p class="text-sm font-semibold">{{ channel.name }}</p>
-                        <p class="text-xs text-muted">{{ webhookBase }}/{{ channel.key }}</p>
+                    <div class="flex min-w-0 items-center gap-2.5">
+                        <span class="flex h-8 w-16 shrink-0 items-center justify-center rounded-md border border-border bg-white px-1.5">
+                            <img v-if="channel.logo" :src="channel.logo" :alt="channel.name" class="max-h-5 w-full object-contain">
+                            <ChannelBadge v-else channel="aggregator" :aggregator="channel" compact />
+                        </span>
+                        <div class="min-w-0">
+                            <p class="text-sm font-semibold">{{ channel.name }}</p>
+                            <p class="truncate text-xs text-muted">{{ webhookBase }}/{{ channel.key }}</p>
+                        </div>
                     </div>
                     <button
                         type="button"

@@ -13,25 +13,29 @@ declare(strict_types=1);
 |
 | Field names: commission_percent is always shown. The others are
 | environment, chain_id, client_id, client_secret, webhook_secret and
-| vendor_map (one outlet or store id per branch).
+| vendor_map (one outlet or store id per branch). Optional logo: a path
+| under public/ (partners without one show a coloured initial mark).
 */
 
 return [
     'partners' => [
         'foodpanda' => [
             'name' => 'Foodpanda',
+            'logo' => 'images/partners/foodpanda.svg',
             'commission' => '25.00',
             'api' => true,
             'fields' => ['environment', 'chain_id', 'client_id', 'client_secret', 'webhook_secret', 'vendor_map'],
         ],
         'ubereats' => [
             'name' => 'Uber Eats',
+            'logo' => 'images/partners/ubereats.svg',
             'commission' => '25.00',
             'api' => true,
             'fields' => ['environment', 'client_id', 'client_secret', 'vendor_map'],
         ],
         'pathao_food' => [
             'name' => 'Pathao Food',
+            'logo' => 'images/partners/pathao_food.png',
             'commission' => '20.00',
             'api' => false,
             'fields' => ['webhook_secret'],
