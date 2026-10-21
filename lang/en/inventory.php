@@ -109,6 +109,12 @@ return [
     'movement_transfer_out' => 'Transfer out',
     'unit_helper' => 'Base unit for this ingredient (stock is tracked in it).',
     'reorder_helper' => 'Alert when stock falls to this level.',
+    'recipe_removed' => 'Recipe removed.',
+    'recipe_duplicate_ingredient' => 'An ingredient can be added only once.',
+    'recipes_missing' => ':count items have no recipe yet.',
+    'edit_recipe' => 'Edit recipe',
+    'add_first_ingredient' => 'Add the first ingredient',
+    'recipe_removed_hint' => 'Saving with no ingredients removes the recipe.',
 ];
 
 // extra keys used by the dashboard alert

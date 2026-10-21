@@ -10,6 +10,7 @@ use App\Http\Requests\Admin\RecipeRequest;
 use App\Models\Branch;
 use App\Models\Ingredient;
 use App\Models\MenuItem;
+use App\Models\Recipe;
 use App\Services\CostingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -49,6 +50,15 @@ class RecipeController extends Controller
 
         $user = $request->user('staff');
         abort_unless($user->canAccessBranch($item->branch_id), 404);
+
+        if ($request->validated('lines') === []) {
+            Recipe::query()->where('menu_item_id', $item->id)->each(function (Recipe $recipe): void {
+                $recipe->items()->delete();
+                $recipe->delete();
+            });
+
+            return back()->with('success', __('inventory.recipe_removed'));
+        }
 
         $action->execute(
             $item,

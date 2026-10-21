@@ -28,7 +28,10 @@ const columns = computed(() => [
     { key: 'price_display', label: t('menu.price'), type: 'money', sortable: true, minWidth: '96px' },
     { key: 'recipe_status', label: t('inventory.recipes'), align: 'left' },
     { key: 'lines_count', label: t('inventory.lines'), type: 'number', minWidth: '64px' },
+    { key: 'actions', label: '', align: 'right', minWidth: '96px' },
 ]);
+
+const missingCount = computed(() => props.items.filter((item) => ! item.recipe).length);
 
 const rows = computed(() => props.items.map((item) => ({
     ...item,
@@ -57,7 +60,15 @@ function openBuilder(item) {
         })),
     }).reset();
     slideOverOpen.value = true;
+
+    if (item.recipe) {
+        calculateCost();
+    } else {
+        addLine();
+    }
 }
+
+const usedIngredients = computed(() => form.lines.map((line) => Number(line.ingredient_id)));
 
 function addLine() {
     form.lines.push({ ingredient_id: '', qty: '1' });
@@ -95,9 +106,14 @@ async function calculateCost() {
 
 function save() {
     form.post(route('admin.recipes.store'), {
-        onSuccess: async () => {
-            notify.success(t('inventory.recipe_saved'));
-            await calculateCost();
+        onSuccess: async (page) => {
+            notify.success(String(page.props.flash?.success ?? t('inventory.recipe_saved')));
+
+            if (form.lines.length > 0) {
+                await calculateCost();
+            } else {
+                slideOverOpen.value = false;
+            }
         },
     });
 }
@@ -107,7 +123,8 @@ function save() {
     <div>
         <PageHeader :title="t('inventory.recipes')" :description="t('inventory.recipes_subtitle')">
             <template #actions>
-                <span class="text-xs text-muted">{{ t('inventory.recipes_hint') }}</span>
+                <span v-if="missingCount > 0" class="text-xs text-warning">{{ t('inventory.recipes_missing', { count: missingCount }) }}</span>
+                <span v-else class="text-xs text-muted">{{ t('inventory.recipes_hint') }}</span>
             </template>
         </PageHeader>
 
@@ -116,6 +133,7 @@ function save() {
             :rows="rows"
             searchable
             clickable
+            @row-click="openBuilder"
             :empty-title="t('menu.empty')"
             :empty-description="t('menu.empty_hint')"
         >
@@ -125,6 +143,12 @@ function save() {
             </template>
             <template #cell(recipe_status)="{ value }">
                 <StatusBadge :status="value === 'set' ? 'active' : 'draft'" />
+            </template>
+            <template #cell(actions)="{ row }">
+                <button type="button" class="inline-flex h-6 items-center gap-1 rounded border border-border px-1.5 text-[11px] hover:bg-background" @click.stop="openBuilder(row)">
+                    <AppIcon name="pen-to-square" size="10" />
+                    {{ t('inventory.edit_recipe') }}
+                </button>
             </template>
             <template #cell(lines_count)="{ row, value }">
                 <span v-if="row.recipe_status === 'set'" class="tabular-nums">{{ value }}</span>
@@ -148,7 +172,7 @@ function save() {
                             <template #default="{ id }">
                                 <select :id="id" v-model="line.ingredient_id" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent">
                                     <option value="" disabled>{{ t('common.select') }}</option>
-                                    <option v-for="ingredient in ingredients" :key="ingredient.id" :value="ingredient.id">{{ ingredient.name }} ({{ ingredient.unit?.symbol }})</option>
+                                    <option v-for="ingredient in ingredients" :key="ingredient.id" :value="ingredient.id" :disabled="usedIngredients.includes(ingredient.id) && Number(line.ingredient_id) !== ingredient.id">{{ ingredient.name }} ({{ ingredient.unit?.symbol }})</option>
                                 </select>
                             </template>
                         </FormField>
@@ -166,7 +190,7 @@ function save() {
                         </div>
                     </div>
 
-                    <p v-if="form.lines.length === 0" class="text-[13px] text-muted">{{ t('inventory.no_recipe') }}</p>
+                    <p v-if="form.lines.length === 0" class="text-[13px] text-muted">{{ editingItem?.recipe ? t('inventory.recipe_removed_hint') : t('inventory.no_recipe') }}</p>
                 </div>
 
                 <FormField :label="t('common.note')" :error="form.errors.note">
@@ -210,7 +234,7 @@ function save() {
                     <AppIcon v-if="costingLoading" name="spinner" spin class="mr-1" />
                     {{ t('inventory.calculate') }}
                 </button>
-                <button type="button" :disabled="form.processing || form.lines.length === 0" class="inline-flex h-7 items-center gap-1.5 rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60" @click="save">
+                <button type="button" :disabled="form.processing || (form.lines.length === 0 && ! editingItem?.recipe)" class="inline-flex h-7 items-center gap-1.5 rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60" @click="save">
                     <AppIcon v-if="form.processing" name="spinner" spin />
                     {{ t('common.save') }}
                 </button>

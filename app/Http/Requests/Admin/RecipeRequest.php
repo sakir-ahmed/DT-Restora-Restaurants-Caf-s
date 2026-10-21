@@ -21,8 +21,8 @@ class RecipeRequest extends FormRequest
         return [
             'menu_item_id' => ['required', 'integer', 'exists:menu_items,id'],
             'note' => ['nullable', 'string', 'max:1000'],
-            'lines' => ['required', 'array', 'min:1'],
-            'lines.*.ingredient_id' => ['required', 'integer', 'exists:ingredients,id'],
+            'lines' => ['present', 'array'],
+            'lines.*.ingredient_id' => ['required', 'integer', 'exists:ingredients,id', 'distinct'],
             'lines.*.qty' => ['required', 'numeric', 'gt:0'],
         ];
     }
@@ -36,8 +36,7 @@ class RecipeRequest extends FormRequest
             'lines.*.ingredient_id.required' => __('inventory.line_ingredient_required'),
             'lines.*.qty.required' => __('inventory.line_qty_required'),
             'lines.*.qty.gt' => __('inventory.line_qty_required'),
-            'lines.required' => __('inventory.line_ingredient_required'),
-            'lines.min' => __('inventory.line_ingredient_required'),
+            'lines.*.ingredient_id.distinct' => __('inventory.recipe_duplicate_ingredient'),
         ];
     }
 

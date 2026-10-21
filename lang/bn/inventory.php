@@ -109,4 +109,10 @@ return [
     'movement_transfer_out' => 'ট্রান্সফার আউট',
     'unit_helper' => 'এই উপকরণের মূল একক (স্টক এতে গণনা হয়)।',
     'reorder_helper' => 'স্টক এই সীমায় নামলে সতর্কতা দেখাবে।',
+    'recipe_removed' => 'রেসিপি মুছে ফেলা হয়েছে।',
+    'recipe_duplicate_ingredient' => 'একটি উপাদান একবারই যোগ করা যাবে।',
+    'recipes_missing' => ':count টি আইটেমের রেসিপি এখনো নেই।',
+    'edit_recipe' => 'রেসিপি সম্পাদনা',
+    'add_first_ingredient' => 'প্রথম উপাদান যোগ করুন',
+    'recipe_removed_hint' => 'কোনো উপাদান না রেখে সংরক্ষণ করলে রেসিপি মুছে যাবে।',
 ];
