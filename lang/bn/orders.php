@@ -112,4 +112,8 @@ return [
     'channel_pos' => 'পিওএস',
     'incoming_order' => ':source থেকে নতুন অর্ডার :invoice',
     'channel_label' => 'চ্যানেল',
+    'add_ons' => 'অ্যাড-অন',
+    'customize' => 'আইটেম কাস্টমাইজ',
+    'add_to_order' => 'অর্ডারে যোগ করুন',
+    'update_item' => 'আইটেম আপডেট',
 ];

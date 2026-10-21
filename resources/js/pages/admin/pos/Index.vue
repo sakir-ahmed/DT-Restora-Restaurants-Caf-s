@@ -58,6 +58,7 @@ const cart = ref(savedTicket?.cart ?? []);
 const discount = ref(savedTicket?.discount ?? { type: 'percent', value: 0 });
 const itemEditor = ref(null);
 const variantPicker = ref(null);
+const optionsDialog = ref(null);
 const heldOrders = ref([]);
 const payMode = ref(savedTicket?.payMode ?? 'cash');
 const tendered = ref(savedTicket?.tendered ?? '');
@@ -140,6 +141,11 @@ function reconcileCart() {
             ...line,
             item,
             variant: resolveVariant(item, line.variant),
+            addOns: (line.addOns ?? []).flatMap((addOn) => {
+                const current = activeAddOns(item).find((entry) => entry.id === addOn.id);
+
+                return current ? [{ id: current.id, name: current.name, name_bn: current.name_bn, price: Number(current.price), qty: addOn.qty }] : [];
+            }),
         }];
     });
 }
@@ -300,7 +306,27 @@ function itemCardPrice(item) {
     return Math.min(...item.variants.map((variant) => Number(variant.price)));
 }
 
+function activeAddOns(item) {
+    return [...(item?.add_ons ?? [])]
+        .filter((addOn) => addOn.is_active !== false)
+        .sort((left, right) => (left.sort_order ?? 0) - (right.sort_order ?? 0));
+}
+
+function itemHasAddOns(item) {
+    return activeAddOns(item).length > 0;
+}
+
+function addOnSignature(addOns) {
+    return [...(addOns ?? [])].sort((left, right) => left.id - right.id).map((addOn) => `${addOn.id}x${addOn.qty}`).join('.');
+}
+
 function addItem(item) {
+    if (itemHasAddOns(item)) {
+        openOptions(item);
+
+        return;
+    }
+
     if (itemHasVariants(item)) {
         variantPicker.value = item;
 
@@ -318,6 +344,7 @@ function variantLine(variant) {
     }
 
     return cart.value.find((line) => line.item.id === item.id
+        && line.addOns.length === 0
         && (line.variant?.id ?? null) === (variant?.id ?? null)) ?? null;
 }
 
@@ -332,7 +359,7 @@ function pickerLines() {
         return [];
     }
 
-    return cart.value.filter((line) => line.item.id === item.id && line.variant);
+    return cart.value.filter((line) => line.item.id === item.id && line.variant && line.addOns.length === 0);
 }
 
 const pickerQuantity = computed(() => pickerLines().reduce((sum, line) => sum + line.quantity, 0));
@@ -359,18 +386,20 @@ function decreaseVariant(variant) {
     setQuantity(line, line.quantity - 1);
 }
 
-function pushLine(item, variant) {
+function pushLine(item, variant, addOns = [], quantity = 1) {
+    const signature = addOnSignature(addOns);
     const existing = cart.value.find((line) => line.item.id === item.id
-        && (line.variant?.id ?? null) === (variant?.id ?? null));
+        && (line.variant?.id ?? null) === (variant?.id ?? null)
+        && addOnSignature(line.addOns) === signature);
 
     if (existing) {
-        existing.quantity += 1;
+        existing.quantity = Math.min(999, existing.quantity + quantity);
     } else {
         cart.value.push({
             item,
             variant,
-            quantity: 1,
-            addOns: [],
+            quantity,
+            addOns,
             discount: { type: 'percent', value: 0 },
             vatPercent: null,
             extraCharge: 0,
@@ -428,7 +457,7 @@ function lineNet(line) {
 }
 
 function lineKey(line) {
-    return `${line.item.id}-${line.variant?.id ?? 0}`;
+    return `${line.item.id}-${line.variant?.id ?? 0}-${addOnSignature(line.addOns)}`;
 }
 
 function vatOn(amount, rate) {
@@ -441,6 +470,90 @@ function vatOn(amount, rate) {
     }
 
     return amount * rate / 100;
+}
+
+function openOptions(item, line = null) {
+    if (latestOrder.value) {
+        return;
+    }
+
+    const variants = sortedVariants(item);
+    const chosen = line?.variant ?? variants.find((variant) => variant.is_default) ?? variants[0] ?? null;
+
+    optionsDialog.value = {
+        item,
+        line,
+        variantId: chosen?.id ?? null,
+        quantity: line?.quantity ?? 1,
+        addOns: Object.fromEntries((line?.addOns ?? []).map((addOn) => [addOn.id, addOn.qty])),
+    };
+}
+
+const optionsVariant = computed(() => {
+    const dialog = optionsDialog.value;
+
+    return dialog ? (dialog.item.variants ?? []).find((variant) => variant.id === dialog.variantId) ?? null : null;
+});
+
+const optionsAddOnsList = computed(() => {
+    const dialog = optionsDialog.value;
+
+    if (! dialog) {
+        return [];
+    }
+
+    return activeAddOns(dialog.item)
+        .map((addOn) => ({ id: addOn.id, name: addOn.name, name_bn: addOn.name_bn, price: Number(addOn.price), qty: dialog.addOns[addOn.id] ?? 0 }))
+        .filter((addOn) => addOn.qty > 0);
+});
+
+const optionsUnitTotal = computed(() => {
+    const dialog = optionsDialog.value;
+
+    if (! dialog) {
+        return 0;
+    }
+
+    const base = Number(optionsVariant.value?.price ?? dialog.item.base_price);
+
+    return base + optionsAddOnsList.value.reduce((sum, addOn) => sum + addOn.price * addOn.qty, 0);
+});
+
+function setOptionAddOn(id, qty) {
+    optionsDialog.value.addOns = { ...optionsDialog.value.addOns, [id]: Math.min(9, Math.max(0, qty)) };
+}
+
+function confirmOptions() {
+    const dialog = optionsDialog.value;
+
+    if (! dialog) {
+        return;
+    }
+
+    const variant = optionsVariant.value;
+    const addOns = optionsAddOnsList.value;
+    const quantity = Math.min(999, Math.max(1, Math.round(Number(dialog.quantity) || 1)));
+
+    if (dialog.line) {
+        const line = dialog.line;
+        const duplicate = cart.value.find((entry) => entry !== line
+            && entry.item.id === dialog.item.id
+            && (entry.variant?.id ?? null) === (variant?.id ?? null)
+            && addOnSignature(entry.addOns) === addOnSignature(addOns));
+
+        if (duplicate) {
+            duplicate.quantity = Math.min(999, duplicate.quantity + quantity);
+            cart.value = cart.value.filter((entry) => entry !== line);
+        } else {
+            line.variant = variant;
+            line.addOns = addOns;
+            line.quantity = quantity;
+        }
+    } else {
+        pushLine(dialog.item, variant, addOns, quantity);
+    }
+
+    optionsDialog.value = null;
 }
 
 function openItemEditor(line) {
@@ -930,7 +1043,9 @@ function printCustomerCopy() {
 // keyboard shortcuts: / focus search, F2 new order (clear), F8 hold
 function onKeydown(event) {
     if (event.key === 'Escape') {
-        if (variantPicker.value) {
+        if (optionsDialog.value) {
+            optionsDialog.value = null;
+        } else if (variantPicker.value) {
             variantPicker.value = null;
         } else if (itemEditor.value) {
             itemEditor.value = null;
@@ -939,7 +1054,7 @@ function onKeydown(event) {
         return;
     }
 
-    if (variantPicker.value || itemEditor.value) {
+    if (variantPicker.value || itemEditor.value || optionsDialog.value) {
         return;
     }
 
@@ -1240,7 +1355,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                                 <span>{{ formatMoney(itemCardPrice(item)) }}</span>
                             </span>
                             <span class="flex items-center gap-1">
-                                <AppIcon v-if="itemHasVariants(item)" name="layer-group" size="12" class="text-muted" />
+                                <AppIcon v-if="itemHasVariants(item) || itemHasAddOns(item)" name="layer-group" size="12" class="text-muted" />
                                 <AppIcon v-if="item.is_vegetarian" name="circle-check" size="12" class="text-success" />
                             </span>
                         </span>
@@ -1268,7 +1383,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                         <div class="min-w-0 flex-1">
                             <p class="truncate text-[13px] font-medium text-foreground">{{ localized(line.item, 'name') }}</p>
                             <p v-if="line.variant" class="truncate text-xs text-muted">{{ localized(line.variant, 'name') }}</p>
-                            <p v-if="(line.addOns ?? []).length" class="truncate text-xs text-muted">{{ line.addOns.map((addOn) => addOn.name).join(', ') }}</p>
+                            <p v-if="(line.addOns ?? []).length" class="truncate text-xs text-muted">{{ line.addOns.map((addOn) => (addOn.qty > 1 ? `${addOn.qty}x ` : '+ ') + (addOn.name)).join(', ') }}</p>
                         </div>
                         <div class="flex items-center">
                             <button type="button" class="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-background text-foreground disabled:opacity-50" :disabled="!!latestOrder" :aria-label="t('common.decrease')" @click.stop="setQuantity(line, line.quantity - 1)">
@@ -1280,6 +1395,17 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                             </button>
                         </div>
                         <span class="w-16 shrink-0 text-right text-[13px] font-semibold tabular-nums text-foreground">{{ formatMoney(lineNet(line)) }}</span>
+                        <button
+                            v-if="itemHasAddOns(line.item)"
+                            type="button"
+                            class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border disabled:opacity-50"
+                            :class="line.addOns.length > 0 ? 'border-accent bg-accent/15 text-foreground' : 'border-border text-muted hover:text-foreground'"
+                            :aria-label="t('orders.add_ons')"
+                            :disabled="!!latestOrder"
+                            @click.stop="openOptions(line.item, line)"
+                        >
+                            <AppIcon name="layer-group" size="12" />
+                        </button>
                         <button
                             type="button"
                             class="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border disabled:opacity-50"
@@ -1621,6 +1747,90 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                             </p>
                             <p class="text-base font-semibold tabular-nums text-foreground">{{ formatMoney(pickerTotal) }}</p>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </Teleport>
+
+        <Teleport to="body">
+            <div v-if="optionsDialog" class="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 p-3" @click.self="optionsDialog = null">
+                <div role="dialog" aria-modal="true" :aria-label="t('orders.customize')" class="flex max-h-[min(36rem,calc(100vh-1.5rem))] w-full max-w-md flex-col overflow-hidden rounded-xl border border-border bg-surface">
+                    <div class="flex items-start justify-between gap-2 border-b border-border px-3 py-2">
+                        <div class="min-w-0">
+                            <p class="text-xs font-medium text-muted">{{ t('orders.customize') }}</p>
+                            <h2 class="truncate text-base font-semibold text-foreground">{{ localized(optionsDialog.item, 'name') }}</h2>
+                        </div>
+                        <button type="button" class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted hover:text-foreground" :aria-label="t('common.cancel')" @click="optionsDialog = null">
+                            <AppIcon name="xmark" size="14" />
+                        </button>
+                    </div>
+
+                    <div class="thin-scrollbar min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
+                        <section v-if="itemHasVariants(optionsDialog.item)">
+                            <h3 class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">{{ t('orders.choose_size') }}</h3>
+                            <div class="grid grid-cols-2 gap-1.5" role="radiogroup">
+                                <button
+                                    v-for="variant in sortedVariants(optionsDialog.item)"
+                                    :key="variant.id"
+                                    type="button"
+                                    role="radio"
+                                    :aria-checked="optionsDialog.variantId === variant.id"
+                                    class="flex min-h-11 flex-col items-start justify-center rounded-lg border px-2.5 py-1 text-left"
+                                    :class="optionsDialog.variantId === variant.id ? 'border-accent bg-accent/10' : 'border-border bg-background hover:border-accent/60'"
+                                    @click="optionsDialog.variantId = variant.id"
+                                >
+                                    <span class="text-sm font-semibold text-foreground">{{ localized(variant, 'name') }}</span>
+                                    <span class="text-xs tabular-nums text-muted">{{ formatMoney(variant.price) }}</span>
+                                </button>
+                            </div>
+                        </section>
+
+                        <section>
+                            <h3 class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">{{ t('orders.add_ons') }}</h3>
+                            <div class="space-y-1.5">
+                                <div
+                                    v-for="addOn in activeAddOns(optionsDialog.item)"
+                                    :key="addOn.id"
+                                    class="flex items-center gap-2 rounded-lg border px-2.5 py-1"
+                                    :class="(optionsDialog.addOns[addOn.id] ?? 0) > 0 ? 'border-accent bg-accent/10' : 'border-border bg-background'"
+                                >
+                                    <button type="button" class="flex min-h-10 min-w-0 flex-1 items-center justify-between gap-2 text-left" @click="setOptionAddOn(addOn.id, (optionsDialog.addOns[addOn.id] ?? 0) > 0 ? 0 : 1)">
+                                        <span class="flex min-w-0 items-center gap-1.5 text-sm font-medium text-foreground">
+                                            <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded border" :class="(optionsDialog.addOns[addOn.id] ?? 0) > 0 ? 'border-accent bg-accent text-accent-foreground' : 'border-border'">
+                                                <AppIcon v-if="(optionsDialog.addOns[addOn.id] ?? 0) > 0" name="check" size="9" />
+                                            </span>
+                                            <span class="truncate">{{ localized(addOn, 'name') }}</span>
+                                        </span>
+                                        <span class="shrink-0 text-xs tabular-nums text-muted">+ {{ formatMoney(addOn.price) }}</span>
+                                    </button>
+                                    <div v-if="(optionsDialog.addOns[addOn.id] ?? 0) > 0" class="flex shrink-0 items-center overflow-hidden rounded-md border border-border bg-surface">
+                                        <button type="button" class="flex h-8 w-8 items-center justify-center text-foreground" :aria-label="t('common.decrease')" @click="setOptionAddOn(addOn.id, (optionsDialog.addOns[addOn.id] ?? 0) - 1)">
+                                            <AppIcon name="minus" size="11" />
+                                        </button>
+                                        <span class="w-5 text-center text-sm font-semibold tabular-nums">{{ optionsDialog.addOns[addOn.id] }}</span>
+                                        <button type="button" class="flex h-8 w-8 items-center justify-center bg-accent text-accent-foreground disabled:opacity-40" :disabled="optionsDialog.addOns[addOn.id] >= 9" :aria-label="t('common.increase')" @click="setOptionAddOn(addOn.id, (optionsDialog.addOns[addOn.id] ?? 0) + 1)">
+                                            <AppIcon name="plus" size="11" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="flex items-center gap-2 border-t border-border px-3 py-2">
+                        <div class="flex shrink-0 items-center overflow-hidden rounded-md border border-border bg-background">
+                            <button type="button" class="flex h-9 w-9 items-center justify-center text-foreground disabled:opacity-40" :disabled="optionsDialog.quantity <= 1" :aria-label="t('common.decrease')" @click="optionsDialog.quantity = Math.max(1, optionsDialog.quantity - 1)">
+                                <AppIcon name="minus" size="12" />
+                            </button>
+                            <span class="w-8 text-center text-sm font-semibold tabular-nums">{{ optionsDialog.quantity }}</span>
+                            <button type="button" class="flex h-9 w-9 items-center justify-center text-foreground" :aria-label="t('common.increase')" @click="optionsDialog.quantity = Math.min(999, optionsDialog.quantity + 1)">
+                                <AppIcon name="plus" size="12" />
+                            </button>
+                        </div>
+                        <button type="button" class="flex h-9 min-w-0 flex-1 items-center justify-between gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground hover:opacity-90" @click="confirmOptions">
+                            <span>{{ optionsDialog.line ? t('orders.update_item') : t('orders.add_to_order') }}</span>
+                            <span class="tabular-nums">{{ formatMoney(optionsUnitTotal * optionsDialog.quantity) }}</span>
+                        </button>
                     </div>
                 </div>
             </div>

@@ -112,4 +112,8 @@ return [
     'channel_pos' => 'POS',
     'incoming_order' => 'New :source order :invoice',
     'channel_label' => 'Channel',
+    'add_ons' => 'Add-ons',
+    'customize' => 'Customize item',
+    'add_to_order' => 'Add to order',
+    'update_item' => 'Update item',
 ];
