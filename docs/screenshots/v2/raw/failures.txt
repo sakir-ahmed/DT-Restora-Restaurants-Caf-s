@@ -1,2 +1,0 @@
-pos-table: locator.selectOption: Timeout 15000ms exceeded.
-applications: locator.click: Timeout 15000ms exceeded.
