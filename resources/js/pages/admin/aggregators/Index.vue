@@ -10,7 +10,6 @@ import MobileInput from '@/components/ui-kit/MobileInput.vue';
 import PageHeader from '@/components/ui-kit/PageHeader.vue';
 import SlideOver from '@/components/ui-kit/SlideOver.vue';
 import StatusBadge from '@/components/ui-kit/StatusBadge.vue';
-import SwitchField from '@/components/ui-kit/SwitchField.vue';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/format';
 import { notify } from '@/lib/notify';
@@ -27,10 +26,11 @@ const props = defineProps({
 const channelOpen = ref(false);
 const editingChannelId = ref(null);
 const editingHasSecret = ref(false);
-const platformKeys = ['foodpanda', 'ubereats'];
-const isFoodpandaForm = computed(() => platformKeys.includes(channelForm.key));
-const needsChain = computed(() => channelForm.key === 'foodpanda');
-const apiReady = (channel) => channel.has_client_secret && (channel.key === 'ubereats' || channel.chain_id);
+const editingFields = ref([]);
+const editingChannel = ref(null);
+const hasField = (field) => editingFields.value.includes(field);
+const hasApiFields = computed(() => hasField('client_id'));
+const apiReady = (channel) => channel.has_client_secret && (! channel.fields.includes('chain_id') || channel.chain_id);
 const orderOpen = ref(false);
 const payoutChannel = ref(null);
 const payoutOpen = ref(false);
@@ -55,7 +55,7 @@ const orderRows = computed(() => props.orders.map((order) => ({
 })));
 
 const emptyChannel = () => ({
-    key: '', name: '', commission_percent: '0', webhook_secret: '', is_active: true,
+    commission_percent: '0', webhook_secret: '',
     environment: 'sandbox', chain_id: '', client_id: '', client_secret: '', vendor_map: {},
 });
 
@@ -63,12 +63,11 @@ const channelForm = useForm(emptyChannel());
 
 function openChannel(channel = null) {
     editingChannelId.value = channel?.id ?? null;
+    editingChannel.value = channel;
+    editingFields.value = channel?.fields ?? [];
     channelForm.defaults(channel ? {
-        key: channel.key,
-        name: channel.name,
         commission_percent: String(channel.commission_percent),
         webhook_secret: channel.webhook_secret ?? '',
-        is_active: channel.is_active,
         environment: channel.environment ?? 'sandbox',
         chain_id: channel.chain_id ?? '',
         client_id: channel.client_id ?? '',
@@ -80,20 +79,22 @@ function openChannel(channel = null) {
 }
 
 function saveChannel() {
-    const payload = { ...channelForm.data() };
+    const fields = ['commission_percent', ...editingFields.value];
+    const payload = Object.fromEntries(Object.entries(channelForm.data()).filter(([key]) => fields.includes(key)));
 
-    const options = {
+    channelForm.transform(() => payload).put(route('admin.aggregators.channels.update', editingChannelId.value), {
         onSuccess: () => {
             channelOpen.value = false;
-            notify.success(editingChannelId.value === null ? t('aggregators.channel_created') : t('aggregators.channel_updated'));
+            notify.success(t('aggregators.channel_updated'));
         },
-    };
+    });
+}
 
-    if (editingChannelId.value === null) {
-        channelForm.post(route('admin.aggregators.channels.store'), { ...options, data: payload });
-    } else {
-        channelForm.put(route('admin.aggregators.channels.update', editingChannelId.value), { ...options, data: payload });
-    }
+function toggleChannel(channel) {
+    router.post(route('admin.aggregators.channels.toggle', channel.id), {}, {
+        preserveScroll: true,
+        onSuccess: (page) => reportFlash(page, ''),
+    });
 }
 
 const emptyOrder = () => ({
@@ -231,10 +232,6 @@ function decide(order, decision) {
         <PageHeader :title="t('aggregators.title')" :description="t('aggregators.subtitle')">
             <template #actions>
                 <span class="text-[13px] text-muted">{{ t('aggregators.commission_month') }}: {{ formatMoney(commissionTotals.month) }}</span>
-                <button type="button" class="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 text-[13px] font-medium text-foreground hover:bg-background" @click="openChannel()">
-                    <AppIcon name="plus" size="12" />
-                    {{ t('aggregators.add_channel') }}
-                </button>
                 <button type="button" class="inline-flex h-7 items-center gap-1.5 rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground hover:opacity-90" @click="openOrder">
                     <AppIcon name="receipt" size="12" />
                     {{ t('aggregators.manual_order') }}
@@ -250,7 +247,17 @@ function decide(order, decision) {
                         <p class="text-sm font-semibold">{{ channel.name }}</p>
                         <p class="text-xs text-muted">{{ webhookBase }}/{{ channel.key }}</p>
                     </div>
-                    <StatusBadge :status="channel.is_active ? 'active' : 'inactive'" />
+                    <button
+                        type="button"
+                        role="switch"
+                        :aria-checked="channel.is_active"
+                        :aria-label="channel.is_active ? t('aggregators.disable') : t('aggregators.enable')"
+                        class="relative h-5 w-9 shrink-0 rounded-full transition-colors"
+                        :class="channel.is_active ? 'bg-success' : 'bg-border'"
+                        @click="toggleChannel(channel)"
+                    >
+                        <span class="absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all" :class="channel.is_active ? 'left-[18px]' : 'left-0.5'" />
+                    </button>
                 </div>
 
                 <p class="mt-2 text-[13px] text-muted">
@@ -258,7 +265,7 @@ function decide(order, decision) {
                     <span class="font-semibold text-foreground tabular-nums">{{ Number(channel.commission_percent).toFixed(2) }}%</span>
                 </p>
 
-                <div v-if="platformKeys.includes(channel.key)" class="mt-2 space-y-1 text-xs">
+                <div v-if="channel.has_api" class="mt-2 space-y-1 text-xs">
                     <p class="flex items-center gap-1.5 text-muted">
                         <AppIcon :name="apiReady(channel) ? 'circle-check' : 'circle-xmark'" size="11" :class="apiReady(channel) ? 'text-success' : 'text-muted'" />
                         {{ apiReady(channel) ? t('aggregators.api_connected', { environment: channel.environment }) : t('aggregators.api_not_set') }}
@@ -271,7 +278,7 @@ function decide(order, decision) {
                     <button type="button" class="h-6 rounded border border-border px-1.5 text-[11px] hover:bg-background" @click="openChannel(channel)">{{ t('common.edit') }}</button>
                     <button type="button" class="h-6 rounded border border-border px-1.5 text-[11px] hover:bg-background" @click="syncMenu(channel)">{{ t('aggregators.sync_menu') }}</button>
                     <button type="button" class="h-6 rounded border border-border px-1.5 text-[11px] hover:bg-background" @click="openPayout(channel)">{{ t('aggregators.payout') }}</button>
-                    <template v-if="platformKeys.includes(channel.key) && channel.has_client_secret">
+                    <template v-if="channel.has_api && channel.has_client_secret">
                         <button type="button" class="h-6 rounded border border-border px-1.5 text-[11px] hover:bg-background" @click="testConnection(channel)">{{ t('aggregators.test_connection') }}</button>
                         <button type="button" class="h-6 rounded border border-border px-1.5 text-[11px] hover:bg-background" @click="importOrders(channel)">{{ t('aggregators.import_orders') }}</button>
                         <button type="button" class="h-6 rounded border border-border px-1.5 text-[11px] hover:bg-background" @click="openOutlet(channel)">{{ t('aggregators.outlet_status') }}</button>
@@ -296,42 +303,28 @@ function decide(order, decision) {
         </DataTable>
 
         <!-- Channel dialog -->
-        <SlideOver :open="channelOpen" :title="editingChannelId === null ? t('aggregators.add_channel') : t('common.edit')" @close="channelOpen = false">
+        <SlideOver :open="channelOpen" :title="editingChannel ? editingChannel.name : ''" @close="channelOpen = false">
             <form novalidate class="space-y-3" @submit.prevent="saveChannel">
                 <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-                    <FormField v-if="editingChannelId === null" :label="t('aggregators.channel_key')" required :error="channelForm.errors.key" :helper="t('aggregators.channel_key_helper')">
-                        <template #default="{ id }">
-                            <input :id="id" v-model="channelForm.key" type="text" class="h-7 w-full rounded-md border bg-surface px-2 text-[13px]" :class="channelForm.errors.key ? 'border-danger' : 'border-border'">
-                        </template>
-                    </FormField>
-
-                    <FormField :label="t('aggregators.channel_name')" required :error="channelForm.errors.name">
-                        <template #default="{ id }">
-                            <input :id="id" v-model="channelForm.name" type="text" class="h-7 w-full rounded-md border bg-surface px-2 text-[13px]" :class="channelForm.errors.name ? 'border-danger' : 'border-border'">
-                        </template>
-                    </FormField>
-
                     <FormField :label="t('aggregators.commission_percent')" required :error="channelForm.errors.commission_percent">
                         <MoneyInput v-model="channelForm.commission_percent" prefix="%" />
                     </FormField>
 
-                    <FormField :label="t('aggregators.webhook_secret')" :helper="t('aggregators.webhook_secret_helper')" :error="channelForm.errors.webhook_secret">
+                    <FormField v-if="hasField('webhook_secret')" :label="t('aggregators.webhook_secret')" :helper="t('aggregators.webhook_secret_helper')" :error="channelForm.errors.webhook_secret">
                         <template #default="{ id }">
                             <input :id="id" v-model="channelForm.webhook_secret" type="text" class="h-7 w-full rounded-md border border-border bg-surface px-2 font-mono text-[13px]">
                         </template>
                     </FormField>
                 </div>
 
-                <SwitchField v-model="channelForm.is_active" :label="t('branches.is_active')" />
-
-                <section v-if="isFoodpandaForm" class="space-y-3 border-t border-border pt-3">
+                <section v-if="hasApiFields" class="space-y-3 border-t border-border pt-3">
                     <div>
                         <h3 class="text-xs font-semibold uppercase tracking-wider text-muted">{{ t('aggregators.platform_api') }}</h3>
                         <p class="mt-0.5 text-xs text-muted">{{ t('aggregators.platform_api_hint') }}</p>
                     </div>
 
                     <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-                        <FormField :label="t('aggregators.environment')" :error="channelForm.errors.environment">
+                        <FormField v-if="hasField('environment')" :label="t('aggregators.environment')" :error="channelForm.errors.environment">
                             <template #default="{ id }">
                                 <select :id="id" v-model="channelForm.environment" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px]">
                                     <option value="sandbox">{{ t('aggregators.env_sandbox') }}</option>
@@ -340,7 +333,7 @@ function decide(order, decision) {
                             </template>
                         </FormField>
 
-                        <FormField v-if="needsChain" :label="t('aggregators.chain_id')" :error="channelForm.errors.chain_id">
+                        <FormField v-if="hasField('chain_id')" :label="t('aggregators.chain_id')" :error="channelForm.errors.chain_id">
                             <template #default="{ id }">
                                 <input :id="id" v-model="channelForm.chain_id" type="text" class="h-7 w-full rounded-md border border-border bg-surface px-2 font-mono text-[13px]">
                             </template>
@@ -359,7 +352,7 @@ function decide(order, decision) {
                         </FormField>
                     </div>
 
-                    <div>
+                    <div v-if="hasField('vendor_map')">
                         <h4 class="mb-1.5 text-xs font-semibold text-muted">{{ t('aggregators.vendor_map') }}</h4>
                         <div class="space-y-1.5">
                             <div v-for="branch in branches" :key="branch.id" class="grid grid-cols-[1fr_1fr] items-center gap-2">

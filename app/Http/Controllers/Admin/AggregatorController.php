@@ -13,6 +13,7 @@ use App\Models\MenuItem;
 use App\Models\Order;
 use App\Services\Aggregators\AggregatorOrderService;
 use App\Services\Aggregators\Foodpanda\FoodpandaClient;
+use App\Services\Aggregators\PartnerCatalog;
 use App\Services\Aggregators\PlatformAdapters;
 use App\Services\Aggregators\UberEats\UberEatsClient;
 use Carbon\CarbonImmutable;
@@ -29,10 +30,16 @@ class AggregatorController extends Controller
     {
         $this->authorize('aggregators.manage');
 
+        PartnerCatalog::ensureRows();
+
         $channels = AggregatorChannel::query()
             ->withCount(['payouts'])
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->map(fn (AggregatorChannel $channel): array => $channel->toArray() + [
+                'fields' => PartnerCatalog::fields($channel->key),
+                'has_api' => PartnerCatalog::hasApi($channel->key),
+            ]);
 
         $aggregatorOrders = Order::query()
             ->whereNotNull('aggregator_channel_id')
@@ -60,39 +67,29 @@ class AggregatorController extends Controller
         ]);
     }
 
-    public function storeChannel(Request $request): RedirectResponse
-    {
-        $this->authorize('aggregators.manage');
-
-        $validated = $request->validate([
-            'key' => ['required', 'string', 'max:40', 'unique:aggregator_channels,key'],
-            'name' => ['required', 'string', 'max:100'],
-            'commission_percent' => ['required', 'numeric', 'between:0,100'],
-            'webhook_secret' => ['nullable', 'string', 'max:100'],
-            'is_active' => ['boolean'],
-            ...$this->platformRules(),
-        ]);
-
-        AggregatorChannel::query()->create($this->platformAttributes($validated));
-
-        return back()->with('success', __('aggregators.channel_created'));
-    }
-
     public function updateChannel(Request $request, AggregatorChannel $channel): RedirectResponse
     {
         $this->authorize('aggregators.manage');
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:100'],
-            'commission_percent' => ['required', 'numeric', 'between:0,100'],
-            'webhook_secret' => ['nullable', 'string', 'max:100'],
-            'is_active' => ['boolean'],
-            ...$this->platformRules(),
-        ]);
+        $validated = $request->validate(PartnerCatalog::rules($channel->key));
 
         $channel->update($this->platformAttributes($validated, keepSecretWhenBlank: true));
 
         return back()->with('success', __('aggregators.channel_updated'));
+    }
+
+    /**
+     * Switch a partner on or off.
+     */
+    public function toggleChannel(Request $request, AggregatorChannel $channel): RedirectResponse
+    {
+        $this->authorize('aggregators.manage');
+
+        $channel->update(['is_active' => ! $channel->is_active]);
+
+        activity()->performedOn($channel)->causedBy($request->user('staff'))->withProperties(['is_active' => $channel->is_active])->log('aggregator.toggled');
+
+        return back()->with('success', __($channel->is_active ? 'aggregators.channel_enabled' : 'aggregators.channel_disabled', ['name' => $channel->name]));
     }
 
     /**
@@ -324,21 +321,6 @@ class AggregatorController extends Controller
         }
 
         return back()->with('success', __('aggregators.orders_imported', $result));
-    }
-
-    /**
-     * @return array<string, array<int, mixed>>
-     */
-    private function platformRules(): array
-    {
-        return [
-            'environment' => ['nullable', 'in:sandbox,production'],
-            'chain_id' => ['nullable', 'string', 'max:64'],
-            'client_id' => ['nullable', 'string', 'max:128'],
-            'client_secret' => ['nullable', 'string', 'max:255'],
-            'vendor_map' => ['nullable', 'array'],
-            'vendor_map.*' => ['nullable', 'string', 'max:64'],
-        ];
     }
 
     /**

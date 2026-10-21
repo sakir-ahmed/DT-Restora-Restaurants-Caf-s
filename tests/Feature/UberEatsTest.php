@@ -8,6 +8,7 @@ use App\Models\Branch;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\Order;
+use App\Models\User;
 use Database\Seeders\ChartOfAccountsSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Http\Client\Request;
@@ -101,4 +102,25 @@ it('cancels a pending order when the customer cancels on Uber', function (): voi
     uberPost($this, uberEvent('orders.cancel'))->assertOk();
 
     expect(Order::query()->where('aggregator_order_id', 'ord-1')->first()->status)->toBe(OrderStatus::Void);
+});
+
+it('lists configured partners only and ignores fields a partner does not take', function (): void {
+    $owner = User::factory()->role('owner')->create(['branch_id' => $this->branch->id]);
+
+    $this->actingAs($owner, 'staff')->get(route('admin.aggregators.index'))->assertOk();
+    expect(AggregatorChannel::query()->where('key', 'foodpanda')->exists())->toBeTrue();
+
+    $this->actingAs($owner, 'staff')
+        ->put(route('admin.aggregators.channels.update', $this->channel), [
+            'commission_percent' => '30', 'client_id' => 'new-id', 'chain_id' => 'should-be-ignored', 'webhook_secret' => 'ignored',
+        ])->assertRedirect();
+
+    $this->channel->refresh();
+    expect((float) $this->channel->commission_percent)->toBe(30.0)
+        ->and($this->channel->client_id)->toBe('new-id')
+        ->and($this->channel->chain_id)->toBeNull()
+        ->and($this->channel->webhook_secret)->toBeNull();
+
+    $this->actingAs($owner, 'staff')->post(route('admin.aggregators.channels.toggle', $this->channel))->assertRedirect();
+    expect($this->channel->fresh()->is_active)->toBeFalse();
 });

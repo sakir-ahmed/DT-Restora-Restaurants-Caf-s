@@ -308,7 +308,7 @@ Route::prefix('admin')
         Route::get('accounting/export/{statement}', [AccountingController::class, 'export'])->name('accounting.export')->middleware('permission:accounting.view');
 
         Route::get('aggregators', [AggregatorController::class, 'index'])->name('aggregators.index')->middleware('permission:aggregators.manage');
-        Route::post('aggregators/channels', [AggregatorController::class, 'storeChannel'])->name('aggregators.channels.store')->middleware('permission:aggregators.manage');
+        Route::post('aggregators/channels/{channel}/toggle', [AggregatorController::class, 'toggleChannel'])->name('aggregators.channels.toggle')->middleware('permission:aggregators.manage');
         Route::put('aggregators/channels/{channel}', [AggregatorController::class, 'updateChannel'])->name('aggregators.channels.update')->middleware('permission:aggregators.manage');
         Route::post('aggregators/orders/manual', [AggregatorController::class, 'manualOrder'])->name('aggregators.orders.manual')->middleware('permission:aggregators.manage');
         Route::post('aggregators/orders/{order}/decision', [AggregatorController::class, 'decide'])->name('aggregators.orders.decision')->middleware('permission:aggregators.manage');

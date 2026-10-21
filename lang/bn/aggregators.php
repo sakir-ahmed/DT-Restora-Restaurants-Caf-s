@@ -72,4 +72,8 @@ return [
     'reason_BAD_WEATHER' => 'খারাপ আবহাওয়া',
     'reason_HOLIDAY_SPECIAL_DAY' => 'ছুটি বা বিশেষ দিন',
     'no_orders' => 'এখনো কোনো অ্যাগ্রিগেটর অর্ডার নেই',
+    'channel_enabled' => ':name চালু হয়েছে।',
+    'channel_disabled' => ':name বন্ধ হয়েছে।',
+    'enable' => 'চালু করুন',
+    'disable' => 'বন্ধ করুন',
 ];

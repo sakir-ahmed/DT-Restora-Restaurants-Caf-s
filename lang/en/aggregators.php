@@ -72,4 +72,8 @@ return [
     'reason_BAD_WEATHER' => 'Bad weather',
     'reason_HOLIDAY_SPECIAL_DAY' => 'Holiday or special day',
     'no_orders' => 'No aggregator orders yet',
+    'channel_enabled' => ':name enabled.',
+    'channel_disabled' => ':name disabled.',
+    'enable' => 'Enable',
+    'disable' => 'Disable',
 ];
