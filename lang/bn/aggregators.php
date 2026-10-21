@@ -76,4 +76,8 @@ return [
     'channel_disabled' => ':name বন্ধ হয়েছে।',
     'enable' => 'চালু করুন',
     'disable' => 'বন্ধ করুন',
+    'webhook_url' => 'ওয়েবহুক URL',
+    'webhook_url_helper' => 'এই ঠিকানাটি পার্টনার পোর্টালে বসান।',
+    'copy' => 'কপি',
+    'copied' => 'কপি হয়েছে',
 ];

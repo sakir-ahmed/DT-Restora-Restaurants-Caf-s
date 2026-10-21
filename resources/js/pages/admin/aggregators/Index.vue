@@ -91,6 +91,26 @@ function saveChannel() {
     });
 }
 
+const copied = ref(false);
+
+async function copyWebhook() {
+    const url = `${props.webhookBase}/${editingChannel.value.key}`;
+
+    try {
+        await navigator.clipboard.writeText(url);
+    } catch {
+        const field = document.createElement('textarea');
+        field.value = url;
+        document.body.appendChild(field);
+        field.select();
+        document.execCommand('copy');
+        field.remove();
+    }
+
+    copied.value = true;
+    setTimeout(() => { copied.value = false; }, 1500);
+}
+
 function toggleChannel(channel) {
     router.post(route('admin.aggregators.channels.toggle', channel.id), {}, {
         preserveScroll: true,
@@ -251,7 +271,6 @@ function decide(order, decision) {
                         </span>
                         <div class="min-w-0">
                             <p class="text-sm font-semibold">{{ channel.name }}</p>
-                            <p class="truncate text-xs text-muted">{{ webhookBase }}/{{ channel.key }}</p>
                         </div>
                     </div>
                     <button
@@ -312,6 +331,18 @@ function decide(order, decision) {
         <!-- Channel dialog -->
         <SlideOver :open="channelOpen" :title="editingChannel ? editingChannel.name : ''" @close="channelOpen = false">
             <form novalidate class="space-y-3" @submit.prevent="saveChannel">
+                <FormField v-if="editingChannel" :label="t('aggregators.webhook_url')" :helper="t('aggregators.webhook_url_helper')">
+                    <template #default="{ id }">
+                        <div class="flex gap-1.5">
+                            <input :id="id" :value="`${webhookBase}/${editingChannel.key}`" type="text" readonly class="h-7 min-w-0 flex-1 rounded-md border border-border bg-background px-2 font-mono text-[12px]" @focus="$event.target.select()">
+                            <button type="button" class="inline-flex h-7 shrink-0 items-center gap-1 rounded-md border border-border px-2 text-[13px] hover:bg-background" @click="copyWebhook">
+                                <AppIcon :name="copied ? 'check' : 'copy'" size="12" />
+                                {{ copied ? t('aggregators.copied') : t('aggregators.copy') }}
+                            </button>
+                        </div>
+                    </template>
+                </FormField>
+
                 <div class="grid grid-cols-2 gap-x-4 gap-y-3">
                     <FormField :label="t('aggregators.commission_percent')" required :error="channelForm.errors.commission_percent">
                         <MoneyInput v-model="channelForm.commission_percent" prefix="%" />

@@ -76,4 +76,8 @@ return [
     'channel_disabled' => ':name disabled.',
     'enable' => 'Enable',
     'disable' => 'Disable',
+    'webhook_url' => 'Webhook URL',
+    'webhook_url_helper' => 'Enter this address in the partner portal.',
+    'copy' => 'Copy',
+    'copied' => 'Copied',
 ];
