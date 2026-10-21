@@ -16,6 +16,7 @@ return [
     'start_failed' => 'Could not start the demo. Please try again.',
     'welcome_toast' => 'Your demo journey has started. Open the guide to see what to try next.',
 
+    'launcher_hide' => 'Hide the demo guide button',
     'launcher' => 'Demo guide',
     'launcher_open' => 'Open the demo guide',
     'guide_title' => 'Your demo journey',

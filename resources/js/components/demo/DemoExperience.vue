@@ -11,6 +11,7 @@ import DemoNudge from './DemoNudge.vue';
 
 const SEEN_KEY = 'demo-seen';
 const SKIP_KEY = 'demo-gate-skipped';
+const HIDE_KEY = 'demo-launcher-hidden';
 const GATE_DELAY_MS = 1800;
 const NUDGE_DELAY_MS = 9000;
 const NUDGE_VISIBLE_MS = 16000;
@@ -41,6 +42,27 @@ const gateOpen = ref(false);
 const guideOpen = ref(false);
 const nudge = ref(null);
 const attention = ref(true);
+const launcherHidden = ref(readFlag(HIDE_KEY));
+
+function readFlag(key) {
+    try {
+        return sessionStorage.getItem(key) === '1';
+    } catch {
+        return false;
+    }
+}
+
+function hideLauncher() {
+    launcherHidden.value = true;
+    guideOpen.value = false;
+    clearNudge();
+
+    try {
+        sessionStorage.setItem(HIDE_KEY, '1');
+    } catch {
+        // The button may come back on the next page load.
+    }
+}
 
 let gateTimer = null;
 let nudgeTimer = null;
@@ -237,30 +259,39 @@ onBeforeUnmount(() => {
         <DemoGateModal :open="gateOpen" @started="onStarted" @skip="skipGate" />
 
         <template v-if="! hideChrome && ! gateOpen">
-            <DemoNudge :nudge="nudge" @dismiss="clearNudge" @more="moreIdeas" />
+            <DemoNudge v-if="! launcherHidden" :nudge="nudge" @dismiss="clearNudge" @more="moreIdeas" />
             <DemoGuide
-                :open="guideOpen"
+                :open="guideOpen && ! launcherHidden"
                 :has-session="hasSession"
                 :mobile="session?.mobile ?? ''"
                 @close="guideOpen = false"
                 @join="openGate"
             />
 
-            <button
-                type="button"
-                class="fixed right-3 z-[60] flex h-11 items-center gap-2 rounded-full bg-accent px-3.5 text-accent-foreground shadow-lg transition hover:scale-105 focus-visible:ring-2 focus-visible:ring-accent sm:right-4"
-                style="bottom: var(--demo-fab, 1rem)"
-                :aria-label="t('demo.launcher_open')"
-                :aria-expanded="guideOpen"
-                @click="toggleGuide"
-            >
-                <span v-if="attention" class="absolute -right-0.5 -top-0.5 flex h-3 w-3" aria-hidden="true">
+            <div v-if="! launcherHidden" class="fixed right-3 z-[60] sm:right-4" style="bottom: var(--demo-fab, 1rem)">
+                <button
+                    type="button"
+                    class="relative flex h-11 items-center gap-2 rounded-full bg-accent px-3.5 text-accent-foreground shadow-lg transition hover:scale-105 focus-visible:ring-2 focus-visible:ring-accent"
+                    :aria-label="t('demo.launcher_open')"
+                    :aria-expanded="guideOpen"
+                    @click="toggleGuide"
+                >
+                    <AppIcon name="route" size="15" />
+                    <span class="hidden text-[13px] font-semibold sm:inline">{{ t('demo.launcher') }}</span>
+                </button>
+                <span v-if="attention" class="pointer-events-none absolute -left-0.5 -top-0.5 flex h-3 w-3" aria-hidden="true">
                     <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-danger opacity-75" />
                     <span class="relative inline-flex h-3 w-3 rounded-full bg-danger" />
                 </span>
-                <AppIcon name="route" size="15" />
-                <span class="hidden text-[13px] font-semibold sm:inline">{{ t('demo.launcher') }}</span>
-            </button>
+                <button
+                    type="button"
+                    class="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border border-border bg-surface text-muted shadow hover:text-foreground"
+                    :aria-label="t('demo.launcher_hide')"
+                    @click="hideLauncher"
+                >
+                    <AppIcon name="xmark" size="10" />
+                </button>
+            </div>
         </template>
     </div>
 </template>
