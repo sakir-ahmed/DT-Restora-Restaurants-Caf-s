@@ -648,6 +648,13 @@ const total = computed(() => Math.round(rawTotal.value));
 
 const rounding = computed(() => total.value - rawTotal.value);
 
+// Quantity of each menu item already on the ticket, for the tick on its card.
+const selectedQuantity = computed(() => cart.value.reduce((map, line) => {
+    map[line.item.id] = (map[line.item.id] ?? 0) + line.quantity;
+
+    return map;
+}, {}));
+
 const itemCount = computed(() => cart.value.reduce((sum, line) => sum + line.quantity, 0));
 
 function setQuantity(line, quantity) {
@@ -1334,7 +1341,8 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                     v-for="item in filteredItems"
                     :key="item.id"
                     type="button"
-                    class="flex min-h-16 items-center gap-2 rounded-lg border border-border bg-surface p-2 text-left transition-colors hover:border-accent"
+                    class="flex min-h-16 items-center gap-2 rounded-lg border p-2 text-left transition-colors hover:border-accent"
+                    :class="selectedQuantity[item.id] ? 'border-accent bg-accent/10' : 'border-border bg-surface'"
                     @click="addItem(item)"
                 >
                     <span class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-background">
@@ -1356,7 +1364,10 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                             </span>
                             <span class="flex items-center gap-1">
                                 <AppIcon v-if="itemHasVariants(item) || itemHasAddOns(item)" name="layer-group" size="12" class="text-muted" />
-                                <AppIcon v-if="item.is_vegetarian" name="circle-check" size="12" class="text-success" />
+                                <span v-if="selectedQuantity[item.id]" class="inline-flex items-center gap-0.5 text-xs font-semibold tabular-nums text-success" :title="t('orders.in_order')">
+                                    <AppIcon name="circle-check" size="12" />
+                                    {{ selectedQuantity[item.id] }}
+                                </span>
                             </span>
                         </span>
                     </span>

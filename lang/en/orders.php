@@ -116,4 +116,5 @@ return [
     'customize' => 'Customize item',
     'add_to_order' => 'Add to order',
     'update_item' => 'Update item',
+    'in_order' => 'In this order',
 ];
