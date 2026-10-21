@@ -261,6 +261,7 @@ Route::prefix('admin')
         Route::post('pos/unlock', [PosController::class, 'unlock'])->name('pos.unlock')->middleware('permission:pos.access');
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index')->middleware('permission:orders.view');
         Route::post('orders', [OrderController::class, 'store'])->name('orders.store')->middleware('permission:orders.create');
+        Route::put('orders/{order}', [OrderController::class, 'update'])->name('orders.update')->middleware('permission:orders.create');
         Route::post('orders/{order}/pay', [OrderController::class, 'pay'])->name('orders.pay')->middleware('permission:orders.create');
         Route::post('orders/{order}/gateway-payment', [PaymentController::class, 'startGateway'])->name('payments.gateway')->middleware('permission:orders.create');
         Route::post('orders/{order}/split', [PaymentController::class, 'split'])->name('payments.split')->middleware('permission:orders.create');

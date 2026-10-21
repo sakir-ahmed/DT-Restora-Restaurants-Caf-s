@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\MenuCategory;
+use App\Models\Order;
 use App\Models\RestaurantTable;
 use App\Models\Setting;
 use App\Models\Shift;
@@ -46,6 +48,14 @@ class PosController extends Controller
                 ->where('is_active', true)
                 ->orderBy('name')
                 ->get(['id', 'name', 'area', 'seats', 'status']),
+            'openOrders' => Order::query()
+                ->where('branch_id', $branch->id)
+                ->whereIn('status', array_map(fn (OrderStatus $status): string => $status->value, array_filter(OrderStatus::cases(), fn (OrderStatus $status): bool => $status->isKitchenActive())))
+                ->whereDoesntHave('payments')
+                ->with(['items:id,order_id,menu_item_id,variant_id,name,quantity,add_ons', 'customer:id,mobile'])
+                ->latest()
+                ->limit(60)
+                ->get(['id', 'invoice_no', 'order_type', 'restaurant_table_id', 'customer_id', 'status', 'discount_type', 'discount_value', 'total', 'created_at']),
             'branch' => $branch->only(['id', 'name', 'name_bn', 'code', 'phone', 'address', 'vat_percent', 'vat_inclusive', 'service_charge_percent', 'receipt_footer']),
             'openShift' => $openShift,
             'canOverrideDiscount' => $user->can('discounts.override'),

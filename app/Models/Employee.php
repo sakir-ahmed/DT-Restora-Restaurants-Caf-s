@@ -17,7 +17,7 @@ class Employee extends Model
 
     protected $fillable = [
         'branch_id', 'user_id', 'name', 'name_bn', 'designation',
-        'mobile', 'device_user_id', 'monthly_salary', 'pay_basis', 'pay_rate',
+        'mobile', 'photo_path', 'device_user_id', 'monthly_salary', 'pay_basis', 'pay_rate',
         'joined_at', 'is_active',
     ];
 

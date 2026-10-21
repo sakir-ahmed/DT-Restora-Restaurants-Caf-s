@@ -63,8 +63,9 @@ class CreateOrderAction
         ?\DateTimeInterface $scheduledFor = null,
         ?string $couponCode = null,
         ?string $invoiceNo = null,
+        ?Order $revising = null,
     ): Order {
-        if ($clientId !== null) {
+        if ($clientId !== null && $revising === null) {
             $existing = Order::query()->where('client_id', $clientId)->first();
 
             if ($existing !== null) {
@@ -74,8 +75,12 @@ class CreateOrderAction
 
         $lines = collect($lines);
 
-        return DB::transaction(function () use ($branch, $type, $lines, $cashier, $waiter, $tableId, $customer, $discount, $note, $channel, $clientId, $shift, $terminalCode, $deliveryFee, $deliveryZoneId, $deliveryAddress, $scheduledFor, $couponCode, $invoiceNo): Order {
+        return DB::transaction(function () use ($branch, $type, $lines, $cashier, $waiter, $tableId, $customer, $discount, $note, $channel, $clientId, $shift, $terminalCode, $deliveryFee, $deliveryZoneId, $deliveryAddress, $scheduledFor, $couponCode, $invoiceNo, $revising): Order {
             $branch = Branch::query()->whereKey($branch->id)->lockForUpdate()->firstOrFail();
+
+            if ($revising !== null) {
+                $revising = $this->releaseForRevision($revising, $tableId, $type);
+            }
 
             // Percent discounts above the limit need the override permission.
             // Fixed amounts are checked against the subtotal once lines are priced.
@@ -154,19 +159,10 @@ class CreateOrderAction
 
             $terminal = strtoupper((string) ($terminalCode ?? 'T01'));
 
-            $order = Order::query()->create([
-                'branch_id' => $branch->id,
-                'invoice_no' => is_string($invoiceNo) && $invoiceNo !== ''
-                    ? $this->invoices->claim($branch, $terminal, $invoiceNo)
-                    : $this->invoices->next($branch, $terminal),
+            $attributes = [
                 'order_type' => $type->value,
-                'channel' => $channel->value,
                 'restaurant_table_id' => $type === OrderType::DineIn ? $tableId : null,
-                'waiter_id' => $waiter?->id,
-                'cashier_id' => $cashier?->id,
                 'customer_id' => $customer?->id,
-                'shift_id' => $shift?->id,
-                'status' => OrderStatus::Pending->value,
                 'subtotal' => $subtotal,
                 'discount_type' => $discount['type'] ?? null,
                 'discount_value' => $discount['value'] ?? 0,
@@ -179,13 +175,30 @@ class CreateOrderAction
                 'rounding' => $rounding,
                 'total' => $total,
                 'food_cost' => $foodCost,
-                'client_id' => $clientId,
                 'note' => $note,
                 'delivery_zone_id' => $type === OrderType::Delivery ? $deliveryZoneId : null,
                 'delivery_address' => $type === OrderType::Delivery ? $deliveryAddress : null,
                 'scheduled_for' => $scheduledFor,
-                'tracking_token' => bin2hex(random_bytes(20)),
-            ]);
+            ];
+
+            if ($revising !== null) {
+                $revising->update($attributes);
+                $order = $revising;
+            } else {
+                $order = Order::query()->create($attributes + [
+                    'branch_id' => $branch->id,
+                    'invoice_no' => is_string($invoiceNo) && $invoiceNo !== ''
+                        ? $this->invoices->claim($branch, $terminal, $invoiceNo)
+                        : $this->invoices->next($branch, $terminal),
+                    'channel' => $channel->value,
+                    'waiter_id' => $waiter?->id,
+                    'cashier_id' => $cashier?->id,
+                    'shift_id' => $shift?->id,
+                    'status' => OrderStatus::Pending->value,
+                    'client_id' => $clientId,
+                    'tracking_token' => bin2hex(random_bytes(20)),
+                ]);
+            }
 
             foreach ($items as $item) {
                 $order->items()->create([
@@ -321,6 +334,58 @@ class CreateOrderAction
         return round($recipe->items->sum(function ($line) use ($stocks): float {
             return (float) $line->qty * (float) ($stocks[$line->ingredient_id] ?? 0);
         }), 4);
+    }
+
+    /**
+     * Prepare an unpaid order for a new set of lines: give its stock back,
+     * drop the old lines and free (or move) its table.
+     */
+    private function releaseForRevision(Order $order, ?int $newTableId, OrderType $type): Order
+    {
+        $order = Order::query()->whereKey($order->id)->lockForUpdate()->with('items')->firstOrFail();
+
+        if (! $order->status->isKitchenActive() || $order->payments()->exists()) {
+            throw ValidationException::withMessages([
+                'order' => __('orders.invalid_status'),
+            ]);
+        }
+
+        $recipes = Recipe::query()
+            ->with('items')
+            ->whereIn('menu_item_id', $order->items->pluck('menu_item_id'))
+            ->get()
+            ->keyBy('menu_item_id');
+
+        foreach ($order->items as $orderItem) {
+            $recipe = $recipes->get($orderItem->menu_item_id);
+
+            if ($recipe === null) {
+                continue;
+            }
+
+            foreach ($recipe->items as $line) {
+                $this->stock->adjust(
+                    branchId: $order->branch_id,
+                    ingredientId: $line->ingredient_id,
+                    baseQtyDelta: (float) $line->qty * $orderItem->quantity,
+                    movementType: 'sale',
+                    reference: $order,
+                    userId: $order->cashier_id,
+                    allowNegative: true,
+                );
+            }
+        }
+
+        $order->items()->delete();
+        $order->unsetRelation('items');
+
+        $keepsTable = $type === OrderType::DineIn && $newTableId === $order->restaurant_table_id;
+
+        if ($order->restaurant_table_id !== null && ! $keepsTable) {
+            RestaurantTable::query()->whereKey($order->restaurant_table_id)->update(['status' => 'free']);
+        }
+
+        return $order;
     }
 
     private function deductStock(Branch $branch, Order $order): void

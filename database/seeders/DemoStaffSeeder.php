@@ -11,9 +11,36 @@ use App\Models\Rider;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class DemoStaffSeeder extends Seeder
 {
+    /**
+     * Write a small brand-coloured portrait (initials on a disc) for a demo
+     * employee onto the public disk and return its storage path. Demo data
+     * never ships photographs of real people.
+     */
+    private function avatar(string $code, string $name): string
+    {
+        $palette = ['#0b63ce', '#1c6fe0', '#0a1428', '#2563eb', '#0e7490', '#4a5568', '#7c3aed', '#be185d'];
+        $words = preg_split('/\s+/', trim($name)) ?: [$name];
+        $initials = mb_strtoupper(mb_substr($words[0], 0, 1).mb_substr($words[count($words) - 1], 0, 1));
+        $color = $palette[crc32($code) % count($palette)];
+
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">'
+            .'<rect width="128" height="128" fill="'.$color.'"/>'
+            .'<circle cx="64" cy="50" r="22" fill="#ffffff" fill-opacity="0.22"/>'
+            .'<path d="M20 128c0-26 20-42 44-42s44 16 44 42z" fill="#ffffff" fill-opacity="0.22"/>'
+            .'<text x="64" y="76" text-anchor="middle" font-family="Poppins, Inter, Arial, sans-serif" font-size="40" font-weight="600" fill="#ffffff">'.htmlspecialchars($initials, ENT_XML1).'</text>'
+            .'</svg>';
+
+        $path = 'demo/avatars/'.strtolower($code).'.svg';
+
+        Storage::disk('public')->put($path, $svg);
+
+        return $path;
+    }
+
     public function run(): void
     {
         if (app()->environment('testing')) {
@@ -123,6 +150,7 @@ class DemoStaffSeeder extends Seeder
                         'name_bn' => $nameBn,
                         'designation' => $designation,
                         'device_user_id' => $deviceId,
+                        'photo_path' => $this->avatar($deviceId, $name),
                         'joined_at' => now()->subMonths(random_int(4, 36))->toDateString(),
                         'is_active' => true,
                         ...$pay,

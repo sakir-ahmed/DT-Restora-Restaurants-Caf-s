@@ -362,6 +362,58 @@ it('unlocks the POS only with the staff PIN', function (): void {
     ])->assertOk()->assertJsonPath('ok', true);
 });
 
+it('saves a dine-in order without a table', function (): void {
+    $this->actingAs($this->cashier, 'staff')->post('/admin/orders', [
+        'order_type' => 'dine_in',
+        'restaurant_table_id' => null,
+        'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+    ])->assertSessionHasNoErrors();
+
+    $order = Order::query()->latest('id')->firstOrFail();
+
+    expect($order->order_type)->toBe(OrderType::DineIn)
+        ->and($order->restaurant_table_id)->toBeNull();
+});
+
+it('changes the items of an unpaid order and keeps stock and the invoice consistent', function (): void {
+    $order = createPosOrder($this);
+    $stock = fn (): float => (float) IngredientStock::query()->where('ingredient_id', $this->ingredient->id)->value('stock_qty');
+
+    expect($stock())->toBe(9800.0);
+
+    $this->actingAs($this->cashier, 'staff')->put("/admin/orders/{$order->id}", [
+        'order_type' => 'takeaway',
+        'items' => [['menu_item_id' => $this->item->id, 'quantity' => 3]],
+    ])->assertSessionHasNoErrors();
+
+    $order->refresh()->load('items');
+
+    expect($order->invoice_no)->toBe($order->invoice_no)
+        ->and($order->items)->toHaveCount(1)
+        ->and($order->items->first()->quantity)->toBe(3)
+        ->and((float) $order->subtotal)->toBe(600.0)
+        ->and($stock())->toBe(9700.0);
+});
+
+it('refuses to change an order that is already paid', function (): void {
+    $order = createPosOrder($this);
+    $order->update(['status' => OrderStatus::Paid->value]);
+
+    $this->actingAs($this->cashier, 'staff')->put("/admin/orders/{$order->id}", [
+        'order_type' => 'takeaway',
+        'items' => [['menu_item_id' => $this->item->id, 'quantity' => 2]],
+    ])->assertSessionHasErrors('order');
+
+    expect($order->fresh()->items)->toHaveCount(1);
+});
+
+it('lists unpaid orders on the POS screen so they can be edited', function (): void {
+    $order = createPosOrder($this);
+
+    $this->actingAs($this->cashier, 'staff')->get('/admin/pos')
+        ->assertInertia(fn ($page) => $page->has('openOrders', 1)->where('openOrders.0.id', $order->id));
+});
+
 it('rejects POS access for roles without the permission', function (): void {
     $rider = User::factory()->role('rider', $this->branch->id)->create();
 

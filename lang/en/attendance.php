@@ -46,4 +46,12 @@ return [
     'token_rotated' => 'New token saved. Copy it now.',
     'letterhead' => 'Print letterhead',
     'never' => 'Never',
+    'kpi_total' => 'Employees',
+    'not_recorded' => 'Not recorded',
+    'filter_all' => 'All',
+    'employee_id' => 'Employee ID',
+    'search_placeholder' => 'Search by ID or name',
+    'device_settings' => 'Device settings',
+    'no_devices' => 'No attendance device yet. Add one below.',
+    'mark' => 'Mark',
 ];

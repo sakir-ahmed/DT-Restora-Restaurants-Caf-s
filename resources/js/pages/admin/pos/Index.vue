@@ -18,6 +18,7 @@ import { localReceiptHtml } from '@/lib/receipt';
 const props = defineProps({
     categories: { type: Array, required: true },
     tables: { type: Array, default: () => [] },
+    openOrders: { type: Array, default: () => [] },
     branch: { type: Object, required: true },
     openShift: { type: Object, default: null },
     canOverrideDiscount: { type: Boolean, default: false },
@@ -67,6 +68,9 @@ const splitLines = ref(blankSplitLines());
 const walletTrxId = ref('');
 const walletMethod = ref('bkash');
 const shiftDialogOpen = ref(false);
+const tablePickerOpen = ref(false);
+const runningOpen = ref(false);
+const editingOrder = ref(null);
 const openingCash = ref('0.00');
 const locked = ref(false);
 const pin = ref('');
@@ -155,6 +159,84 @@ const filteredItems = computed(() => {
 
     return categories.value.find((category) => category.id === activeCategory.value)?.items ?? [];
 });
+
+const selectedTable = computed(() => tables.value.find((table) => table.id === tableId.value) ?? null);
+
+function pickTable(id) {
+    tableId.value = id;
+    tablePickerOpen.value = false;
+}
+
+const openOrderByTable = computed(() => {
+    const map = new Map();
+
+    for (const order of props.openOrders) {
+        if (order.restaurant_table_id !== null && ! map.has(order.restaurant_table_id)) {
+            map.set(order.restaurant_table_id, order);
+        }
+    }
+
+    return map;
+});
+
+const openOrdersWithoutTable = computed(() => props.openOrders.filter((order) => order.restaurant_table_id === null));
+
+/**
+ * Load a sent but unpaid order back into the cart so items can be added,
+ * removed or changed. Saving updates the same invoice.
+ */
+function editOrder(order) {
+    if (cart.value.length > 0 && ! latestOrder.value) {
+        holdOrder();
+    }
+
+    const lines = [];
+
+    for (const entry of order.items) {
+        const item = catalogItem(entry.menu_item_id);
+
+        if (! item) {
+            notify.error(t('orders.item_not_available'));
+
+            continue;
+        }
+
+        const variant = (item.variants ?? []).find((candidate) => candidate.id === entry.variant_id) ?? null;
+
+        lines.push({
+            item,
+            variant,
+            quantity: entry.quantity,
+            addOns: (entry.add_ons ?? []).map((addOn) => ({ id: addOn.id, name: addOn.name, price: Number(addOn.price), qty: addOn.qty })),
+            discount: { type: 'percent', value: 0 },
+            vatPercent: null,
+            extraCharge: 0,
+        });
+    }
+
+    startNewOrder();
+    cart.value = lines;
+    orderType.value = order.order_type;
+    tableId.value = order.restaurant_table_id;
+    customerMobile.value = order.customer?.mobile ?? '';
+    discount.value = order.discount_type ? { type: order.discount_type, value: Number(order.discount_value) } : { type: 'percent', value: 0 };
+    editingOrder.value = order;
+    runningOpen.value = false;
+}
+
+/**
+ * Empty the cart and every field on the ticket: table, customer, order type
+ * and discount. Held orders are not touched.
+ */
+function clearAll() {
+    startNewOrder();
+}
+
+function cancelEditing() {
+    clearAll();
+}
+
+const hasTicketData = computed(() => cart.value.length > 0 || tableId.value !== null || !! customerMobile.value || !! editingOrder.value || !! latestOrder.value || !! lastPayment.value);
 
 const tablesByArea = computed(() => {
     const groups = [];
@@ -519,6 +601,10 @@ function discountPayload() {
 }
 
 function startNewOrder() {
+    editingOrder.value = null;
+    tableId.value = null;
+    customerMobile.value = '';
+    orderType.value = 'dine_in';
     cart.value = [];
     discount.value = { type: 'percent', value: 0 };
     latestOrder.value = null;
@@ -593,6 +679,14 @@ async function submitOrder() {
         return;
     }
 
+    const editing = editingOrder.value;
+
+    if (editing && ! navigator.onLine) {
+        notify.error(t('orders.edit_needs_internet'));
+
+        return;
+    }
+
     if (! navigator.onLine) {
         const invoiceNo = await nextLocalInvoice(branch.value.code, TERMINAL);
         const queued = await queueOutbox('order', {
@@ -613,11 +707,17 @@ async function submitOrder() {
         return;
     }
 
-    router.post(route('admin.orders.store'), payload, {
+    const visit = editing
+        ? (options) => router.put(route('admin.orders.update', editing.id), payload, options)
+        : (options) => router.post(route('admin.orders.store'), payload, options);
+
+    visit({
         preserveState: true,
         preserveScroll: true,
         onSuccess: (page) => {
             const order = page.props.flash?.order ?? null;
+
+            editingOrder.value = null;
 
             if (order?.invoice_no) {
                 const sequence = Number(String(order.invoice_no).split('-').pop());
@@ -629,7 +729,7 @@ async function submitOrder() {
                 latestOrder.value = order;
             }
 
-            notify.success(order?.invoice_no ? `${t('orders.sent_to_kitchen')} ${order.invoice_no}` : t('orders.sent_to_kitchen'));
+            notify.success(order?.invoice_no ? `${t(editing ? 'orders.order_updated' : 'orders.sent_to_kitchen')} ${order.invoice_no}` : t('orders.sent_to_kitchen'));
         },
         onError: (errors) => {
             // The menu changed since this page loaded (for example after the daily demo reset):
@@ -1148,6 +1248,14 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
 
         <!-- Right: cart -->
         <section class="flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden rounded-lg border border-border bg-surface lg:w-[26rem]">
+            <div v-if="editingOrder" class="flex items-center justify-between gap-2 border-b border-warning/40 bg-warning/15 px-2 py-1 text-[13px] text-foreground">
+                <span class="flex min-w-0 items-center gap-1.5">
+                    <AppIcon name="pen-to-square" size="12" />
+                    <span class="truncate font-medium">{{ t('orders.editing_order', { invoice: editingOrder.invoice_no }) }}</span>
+                </span>
+                <button type="button" class="h-6 shrink-0 rounded-md border border-border bg-surface px-2 text-xs font-medium hover:text-danger" @click="cancelEditing">{{ t('common.cancel') }}</button>
+            </div>
+
             <!-- Selected items -->
             <div class="thin-scrollbar min-h-0 flex-1 overflow-y-auto px-2">
                 <p v-if="cart.length === 0" class="py-6 text-center text-[13px] text-muted">{{ t('orders.cart_empty') }}</p>
@@ -1218,19 +1326,30 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
 
                 <!-- Table and customer mobile -->
                 <div class="flex items-center gap-1">
-                    <select
-                        v-model="tableId"
+                    <button
+                        type="button"
                         :disabled="orderType !== 'dine_in'"
                         :aria-label="t('orders.select_table')"
-                        class="h-7 w-24 shrink-0 rounded-md border border-border bg-background px-1 text-[13px] text-foreground outline-none focus:border-accent disabled:cursor-not-allowed disabled:opacity-50"
+                        class="flex h-7 w-28 shrink-0 items-center justify-between gap-1 rounded-md border px-1.5 text-[13px] outline-none focus-visible:border-accent disabled:cursor-not-allowed disabled:opacity-50"
+                        :class="selectedTable ? 'border-accent bg-accent/15 font-semibold text-foreground' : 'border-border bg-background text-muted hover:text-foreground'"
+                        @click="tablePickerOpen = true"
                     >
-                        <option :value="null" disabled>{{ t('orders.table_short') }}</option>
-                        <optgroup v-for="group in tablesByArea" :key="group.area || 'tables'" :label="group.area || t('orders.table_short')">
-                            <option v-for="table in group.tables" :key="table.id" :value="table.id" :disabled="table.status === 'occupied'">
-                                {{ table.name }}{{ table.status === 'occupied' ? ` (${t('orders.table_occupied')})` : '' }}
-                            </option>
-                        </optgroup>
-                    </select>
+                        <span class="flex min-w-0 items-center gap-1">
+                            <AppIcon name="chair" size="12" />
+                            <span class="truncate">{{ selectedTable ? selectedTable.name : t('orders.no_table') }}</span>
+                        </span>
+                        <AppIcon name="chevron-down" size="10" class="shrink-0 text-muted" />
+                    </button>
+                    <button
+                        type="button"
+                        :aria-label="t('orders.running_orders')"
+                        :title="t('orders.running_orders')"
+                        class="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted hover:text-foreground"
+                        @click="runningOpen = true"
+                    >
+                        <AppIcon name="clipboard-list" size="13" />
+                        <span v-if="openOrders.length" class="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-none text-primary-foreground">{{ openOrders.length }}</span>
+                    </button>
                     <div class="min-w-0 flex-1">
                         <MobileInput v-model="customerMobile" :placeholder="t('orders.customer_mobile')" />
                     </div>
@@ -1362,12 +1481,12 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                 <div class="grid grid-cols-6 gap-1">
                     <button
                         type="button"
-                        :disabled="cart.length === 0 || !! latestOrder || discountBlocked || (orderType === 'dine_in' && ! tableId)"
+                        :disabled="cart.length === 0 || !! latestOrder || discountBlocked"
                         class="col-span-3 flex h-7 items-center justify-center gap-1 rounded-md bg-primary text-[13px] font-semibold text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                         @click="submitOrder"
                     >
                         <AppIcon name="utensils" size="12" />
-                        {{ t('orders.send_kitchen') }}
+                        {{ editingOrder ? t('orders.update_order') : t('orders.send_kitchen') }}
                     </button>
                     <button
                         type="button"
@@ -1404,6 +1523,15 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                     >
                         <AppIcon name="plus" size="11" />
                         {{ t('orders.new_order') }}
+                    </button>
+                    <button
+                        type="button"
+                        :disabled="! hasTicketData"
+                        class="col-span-6 flex h-7 items-center justify-center gap-1 rounded-md border border-border bg-background text-xs font-medium text-danger hover:border-danger disabled:cursor-not-allowed disabled:text-muted disabled:opacity-50"
+                        @click="clearAll"
+                    >
+                        <AppIcon name="trash" size="11" />
+                        {{ t('orders.clear_all') }}
                     </button>
                 </div>
             </footer>
@@ -1535,6 +1663,119 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                         </div>
                     </div>
                 </form>
+            </div>
+        </Teleport>
+
+        <!-- Running tables and orders: pick one to change its items -->
+        <Teleport to="body">
+            <div v-if="runningOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="runningOpen = false" @keydown.esc="runningOpen = false">
+                <div class="flex max-h-[85vh] w-full max-w-2xl flex-col rounded-xl border border-border bg-surface" role="dialog" aria-modal="true" :aria-label="t('orders.running_orders')">
+                    <div class="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
+                        <div>
+                            <h2 class="text-base font-semibold text-foreground">{{ t('orders.running_orders') }}</h2>
+                            <p class="text-xs text-muted">{{ t('orders.running_hint') }}</p>
+                        </div>
+                        <button type="button" class="flex h-7 w-7 items-center justify-center rounded-md text-muted hover:bg-background hover:text-foreground" :aria-label="t('common.close')" @click="runningOpen = false">
+                            <AppIcon name="xmark" size="14" />
+                        </button>
+                    </div>
+
+                    <div class="thin-scrollbar min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
+                        <section v-for="group in tablesByArea" :key="group.area || 'tables'">
+                            <h3 class="mb-1.5 text-xs font-semibold text-muted">{{ group.area || t('orders.table_short') }}</h3>
+                            <div class="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-4">
+                                <button
+                                    v-for="table in group.tables"
+                                    :key="table.id"
+                                    type="button"
+                                    :disabled="! openOrderByTable.get(table.id)"
+                                    class="flex min-h-16 flex-col items-start justify-center rounded-lg border px-2 py-1 text-left disabled:cursor-default"
+                                    :class="openOrderByTable.get(table.id) ? 'border-warning/60 bg-warning/10 hover:border-accent' : 'border-border bg-background opacity-60'"
+                                    @click="editOrder(openOrderByTable.get(table.id))"
+                                >
+                                    <span class="text-sm font-semibold leading-tight text-foreground">{{ table.name }}</span>
+                                    <template v-if="openOrderByTable.get(table.id)">
+                                        <span class="text-[11px] leading-tight text-muted">{{ openOrderByTable.get(table.id).invoice_no }}</span>
+                                        <span class="text-xs font-semibold leading-tight tabular-nums text-foreground">{{ formatMoney(openOrderByTable.get(table.id).total) }}</span>
+                                    </template>
+                                    <span v-else class="text-[11px] leading-tight text-muted">{{ t('orders.table_free') }}</span>
+                                </button>
+                            </div>
+                        </section>
+
+                        <section v-if="openOrdersWithoutTable.length">
+                            <h3 class="mb-1.5 text-xs font-semibold text-muted">{{ t('orders.no_table') }}</h3>
+                            <div class="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-4">
+                                <button
+                                    v-for="order in openOrdersWithoutTable"
+                                    :key="order.id"
+                                    type="button"
+                                    class="flex min-h-16 flex-col items-start justify-center rounded-lg border border-warning/60 bg-warning/10 px-2 py-1 text-left hover:border-accent"
+                                    @click="editOrder(order)"
+                                >
+                                    <span class="text-sm font-semibold leading-tight text-foreground">{{ order.invoice_no }}</span>
+                                    <span class="text-[11px] leading-tight text-muted">{{ t(`orders.type.${order.order_type}`) }}</span>
+                                    <span class="text-xs font-semibold leading-tight tabular-nums text-foreground">{{ formatMoney(order.total) }}</span>
+                                </button>
+                            </div>
+                        </section>
+
+                        <p v-if="! openOrders.length" class="py-4 text-center text-[13px] text-muted">{{ t('orders.no_running_orders') }}</p>
+                    </div>
+                </div>
+            </div>
+        </Teleport>
+
+        <!-- Table picker -->
+        <Teleport to="body">
+            <div v-if="tablePickerOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="tablePickerOpen = false" @keydown.esc="tablePickerOpen = false">
+                <div class="flex max-h-[85vh] w-full max-w-xl flex-col rounded-xl border border-border bg-surface" role="dialog" aria-modal="true" :aria-label="t('orders.select_table')">
+                    <div class="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
+                        <div>
+                            <h2 class="text-base font-semibold text-foreground">{{ t('orders.select_table') }}</h2>
+                            <p class="text-xs text-muted">{{ t('orders.table_optional') }}</p>
+                        </div>
+                        <button type="button" class="flex h-7 w-7 items-center justify-center rounded-md text-muted hover:bg-background hover:text-foreground" :aria-label="t('common.close')" @click="tablePickerOpen = false">
+                            <AppIcon name="xmark" size="14" />
+                        </button>
+                    </div>
+
+                    <div class="thin-scrollbar min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
+                        <button
+                            type="button"
+                            class="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg border text-sm font-medium"
+                            :class="tableId === null ? 'border-accent bg-accent/15 text-foreground' : 'border-border bg-background text-muted hover:text-foreground'"
+                            @click="pickTable(null)"
+                        >
+                            <AppIcon name="bag-shopping" size="13" />
+                            {{ t('orders.no_table') }}
+                        </button>
+
+                        <section v-for="group in tablesByArea" :key="group.area || 'tables'">
+                            <h3 class="mb-1.5 text-xs font-semibold text-muted">{{ group.area || t('orders.table_short') }}</h3>
+                            <div class="grid grid-cols-3 gap-1.5 sm:grid-cols-4">
+                                <button
+                                    v-for="table in group.tables"
+                                    :key="table.id"
+                                    type="button"
+                                    :disabled="table.status === 'occupied' && table.id !== tableId"
+                                    class="flex h-14 flex-col items-center justify-center rounded-lg border text-center transition-colors disabled:cursor-not-allowed"
+                                    :class="table.id === tableId
+                                        ? 'border-accent bg-accent text-accent-foreground'
+                                        : table.status === 'occupied'
+                                            ? 'border-danger/40 bg-danger/10 text-danger opacity-80'
+                                            : 'border-border bg-background text-foreground hover:border-accent'"
+                                    @click="pickTable(table.id)"
+                                >
+                                    <span class="text-sm font-semibold leading-tight">{{ table.name }}</span>
+                                    <span class="text-[11px] leading-tight" :class="table.id === tableId ? 'text-accent-foreground/80' : 'text-muted'">
+                                        {{ table.status === 'occupied' ? t('orders.table_occupied') : t('orders.table_seats', { count: table.seats }) }}
+                                    </span>
+                                </button>
+                            </div>
+                        </section>
+                    </div>
+                </div>
             </div>
         </Teleport>
 

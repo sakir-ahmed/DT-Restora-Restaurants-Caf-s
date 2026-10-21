@@ -117,6 +117,60 @@ class OrderController extends Controller
         ]);
     }
 
+    /**
+     * Change the items, table or discount of an order that is not paid yet.
+     */
+    public function update(CreateOrderRequest $request, Order $order, CreateOrderAction $action): RedirectResponse
+    {
+        $user = $request->user('staff');
+        abort_unless($user->canAccessBranch($order->branch_id), 404);
+
+        $customer = null;
+        $mobile = $request->string('customer_mobile')->toString();
+
+        if ($mobile !== '') {
+            $customer = Customer::query()->firstOrCreate(
+                ['mobile' => normalize_bd_mobile($mobile)],
+                ['name' => __('orders.walk_in_customer')],
+            );
+        }
+
+        $discount = $request->has('discount.type')
+            ? ['type' => (string) $request->input('discount.type'), 'value' => (float) $request->input('discount.value')]
+            : null;
+
+        $order = $action->execute(
+            branch: Branch::query()->findOrFail($order->branch_id),
+            type: OrderType::from((string) $request->validated('order_type')),
+            lines: $request->validated('items'),
+            cashier: $user,
+            tableId: $request->validated('restaurant_table_id'),
+            customer: $customer,
+            discount: $discount,
+            note: $request->validated('note'),
+            revising: $order,
+        );
+
+        activity()->performedOn($order)->causedBy($user)->log('order.revised');
+
+        broadcast(new OrderCreated($order->branch_id, [
+            'order_id' => $order->id,
+            'invoice_no' => $order->invoice_no,
+            'order_type' => $order->order_type->value,
+            'table' => $order->table?->name,
+            'items' => $order->items->map(fn ($item) => [
+                'name' => $item->name,
+                'quantity' => $item->quantity,
+            ])->all(),
+        ]))->toOthers();
+
+        return back()->with('success', __('orders.revised', ['invoice' => $order->invoice_no]))->with('order', [
+            'id' => $order->id,
+            'invoice_no' => $order->invoice_no,
+            'total' => $order->total,
+        ]);
+    }
+
     public function pay(Request $request, Order $order, PayOrderAction $action): RedirectResponse
     {
         $this->authorize('orders.create');

@@ -170,3 +170,29 @@ it('rejects an unknown device user and a missing token', function (): void {
 
     expect($created->status())->toBe(302);
 });
+
+it('lists every active employee for the day with id, name, photo and a not-recorded status', function (): void {
+    $this->employee->update(['photo_path' => 'demo/avatars/12.svg']);
+
+    StaffAttendance::query()->create([
+        'branch_id' => $this->branch->id,
+        'employee_id' => $this->employee->id,
+        'work_date' => '2026-10-16',
+        'status' => 'present',
+        'clock_in' => '2026-10-16 09:00:00',
+        'clock_out' => '2026-10-16 13:00:00',
+        'source' => 'manual',
+    ]);
+
+    $other = Employee::factory()->create(['branch_id' => $this->branch->id, 'name' => 'Nipa Akter', 'device_user_id' => '13']);
+
+    $this->actingAs($this->manager, 'staff')->get('/admin/attendance?date=2026-10-16')
+        ->assertInertia(fn ($page) => $page
+            ->has('rows', 2)
+            ->where('rows.0.employee_code', '12')
+            ->where('rows.0.employee', 'Karim Uddin')
+            ->where('rows.0.photo_url', '/storage/demo/avatars/12.svg')
+            ->where('rows.0.status', 'present')
+            ->where('rows.1.employee', $other->name)
+            ->where('rows.1.status', 'not_recorded'));
+});
