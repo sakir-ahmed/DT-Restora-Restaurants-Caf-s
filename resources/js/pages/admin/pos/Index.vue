@@ -1386,13 +1386,13 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                 <p v-if="cart.length === 0" class="py-6 text-center text-[13px] text-muted">{{ t('orders.cart_empty') }}</p>
 
                 <div v-for="line in cart" :key="lineKey(line)" class="border-b border-border py-1.5 last:border-b-0">
-                    <div class="flex items-center gap-1">
-                        <div class="min-w-0 flex-1">
+                    <div class="grid grid-cols-[minmax(0,1fr)_5.75rem_5rem_1.75rem_1.75rem_1.75rem] items-center gap-1">
+                        <div class="min-w-0">
                             <p class="truncate text-[13px] font-medium text-foreground">{{ localized(line.item, 'name') }}</p>
                             <p v-if="line.variant" class="truncate text-xs text-muted">{{ localized(line.variant, 'name') }}</p>
                             <p v-if="(line.addOns ?? []).length" class="truncate text-xs text-muted">{{ line.addOns.map((addOn) => (addOn.qty > 1 ? `${addOn.qty}x ` : '+ ') + (addOn.name)).join(', ') }}</p>
                         </div>
-                        <div class="flex items-center">
+                        <div class="flex items-center justify-between">
                             <button type="button" class="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-background text-foreground disabled:opacity-50" :disabled="!!latestOrder" :aria-label="t('common.decrease')" @click.stop="setQuantity(line, line.quantity - 1)">
                                 <AppIcon name="minus" size="12" />
                             </button>
@@ -1401,7 +1401,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                                 <AppIcon name="plus" size="12" />
                             </button>
                         </div>
-                        <span class="w-16 shrink-0 text-right text-[13px] font-semibold tabular-nums text-foreground">{{ formatMoney(lineNet(line)) }}</span>
+                        <span class="whitespace-nowrap text-right text-[13px] font-semibold tabular-nums text-foreground">{{ formatMoney(lineNet(line)) }}</span>
                         <button
                             v-if="itemHasAddOns(line.item)"
                             type="button"
@@ -1413,6 +1413,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                         >
                             <AppIcon name="layer-group" size="12" />
                         </button>
+                        <span v-else class="h-7 w-7 shrink-0" aria-hidden="true" />
                         <button
                             type="button"
                             class="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border disabled:opacity-50"
@@ -1432,6 +1433,31 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
 
             <!-- Operations: every control is always visible; unavailable ones are disabled -->
             <footer class="thin-scrollbar max-h-[65%] shrink-0 space-y-[3px] overflow-y-auto border-t border-border bg-surface px-2 py-1">
+                <!-- Held orders and current invoice -->
+                <div class="flex h-5 items-center gap-1.5 text-xs">
+                    <span class="shrink-0 font-medium text-muted">{{ t('orders.held_orders') }} ({{ heldOrders.length }})</span>
+                    <div class="thin-scrollbar flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
+                        <button
+                            v-for="held in heldOrders"
+                            :key="held.id"
+                            type="button"
+                            class="flex h-5 shrink-0 items-center gap-1 rounded-md border border-border bg-background px-1.5 text-xs text-foreground hover:border-accent"
+                            @click="resumeOrder(held)"
+                        >
+                            <AppIcon name="clock" size="10" class="text-warning" />
+                            {{ held.cart.reduce((sum, line) => sum + line.quantity, 0) }}
+                            <span class="text-muted hover:text-danger" role="button" :aria-label="t('common.remove')" @click.stop="discardHeld(held)">
+                                <AppIcon name="xmark" size="9" />
+                            </span>
+                        </button>
+                    </div>
+                    <button type="button" :disabled="! hasTicketData" class="inline-flex h-5 shrink-0 items-center gap-1 rounded-md px-1 text-[11px] font-medium text-danger hover:underline disabled:cursor-not-allowed disabled:text-muted disabled:opacity-50 disabled:no-underline" @click="clearAll">
+                        <AppIcon name="trash" size="10" />
+                        {{ t('orders.clear_all') }}
+                    </button>
+                    <span data-pos-invoice class="shrink-0 font-mono text-[11px] text-muted" :title="latestOrder?.invoice_no">{{ latestOrder?.invoice_no ?? '-' }}</span>
+                </div>
+
                 <!-- Order type and shift -->
                 <div class="flex items-center gap-1">
                     <div class="flex flex-1 gap-1" role="radiogroup" :aria-label="t('orders.type_label')">
@@ -1489,27 +1515,6 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                     <div class="min-w-0 flex-1">
                         <MobileInput v-model="customerMobile" :placeholder="t('orders.customer_mobile')" />
                     </div>
-                </div>
-
-                <!-- Held orders and current invoice -->
-                <div class="flex h-5 items-center gap-1.5 text-xs">
-                    <span class="shrink-0 font-medium text-muted">{{ t('orders.held_orders') }} ({{ heldOrders.length }})</span>
-                    <div class="thin-scrollbar flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
-                        <button
-                            v-for="held in heldOrders"
-                            :key="held.id"
-                            type="button"
-                            class="flex h-5 shrink-0 items-center gap-1 rounded-md border border-border bg-background px-1.5 text-xs text-foreground hover:border-accent"
-                            @click="resumeOrder(held)"
-                        >
-                            <AppIcon name="clock" size="10" class="text-warning" />
-                            {{ held.cart.reduce((sum, line) => sum + line.quantity, 0) }}
-                            <span class="text-muted hover:text-danger" role="button" :aria-label="t('common.remove')" @click.stop="discardHeld(held)">
-                                <AppIcon name="xmark" size="9" />
-                            </span>
-                        </button>
-                    </div>
-                    <span data-pos-invoice class="shrink-0 font-mono text-[11px] text-muted" :title="latestOrder?.invoice_no">{{ latestOrder?.invoice_no ?? '-' }}</span>
                 </div>
 
                 <!-- Bill discount -->
@@ -1659,15 +1664,6 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                     >
                         <AppIcon name="plus" size="11" />
                         {{ t('orders.new_order') }}
-                    </button>
-                    <button
-                        type="button"
-                        :disabled="! hasTicketData"
-                        class="col-span-6 flex h-7 items-center justify-center gap-1 rounded-md border border-border bg-background text-xs font-medium text-danger hover:border-danger disabled:cursor-not-allowed disabled:text-muted disabled:opacity-50"
-                        @click="clearAll"
-                    >
-                        <AppIcon name="trash" size="11" />
-                        {{ t('orders.clear_all') }}
                     </button>
                 </div>
             </footer>
