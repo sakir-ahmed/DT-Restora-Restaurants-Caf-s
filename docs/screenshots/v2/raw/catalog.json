@@ -1,0 +1,855 @@
+{
+ "modules": {
+  "01-website": "ওয়েবসাইট",
+  "02-online-order": "অনলাইন অর্ডার",
+  "03-mobile": "মোবাইল অ্যাপের মতো ওয়েবসাইট",
+  "04-dashboard": "ড্যাশবোর্ড",
+  "05-pos": "পিওএস",
+  "06-orders": "অর্ডার ম্যানেজমেন্ট",
+  "07-kitchen": "কিচেন ডিসপ্লে",
+  "08-menu": "মেনু ও ছবি",
+  "09-tables": "টেবিল ও কিউআর",
+  "10-inventory": "ইনভেন্টরি ও রেসিপি",
+  "11-customers": "গ্রাহক, লয়্যালটি ও কুপন",
+  "12-delivery": "ডেলিভারি ও অ্যাগ্রিগেটর",
+  "13-staff": "স্টাফ, হাজিরা ও বেতন",
+  "14-accounts": "খরচ, হিসাব ও রিপোর্ট",
+  "15-system": "শাখা, ব্লগ ও সেটিংস",
+  "16-dark-mode": "ডার্ক মোড"
+ },
+ "shots": [
+  {
+   "file": "01-website/01-home.png",
+   "module": "01-website",
+   "moduleTitle": "ওয়েবসাইট",
+   "caption": "রেস্টুরেন্টের নিজস্ব ওয়েবসাইট, যেখানে অর্ডার আসে সরাসরি",
+   "device": "desktop"
+  },
+  {
+   "file": "01-website/02-home-popular.png",
+   "module": "01-website",
+   "moduleTitle": "ওয়েবসাইট",
+   "caption": "জনপ্রিয় আইটেম ও অফার একনজরে",
+   "device": "desktop"
+  },
+  {
+   "file": "01-website/03-home-more.png",
+   "module": "01-website",
+   "moduleTitle": "ওয়েবসাইট",
+   "caption": "শাখা, রিভিউ ও যোগাযোগ",
+   "device": "desktop"
+  },
+  {
+   "file": "01-website/04-menu.png",
+   "module": "01-website",
+   "moduleTitle": "ওয়েবসাইট",
+   "caption": "ছবিসহ পূর্ণাঙ্গ মেনু, ক্যাটাগরি ধরে সাজানো",
+   "device": "desktop"
+  },
+  {
+   "file": "01-website/05-dish.png",
+   "module": "01-website",
+   "moduleTitle": "ওয়েবসাইট",
+   "caption": "আইটেমের বিস্তারিত, সাইজ ও অ্যাড-অন বেছে নেওয়া",
+   "device": "desktop"
+  },
+  {
+   "file": "01-website/06-about.png",
+   "module": "01-website",
+   "moduleTitle": "ওয়েবসাইট",
+   "caption": "আমাদের কথা",
+   "device": "desktop"
+  },
+  {
+   "file": "01-website/07-locations.png",
+   "module": "01-website",
+   "moduleTitle": "ওয়েবসাইট",
+   "caption": "সব শাখার ঠিকানা ও সময়সূচি",
+   "device": "desktop"
+  },
+  {
+   "file": "01-website/08-location-detail.png",
+   "module": "01-website",
+   "moduleTitle": "ওয়েবসাইট",
+   "caption": "প্রতিটি শাখার আলাদা পেজ",
+   "device": "desktop"
+  },
+  {
+   "file": "01-website/09-gallery.png",
+   "module": "01-website",
+   "moduleTitle": "ওয়েবসাইট",
+   "caption": "ছবির গ্যালারি",
+   "device": "desktop"
+  },
+  {
+   "file": "01-website/10-blog.png",
+   "module": "01-website",
+   "moduleTitle": "ওয়েবসাইট",
+   "caption": "ব্লগ, যা সার্চ ইঞ্জিনে ট্রাফিক আনে",
+   "device": "desktop"
+  },
+  {
+   "file": "01-website/11-blog-post.png",
+   "module": "01-website",
+   "moduleTitle": "ওয়েবসাইট",
+   "caption": "ব্লগ পোস্টের পেজ",
+   "device": "desktop"
+  },
+  {
+   "file": "01-website/12-careers.png",
+   "module": "01-website",
+   "moduleTitle": "ওয়েবসাইট",
+   "caption": "ক্যারিয়ার পেজে চাকরির বিজ্ঞপ্তি",
+   "device": "desktop"
+  },
+  {
+   "file": "01-website/13-career-detail.png",
+   "module": "01-website",
+   "moduleTitle": "ওয়েবসাইট",
+   "caption": "অনলাইনে আবেদন ও সিভি জমা",
+   "device": "desktop"
+  },
+  {
+   "file": "01-website/14-contact.png",
+   "module": "01-website",
+   "moduleTitle": "ওয়েবসাইট",
+   "caption": "যোগাযোগের ফর্ম",
+   "device": "desktop"
+  },
+  {
+   "file": "01-website/15-faq.png",
+   "module": "01-website",
+   "moduleTitle": "ওয়েবসাইট",
+   "caption": "সচরাচর জিজ্ঞাসা",
+   "device": "desktop"
+  },
+  {
+   "file": "01-website/16-customer-login.png",
+   "module": "01-website",
+   "moduleTitle": "ওয়েবসাইট",
+   "caption": "গ্রাহকের লগইন, মোবাইল নম্বরে ওটিপি",
+   "device": "desktop"
+  },
+  {
+   "file": "01-website/17-privacy.png",
+   "module": "01-website",
+   "moduleTitle": "ওয়েবসাইট",
+   "caption": "গোপনীয়তা নীতি",
+   "device": "desktop"
+  },
+  {
+   "file": "01-website/18-terms.png",
+   "module": "01-website",
+   "moduleTitle": "ওয়েবসাইট",
+   "caption": "ব্যবহারের শর্ত",
+   "device": "desktop"
+  },
+  {
+   "file": "02-online-order/01-cart-added.png",
+   "module": "02-online-order",
+   "moduleTitle": "অনলাইন অর্ডার",
+   "caption": "এক ক্লিকে কার্টে যোগ",
+   "device": "desktop"
+  },
+  {
+   "file": "02-online-order/02-checkout.png",
+   "module": "02-online-order",
+   "moduleTitle": "অনলাইন অর্ডার",
+   "caption": "চেকআউট, ডেলিভারি বা পিকআপ বেছে নিন",
+   "device": "desktop"
+  },
+  {
+   "file": "02-online-order/03-checkout-full.png",
+   "module": "02-online-order",
+   "moduleTitle": "অনলাইন অর্ডার",
+   "caption": "পুরো চেকআউট পেজ",
+   "device": "desktop"
+  },
+  {
+   "file": "02-online-order/04-qr-table-menu.png",
+   "module": "02-online-order",
+   "moduleTitle": "অনলাইন অর্ডার",
+   "caption": "টেবিলের কিউআর স্ক্যান করেই অর্ডার",
+   "device": "desktop"
+  },
+  {
+   "file": "02-online-order/05-track.png",
+   "module": "02-online-order",
+   "moduleTitle": "অনলাইন অর্ডার",
+   "caption": "লাইভ অর্ডার ট্র্যাকিং, রান্না থেকে ডেলিভারি পর্যন্ত",
+   "device": "desktop"
+  },
+  {
+   "file": "03-mobile/01-home.png",
+   "module": "03-mobile",
+   "moduleTitle": "মোবাইল অ্যাপের মতো ওয়েবসাইট",
+   "caption": "ফোনে ওয়েবসাইট, ঠিক অ্যাপের মতো",
+   "device": "phone"
+  },
+  {
+   "file": "03-mobile/02-menu.png",
+   "module": "03-mobile",
+   "moduleTitle": "মোবাইল অ্যাপের মতো ওয়েবসাইট",
+   "caption": "ফোনে মেনু",
+   "device": "phone"
+  },
+  {
+   "file": "03-mobile/03-dish.png",
+   "module": "03-mobile",
+   "moduleTitle": "মোবাইল অ্যাপের মতো ওয়েবসাইট",
+   "caption": "ফোনে আইটেমের পেজ",
+   "device": "phone"
+  },
+  {
+   "file": "03-mobile/04-checkout.png",
+   "module": "03-mobile",
+   "moduleTitle": "মোবাইল অ্যাপের মতো ওয়েবসাইট",
+   "caption": "ফোনে চেকআউট",
+   "device": "phone"
+  },
+  {
+   "file": "04-dashboard/01-login.png",
+   "module": "04-dashboard",
+   "moduleTitle": "ড্যাশবোর্ড",
+   "caption": "স্টাফ লগইন, শুধু অনুমোদিত ব্যবহারকারীর জন্য",
+   "device": "desktop"
+  },
+  {
+   "file": "04-dashboard/02-owner-dashboard.png",
+   "module": "04-dashboard",
+   "moduleTitle": "ড্যাশবোর্ড",
+   "caption": "মালিকের ড্যাশবোর্ড, বিক্রি ও লাভ একনজরে",
+   "device": "desktop"
+  },
+  {
+   "file": "04-dashboard/03-dashboard-more.png",
+   "module": "04-dashboard",
+   "moduleTitle": "ড্যাশবোর্ড",
+   "caption": "সেরা আইটেম, শাখাভিত্তিক বিক্রি ও সাম্প্রতিক অর্ডার",
+   "device": "desktop"
+  },
+  {
+   "file": "04-dashboard/04-dashboard-full.png",
+   "module": "04-dashboard",
+   "moduleTitle": "ড্যাশবোর্ড",
+   "caption": "ড্যাশবোর্ডের পুরো পাতা",
+   "device": "desktop"
+  },
+  {
+   "file": "04-dashboard/05-dashboard-today.png",
+   "module": "04-dashboard",
+   "moduleTitle": "ড্যাশবোর্ড",
+   "caption": "আজকের বিক্রি",
+   "device": "desktop"
+  },
+  {
+   "file": "05-pos/01-locked.png",
+   "module": "05-pos",
+   "moduleTitle": "পিওএস",
+   "caption": "শিফট না খুললে পিওএস চালু হয় না",
+   "device": "desktop"
+  },
+  {
+   "file": "05-pos/02-open-shift.png",
+   "module": "05-pos",
+   "moduleTitle": "পিওএস",
+   "caption": "শুরুর নগদ লিখে শিফট খুলুন",
+   "device": "desktop"
+  },
+  {
+   "file": "05-pos/03-ready.png",
+   "module": "05-pos",
+   "moduleTitle": "পিওএস",
+   "caption": "পিওএস প্রস্তুত, ক্যাটাগরি ও আইটেম এক স্ক্রিনে",
+   "device": "desktop"
+  },
+  {
+   "file": "05-pos/04-category.png",
+   "module": "05-pos",
+   "moduleTitle": "পিওএস",
+   "caption": "ক্যাটাগরি ধরে দ্রুত আইটেম খোঁজা",
+   "device": "desktop"
+  },
+  {
+   "file": "05-pos/05-size-addon.png",
+   "module": "05-pos",
+   "moduleTitle": "পিওএস",
+   "caption": "সাইজ, অ্যাড-অন ও পরিমাণ বেছে আইটেম যোগ",
+   "device": "desktop"
+  },
+  {
+   "file": "05-pos/06-multi-size.png",
+   "module": "05-pos",
+   "moduleTitle": "পিওএস",
+   "caption": "একই আইটেমের একাধিক সাইজ একসঙ্গে যোগ",
+   "device": "desktop"
+  },
+  {
+   "file": "05-pos/07-items-added.png",
+   "module": "05-pos",
+   "moduleTitle": "পিওএস",
+   "caption": "আইটেম বেছে নিলেই কার্টে, সঙ্গে সঙ্গে হিসাব",
+   "device": "desktop"
+  },
+  {
+   "file": "05-pos/08-discount.png",
+   "module": "05-pos",
+   "moduleTitle": "পিওএস",
+   "caption": "বিল ছাড় দেওয়া যায় সীমার মধ্যে, বেশি হলে ম্যানেজার পিন",
+   "device": "desktop"
+  },
+  {
+   "file": "05-pos/09-sent-to-kitchen.png",
+   "module": "05-pos",
+   "moduleTitle": "পিওএস",
+   "caption": "কিচেনে অর্ডার চলে গেল, প্রিন্ট ছাড়াই",
+   "device": "desktop"
+  },
+  {
+   "file": "05-pos/10-pay-methods.png",
+   "module": "05-pos",
+   "moduleTitle": "পিওএস",
+   "caption": "নগদ, বিকাশ, কার্ড বা ভাগ করে পরিশোধ",
+   "device": "desktop"
+  },
+  {
+   "file": "05-pos/11-pay-cash.png",
+   "module": "05-pos",
+   "moduleTitle": "পিওএস",
+   "caption": "নগদ গ্রহণ, ফেরত দেওয়ার হিসাব নিজে থেকে",
+   "device": "desktop"
+  },
+  {
+   "file": "05-pos/12-paid.png",
+   "module": "05-pos",
+   "moduleTitle": "পিওএস",
+   "caption": "পরিশোধ সম্পন্ন, রসিদ প্রস্তুত",
+   "device": "desktop"
+  },
+  {
+   "file": "05-pos/13-running-orders.png",
+   "module": "05-pos",
+   "moduleTitle": "পিওএস",
+   "caption": "চলমান টেবিল ও অর্ডার",
+   "device": "desktop"
+  },
+  {
+   "file": "06-orders/01-list.png",
+   "module": "06-orders",
+   "moduleTitle": "অর্ডার ম্যানেজমেন্ট",
+   "caption": "সব চ্যানেলের অর্ডার এক তালিকায়",
+   "device": "desktop"
+  },
+  {
+   "file": "06-orders/02-filter-pending.png",
+   "module": "06-orders",
+   "moduleTitle": "অর্ডার ম্যানেজমেন্ট",
+   "caption": "অবস্থা অনুযায়ী ছাঁকনি",
+   "device": "desktop"
+  },
+  {
+   "file": "06-orders/03-incoming.png",
+   "module": "06-orders",
+   "moduleTitle": "অর্ডার ম্যানেজমেন্ট",
+   "caption": "ওয়েবসাইট ও অ্যাগ্রিগেটরের নতুন অর্ডার",
+   "device": "desktop"
+  },
+  {
+   "file": "06-orders/04-receipt.png",
+   "module": "06-orders",
+   "moduleTitle": "অর্ডার ম্যানেজমেন্ট",
+   "caption": "থার্মাল প্রিন্টারের জন্য রসিদ",
+   "device": "desktop"
+  },
+  {
+   "file": "06-orders/05-cancel-order.png",
+   "module": "06-orders",
+   "moduleTitle": "অর্ডার ম্যানেজমেন্ট",
+   "caption": "অর্ডার বাতিলে কারণ ও ম্যানেজার অনুমোদন",
+   "device": "desktop"
+  },
+  {
+   "file": "06-orders/06-take-payment.png",
+   "module": "06-orders",
+   "moduleTitle": "অর্ডার ম্যানেজমেন্ট",
+   "caption": "বকেয়া অর্ডারের পরিশোধ নেওয়া",
+   "device": "desktop"
+  },
+  {
+   "file": "07-kitchen/01-board.png",
+   "module": "07-kitchen",
+   "moduleTitle": "কিচেন ডিসপ্লে",
+   "caption": "কিচেন ডিসপ্লে, নতুন থেকে পরিবেশিত পর্যন্ত চার ধাপ",
+   "device": "desktop"
+  },
+  {
+   "file": "07-kitchen/02-start-cooking.png",
+   "module": "07-kitchen",
+   "moduleTitle": "কিচেন ডিসপ্লে",
+   "caption": "এক ট্যাপে তৈরি শুরু",
+   "device": "desktop"
+  },
+  {
+   "file": "07-kitchen/03-mark-ready.png",
+   "module": "07-kitchen",
+   "moduleTitle": "কিচেন ডিসপ্লে",
+   "caption": "প্রস্তুত হলে ওয়েটারের কাছে সংকেত",
+   "device": "desktop"
+  },
+  {
+   "file": "07-kitchen/04-dark.png",
+   "module": "07-kitchen",
+   "moduleTitle": "কিচেন ডিসপ্লে",
+   "caption": "রান্নাঘরের জন্য ডার্ক মোড",
+   "device": "desktop"
+  },
+  {
+   "file": "08-menu/01-list.png",
+   "module": "08-menu",
+   "moduleTitle": "মেনু ও ছবি",
+   "caption": "ক্যাটাগরি ও আইটেম, ছবি ও দামসহ",
+   "device": "desktop"
+  },
+  {
+   "file": "08-menu/02-add-category.png",
+   "module": "08-menu",
+   "moduleTitle": "মেনু ও ছবি",
+   "caption": "নতুন ক্যাটাগরি যোগ",
+   "device": "desktop"
+  },
+  {
+   "file": "08-menu/03-add-item.png",
+   "module": "08-menu",
+   "moduleTitle": "মেনু ও ছবি",
+   "caption": "নতুন আইটেম, দাম, ভ্যাট ও সাইজসহ",
+   "device": "desktop"
+  },
+  {
+   "file": "08-menu/04-edit-item.png",
+   "module": "08-menu",
+   "moduleTitle": "মেনু ও ছবি",
+   "caption": "আইটেম সম্পাদনা",
+   "device": "desktop"
+  },
+  {
+   "file": "08-menu/05-media.png",
+   "module": "08-menu",
+   "moduleTitle": "মেনু ও ছবি",
+   "caption": "ছবি ও ভিডিও ব্যবস্থাপনা, ওয়েবসাইটে কোনটি দেখাবে ঠিক করুন",
+   "device": "desktop"
+  },
+  {
+   "file": "09-tables/01-list.png",
+   "module": "09-tables",
+   "moduleTitle": "টেবিল ও কিউআর",
+   "caption": "টেবিল, এলাকা ও আসন সংখ্যা",
+   "device": "desktop"
+  },
+  {
+   "file": "09-tables/02-add-table.png",
+   "module": "09-tables",
+   "moduleTitle": "টেবিল ও কিউআর",
+   "caption": "নতুন টেবিল যোগ, কিউআর কোডসহ",
+   "device": "desktop"
+  },
+  {
+   "file": "10-inventory/01-ingredients.png",
+   "module": "10-inventory",
+   "moduleTitle": "ইনভেন্টরি ও রেসিপি",
+   "caption": "উপকরণ, স্টক ও গড় ব্যয়",
+   "device": "desktop"
+  },
+  {
+   "file": "10-inventory/02-recipes.png",
+   "module": "10-inventory",
+   "moduleTitle": "ইনভেন্টরি ও রেসিপি",
+   "caption": "প্রতিটি আইটেমের রেসিপি",
+   "device": "desktop"
+  },
+  {
+   "file": "10-inventory/03-recipe-edit.png",
+   "module": "10-inventory",
+   "moduleTitle": "ইনভেন্টরি ও রেসিপি",
+   "caption": "রেসিপি সম্পাদনা, উপকরণ ও পরিমাণ",
+   "device": "desktop"
+  },
+  {
+   "file": "10-inventory/04-recipe-cost.png",
+   "module": "10-inventory",
+   "moduleTitle": "ইনভেন্টরি ও রেসিপি",
+   "caption": "রেসিপির খরচ ও লাভের হিসাব",
+   "device": "desktop"
+  },
+  {
+   "file": "10-inventory/05-suppliers.png",
+   "module": "10-inventory",
+   "moduleTitle": "ইনভেন্টরি ও রেসিপি",
+   "caption": "সরবরাহকারীর তালিকা",
+   "device": "desktop"
+  },
+  {
+   "file": "10-inventory/06-purchases.png",
+   "module": "10-inventory",
+   "moduleTitle": "ইনভেন্টরি ও রেসিপি",
+   "caption": "ক্রয়ের হিসাব, স্টক নিজে থেকে বাড়ে",
+   "device": "desktop"
+  },
+  {
+   "file": "10-inventory/07-stock-counts.png",
+   "module": "10-inventory",
+   "moduleTitle": "ইনভেন্টরি ও রেসিপি",
+   "caption": "স্টক গণনা ও পার্থক্য সমন্বয়",
+   "device": "desktop"
+  },
+  {
+   "file": "10-inventory/08-transfers.png",
+   "module": "10-inventory",
+   "moduleTitle": "ইনভেন্টরি ও রেসিপি",
+   "caption": "শাখা থেকে শাখায় স্টক স্থানান্তর",
+   "device": "desktop"
+  },
+  {
+   "file": "10-inventory/09-wastage.png",
+   "module": "10-inventory",
+   "moduleTitle": "ইনভেন্টরি ও রেসিপি",
+   "caption": "অপচয়ের হিসাব ও কারণ",
+   "device": "desktop"
+  },
+  {
+   "file": "10-inventory/10-add-ingredient.png",
+   "module": "10-inventory",
+   "moduleTitle": "ইনভেন্টরি ও রেসিপি",
+   "caption": "নতুন উপকরণ যোগ",
+   "device": "desktop"
+  },
+  {
+   "file": "10-inventory/11-add-supplier.png",
+   "module": "10-inventory",
+   "moduleTitle": "ইনভেন্টরি ও রেসিপি",
+   "caption": "নতুন সরবরাহকারী যোগ",
+   "device": "desktop"
+  },
+  {
+   "file": "10-inventory/12-new-purchase.png",
+   "module": "10-inventory",
+   "moduleTitle": "ইনভেন্টরি ও রেসিপি",
+   "caption": "নতুন ক্রয়ের এন্ট্রি",
+   "device": "desktop"
+  },
+  {
+   "file": "10-inventory/13-new-transfer.png",
+   "module": "10-inventory",
+   "moduleTitle": "ইনভেন্টরি ও রেসিপি",
+   "caption": "নতুন স্টক ট্রান্সফার",
+   "device": "desktop"
+  },
+  {
+   "file": "10-inventory/14-add-wastage.png",
+   "module": "10-inventory",
+   "moduleTitle": "ইনভেন্টরি ও রেসিপি",
+   "caption": "অপচয় লিখে রাখা",
+   "device": "desktop"
+  },
+  {
+   "file": "11-customers/01-customers.png",
+   "module": "11-customers",
+   "moduleTitle": "গ্রাহক, লয়্যালটি ও কুপন",
+   "caption": "গ্রাহকের তালিকা ও কেনাকাটার ইতিহাস",
+   "device": "desktop"
+  },
+  {
+   "file": "11-customers/02-loyalty.png",
+   "module": "11-customers",
+   "moduleTitle": "গ্রাহক, লয়্যালটি ও কুপন",
+   "caption": "লয়্যালটি পয়েন্ট ও নিয়ম",
+   "device": "desktop"
+  },
+  {
+   "file": "11-customers/03-coupons.png",
+   "module": "11-customers",
+   "moduleTitle": "গ্রাহক, লয়্যালটি ও কুপন",
+   "caption": "কুপন ও ডিসকাউন্ট কোড",
+   "device": "desktop"
+  },
+  {
+   "file": "11-customers/04-add-coupon.png",
+   "module": "11-customers",
+   "moduleTitle": "গ্রাহক, লয়্যালটি ও কুপন",
+   "caption": "নতুন কুপন তৈরি",
+   "device": "desktop"
+  },
+  {
+   "file": "12-delivery/01-board.png",
+   "module": "12-delivery",
+   "moduleTitle": "ডেলিভারি ও অ্যাগ্রিগেটর",
+   "caption": "ডেলিভারি, রাইডার নির্ধারণ থেকে সম্পন্ন পর্যন্ত",
+   "device": "desktop"
+  },
+  {
+   "file": "12-delivery/02-aggregators.png",
+   "module": "12-delivery",
+   "moduleTitle": "ডেলিভারি ও অ্যাগ্রিগেটর",
+   "caption": "ফুডপান্ডা ও অন্যান্য অ্যাগ্রিগেটরের অর্ডার এক জায়গায়",
+   "device": "desktop"
+  },
+  {
+   "file": "12-delivery/03-manual-aggregator-order.png",
+   "module": "12-delivery",
+   "moduleTitle": "ডেলিভারি ও অ্যাগ্রিগেটর",
+   "caption": "অ্যাগ্রিগেটরের অর্ডার হাতে লেখা",
+   "device": "desktop"
+  },
+  {
+   "file": "12-delivery/04-aggregator-payout.png",
+   "module": "12-delivery",
+   "moduleTitle": "ডেলিভারি ও অ্যাগ্রিগেটর",
+   "caption": "অ্যাগ্রিগেটরের পেআউট",
+   "device": "desktop"
+  },
+  {
+   "file": "13-staff/01-staff.png",
+   "module": "13-staff",
+   "moduleTitle": "স্টাফ, হাজিরা ও বেতন",
+   "caption": "কর্মচারী ও লগইনের ভূমিকা",
+   "device": "desktop"
+  },
+  {
+   "file": "13-staff/02-attendance.png",
+   "module": "13-staff",
+   "moduleTitle": "স্টাফ, হাজিরা ও বেতন",
+   "caption": "দৈনিক হাজিরা ও কাজের ঘণ্টা",
+   "device": "desktop"
+  },
+  {
+   "file": "13-staff/03-payroll.png",
+   "module": "13-staff",
+   "moduleTitle": "স্টাফ, হাজিরা ও বেতন",
+   "caption": "মাসিক বেতন ও অগ্রিম",
+   "device": "desktop"
+  },
+  {
+   "file": "13-staff/04-payslip.png",
+   "module": "13-staff",
+   "moduleTitle": "স্টাফ, হাজিরা ও বেতন",
+   "caption": "বেতন স্লিপ",
+   "device": "desktop"
+  },
+  {
+   "file": "13-staff/05-letters.png",
+   "module": "13-staff",
+   "moduleTitle": "স্টাফ, হাজিরা ও বেতন",
+   "caption": "চিঠি, নিয়োগপত্র থেকে অভিজ্ঞতার সনদ",
+   "device": "desktop"
+  },
+  {
+   "file": "13-staff/06-careers.png",
+   "module": "13-staff",
+   "moduleTitle": "স্টাফ, হাজিরা ও বেতন",
+   "caption": "চাকরির বিজ্ঞপ্তি ও আবেদনকারী",
+   "device": "desktop"
+  },
+  {
+   "file": "13-staff/07-add-employee.png",
+   "module": "13-staff",
+   "moduleTitle": "স্টাফ, হাজিরা ও বেতন",
+   "caption": "নতুন কর্মচারী যোগ",
+   "device": "desktop"
+  },
+  {
+   "file": "13-staff/08-add-login.png",
+   "module": "13-staff",
+   "moduleTitle": "স্টাফ, হাজিরা ও বেতন",
+   "caption": "কর্মীর জন্য লগইন তৈরি",
+   "device": "desktop"
+  },
+  {
+   "file": "13-staff/09-edit-attendance.png",
+   "module": "13-staff",
+   "moduleTitle": "স্টাফ, হাজিরা ও বেতন",
+   "caption": "হাজিরা সম্পাদনা",
+   "device": "desktop"
+  },
+  {
+   "file": "13-staff/10-add-advance.png",
+   "module": "13-staff",
+   "moduleTitle": "স্টাফ, হাজিরা ও বেতন",
+   "caption": "বেতনের অগ্রিম লেখা",
+   "device": "desktop"
+  },
+  {
+   "file": "13-staff/11-new-letter.png",
+   "module": "13-staff",
+   "moduleTitle": "স্টাফ, হাজিরা ও বেতন",
+   "caption": "নতুন চিঠি লেখা",
+   "device": "desktop"
+  },
+  {
+   "file": "13-staff/12-new-opening.png",
+   "module": "13-staff",
+   "moduleTitle": "স্টাফ, হাজিরা ও বেতন",
+   "caption": "নতুন চাকরির বিজ্ঞপ্তি",
+   "device": "desktop"
+  },
+  {
+   "file": "14-accounts/01-expenses.png",
+   "module": "14-accounts",
+   "moduleTitle": "খরচ, হিসাব ও রিপোর্ট",
+   "caption": "খরচের হিসাব",
+   "device": "desktop"
+  },
+  {
+   "file": "14-accounts/02-accounting.png",
+   "module": "14-accounts",
+   "moduleTitle": "খরচ, হিসাব ও রিপোর্ট",
+   "caption": "অ্যাকাউন্টিং, জার্নাল ও হিসাবখাতা",
+   "device": "desktop"
+  },
+  {
+   "file": "14-accounts/03-trial-balance.png",
+   "module": "14-accounts",
+   "moduleTitle": "খরচ, হিসাব ও রিপোর্ট",
+   "caption": "ট্রায়াল ব্যালান্স",
+   "device": "desktop"
+  },
+  {
+   "file": "14-accounts/04-ledger.png",
+   "module": "14-accounts",
+   "moduleTitle": "খরচ, হিসাব ও রিপোর্ট",
+   "caption": "খতিয়ান",
+   "device": "desktop"
+  },
+  {
+   "file": "14-accounts/05-cash-flow.png",
+   "module": "14-accounts",
+   "moduleTitle": "খরচ, হিসাব ও রিপোর্ট",
+   "caption": "নগদ প্রবাহ",
+   "device": "desktop"
+  },
+  {
+   "file": "14-accounts/06-payables-aging.png",
+   "module": "14-accounts",
+   "moduleTitle": "খরচ, হিসাব ও রিপোর্ট",
+   "caption": "দেনার বয়সভিত্তিক হিসাব",
+   "device": "desktop"
+  },
+  {
+   "file": "14-accounts/07-vouchers.png",
+   "module": "14-accounts",
+   "moduleTitle": "খরচ, হিসাব ও রিপোর্ট",
+   "caption": "ভাউচার",
+   "device": "desktop"
+  },
+  {
+   "file": "14-accounts/08-reports.png",
+   "module": "14-accounts",
+   "moduleTitle": "খরচ, হিসাব ও রিপোর্ট",
+   "caption": "রিপোর্ট, PDF, Excel ও CSV এ ডাউনলোড",
+   "device": "desktop"
+  },
+  {
+   "file": "14-accounts/09-add-expense.png",
+   "module": "14-accounts",
+   "moduleTitle": "খরচ, হিসাব ও রিপোর্ট",
+   "caption": "নতুন খরচ যোগ",
+   "device": "desktop"
+  },
+  {
+   "file": "14-accounts/10-manual-journal.png",
+   "module": "14-accounts",
+   "moduleTitle": "খরচ, হিসাব ও রিপোর্ট",
+   "caption": "ম্যানুয়াল জার্নাল এন্ট্রি",
+   "device": "desktop"
+  },
+  {
+   "file": "15-system/01-branches.png",
+   "module": "15-system",
+   "moduleTitle": "শাখা, ব্লগ ও সেটিংস",
+   "caption": "একাধিক শাখা, প্রতিটির আলাদা ভ্যাট ও চার্জ",
+   "device": "desktop"
+  },
+  {
+   "file": "15-system/02-blog.png",
+   "module": "15-system",
+   "moduleTitle": "শাখা, ব্লগ ও সেটিংস",
+   "caption": "ব্লগ ব্যবস্থাপনা",
+   "device": "desktop"
+  },
+  {
+   "file": "15-system/03-settings.png",
+   "module": "15-system",
+   "moduleTitle": "শাখা, ব্লগ ও সেটিংস",
+   "caption": "সেটিংস",
+   "device": "desktop"
+  },
+  {
+   "file": "15-system/04-settings-full.png",
+   "module": "15-system",
+   "moduleTitle": "শাখা, ব্লগ ও সেটিংস",
+   "caption": "পুরো সেটিংস পাতা",
+   "device": "desktop"
+  },
+  {
+   "file": "15-system/05-sync-conflicts.png",
+   "module": "15-system",
+   "moduleTitle": "শাখা, ব্লগ ও সেটিংস",
+   "caption": "অফলাইনে কাজ, ইন্টারনেট এলে সিঙ্ক",
+   "device": "desktop"
+  },
+  {
+   "file": "15-system/06-activity-log.png",
+   "module": "15-system",
+   "moduleTitle": "শাখা, ব্লগ ও সেটিংস",
+   "caption": "কার্যক্রম লগ, কে কী করল",
+   "device": "desktop"
+  },
+  {
+   "file": "15-system/07-add-branch.png",
+   "module": "15-system",
+   "moduleTitle": "শাখা, ব্লগ ও সেটিংস",
+   "caption": "নতুন শাখা যোগ",
+   "device": "desktop"
+  },
+  {
+   "file": "15-system/08-new-post.png",
+   "module": "15-system",
+   "moduleTitle": "শাখা, ব্লগ ও সেটিংস",
+   "caption": "নতুন ব্লগ লেখা",
+   "device": "desktop"
+  },
+  {
+   "file": "16-dark-mode/01-dashboard.png",
+   "module": "16-dark-mode",
+   "moduleTitle": "ডার্ক মোড",
+   "caption": "ডার্ক মোডে ড্যাশবোর্ড",
+   "device": "desktop"
+  },
+  {
+   "file": "16-dark-mode/02-pos.png",
+   "module": "16-dark-mode",
+   "moduleTitle": "ডার্ক মোড",
+   "caption": "ডার্ক মোডে পিওএস",
+   "device": "desktop"
+  },
+  {
+   "file": "16-dark-mode/03-orders.png",
+   "module": "16-dark-mode",
+   "moduleTitle": "ডার্ক মোড",
+   "caption": "ডার্ক মোডে অর্ডার",
+   "device": "desktop"
+  },
+  {
+   "file": "16-dark-mode/04-website.png",
+   "module": "16-dark-mode",
+   "moduleTitle": "ডার্ক মোড",
+   "caption": "ডার্ক মোডে ওয়েবসাইট",
+   "device": "desktop"
+  },
+  {
+   "file": "12-delivery/05-rider-app.png",
+   "module": "12-delivery",
+   "moduleTitle": "ডেলিভারি ও অ্যাগ্রিগেটর",
+   "caption": "রাইডারের মোবাইল পেজ, ডেলিভারি ও ক্যাশ অন ডেলিভারি",
+   "device": "phone"
+  }
+ ]
+}
