@@ -41,6 +41,8 @@ class EmployeeRequest extends FormRequest
             'joined_at' => ['nullable', 'date'],
             'user_id' => ['nullable', 'integer', 'exists:users,id'],
             'is_active' => ['boolean'],
+            'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'remove_photo' => ['nullable', 'boolean'],
         ];
     }
 }

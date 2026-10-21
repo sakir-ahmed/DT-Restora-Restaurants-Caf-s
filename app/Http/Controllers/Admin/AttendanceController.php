@@ -50,8 +50,8 @@ class AttendanceController extends Controller
                     'designation' => $employee->designation ?? '',
                     'photo_url' => $employee->photo_path ? '/storage/'.ltrim($employee->photo_path, '/') : null,
                     'status' => $attendance?->status ?? 'not_recorded',
-                    'clock_in' => $attendance?->clock_in?->format('H:i'),
-                    'clock_out' => $attendance?->clock_out?->format('H:i'),
+                    'clock_in' => $attendance?->clock_in?->format('h:i A'),
+                    'clock_out' => $attendance?->clock_out?->format('h:i A'),
                     'hours' => number_format($attendance?->hours() ?? 0.0, 2, '.', ''),
                     'source' => $attendance?->source,
                 ];

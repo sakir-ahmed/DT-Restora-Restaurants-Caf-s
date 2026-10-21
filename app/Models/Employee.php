@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\PayBasis;
 use App\Models\Concerns\BelongsToBranch;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,6 +21,8 @@ class Employee extends Model
         'mobile', 'photo_path', 'device_user_id', 'monthly_salary', 'pay_basis', 'pay_rate',
         'joined_at', 'is_active',
     ];
+
+    protected $appends = ['photo_url'];
 
     protected $casts = [
         'monthly_salary' => 'decimal:2',
@@ -51,6 +54,16 @@ class Employee extends Model
     public function salaryAdvances(): HasMany
     {
         return $this->hasMany(SalaryAdvance::class);
+    }
+
+    /**
+     * Public URL of the staff photo, or null when none is set.
+     *
+     * @return Attribute<string|null, never>
+     */
+    protected function photoUrl(): Attribute
+    {
+        return Attribute::get(fn (): ?string => $this->photo_path ? '/storage/'.ltrim($this->photo_path, '/') : null);
     }
 
     public function displayName(string $locale): string

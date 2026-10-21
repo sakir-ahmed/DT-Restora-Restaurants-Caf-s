@@ -6,6 +6,8 @@ use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function (): void {
     $this->seed(RoleSeeder::class);
@@ -116,4 +118,49 @@ it('blocks user management without the staff.manage permission', function (): vo
     ]);
 
     $response->assertForbidden();
+});
+
+it('stores, replaces and removes a staff photo', function (): void {
+    Storage::fake('public');
+
+    $this->actingAs($this->manager, 'staff')->post('/admin/staff/employees', [
+        'name' => 'Nipa Akter',
+        'designation' => 'Waiter',
+        'monthly_salary' => '18000.00',
+        'is_active' => true,
+        'photo' => UploadedFile::fake()->image('nipa.jpg', 300, 300),
+    ])->assertSessionHasNoErrors();
+
+    $employee = Employee::query()->where('name', 'Nipa Akter')->firstOrFail();
+
+    expect($employee->photo_path)->toStartWith('staff/')
+        ->and($employee->photo_url)->toBe('/storage/'.$employee->photo_path);
+
+    Storage::disk('public')->assertExists($employee->photo_path);
+    $firstPath = $employee->photo_path;
+
+    $this->actingAs($this->manager, 'staff')->post("/admin/staff/employees/{$employee->id}", [
+        '_method' => 'put',
+        'name' => 'Nipa Akter',
+        'designation' => 'Waiter',
+        'monthly_salary' => '18000.00',
+        'is_active' => true,
+        'photo' => UploadedFile::fake()->image('nipa2.png', 300, 300),
+    ])->assertSessionHasNoErrors();
+
+    $employee->refresh();
+
+    Storage::disk('public')->assertMissing($firstPath);
+    Storage::disk('public')->assertExists($employee->photo_path);
+
+    $this->actingAs($this->manager, 'staff')->post("/admin/staff/employees/{$employee->id}", [
+        '_method' => 'put',
+        'name' => 'Nipa Akter',
+        'designation' => 'Waiter',
+        'monthly_salary' => '18000.00',
+        'is_active' => true,
+        'remove_photo' => true,
+    ])->assertSessionHasNoErrors();
+
+    expect($employee->refresh()->photo_path)->toBeNull();
 });

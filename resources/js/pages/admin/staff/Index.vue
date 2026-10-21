@@ -62,7 +62,39 @@ const editingEmployeeId = ref(null);
 
 const employeeForm = useForm({
     name: '', name_bn: '', designation: '', mobile: '', pay_basis: 'monthly', pay_rate: '0.00', monthly_salary: '0.00', device_user_id: '', joined_at: '', is_active: true,
+    photo: null, remove_photo: false,
 });
+
+const editingPhotoUrl = ref(null);
+const newPhotoPreview = ref(null);
+const failedPhotos = ref(new Set());
+
+const shownPhoto = computed(() => newPhotoPreview.value ?? (employeeForm.remove_photo ? null : editingPhotoUrl.value));
+
+function initials(name) {
+    const words = String(name).trim().split(/\s+/);
+
+    return `${words[0]?.[0] ?? ''}${words.length > 1 ? words[words.length - 1][0] : ''}`.toUpperCase();
+}
+
+function choosePhoto(event) {
+    const file = event.target.files?.[0] ?? null;
+
+    employeeForm.photo = file;
+    employeeForm.remove_photo = false;
+
+    if (newPhotoPreview.value) {
+        URL.revokeObjectURL(newPhotoPreview.value);
+    }
+
+    newPhotoPreview.value = file ? URL.createObjectURL(file) : null;
+}
+
+function removePhoto() {
+    employeeForm.photo = null;
+    employeeForm.remove_photo = true;
+    newPhotoPreview.value = null;
+}
 
 function openEmployee(employee = null) {
     editingEmployeeId.value = employee?.id ?? null;
@@ -78,7 +110,11 @@ function openEmployee(employee = null) {
         device_user_id: employee?.device_user_id ?? '',
         joined_at: employee?.joined_at ?? '',
         is_active: employee?.is_active ?? true,
+        photo: null,
+        remove_photo: false,
     }).reset();
+    editingPhotoUrl.value = employee?.photo_url ?? null;
+    newPhotoPreview.value = null;
     employeeOpen.value = true;
 }
 
@@ -94,9 +130,11 @@ function saveEmployee() {
     };
 
     if (editingEmployeeId.value === null) {
-        employeeForm.post(route('admin.staff.employees.store'), options);
+        employeeForm.post(route('admin.staff.employees.store'), { ...options, forceFormData: true });
     } else {
-        employeeForm.put(route('admin.staff.employees.update', editingEmployeeId.value), options);
+        employeeForm
+            .transform((data) => ({ ...data, _method: 'put' }))
+            .post(route('admin.staff.employees.update', editingEmployeeId.value), { ...options, forceFormData: true });
     }
 }
 
@@ -226,8 +264,26 @@ async function deactivateUser(user) {
             @empty-action="openEmployee()"
         >
             <template #cell(name)="{ row }">
-                <span class="block truncate font-medium">{{ row.name }}</span>
-                <span v-if="row.user" class="block truncate text-xs text-muted">{{ row.user.name }}</span>
+                <div class="flex min-w-44 items-center gap-2.5">
+                    <span class="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                        <img
+                            v-if="row.photo_url && ! failedPhotos.has(row.id)"
+                            :src="row.photo_url"
+                            :alt="row.name"
+                            width="32"
+                            height="32"
+                            loading="lazy"
+                            class="h-full w-full object-cover"
+                            @error="failedPhotos.add(row.id)"
+                        >
+                        <span v-else>{{ initials(row.name) }}</span>
+                    </span>
+                    <span class="min-w-0">
+                        <span class="block truncate font-medium">{{ row.name }}</span>
+                        <span v-if="row.user" class="block truncate text-xs text-muted">{{ row.user.name }}</span>
+                        <span v-else-if="row.device_user_id" class="block truncate font-mono text-xs text-muted">{{ row.device_user_id }}</span>
+                    </span>
+                </div>
             </template>
             <template #cell(is_active)="{ value }">
                 <StatusBadge :status="value ? 'active' : 'inactive'" />
@@ -258,6 +314,25 @@ async function deactivateUser(user) {
         <SlideOver :open="employeeOpen" :title="editingEmployeeId === null ? t('staff.add_employee') : t('staff.edit_employee')" @close="employeeOpen = false">
             <form novalidate class="space-y-3" @submit.prevent="saveEmployee">
                 <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+                    <div class="col-span-2 flex items-center gap-3">
+                        <span class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-base font-semibold text-primary">
+                            <img v-if="shownPhoto" :src="shownPhoto" :alt="employeeForm.name" class="h-full w-full object-cover">
+                            <span v-else>{{ initials(employeeForm.name || '?') }}</span>
+                        </span>
+                        <div class="min-w-0">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <label class="inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 text-[13px] font-medium text-foreground hover:border-accent">
+                                    <AppIcon name="plus" size="11" />
+                                    {{ t('staff.photo_choose') }}
+                                    <input type="file" accept="image/png,image/jpeg,image/webp" class="sr-only" @change="choosePhoto">
+                                </label>
+                                <button v-if="shownPhoto" type="button" class="h-7 rounded-md border border-border px-2.5 text-[13px] text-muted hover:text-danger" @click="removePhoto">{{ t('staff.photo_remove') }}</button>
+                            </div>
+                            <p class="mt-1 text-xs text-muted">{{ t('staff.photo_hint') }}</p>
+                            <p v-if="employeeForm.errors.photo" class="mt-1 text-xs text-danger">{{ employeeForm.errors.photo }}</p>
+                        </div>
+                    </div>
+
                     <FormField :label="t('staff.name')" required :error="employeeForm.errors.name">
                         <template #default="{ id }">
                             <input :id="id" v-model="employeeForm.name" type="text" class="h-7 w-full rounded-md border bg-surface px-2 text-[13px] text-foreground outline-none focus:ring-2 focus:ring-accent/40" :class="employeeForm.errors.name ? 'border-danger' : 'border-border focus:border-accent'">

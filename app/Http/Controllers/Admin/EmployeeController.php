@@ -11,6 +11,7 @@ use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -62,8 +63,9 @@ class EmployeeController extends Controller
         $validated = $request->validated();
 
         Employee::query()->create([
-            ...collect($validated)->except(['pay_basis', 'pay_rate', 'monthly_salary', 'device_user_id'])->all(),
+            ...collect($validated)->except(['pay_basis', 'pay_rate', 'monthly_salary', 'device_user_id', 'photo', 'remove_photo'])->all(),
             ...Employee::payAttributes($validated),
+            'photo_path' => $request->file('photo')?->store('staff', 'public'),
             'branch_id' => $branch->id,
         ]);
 
@@ -74,9 +76,20 @@ class EmployeeController extends Controller
     {
         $validated = $request->validated();
 
+        $photoPath = $employee->photo_path;
+
+        if ($request->hasFile('photo') || $request->boolean('remove_photo')) {
+            if ($photoPath !== null && str_starts_with($photoPath, 'staff/')) {
+                Storage::disk('public')->delete($photoPath);
+            }
+
+            $photoPath = $request->file('photo')?->store('staff', 'public');
+        }
+
         $employee->update([
-            ...collect($validated)->except(['pay_basis', 'pay_rate', 'monthly_salary', 'device_user_id'])->all(),
+            ...collect($validated)->except(['pay_basis', 'pay_rate', 'monthly_salary', 'device_user_id', 'photo', 'remove_photo'])->all(),
             ...Employee::payAttributes($validated),
+            'photo_path' => $photoPath,
         ]);
 
         return back()->with('success', __('staff.employee_updated'));
