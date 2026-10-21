@@ -17,6 +17,7 @@ use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\Order;
 use App\Models\Recipe;
+use App\Models\RestaurantTable;
 use App\Models\Shift;
 use App\Models\Unit;
 use App\Models\User;
@@ -422,4 +423,48 @@ it('rejects POS access for roles without the permission', function (): void {
         'order_type' => 'takeaway',
         'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
     ])->assertForbidden();
+});
+
+it('releases a table with no running order without needing the void permission', function (): void {
+    $table = RestaurantTable::factory()->create(['branch_id' => $this->branch->id, 'status' => 'occupied']);
+
+    $this->actingAs($this->cashier, 'staff')->post("/admin/pos/tables/{$table->id}/release")->assertRedirect();
+
+    expect($table->fresh()->status)->toBe('free');
+});
+
+it('force clears an unpaid table order only with the void permission', function (): void {
+    $table = RestaurantTable::factory()->create(['branch_id' => $this->branch->id]);
+
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::DineIn,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        cashier: $this->cashier,
+        shift: $this->shift,
+        terminalCode: 'T01',
+        tableId: $table->id,
+    );
+
+    expect($table->fresh()->status)->toBe('occupied');
+
+    $this->actingAs($this->cashier, 'staff')->post("/admin/pos/tables/{$table->id}/release")->assertSessionHasErrors('table');
+    $this->actingAs($this->cashier, 'staff')->post("/admin/pos/tables/{$table->id}/release", ['force' => true, 'reason_code' => 'other'])->assertForbidden();
+
+    $this->actingAs($this->manager, 'staff')->post("/admin/pos/tables/{$table->id}/release", ['force' => true, 'reason_code' => 'other'])->assertRedirect();
+
+    expect($table->fresh()->status)->toBe('free')
+        ->and($order->fresh()->status)->toBe(OrderStatus::Void);
+});
+
+it('force clears an unpaid order that has no table', function (): void {
+    $order = createPosOrder($this);
+
+    $this->actingAs($this->cashier, 'staff')->post("/admin/pos/orders/{$order->id}/clear", ['reason_code' => 'other'])->assertForbidden();
+
+    $this->actingAs($this->manager, 'staff')->post("/admin/pos/orders/{$order->id}/clear", ['reason_code' => 'other'])->assertRedirect();
+
+    expect($order->fresh()->status)->toBe(OrderStatus::Void);
+
+    $this->actingAs($this->manager, 'staff')->post("/admin/pos/orders/{$order->id}/clear", ['reason_code' => 'other'])->assertSessionHasErrors('order');
 });

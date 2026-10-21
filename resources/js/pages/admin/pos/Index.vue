@@ -188,6 +188,91 @@ const openOrderByTable = computed(() => {
 
 const openOrdersWithoutTable = computed(() => props.openOrders.filter((order) => order.restaurant_table_id === null));
 
+const clearBusy = ref(false);
+
+const CLEAR_REASONS = ['wrong_item', 'customer_changed_mind', 'kitchen_mistake', 'duplicate_order', 'payment_failed', 'other'];
+
+function afterClear(tableId = null) {
+    if (tableId !== null) {
+        const table = tables.value.find((entry) => entry.id === tableId);
+
+        if (table) {
+            table.status = 'free';
+        }
+    }
+
+    router.reload({ only: ['openOrders'], preserveScroll: true });
+}
+
+function postClear(url, data, tableId = null) {
+    clearBusy.value = true;
+
+    router.post(url, data, {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => {
+            afterClear(tableId);
+        },
+        onError: (errors) => notify.error(String(Object.values(errors)[0] ?? t('common.error_occurred'))),
+        onFinish: () => {
+            clearBusy.value = false;
+        },
+    });
+}
+
+/**
+ * Free a table. Paid or stale tables are only released; a table with an
+ * unpaid running order is force-cleared, which voids that order.
+ */
+async function clearTable(table) {
+    const order = openOrderByTable.value.get(table.id);
+
+    if (! order) {
+        const result = await confirm({
+            variant: 'warning',
+            title: t('orders.free_table'),
+            message: table.name,
+            confirmText: t('orders.free_table'),
+        });
+
+        if (result.confirmed) {
+            postClear(route('admin.pos.tables.release', table.id), {}, table.id);
+        }
+
+        return;
+    }
+
+    const result = await confirm({
+        variant: 'danger',
+        level: 'reason',
+        title: t('orders.force_clear'),
+        message: t('orders.force_clear_hint'),
+        facts: [{ label: table.name, value: `${order.invoice_no} - ${formatMoney(order.total)}` }],
+        confirmText: t('orders.force_clear'),
+        reasons: CLEAR_REASONS,
+    });
+
+    if (result.confirmed) {
+        postClear(route('admin.pos.tables.release', table.id), { force: true, reason_code: result.reason }, table.id);
+    }
+}
+
+async function clearRunningOrder(order) {
+    const result = await confirm({
+        variant: 'danger',
+        level: 'reason',
+        title: t('orders.force_clear'),
+        message: t('orders.force_clear_hint'),
+        facts: [{ label: order.invoice_no, value: formatMoney(order.total) }],
+        confirmText: t('orders.force_clear'),
+        reasons: CLEAR_REASONS,
+    });
+
+    if (result.confirmed) {
+        postClear(route('admin.pos.orders.clear', order.id), { reason_code: result.reason });
+    }
+}
+
 /**
  * Load a sent but unpaid order back into the cart so items can be added,
  * removed or changed. Saving updates the same invoice.
@@ -1900,12 +1985,11 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                         <section v-for="group in tablesByArea" :key="group.area || 'tables'">
                             <h3 class="mb-1.5 text-xs font-semibold text-muted">{{ group.area || t('orders.table_short') }}</h3>
                             <div class="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-4">
+                                <div v-for="table in group.tables" :key="table.id" class="relative">
                                 <button
-                                    v-for="table in group.tables"
-                                    :key="table.id"
                                     type="button"
                                     :disabled="! openOrderByTable.get(table.id)"
-                                    class="flex min-h-16 flex-col items-start justify-center rounded-lg border px-2 py-1 text-left disabled:cursor-default"
+                                    class="flex min-h-16 w-full flex-col items-start justify-center rounded-lg border px-2 py-1 text-left disabled:cursor-default"
                                     :class="openOrderByTable.get(table.id) ? 'border-warning/60 bg-warning/10 hover:border-accent' : 'border-border bg-background opacity-60'"
                                     @click="editOrder(openOrderByTable.get(table.id))"
                                 >
@@ -1916,23 +2000,42 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                                     </template>
                                     <span v-else class="text-[11px] leading-tight text-muted">{{ t('orders.table_free') }}</span>
                                 </button>
+                                    <button v-if="openOrderByTable.get(table.id) && canVoid"
+                                        type="button"
+                                        class="absolute right-1 top-1 inline-flex h-5 items-center gap-0.5 rounded-md border border-danger/40 bg-surface px-1 text-[11px] font-medium text-danger hover:bg-danger/10 disabled:opacity-50"
+                                        :disabled="clearBusy"
+                                        @click.stop="clearTable(table)"
+                                    >
+                                        <AppIcon name="trash" size="9" />
+                                        {{ t('orders.clear_short') }}
+                                    </button>
+                                </div>
                             </div>
                         </section>
 
                         <section v-if="openOrdersWithoutTable.length">
                             <h3 class="mb-1.5 text-xs font-semibold text-muted">{{ t('orders.no_table') }}</h3>
                             <div class="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-4">
+                                <div v-for="order in openOrdersWithoutTable" :key="order.id" class="relative">
                                 <button
-                                    v-for="order in openOrdersWithoutTable"
-                                    :key="order.id"
                                     type="button"
-                                    class="flex min-h-16 flex-col items-start justify-center rounded-lg border border-warning/60 bg-warning/10 px-2 py-1 text-left hover:border-accent"
+                                    class="flex min-h-16 w-full flex-col items-start justify-center rounded-lg border border-warning/60 bg-warning/10 px-2 py-1 text-left hover:border-accent"
                                     @click="editOrder(order)"
                                 >
                                     <span class="text-sm font-semibold leading-tight text-foreground">{{ order.invoice_no }}</span>
                                     <span class="text-[11px] leading-tight text-muted">{{ t(`orders.type.${order.order_type}`) }}</span>
                                     <span class="text-xs font-semibold leading-tight tabular-nums text-foreground">{{ formatMoney(order.total) }}</span>
                                 </button>
+                                    <button v-if="canVoid"
+                                        type="button"
+                                        class="absolute right-1 top-1 inline-flex h-5 items-center gap-0.5 rounded-md border border-danger/40 bg-surface px-1 text-[11px] font-medium text-danger hover:bg-danger/10 disabled:opacity-50"
+                                        :disabled="clearBusy"
+                                        @click.stop="clearRunningOrder(order)"
+                                    >
+                                        <AppIcon name="trash" size="9" />
+                                        {{ t('orders.clear_short') }}
+                                    </button>
+                                </div>
                             </div>
                         </section>
 
@@ -1970,12 +2073,11 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                         <section v-for="group in tablesByArea" :key="group.area || 'tables'">
                             <h3 class="mb-1.5 text-xs font-semibold text-muted">{{ group.area || t('orders.table_short') }}</h3>
                             <div class="grid grid-cols-3 gap-1.5 sm:grid-cols-4">
+                                <div v-for="table in group.tables" :key="table.id" class="relative">
                                 <button
-                                    v-for="table in group.tables"
-                                    :key="table.id"
                                     type="button"
                                     :disabled="table.status === 'occupied' && table.id !== tableId"
-                                    class="flex h-14 flex-col items-center justify-center rounded-lg border text-center transition-colors disabled:cursor-not-allowed"
+                                    class="flex h-14 w-full flex-col items-center justify-center rounded-lg border text-center transition-colors disabled:cursor-not-allowed"
                                     :class="table.id === tableId
                                         ? 'border-accent bg-accent text-accent-foreground'
                                         : table.status === 'occupied'
@@ -1988,6 +2090,16 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                                         {{ table.status === 'occupied' ? t('orders.table_occupied') : t('orders.table_seats', { count: table.seats }) }}
                                     </span>
                                 </button>
+                                    <button v-if="table.status === 'occupied' && table.id !== tableId && (canVoid || ! openOrderByTable.get(table.id))"
+                                        type="button"
+                                        class="absolute right-1 top-1 inline-flex h-5 items-center gap-0.5 rounded-md border border-danger/40 bg-surface px-1 text-[11px] font-medium text-danger hover:bg-danger/10 disabled:opacity-50"
+                                        :disabled="clearBusy"
+                                        @click.stop="clearTable(table)"
+                                    >
+                                        <AppIcon name="trash" size="9" />
+                                        {{ t('orders.clear_short') }}
+                                    </button>
+                                </div>
                             </div>
                         </section>
                     </div>

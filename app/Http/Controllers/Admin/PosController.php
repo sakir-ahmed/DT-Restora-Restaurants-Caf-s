@@ -4,17 +4,24 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Sales\ApproveOrderVoidAction;
+use App\Actions\Sales\RequestOrderVoidAction;
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
+use App\Models\DataVersion;
 use App\Models\MenuCategory;
 use App\Models\Order;
 use App\Models\RestaurantTable;
 use App\Models\Setting;
 use App\Models\Shift;
+use App\Models\VoidRequest;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -81,6 +88,90 @@ class PosController extends Controller
         }
 
         return response()->json(['ok' => true]);
+    }
+
+    /**
+     * Free an occupied table. A table whose order is already paid is just
+     * released; one with an unpaid running order is force-cleared, which
+     * voids that order, so it needs the void permission.
+     */
+    public function releaseTable(Request $request, RestaurantTable $table, RequestOrderVoidAction $requestVoid, ApproveOrderVoidAction $approveVoid): RedirectResponse
+    {
+        $this->authorize('pos.access');
+
+        $user = $request->user('staff');
+
+        abort_unless($user->canAccessBranch($table->branch_id), 404);
+
+        $validated = $request->validate([
+            'force' => ['sometimes', 'boolean'],
+            'reason_code' => ['required_if:force,true', 'nullable', 'string', Rule::in(VoidRequest::REASONS)],
+        ]);
+
+        $running = $this->unpaidRunningOrders($table->branch_id)
+            ->where('restaurant_table_id', $table->id)
+            ->get();
+
+        if ($running->isNotEmpty()) {
+            if (! $request->boolean('force')) {
+                throw ValidationException::withMessages([
+                    'table' => __('orders.table_has_running_order'),
+                ]);
+            }
+
+            $this->authorize('orders.void');
+
+            foreach ($running as $order) {
+                $approveVoid->execute($requestVoid->execute($order, $user, (string) $validated['reason_code']), $user);
+            }
+        }
+
+        $table->update(['status' => 'free']);
+
+        DataVersion::bump();
+
+        return back()->with('success', __('orders.table_released'));
+    }
+
+    /**
+     * Force-clear a running order that has no table: void it, restore
+     * stock and drop it from the running list.
+     */
+    public function clearOrder(Request $request, Order $order, RequestOrderVoidAction $requestVoid, ApproveOrderVoidAction $approveVoid): RedirectResponse
+    {
+        $this->authorize('pos.access');
+        $this->authorize('orders.void');
+
+        $user = $request->user('staff');
+
+        abort_unless($user->canAccessBranch($order->branch_id), 404);
+
+        $validated = $request->validate([
+            'reason_code' => ['required', 'string', Rule::in(VoidRequest::REASONS)],
+        ]);
+
+        $running = $this->unpaidRunningOrders($order->branch_id)->whereKey($order->id)->exists();
+
+        if (! $running) {
+            throw ValidationException::withMessages([
+                'order' => __('orders.not_running'),
+            ]);
+        }
+
+        $approveVoid->execute($requestVoid->execute($order, $user, (string) $validated['reason_code']), $user);
+
+        return back()->with('success', __('orders.voided'));
+    }
+
+    /**
+     * @return Builder<Order>
+     */
+    private function unpaidRunningOrders(int $branchId): Builder
+    {
+        return Order::query()
+            ->where('branch_id', $branchId)
+            ->whereIn('status', array_map(fn (OrderStatus $status): string => $status->value, array_filter(OrderStatus::cases(), fn (OrderStatus $status): bool => $status->isKitchenActive())))
+            ->whereDoesntHave('payments');
     }
 
     private function currentBranch(Request $request): Branch
