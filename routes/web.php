@@ -313,6 +313,9 @@ Route::prefix('admin')
         Route::post('aggregators/orders/{order}/decision', [AggregatorController::class, 'decide'])->name('aggregators.orders.decision')->middleware('permission:aggregators.manage');
         Route::post('aggregators/channels/{channel}/payouts', [AggregatorController::class, 'reconcilePayout'])->name('aggregators.payouts')->middleware('permission:aggregators.manage');
         Route::post('aggregators/channels/{channel}/menu-sync', [AggregatorController::class, 'syncMenu'])->name('aggregators.menu-sync')->middleware('permission:aggregators.manage');
+        Route::post('aggregators/channels/{channel}/connection-test', [AggregatorController::class, 'testConnection'])->name('aggregators.connection-test')->middleware('permission:aggregators.manage');
+        Route::post('aggregators/channels/{channel}/outlet-status', [AggregatorController::class, 'outletStatus'])->name('aggregators.outlet-status')->middleware('permission:aggregators.manage');
+        Route::post('aggregators/channels/{channel}/import-orders', [AggregatorController::class, 'importOrders'])->name('aggregators.import-orders')->middleware('permission:aggregators.manage');
 
         Route::get('sync-conflicts', [SyncConflictController::class, 'index'])->name('sync.conflicts')->middleware('permission:sync.resolve');
         Route::post('sync-conflicts/{item}/discard', [SyncConflictController::class, 'discard'])->name('sync.discard')->middleware('permission:sync.resolve');

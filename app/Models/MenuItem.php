@@ -22,7 +22,7 @@ class MenuItem extends Model
 
     protected $fillable = [
         'branch_id', 'menu_category_id', 'name', 'name_bn',
-        'description', 'description_bn', 'photo_path', 'barcode',
+        'description', 'description_bn', 'photo_path', 'barcode', 'aggregator_sku',
         'base_price', 'is_available', 'is_vegetarian', 'sort_order',
     ];
 

@@ -4,17 +4,23 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Sales\ApproveOrderVoidAction;
+use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Models\AggregatorChannel;
 use App\Models\Branch;
 use App\Models\MenuItem;
 use App\Models\Order;
 use App\Services\Aggregators\AggregatorOrderService;
+use App\Services\Aggregators\Foodpanda\FoodpandaAdapter;
+use App\Services\Aggregators\Foodpanda\FoodpandaClient;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 class AggregatorController extends Controller
 {
@@ -63,9 +69,10 @@ class AggregatorController extends Controller
             'commission_percent' => ['required', 'numeric', 'between:0,100'],
             'webhook_secret' => ['nullable', 'string', 'max:100'],
             'is_active' => ['boolean'],
+            ...$this->platformRules(),
         ]);
 
-        AggregatorChannel::query()->create($validated);
+        AggregatorChannel::query()->create($this->platformAttributes($validated));
 
         return back()->with('success', __('aggregators.channel_created'));
     }
@@ -79,9 +86,10 @@ class AggregatorController extends Controller
             'commission_percent' => ['required', 'numeric', 'between:0,100'],
             'webhook_secret' => ['nullable', 'string', 'max:100'],
             'is_active' => ['boolean'],
+            ...$this->platformRules(),
         ]);
 
-        $channel->update($validated);
+        $channel->update($this->platformAttributes($validated, keepSecretWhenBlank: true));
 
         return back()->with('success', __('aggregators.channel_updated'));
     }
@@ -128,13 +136,30 @@ class AggregatorController extends Controller
 
         abort_unless($request->user('staff')->canAccessBranch($order->branch_id), 404);
 
-        $validated = $request->validate(['decision' => ['required', 'in:accept,reject']]);
+        $validated = $request->validate([
+            'decision' => ['required', 'in:accept,reject'],
+            'reason' => ['nullable', 'string', 'max:60'],
+        ]);
 
         activity()
             ->performedOn($order)
             ->causedBy($request->user('staff'))
             ->withProperties(['decision' => $validated['decision']])
             ->log('aggregator.decision');
+
+        $channel = $order->aggregatorChannel;
+
+        if ($channel?->isFoodpanda() && $channel->hasApiCredentials() && $validated['decision'] === 'reject') {
+            $pushed = app(FoodpandaAdapter::class, ['channel' => $channel])->pushStatus($order, 'reject', $validated['reason'] ?? null);
+
+            if (! $pushed) {
+                return back()->with('error', __('aggregators.push_failed', ['error' => (string) $channel->fresh()?->last_error]));
+            }
+
+            if ($order->status === OrderStatus::Pending) {
+                app(ApproveOrderVoidAction::class)->cancelPending($order);
+            }
+        }
 
         return back()->with('success', __('aggregators.decision_pushed'));
     }
@@ -180,6 +205,22 @@ class AggregatorController extends Controller
     {
         $this->authorize('aggregators.manage');
 
+        if ($channel->isFoodpanda() && $channel->hasApiCredentials()) {
+            $adapter = app(FoodpandaAdapter::class, ['channel' => $channel]);
+
+            try {
+                $adapter->syncMenu($channel);
+            } catch (Throwable $exception) {
+                $channel->forceFill(['last_error' => mb_substr($exception->getMessage(), 0, 500)])->save();
+
+                return back()->with('error', __('aggregators.push_failed', ['error' => $exception->getMessage()]));
+            }
+
+            activity()->performedOn($channel)->withProperties(['items' => $adapter->lastSyncCount])->log('aggregator.menu_synced');
+
+            return back()->with('success', __('aggregators.menu_synced', ['count' => $adapter->lastSyncCount]));
+        }
+
         $branchId = $this->currentBranch($request)->id;
 
         $count = MenuItem::query()
@@ -190,6 +231,119 @@ class AggregatorController extends Controller
         activity()->performedOn($channel)->withProperties(['items' => $count])->log('aggregator.menu_synced');
 
         return back()->with('success', __('aggregators.menu_synced', ['count' => $count]));
+    }
+
+    /**
+     * Check the Foodpanda credentials by requesting a fresh token.
+     */
+    public function testConnection(Request $request, AggregatorChannel $channel): RedirectResponse
+    {
+        $this->authorize('aggregators.manage');
+        abort_unless($channel->isFoodpanda(), 404);
+
+        try {
+            (new FoodpandaClient($channel))->token(fresh: true);
+        } catch (Throwable $exception) {
+            $channel->forceFill(['last_error' => mb_substr($exception->getMessage(), 0, 500)])->save();
+
+            return back()->with('error', __('aggregators.push_failed', ['error' => $exception->getMessage()]));
+        }
+
+        $channel->forceFill(['last_error' => null])->save();
+
+        return back()->with('success', __('aggregators.connection_ok', ['environment' => $channel->environment]));
+    }
+
+    /**
+     * Open or close an outlet on the platform.
+     */
+    public function outletStatus(Request $request, AggregatorChannel $channel): RedirectResponse
+    {
+        $this->authorize('aggregators.manage');
+        abort_unless($channel->isFoodpanda(), 404);
+
+        $validated = $request->validate([
+            'branch_id' => ['required', 'integer', 'exists:branches,id'],
+            'status' => ['required', 'in:OPEN,CLOSED_TODAY,CLOSED_UNTIL,CHECKIN'],
+            'closed_reason' => ['nullable', 'in:TOO_BUSY_NO_DRIVERS,TOO_BUSY_KITCHEN,UPDATES_IN_MENU,TECHNICAL_PROBLEM,CLOSED,OTHER,BAD_WEATHER,HOLIDAY_SPECIAL_DAY'],
+            'closed_until' => ['nullable', 'required_if:status,CLOSED_UNTIL', 'date', 'after:now'],
+        ]);
+
+        abort_unless($request->user('staff')->canAccessBranch((int) $validated['branch_id']), 404);
+
+        $vendorId = $channel->vendorIdFor((int) $validated['branch_id']);
+
+        if ($vendorId === null) {
+            return back()->with('error', __('aggregators.vendor_map_missing'));
+        }
+
+        try {
+            (new FoodpandaClient($channel))->setVendorStatus(
+                $vendorId,
+                $validated['status'],
+                $validated['closed_reason'] ?? 'OTHER',
+                isset($validated['closed_until']) ? CarbonImmutable::parse($validated['closed_until'])->utc()->format('Y-m-d\TH:i:s\Z') : null,
+            );
+        } catch (Throwable $exception) {
+            $channel->forceFill(['last_error' => mb_substr($exception->getMessage(), 0, 500)])->save();
+
+            return back()->with('error', __('aggregators.push_failed', ['error' => $exception->getMessage()]));
+        }
+
+        activity()->performedOn($channel)->causedBy($request->user('staff'))->withProperties($validated)->log('aggregator.outlet_status');
+
+        return back()->with('success', __('aggregators.outlet_updated'));
+    }
+
+    /**
+     * Pull the last day of orders and create any that the webhook missed.
+     */
+    public function importOrders(Request $request, AggregatorChannel $channel): RedirectResponse
+    {
+        $this->authorize('aggregators.manage');
+        abort_unless($channel->isFoodpanda() && $channel->hasApiCredentials(), 404);
+
+        try {
+            $result = app(FoodpandaAdapter::class, ['channel' => $channel])->importRecent();
+        } catch (Throwable $exception) {
+            $channel->forceFill(['last_error' => mb_substr($exception->getMessage(), 0, 500)])->save();
+
+            return back()->with('error', __('aggregators.push_failed', ['error' => $exception->getMessage()]));
+        }
+
+        return back()->with('success', __('aggregators.orders_imported', $result));
+    }
+
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    private function platformRules(): array
+    {
+        return [
+            'environment' => ['nullable', 'in:sandbox,production'],
+            'chain_id' => ['nullable', 'string', 'max:64'],
+            'client_id' => ['nullable', 'string', 'max:128'],
+            'client_secret' => ['nullable', 'string', 'max:255'],
+            'vendor_map' => ['nullable', 'array'],
+            'vendor_map.*' => ['nullable', 'string', 'max:64'],
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     * @return array<string, mixed>
+     */
+    private function platformAttributes(array $validated, bool $keepSecretWhenBlank = false): array
+    {
+        if ($keepSecretWhenBlank && blank($validated['client_secret'] ?? null)) {
+            unset($validated['client_secret']);
+        }
+
+        if (isset($validated['vendor_map'])) {
+            $validated['vendor_map'] = array_filter($validated['vendor_map'], fn ($vendor): bool => filled($vendor));
+        }
+
+        return $validated;
     }
 
     private function currentBranch(Request $request): Branch

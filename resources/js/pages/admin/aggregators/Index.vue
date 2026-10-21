@@ -26,6 +26,8 @@ const props = defineProps({
 
 const channelOpen = ref(false);
 const editingChannelId = ref(null);
+const editingHasSecret = ref(false);
+const isFoodpandaForm = computed(() => channelForm.key === 'foodpanda');
 const orderOpen = ref(false);
 const payoutChannel = ref(null);
 const payoutOpen = ref(false);
@@ -38,6 +40,7 @@ const orderColumns = computed(() => [
     { key: 'total', label: t('inventory.total'), type: 'money', minWidth: '96px' },
     { key: 'commission', label: t('aggregators.commission'), type: 'money', minWidth: '96px' },
     { key: 'status', label: t('common.status'), minWidth: '104px' },
+    { key: 'actions', label: '', align: 'right', minWidth: '120px' },
 ]);
 
 const orderRows = computed(() => props.orders.map((order) => ({
@@ -48,7 +51,10 @@ const orderRows = computed(() => props.orders.map((order) => ({
     sort_total: Number(order.total),
 })));
 
-const emptyChannel = () => ({ key: '', name: '', commission_percent: '0', webhook_secret: '', is_active: true });
+const emptyChannel = () => ({
+    key: '', name: '', commission_percent: '0', webhook_secret: '', is_active: true,
+    environment: 'sandbox', chain_id: '', client_id: '', client_secret: '', vendor_map: {},
+});
 
 const channelForm = useForm(emptyChannel());
 
@@ -60,7 +66,13 @@ function openChannel(channel = null) {
         commission_percent: String(channel.commission_percent),
         webhook_secret: channel.webhook_secret ?? '',
         is_active: channel.is_active,
+        environment: channel.environment ?? 'sandbox',
+        chain_id: channel.chain_id ?? '',
+        client_id: channel.client_id ?? '',
+        client_secret: '',
+        vendor_map: { ...(channel.vendor_map ?? {}) },
     } : emptyChannel()).reset();
+    editingHasSecret.value = channel?.has_client_secret ?? false;
     channelOpen.value = true;
 }
 
@@ -138,15 +150,75 @@ function savePayout() {
     });
 }
 
+/**
+ * Show the server's flash message: a platform failure comes back as an
+ * error flash on a normal redirect.
+ */
+function reportFlash(page, fallback) {
+    const flash = page.props.flash ?? {};
+
+    if (flash.error) {
+        notify.error(String(flash.error));
+
+        return;
+    }
+
+    notify.success(String(flash.success ?? fallback));
+}
+
 function syncMenu(channel) {
     router.post(route('admin.aggregators.menu-sync', channel.id), {}, {
-        onSuccess: () => notify.success(t('aggregators.menu_synced', { count: 0 })),
+        preserveScroll: true,
+        onSuccess: (page) => reportFlash(page, t('aggregators.menu_synced', { count: 0 })),
+    });
+}
+
+function testConnection(channel) {
+    router.post(route('admin.aggregators.connection-test', channel.id), {}, {
+        preserveScroll: true,
+        onSuccess: (page) => reportFlash(page, t('aggregators.connection_ok', { environment: channel.environment })),
+    });
+}
+
+function importOrders(channel) {
+    router.post(route('admin.aggregators.import-orders', channel.id), {}, {
+        preserveScroll: true,
+        onSuccess: (page) => reportFlash(page, ''),
+    });
+}
+
+// Outlet open / close on the platform
+const outletOpen = ref(false);
+const outletChannel = ref(null);
+const outletForm = useForm({ branch_id: '', status: 'CLOSED_TODAY', closed_reason: 'TOO_BUSY_KITCHEN', closed_until: '' });
+const closedReasons = ['TOO_BUSY_NO_DRIVERS', 'TOO_BUSY_KITCHEN', 'UPDATES_IN_MENU', 'TECHNICAL_PROBLEM', 'CLOSED', 'OTHER', 'BAD_WEATHER', 'HOLIDAY_SPECIAL_DAY'];
+const mappedBranches = computed(() => props.branches.filter((branch) => outletChannel.value?.vendor_map?.[String(branch.id)]));
+
+function openOutlet(channel) {
+    outletChannel.value = channel;
+    outletForm.defaults({
+        branch_id: props.branches.find((branch) => channel.vendor_map?.[String(branch.id)])?.id ?? '',
+        status: 'CLOSED_TODAY',
+        closed_reason: 'TOO_BUSY_KITCHEN',
+        closed_until: '',
+    }).reset();
+    outletOpen.value = true;
+}
+
+function saveOutlet() {
+    outletForm.post(route('admin.aggregators.outlet-status', outletChannel.value.id), {
+        preserveScroll: true,
+        onSuccess: (page) => {
+            outletOpen.value = false;
+            reportFlash(page, t('aggregators.outlet_updated'));
+        },
     });
 }
 
 function decide(order, decision) {
     router.post(route('admin.aggregators.orders.decision', order.id), { decision }, {
-        onSuccess: () => notify.success(t('aggregators.decision_pushed')),
+        preserveScroll: true,
+        onSuccess: (page) => reportFlash(page, t('aggregators.decision_pushed')),
     });
 }
 </script>
@@ -183,10 +255,24 @@ function decide(order, decision) {
                     <span class="font-semibold text-foreground tabular-nums">{{ Number(channel.commission_percent).toFixed(2) }}%</span>
                 </p>
 
-                <div class="mt-2 flex gap-1.5">
+                <div v-if="channel.key === 'foodpanda'" class="mt-2 space-y-1 text-xs">
+                    <p class="flex items-center gap-1.5 text-muted">
+                        <AppIcon :name="channel.has_client_secret && channel.chain_id ? 'circle-check' : 'circle-xmark'" size="11" :class="channel.has_client_secret && channel.chain_id ? 'text-success' : 'text-muted'" />
+                        {{ channel.has_client_secret && channel.chain_id ? t('aggregators.api_connected', { environment: channel.environment }) : t('aggregators.api_not_set') }}
+                    </p>
+                    <p v-if="channel.last_synced_at" class="text-muted">{{ t('aggregators.last_synced') }}: <DateText :value="channel.last_synced_at" relative /></p>
+                    <p v-if="channel.last_error" class="break-words text-danger">{{ channel.last_error }}</p>
+                </div>
+
+                <div class="mt-2 flex flex-wrap gap-1.5">
                     <button type="button" class="h-6 rounded border border-border px-1.5 text-[11px] hover:bg-background" @click="openChannel(channel)">{{ t('common.edit') }}</button>
                     <button type="button" class="h-6 rounded border border-border px-1.5 text-[11px] hover:bg-background" @click="syncMenu(channel)">{{ t('aggregators.sync_menu') }}</button>
                     <button type="button" class="h-6 rounded border border-border px-1.5 text-[11px] hover:bg-background" @click="openPayout(channel)">{{ t('aggregators.payout') }}</button>
+                    <template v-if="channel.key === 'foodpanda' && channel.has_client_secret">
+                        <button type="button" class="h-6 rounded border border-border px-1.5 text-[11px] hover:bg-background" @click="testConnection(channel)">{{ t('aggregators.test_connection') }}</button>
+                        <button type="button" class="h-6 rounded border border-border px-1.5 text-[11px] hover:bg-background" @click="importOrders(channel)">{{ t('aggregators.import_orders') }}</button>
+                        <button type="button" class="h-6 rounded border border-border px-1.5 text-[11px] hover:bg-background" @click="openOutlet(channel)">{{ t('aggregators.outlet_status') }}</button>
+                    </template>
                 </div>
             </article>
         </section>
@@ -200,6 +286,9 @@ function decide(order, decision) {
             </template>
             <template #cell(status)="{ value }">
                 <StatusBadge :status="value" />
+            </template>
+            <template #cell(actions)="{ row }">
+                <button v-if="row.status === 'pending'" type="button" class="h-6 rounded border border-border px-1.5 text-[11px] text-danger hover:bg-background" @click="decide(row, 'reject')">{{ t('aggregators.reject') }}</button>
             </template>
         </DataTable>
 
@@ -231,6 +320,53 @@ function decide(order, decision) {
                 </div>
 
                 <SwitchField v-model="channelForm.is_active" :label="t('branches.is_active')" />
+
+                <section v-if="isFoodpandaForm" class="space-y-3 border-t border-border pt-3">
+                    <div>
+                        <h3 class="text-xs font-semibold uppercase tracking-wider text-muted">{{ t('aggregators.platform_api') }}</h3>
+                        <p class="mt-0.5 text-xs text-muted">{{ t('aggregators.platform_api_hint') }}</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+                        <FormField :label="t('aggregators.environment')" :error="channelForm.errors.environment">
+                            <template #default="{ id }">
+                                <select :id="id" v-model="channelForm.environment" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px]">
+                                    <option value="sandbox">{{ t('aggregators.env_sandbox') }}</option>
+                                    <option value="production">{{ t('aggregators.env_production') }}</option>
+                                </select>
+                            </template>
+                        </FormField>
+
+                        <FormField :label="t('aggregators.chain_id')" :error="channelForm.errors.chain_id">
+                            <template #default="{ id }">
+                                <input :id="id" v-model="channelForm.chain_id" type="text" class="h-7 w-full rounded-md border border-border bg-surface px-2 font-mono text-[13px]">
+                            </template>
+                        </FormField>
+
+                        <FormField :label="t('aggregators.client_id')" :error="channelForm.errors.client_id">
+                            <template #default="{ id }">
+                                <input :id="id" v-model="channelForm.client_id" type="text" autocomplete="off" class="h-7 w-full rounded-md border border-border bg-surface px-2 font-mono text-[13px]">
+                            </template>
+                        </FormField>
+
+                        <FormField :label="t('aggregators.client_secret')" :helper="editingHasSecret ? t('aggregators.secret_saved') : ''" :error="channelForm.errors.client_secret">
+                            <template #default="{ id }">
+                                <input :id="id" v-model="channelForm.client_secret" type="password" autocomplete="new-password" class="h-7 w-full rounded-md border border-border bg-surface px-2 font-mono text-[13px]">
+                            </template>
+                        </FormField>
+                    </div>
+
+                    <div>
+                        <h4 class="mb-1.5 text-xs font-semibold text-muted">{{ t('aggregators.vendor_map') }}</h4>
+                        <div class="space-y-1.5">
+                            <div v-for="branch in branches" :key="branch.id" class="grid grid-cols-[1fr_1fr] items-center gap-2">
+                                <span class="truncate text-[13px] text-foreground">{{ branch.code }} - {{ branch.name }}</span>
+                                <input v-model="channelForm.vendor_map[String(branch.id)]" type="text" :placeholder="t('aggregators.vendor_id')" class="h-7 w-full rounded-md border border-border bg-surface px-2 font-mono text-[13px]">
+                            </div>
+                        </div>
+                        <p class="mt-1 text-xs text-muted">{{ t('aggregators.vendor_map_hint') }}</p>
+                    </div>
+                </section>
             </form>
 
             <template #footer>
@@ -311,6 +447,56 @@ function decide(order, decision) {
                 <button type="button" :disabled="orderForm.processing || orderForm.items.length === 0" class="h-7 rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground" @click="saveOrder">{{ t('common.save') }}</button>
             </template>
         </SlideOver>
+
+        <!-- Outlet status dialog -->
+        <Teleport to="body">
+            <div v-if="outletOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="outletOpen = false">
+                <form class="w-full max-w-sm rounded-xl border border-border bg-surface p-4" @submit.prevent="saveOutlet">
+                    <h2 class="text-base font-semibold">{{ t('aggregators.outlet_status') }} - {{ outletChannel?.name }}</h2>
+                    <p class="mt-0.5 text-xs text-muted">{{ t('aggregators.outlet_hint') }}</p>
+
+                    <div class="mt-3 space-y-3">
+                        <FormField :label="t('nav.branch')" required :error="outletForm.errors.branch_id">
+                            <template #default="{ id }">
+                                <select :id="id" v-model="outletForm.branch_id" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px]">
+                                    <option v-for="branch in mappedBranches" :key="branch.id" :value="branch.id">{{ branch.code }} - {{ branch.name }}</option>
+                                </select>
+                            </template>
+                        </FormField>
+
+                        <FormField :label="t('common.status')" required>
+                            <template #default="{ id }">
+                                <select :id="id" v-model="outletForm.status" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px]">
+                                    <option value="OPEN">{{ t('aggregators.outlet_open') }}</option>
+                                    <option value="CLOSED_TODAY">{{ t('aggregators.outlet_closed_today') }}</option>
+                                    <option value="CLOSED_UNTIL">{{ t('aggregators.outlet_closed_until') }}</option>
+                                    <option value="CHECKIN">{{ t('aggregators.outlet_checkin') }}</option>
+                                </select>
+                            </template>
+                        </FormField>
+
+                        <FormField v-if="['CLOSED_TODAY', 'CLOSED_UNTIL'].includes(outletForm.status)" :label="t('aggregators.closed_reason')" :error="outletForm.errors.closed_reason">
+                            <template #default="{ id }">
+                                <select :id="id" v-model="outletForm.closed_reason" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px]">
+                                    <option v-for="reason in closedReasons" :key="reason" :value="reason">{{ t(`aggregators.reason_${reason}`) }}</option>
+                                </select>
+                            </template>
+                        </FormField>
+
+                        <FormField v-if="outletForm.status === 'CLOSED_UNTIL'" :label="t('aggregators.closed_until')" required :error="outletForm.errors.closed_until">
+                            <template #default="{ id }">
+                                <input :id="id" v-model="outletForm.closed_until" type="datetime-local" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px]">
+                            </template>
+                        </FormField>
+                    </div>
+
+                    <div class="mt-4 flex justify-end gap-2">
+                        <button type="button" class="h-7 rounded-md border border-border px-2.5 text-[13px]" @click="outletOpen = false">{{ t('common.cancel') }}</button>
+                        <button type="submit" :disabled="outletForm.processing || ! outletForm.branch_id" class="h-7 rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground disabled:opacity-60">{{ t('common.save') }}</button>
+                    </div>
+                </form>
+            </div>
+        </Teleport>
 
         <!-- Payout dialog -->
         <Teleport to="body">

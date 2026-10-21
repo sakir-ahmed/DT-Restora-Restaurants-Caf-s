@@ -26,10 +26,11 @@ class Order extends Model
         'food_cost', 'client_id', 'note', 'paid_at', 'paid_via_payment_id',
         'delivery_zone_id', 'delivery_address', 'scheduled_for', 'tracking_token',
         'coupon_id', 'points_redeemed',
-        'aggregator_channel_id', 'aggregator_order_id', 'commission_amount',
+        'aggregator_channel_id', 'aggregator_order_id', 'commission_amount', 'aggregator_meta',
     ];
 
     protected $casts = [
+        'aggregator_meta' => 'array',
         'order_type' => OrderType::class,
         'channel' => OrderChannel::class,
         'status' => OrderStatus::class,

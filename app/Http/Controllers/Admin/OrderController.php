@@ -19,6 +19,7 @@ use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Shift;
+use App\Services\Aggregators\Foodpanda\FoodpandaAdapter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -153,6 +154,8 @@ class OrderController extends Controller
 
         activity()->performedOn($order)->causedBy($user)->log('order.revised');
 
+        $this->pushToPlatform($order, null, cart: true);
+
         broadcast(new OrderCreated($order->branch_id, [
             'order_id' => $order->id,
             'invoice_no' => $order->invoice_no,
@@ -210,6 +213,8 @@ class OrderController extends Controller
 
         $order->update(['status' => $next->value]);
 
+        $this->pushToPlatform($order, $next === OrderStatus::Ready ? 'ready' : null);
+
         broadcast(new OrderStatusChanged($order->branch_id, [
             'order_id' => $order->id,
             'invoice_no' => $order->invoice_no,
@@ -217,6 +222,27 @@ class OrderController extends Controller
         ]));
 
         return back()->with('success', __('orders.status_updated'));
+    }
+
+    /**
+     * Tell a delivery platform about a kitchen status or an edited cart.
+     * A failure never blocks the kitchen: it is kept on the channel.
+     */
+    private function pushToPlatform(Order $order, ?string $status, bool $cart = false): void
+    {
+        $channel = $order->aggregatorChannel;
+
+        if ($channel === null || ! $channel->isFoodpanda() || ! $channel->hasApiCredentials()) {
+            return;
+        }
+
+        $adapter = app(FoodpandaAdapter::class, ['channel' => $channel]);
+
+        if ($cart) {
+            $adapter->pushCart($order);
+        } elseif ($status !== null) {
+            $adapter->pushStatus($order, $status);
+        }
     }
 
     public function requestVoid(Request $request, Order $order, RequestOrderVoidAction $action): RedirectResponse

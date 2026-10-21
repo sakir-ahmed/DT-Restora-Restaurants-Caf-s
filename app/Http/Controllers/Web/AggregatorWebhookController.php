@@ -7,8 +7,10 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\AggregatorChannel;
 use App\Services\Aggregators\AggregatorOrderService;
+use App\Services\Aggregators\Foodpanda\FoodpandaAdapter;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Throwable;
 
 /**
  * Public webhooks, one per channel: POST /webhooks/aggregators/{key}.
@@ -30,6 +32,10 @@ class AggregatorWebhookController extends Controller
 
         if (! $this->signatureValid($request, $channel)) {
             return response('Invalid signature', 400);
+        }
+
+        if ($channel->isFoodpanda() && $request->filled('order_id')) {
+            return $this->foodpanda($request, $channel);
         }
 
         $payload = $request->input('order');
@@ -72,8 +78,38 @@ class AggregatorWebhookController extends Controller
             return true;
         }
 
-        $signature = $request->header('X-Webhook-Signature', '');
+        // Foodpanda sends the static token set in the Vendor Portal; accept it
+        // in the usual header places next to our own signature header.
+        $candidates = [
+            (string) $request->header('X-Webhook-Signature', ''),
+            (string) $request->header('X-Webhook-Token', ''),
+            (string) $request->header('X-Api-Key', ''),
+            trim((string) preg_replace('/^Bearer\s+/i', '', (string) $request->header('Authorization', ''))),
+        ];
 
-        return $signature !== '' && hash_equals($secret, (string) $signature);
+        foreach ($candidates as $candidate) {
+            if ($candidate !== '' && hash_equals($secret, $candidate)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Foodpanda order events. Always acknowledged with 200 once the call is
+     * authentic: the platform retries 4xx and 5xx, so problems we cannot fix
+     * by retrying are logged on the channel instead.
+     */
+    private function foodpanda(Request $request, AggregatorChannel $channel): Response
+    {
+        try {
+            app(FoodpandaAdapter::class, ['channel' => $channel])->receiveOrder($request->all());
+        } catch (Throwable $exception) {
+            $channel->forceFill(['last_error' => mb_substr($exception->getMessage(), 0, 500)])->save();
+            report($exception);
+        }
+
+        return response('OK');
     }
 }
