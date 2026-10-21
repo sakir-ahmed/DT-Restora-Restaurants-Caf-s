@@ -115,6 +115,10 @@ return [
     'edit_recipe' => 'Edit recipe',
     'add_first_ingredient' => 'Add the first ingredient',
     'recipe_removed_hint' => 'Saving with no ingredients removes the recipe.',
+    'cost_empty' => 'Add ingredients with a quantity to see the cost.',
+    'selling_price' => 'Selling price',
+    'margin' => 'Margin',
+    'cost_missing' => 'No purchase cost yet for: :names. Receive a purchase to price them.',
 ];
 
 // extra keys used by the dashboard alert

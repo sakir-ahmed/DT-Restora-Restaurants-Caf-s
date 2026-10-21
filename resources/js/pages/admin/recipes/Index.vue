@@ -15,12 +15,11 @@ import { router } from '@inertiajs/vue3';
 const props = defineProps({
     items: { type: Array, required: true },
     ingredients: { type: Array, required: true },
+    costs: { type: Object, default: () => ({}) },
 });
 
 const slideOverOpen = ref(false);
 const editingItem = ref(null);
-const costing = ref(null);
-const costingLoading = ref(false);
 
 const columns = computed(() => [
     { key: 'name', label: t('menu.item'), align: 'left', sortable: true },
@@ -50,7 +49,6 @@ const form = useForm({
 
 function openBuilder(item) {
     editingItem.value = item;
-    costing.value = null;
     form.defaults({
         menu_item_id: item.id,
         note: item.recipe?.note ?? '',
@@ -61,9 +59,7 @@ function openBuilder(item) {
     }).reset();
     slideOverOpen.value = true;
 
-    if (item.recipe) {
-        calculateCost();
-    } else {
+    if (! item.recipe) {
         addLine();
     }
 }
@@ -82,38 +78,57 @@ function ingredientUnit(id) {
     return props.ingredients.find((ingredient) => ingredient.id === Number(id))?.unit?.symbol ?? '';
 }
 
-async function calculateCost() {
-    if (! editingItem.value) {
-        return;
+const sellingPrice = computed(() => {
+    const item = editingItem.value;
+
+    if (! item) {
+        return 0;
     }
 
-    costingLoading.value = true;
+    const variants = (item.variants ?? []).map((variant) => Number(variant.price)).filter((price) => price > 0);
 
-    try {
-        const response = await fetch(route('admin.recipes.cost', editingItem.value.id), {
-            headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+    return variants.length > 0 ? Math.min(...variants) : Number(item.base_price);
+});
+
+/**
+ * Cost of the lines as they are typed, from the average purchase cost of
+ * each ingredient in this branch. No save needed.
+ */
+const costing = computed(() => {
+    const lines = form.lines
+        .filter((line) => line.ingredient_id !== '' && Number(line.qty) > 0)
+        .map((line) => {
+            const ingredient = props.ingredients.find((entry) => entry.id === Number(line.ingredient_id));
+            const unitCost = Number(props.costs[line.ingredient_id] ?? 0);
+
+            return {
+                key: line.ingredient_id,
+                name: ingredient?.name ?? '',
+                unit: ingredient?.unit?.symbol ?? '',
+                qty: Number(line.qty),
+                unitCost,
+                lineCost: Number(line.qty) * unitCost,
+            };
         });
 
-        const payload = await response.json();
+    const total = lines.reduce((sum, line) => sum + line.lineCost, 0);
+    const price = sellingPrice.value;
 
-        costing.value = payload.data ?? null;
-    } catch {
-        notify.error(t('common.error_occurred'));
-    } finally {
-        costingLoading.value = false;
-    }
-}
+    return {
+        lines,
+        total,
+        price,
+        percent: price > 0 ? (total / price) * 100 : null,
+        margin: price - total,
+        missingCost: lines.filter((line) => line.unitCost === 0).map((line) => line.name),
+    };
+});
 
 function save() {
     form.post(route('admin.recipes.store'), {
-        onSuccess: async (page) => {
+        onSuccess: (page) => {
             notify.success(String(page.props.flash?.success ?? t('inventory.recipe_saved')));
-
-            if (form.lines.length > 0) {
-                await calculateCost();
-            } else {
-                slideOverOpen.value = false;
-            }
+            slideOverOpen.value = false;
         },
     });
 }
@@ -199,41 +214,53 @@ function save() {
                     </template>
                 </FormField>
 
-                <div v-if="costing" class="rounded-lg border border-border bg-background/50 p-3">
+                <div class="rounded-lg border border-border bg-background/50 p-3">
                     <h3 class="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted" :class="$page.props.locale === 'bn' ? 'normal-case tracking-normal' : ''">
                         <AppIcon name="sack-dollar" size="12" />
                         {{ t('inventory.current_cost') }}
                     </h3>
 
-                    <table class="w-full text-[13px]">
-                        <tbody>
-                            <tr v-for="line in costing.lines" :key="line.ingredient_id" class="border-b border-border/50">
-                                <td class="py-1 text-foreground">{{ line.name }}</td>
-                                <td class="py-1 text-right tabular-nums text-muted">{{ line.qty }} {{ line.unit_symbol }} x {{ line.unit_cost }}</td>
-                                <td class="py-1 text-right tabular-nums text-foreground" style="min-width: 80px">{{ formatMoney(line.line_cost) }}</td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr class="border-t-2 border-border font-semibold">
-                                <td class="py-1.5 text-foreground" colspan="2">{{ t('inventory.food_cost') }}</td>
-                                <td class="py-1.5 text-right tabular-nums text-foreground">{{ formatMoney(costing.cost) }}</td>
-                            </tr>
-                            <tr>
-                                <td class="py-1 text-muted" colspan="2">{{ t('inventory.food_cost_percent') }}</td>
-                                <td class="py-1 text-right tabular-nums" :class="Number(costing.food_cost_percent) > 40 ? 'font-semibold text-danger' : 'text-success'">
-                                    {{ costing.food_cost_percent ?? '\u2013' }}%
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
+                    <p v-if="costing.lines.length === 0" class="text-[13px] text-muted">{{ t('inventory.cost_empty') }}</p>
+
+                    <template v-else>
+                        <table class="w-full text-[13px]">
+                            <tbody>
+                                <tr v-for="line in costing.lines" :key="line.key" class="border-b border-border/50">
+                                    <td class="py-1 text-foreground">{{ line.name }}</td>
+                                    <td class="py-1 text-right tabular-nums text-muted">{{ line.qty }} {{ line.unit }} x {{ line.unitCost.toFixed(2) }}</td>
+                                    <td class="py-1 text-right tabular-nums text-foreground" style="min-width: 80px">{{ formatMoney(line.lineCost) }}</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="border-t-2 border-border font-semibold">
+                                    <td class="py-1.5 text-foreground" colspan="2">{{ t('inventory.food_cost') }}</td>
+                                    <td class="py-1.5 text-right tabular-nums text-foreground">{{ formatMoney(costing.total) }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-1 text-muted" colspan="2">{{ t('inventory.selling_price') }}</td>
+                                    <td class="py-1 text-right tabular-nums text-foreground">{{ formatMoney(costing.price) }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-1 text-muted" colspan="2">{{ t('inventory.margin') }}</td>
+                                    <td class="py-1 text-right tabular-nums" :class="costing.margin < 0 ? 'font-semibold text-danger' : 'text-foreground'">{{ formatMoney(costing.margin) }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-1 text-muted" colspan="2">{{ t('inventory.food_cost_percent') }}</td>
+                                    <td class="py-1 text-right tabular-nums" :class="costing.percent > 40 ? 'font-semibold text-danger' : 'text-success'">
+                                        {{ costing.percent === null ? '\u2013' : costing.percent.toFixed(1) + '%' }}
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <p v-if="costing.missingCost.length > 0" class="mt-2 text-xs text-warning">
+                            {{ t('inventory.cost_missing', { names: costing.missingCost.join(', ') }) }}
+                        </p>
+                    </template>
                 </div>
             </form>
 
             <template #footer>
-                <button type="button" class="h-7 rounded-md border border-border bg-surface px-2.5 text-[13px] text-foreground hover:bg-background" @click="calculateCost" :disabled="costingLoading">
-                    <AppIcon v-if="costingLoading" name="spinner" spin class="mr-1" />
-                    {{ t('inventory.calculate') }}
-                </button>
                 <button type="button" :disabled="form.processing || (form.lines.length === 0 && ! editingItem?.recipe)" class="inline-flex h-7 items-center gap-1.5 rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60" @click="save">
                     <AppIcon v-if="form.processing" name="spinner" spin />
                     {{ t('common.save') }}

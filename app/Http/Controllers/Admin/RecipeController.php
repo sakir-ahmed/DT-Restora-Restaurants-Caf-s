@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\RecipeRequest;
 use App\Models\Branch;
 use App\Models\Ingredient;
+use App\Models\IngredientStock;
 use App\Models\MenuItem;
 use App\Models\Recipe;
 use App\Services\CostingService;
@@ -38,9 +39,15 @@ class RecipeController extends Controller
             ->orderBy('name')
             ->get(['id', 'name', 'unit_id']);
 
+        $costs = IngredientStock::query()
+            ->where('branch_id', $branch->id)
+            ->pluck('avg_cost', 'ingredient_id')
+            ->map(fn ($cost): float => (float) $cost);
+
         return Inertia::render('admin/recipes/Index', [
             'items' => $items,
             'ingredients' => $ingredients,
+            'costs' => $costs,
         ]);
     }
 
