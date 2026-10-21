@@ -2,8 +2,10 @@
 import { router } from '@inertiajs/vue3';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
+import ChannelBadge from '@/components/ChannelBadge.vue';
 import { initEcho } from '@/lib/echo.js';
 import { t } from '@/lib/i18n';
+import { playOrderChime } from '@/lib/incomingOrders';
 import { notify } from '@/lib/notify';
 
 const props = defineProps({
@@ -93,7 +95,7 @@ onMounted(() => {
     if (echo) {
         echo.private(`branch.${props.branchId}.kitchen`)
             .listen('.OrderCreated', (event) => {
-                beep();
+                (event.channel && event.channel !== 'pos' ? playOrderChime : beep)();
                 notify.info(t('kds.new_order', { invoice: event.invoice_no }));
                 reload();
             })
@@ -175,7 +177,10 @@ onBeforeUnmount(() => {
                         <div class="flex items-start justify-between gap-2">
                             <div>
                                 <p class="text-sm font-bold text-foreground">{{ order.table ? order.table.name : t('orders.type.' + order.order_type) }}</p>
-                                <p class="text-xs text-muted">{{ order.invoice_no }}</p>
+                                <p class="flex items-center gap-1.5 text-xs text-muted">
+                                    {{ order.invoice_no }}
+                                    <ChannelBadge :channel="order.channel" :aggregator="order.aggregator_channel" />
+                                </p>
                             </div>
                             <span class="flex items-center gap-1 text-xs font-semibold tabular-nums" :class="elapsed(order) > 15 ? 'text-danger' : 'text-muted'">
                                 <AppIcon name="clock" size="10" />

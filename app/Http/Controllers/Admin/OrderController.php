@@ -20,6 +20,7 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Shift;
 use App\Services\Aggregators\Foodpanda\FoodpandaAdapter;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -35,7 +36,7 @@ class OrderController extends Controller
 
         $orders = Order::query()
             ->where('branch_id', $branch->id)
-            ->with(['table:id,name', 'waiter:id,name', 'cashier:id,name', 'items:id,order_id,name,quantity,line_total', 'voidRequest', 'payments'])
+            ->with(['table:id,name', 'waiter:id,name', 'cashier:id,name', 'items:id,order_id,name,quantity,line_total', 'voidRequest', 'payments', 'aggregatorChannel:id,key,name'])
             ->when($request->string('status')->toString(), fn ($query, $status) => $query->where('status', $status))
             ->when($request->string('search')->toString(), function ($query, $search): void {
                 $query->where('invoice_no', 'like', "%{$search}%");
@@ -50,6 +51,38 @@ class OrderController extends Controller
             'canVoid' => $request->user('staff')?->can('orders.void'),
             'canApproveVoid' => $request->user('staff')?->can('orders.void'),
             'canApprovePayments' => $request->user('staff')?->can('payments.manage'),
+        ]);
+    }
+
+    /**
+     * Website and delivery platform orders that arrived after the given
+     * order id. The POS polls this so the alert works without websockets.
+     */
+    public function incoming(Request $request): JsonResponse
+    {
+        $this->authorize('orders.create');
+
+        $branch = $this->currentBranch($request);
+        $after = (int) $request->integer('after');
+
+        $query = Order::query()
+            ->where('branch_id', $branch->id)
+            ->where('channel', '!=', OrderChannel::Pos->value);
+
+        if ($after === 0) {
+            return response()->json(['last_id' => (int) $query->max('id'), 'orders' => []]);
+        }
+
+        $orders = $query->where('id', '>', $after)
+            ->where('status', OrderStatus::Pending->value)
+            ->with('aggregatorChannel:id,key,name')
+            ->orderBy('id')
+            ->limit(20)
+            ->get(['id', 'invoice_no', 'channel', 'total', 'aggregator_channel_id']);
+
+        return response()->json([
+            'last_id' => (int) max($after, $orders->max('id') ?? 0),
+            'orders' => $orders,
         ]);
     }
 

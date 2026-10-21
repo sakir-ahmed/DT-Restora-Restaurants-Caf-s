@@ -11,6 +11,7 @@ import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/format';
 import { dishKind, localized } from '@/lib/site';
 import { cacheBootstrap, findOutbox, getCachedMenu, getDataVersion, getLocalShift, nextLocalInvoice, queueOutbox, rememberInvoiceCursor, rememberLocalShift, updateOutboxPayload } from '@/lib/offline';
+import { useIncomingOrders } from '@/lib/incomingOrders';
 import { notify } from '@/lib/notify';
 import { printHtml, printUrl } from '@/lib/print';
 import { localReceiptHtml } from '@/lib/receipt';
@@ -1012,6 +1013,8 @@ async function refreshOfflineCache() {
         // The cursor already on the device stays in place.
     }
 }
+
+useIncomingOrders(props.branch?.id ?? branch.value?.id);
 
 onMounted(() => {
     reconcileCart();

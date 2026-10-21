@@ -7,6 +7,7 @@ namespace App\Services\Aggregators;
 use App\Actions\Sales\CreateOrderAction;
 use App\Enums\OrderChannel;
 use App\Enums\OrderType;
+use App\Events\OrderCreated;
 use App\Models\AggregatorChannel;
 use App\Models\Branch;
 use App\Models\Customer;
@@ -39,7 +40,7 @@ class AggregatorOrderService
             return $existing;
         }
 
-        return DB::transaction(function () use ($channel, $payload): Order {
+        $order = DB::transaction(function () use ($channel, $payload): Order {
             $customer = null;
 
             if (! empty($payload['customer_mobile'])) {
@@ -74,5 +75,28 @@ class AggregatorOrderService
 
             return $order->fresh();
         });
+
+        $this->announce($channel, $order);
+
+        return $order;
+    }
+
+    /**
+     * Tell the kitchen and the POS terminals that a platform order arrived.
+     */
+    private function announce(AggregatorChannel $channel, Order $order): void
+    {
+        try {
+            broadcast(new OrderCreated($order->branch_id, [
+                'order_id' => $order->id,
+                'invoice_no' => $order->invoice_no,
+                'order_type' => $order->order_type->value,
+                'channel' => 'aggregator',
+                'aggregator' => $channel->name,
+                'items' => $order->items->map(fn ($item): array => ['name' => $item->name, 'quantity' => $item->quantity])->all(),
+            ]));
+        } catch (\Throwable) {
+            // A broadcast outage must not reject the platform order.
+        }
     }
 }

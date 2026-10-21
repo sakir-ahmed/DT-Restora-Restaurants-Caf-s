@@ -10,6 +10,7 @@ import StatusBadge from '@/components/ui-kit/StatusBadge.vue';
 import { useConfirm } from '@/components/ui-kit/useConfirm.js';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/format';
+import ChannelBadge from '@/components/ChannelBadge.vue';
 import { notify } from '@/lib/notify';
 import { printUrl } from '@/lib/print';
 
@@ -31,6 +32,7 @@ const voidNote = ref('');
 const columns = computed(() => [
     { key: 'created_at', label: t('ui_kit.created'), align: 'left', minWidth: '112px' },
     { key: 'invoice_no', label: t('inventory.invoice_no'), align: 'left', sortable: true },
+    { key: 'channel', label: t('orders.channel_label'), align: 'left', minWidth: '96px' },
     { key: 'order_type', label: t('orders.type_label'), align: 'left' },
     { key: 'table_name', label: t('receipt.table'), align: 'left' },
     { key: 'items_count', label: t('inventory.items_label'), type: 'number', minWidth: '64px' },
@@ -163,6 +165,10 @@ function pay(order) {
         <DataTable :columns="columns" :rows="rows" :clickable="false" :empty-title="t('orders.no_orders')">
             <template #cell(created_at)="{ value }">
                 <DateText :value="value" relative />
+            </template>
+            <template #cell(channel)="{ row }">
+                <ChannelBadge v-if="row.channel !== 'pos' || row.aggregator_channel" :channel="row.channel" :aggregator="row.aggregator_channel" />
+                <span v-else class="text-muted">{{ t('orders.channel_pos') }}</span>
             </template>
             <template #cell(total_display)="{ row }">
                 <MoneyText :value="row.total" :negative-danger="true" />

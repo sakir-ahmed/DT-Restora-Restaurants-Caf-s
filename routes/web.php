@@ -260,6 +260,7 @@ Route::prefix('admin')
         Route::get('pos', [PosController::class, 'index'])->name('pos.index')->middleware('permission:pos.access');
         Route::post('pos/unlock', [PosController::class, 'unlock'])->name('pos.unlock')->middleware('permission:pos.access');
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index')->middleware('permission:orders.view');
+        Route::get('orders/incoming', [OrderController::class, 'incoming'])->name('orders.incoming')->middleware('permission:orders.create');
         Route::post('orders', [OrderController::class, 'store'])->name('orders.store')->middleware('permission:orders.create');
         Route::put('orders/{order}', [OrderController::class, 'update'])->name('orders.update')->middleware('permission:orders.create');
         Route::post('orders/{order}/pay', [OrderController::class, 'pay'])->name('orders.pay')->middleware('permission:orders.create');

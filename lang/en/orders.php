@@ -108,4 +108,8 @@ return [
     'tendered_short' => 'Received',
     'print_short' => 'Print',
     'catalog_changed' => 'The menu was updated and has been refreshed. Check the items and send the order again.',
+    'channel_website' => 'Website',
+    'channel_pos' => 'POS',
+    'incoming_order' => 'New :source order :invoice',
+    'channel_label' => 'Channel',
 ];

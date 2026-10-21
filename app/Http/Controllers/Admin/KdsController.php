@@ -23,7 +23,7 @@ class KdsController extends Controller
         $orders = Order::query()
             ->where('branch_id', $branch->id)
             ->whereIn('status', [OrderStatus::Pending->value, OrderStatus::Preparing->value, OrderStatus::Ready->value])
-            ->with(['items:id,order_id,name,name_bn,quantity,add_ons', 'table:id,name', 'waiter:id,name'])
+            ->with(['items:id,order_id,name,name_bn,quantity,add_ons', 'table:id,name', 'waiter:id,name', 'aggregatorChannel:id,key,name'])
             ->oldest()
             ->get();
 

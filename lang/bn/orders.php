@@ -108,4 +108,8 @@ return [
     'tendered_short' => 'গ্রহণ',
     'print_short' => 'প্রিন্ট',
     'catalog_changed' => 'মেনু হালনাগাদ হয়েছে এবং রিফ্রেশ করা হয়েছে। আইটেম দেখে আবার অর্ডার পাঠান।',
+    'channel_website' => 'ওয়েবসাইট',
+    'channel_pos' => 'পিওএস',
+    'incoming_order' => ':source থেকে নতুন অর্ডার :invoice',
+    'channel_label' => 'চ্যানেল',
 ];

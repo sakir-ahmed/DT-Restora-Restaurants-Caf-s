@@ -219,6 +219,7 @@ class CheckoutController extends Controller
             'order_id' => $order->id,
             'invoice_no' => $order->invoice_no,
             'order_type' => $order->order_type->value,
+            'channel' => 'website',
             'items' => $order->items->map(fn ($item) => ['name' => $item->name, 'quantity' => $item->quantity])->all(),
         ]));
 
