@@ -34,7 +34,7 @@ class RecipeController extends Controller
             ->get();
 
         $ingredients = Ingredient::query()
-            ->with('unit:id,symbol,type')
+            ->with(['unit:id,symbol,type,base_unit_id,factor', 'unit.baseUnit:id,symbol'])
             ->active()
             ->orderBy('name')
             ->get(['id', 'name', 'unit_id']);

@@ -74,8 +74,16 @@ function ingredientName(id) {
     return props.ingredients.find((ingredient) => ingredient.id === Number(id))?.name ?? '';
 }
 
+/**
+ * Recipes, stock and costs are all kept in the base unit (grams for
+ * kilograms), so that is the unit to show next to a quantity.
+ */
+function baseSymbol(ingredient) {
+    return ingredient?.unit?.base_unit?.symbol ?? ingredient?.unit?.symbol ?? '';
+}
+
 function ingredientUnit(id) {
-    return props.ingredients.find((ingredient) => ingredient.id === Number(id))?.unit?.symbol ?? '';
+    return baseSymbol(props.ingredients.find((ingredient) => ingredient.id === Number(id)));
 }
 
 const sellingPrice = computed(() => {
@@ -104,7 +112,7 @@ const costing = computed(() => {
             return {
                 key: line.ingredient_id,
                 name: ingredient?.name ?? '',
-                unit: ingredient?.unit?.symbol ?? '',
+                unit: baseSymbol(ingredient),
                 qty: Number(line.qty),
                 unitCost,
                 lineCost: Number(line.qty) * unitCost,
@@ -187,14 +195,17 @@ function save() {
                             <template #default="{ id }">
                                 <select :id="id" v-model="line.ingredient_id" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent">
                                     <option value="" disabled>{{ t('common.select') }}</option>
-                                    <option v-for="ingredient in ingredients" :key="ingredient.id" :value="ingredient.id" :disabled="usedIngredients.includes(ingredient.id) && Number(line.ingredient_id) !== ingredient.id">{{ ingredient.name }} ({{ ingredient.unit?.symbol }})</option>
+                                    <option v-for="ingredient in ingredients" :key="ingredient.id" :value="ingredient.id" :disabled="usedIngredients.includes(ingredient.id) && Number(line.ingredient_id) !== ingredient.id">{{ ingredient.name }} ({{ baseSymbol(ingredient) }})</option>
                                 </select>
                             </template>
                         </FormField>
 
                         <FormField :error="form.errors['lines.' + index + '.qty']">
                             <template #default="{ id }">
-                                <input :id="id" v-model="line.qty" type="number" step="0.000001" min="0" :title="ingredientUnit(line.ingredient_id)" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
+                                <div class="relative">
+                                    <input :id="id" v-model="line.qty" type="number" step="0.000001" min="0" class="h-7 w-full rounded-md border border-border bg-surface py-0 pl-1.5 pr-7 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
+                                    <span class="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-[11px] text-muted">{{ ingredientUnit(line.ingredient_id) }}</span>
+                                </div>
                             </template>
                         </FormField>
 
@@ -227,7 +238,7 @@ function save() {
                             <tbody>
                                 <tr v-for="line in costing.lines" :key="line.key" class="border-b border-border/50">
                                     <td class="py-1 text-foreground">{{ line.name }}</td>
-                                    <td class="py-1 text-right tabular-nums text-muted">{{ line.qty }} {{ line.unit }} x {{ line.unitCost.toFixed(2) }}</td>
+                                    <td class="py-1 text-right tabular-nums text-muted">{{ line.qty }} {{ line.unit }} x {{ line.unitCost.toFixed(2) }} / {{ line.unit }}</td>
                                     <td class="py-1 text-right tabular-nums text-foreground" style="min-width: 80px">{{ formatMoney(line.lineCost) }}</td>
                                 </tr>
                             </tbody>
