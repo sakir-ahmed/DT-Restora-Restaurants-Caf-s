@@ -14,6 +14,7 @@ return [
     'rounding' => 'ভগ্নাংশ',
     'grand_total' => 'মোট',
     'change' => 'ফেরত',
+    'kitchen_token' => 'কিচেন টোকেন',
     'thank_you' => 'ধন্যবাদ। আবার আসবেন।',
     'reprint' => 'পুনর্মুদ্রণ',
     'print' => 'প্রিন্ট',

@@ -3,7 +3,7 @@
  * A hidden iframe loads the URL, then the browser print dialog
  * targets that frame. The receipt page stays off-screen.
  */
-export function printUrl(url) {
+export function printUrl(url, onDone = null) {
     document.getElementById('receipt-print-frame')?.remove();
 
     const iframe = document.createElement('iframe');
@@ -18,12 +18,14 @@ export function printUrl(url) {
 
         if (! frameWindow) {
             iframe.remove();
+            onDone?.();
 
             return;
         }
 
         frameWindow.addEventListener('afterprint', () => {
             iframe.remove();
+            onDone?.();
         }, { once: true });
 
         frameWindow.focus();
@@ -38,7 +40,7 @@ export function printUrl(url) {
  * Print a receipt that was built on the device. Used when the
  * server copy does not exist yet because the sale is still queued.
  */
-export function printHtml(html) {
+export function printHtml(html, onDone = null) {
     document.getElementById('receipt-print-frame')?.remove();
 
     const iframe = document.createElement('iframe');
@@ -53,12 +55,14 @@ export function printHtml(html) {
 
         if (! frameWindow) {
             iframe.remove();
+            onDone?.();
 
             return;
         }
 
         frameWindow.addEventListener('afterprint', () => {
             iframe.remove();
+            onDone?.();
         }, { once: true });
 
         frameWindow.focus();
@@ -67,4 +71,25 @@ export function printHtml(html) {
 
     iframe.srcdoc = html;
     document.body.appendChild(iframe);
+}
+
+/**
+ * Print several documents one after the other: each opens its print
+ * dialog once the previous one is closed. An entry is { url } for a
+ * server page or { html } for a receipt built on the device.
+ */
+export function printSequence(documents) {
+    const [next, ...rest] = documents;
+
+    if (! next) {
+        return;
+    }
+
+    const onDone = () => printSequence(rest);
+
+    if (next.url) {
+        printUrl(next.url, onDone);
+    } else {
+        printHtml(next.html, onDone);
+    }
 }

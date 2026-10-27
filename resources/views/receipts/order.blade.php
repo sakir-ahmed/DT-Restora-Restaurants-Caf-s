@@ -59,12 +59,23 @@
             }
         }
 
+        /* Compact: tighter type and spacing for narrow rolls */
+        body.layout-compact { font-size: 10px; line-height: 1.3; }
+        body.layout-compact .large { font-size: 11px; }
+        body.layout-compact .hr { margin: 3px 0; }
+        body.layout-compact .addon-line { font-size: 9px; }
+
+        /* Bold: large centered total and solid separators */
+        body.layout-bold { font-size: 12px; }
+        body.layout-bold .hr { border-top: 2px solid #000; }
+        body.layout-bold .grand td { font-size: 16px; padding: 4px 0; border-top: 2px solid #000; border-bottom: 2px solid #000; }
+
         @media print {
             .no-print { display: none; }
         }
     </style>
 </head>
-<body>
+<body class="layout-{{ $layout ?? 'classic' }}">
     <div class="center bold large">{{ $order->branch->name }}</div>
     @if ($order->branch->name_bn)
         <div class="center">{{ $order->branch->name_bn }}</div>
@@ -143,7 +154,7 @@
                 <td class="right">{{ \Illuminate\Support\Number::format((float) $order->rounding, 2) }}</td>
             </tr>
         @endif
-        <tr>
+        <tr class="grand">
             <td class="bold large">{{ __('receipt.grand_total') }}</td>
             <td class="right bold large">Tk {{ \Illuminate\Support\Number::format((float) $order->total, 2) }}</td>
         </tr>

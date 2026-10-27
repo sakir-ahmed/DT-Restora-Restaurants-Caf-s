@@ -14,6 +14,7 @@ return [
     'rounding' => 'Rounding',
     'grand_total' => 'Total',
     'change' => 'Change',
+    'kitchen_token' => 'Kitchen token',
     'thank_you' => 'Thank you. Please come again.',
     'reprint' => 'REPRINT',
     'print' => 'Print',

@@ -16,6 +16,7 @@ use App\Models\RestaurantTable;
 use App\Models\Setting;
 use App\Models\Shift;
 use App\Models\VoidRequest;
+use App\Services\PosSettings;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -63,7 +64,10 @@ class PosController extends Controller
                 ->latest()
                 ->limit(60)
                 ->get(['id', 'invoice_no', 'order_type', 'restaurant_table_id', 'customer_id', 'status', 'discount_type', 'discount_value', 'total', 'created_at']),
-            'branch' => $branch->only(['id', 'name', 'name_bn', 'code', 'phone', 'address', 'vat_percent', 'vat_inclusive', 'service_charge_percent', 'receipt_footer']),
+            'branch' => [
+                ...$branch->only(['id', 'name', 'name_bn', 'code', 'phone', 'address', 'vat_percent', 'vat_inclusive', 'service_charge_percent', 'receipt_footer']),
+                'pos_settings' => PosSettings::for($branch),
+            ],
             'openShift' => $openShift,
             'canOverrideDiscount' => $user->can('discounts.override'),
             'canVoid' => $user->can('orders.void'),

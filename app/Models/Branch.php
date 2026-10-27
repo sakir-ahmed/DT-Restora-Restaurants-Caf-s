@@ -22,7 +22,7 @@ class Branch extends Model
         'latitude', 'longitude', 'vat_percent', 'vat_inclusive',
         'service_charge_percent', 'allow_negative_stock',
         'online_ordering_enabled', 'opening_hours', 'receipt_footer',
-        'is_active',
+        'pos_settings', 'is_active',
     ];
 
     protected $casts = [
@@ -34,6 +34,7 @@ class Branch extends Model
         'allow_negative_stock' => 'boolean',
         'online_ordering_enabled' => 'boolean',
         'opening_hours' => 'array',
+        'pos_settings' => 'array',
         'is_active' => 'boolean',
     ];
 

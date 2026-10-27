@@ -56,9 +56,15 @@ body { font-family: 'Noto Sans Bengali', 'Courier New', monospace; width: 72mm; 
 table { width: 100%; border-collapse: collapse; }
 td { padding: 1px 0; vertical-align: top; }
 td.right { text-align: right; }
+body.layout-compact { font-size: 10px; line-height: 1.3; }
+body.layout-compact .large { font-size: 11px; }
+body.layout-compact .hr { margin: 3px 0; }
+body.layout-bold { font-size: 12px; }
+body.layout-bold .hr { border-top: 2px solid #000; }
+body.layout-bold .grand td { font-size: 16px; padding: 4px 0; border-top: 2px solid #000; border-bottom: 2px solid #000; }
 </style>
 </head>
-<body>
+<body class="layout-${escapeHtml(receipt.layout ?? 'classic')}">
 <div class="center bold large">${escapeHtml(branch.name ?? '')}</div>
 ${branch.address ? `<div class="center">${escapeHtml(branch.address)}</div>` : ''}
 ${branch.phone ? `<div class="center">${escapeHtml(t('receipt.phone'))}: ${escapeHtml(branch.phone)}</div>` : ''}
@@ -72,13 +78,53 @@ ${branch.phone ? `<div class="center">${escapeHtml(t('receipt.phone'))}: ${escap
 <table>
 ${row(t('receipt.subtotal'), money(receipt.subtotal))}
 ${extras}
-<tr><td class="bold large">${escapeHtml(t('receipt.grand_total'))}</td><td class="right bold large">Tk ${money(receipt.total)}</td></tr>
+<tr class="grand"><td class="bold large">${escapeHtml(t('receipt.grand_total'))}</td><td class="right bold large">Tk ${money(receipt.total)}</td></tr>
 ${change}
 </table>
 <div class="hr"></div>
 ${branch.receipt_footer ? `<div class="center">${escapeHtml(branch.receipt_footer)}</div>` : ''}
 <div class="center">${escapeHtml(t('receipt.thank_you'))}</div>
 <div class="center">${escapeHtml(t('sync.queued'))}</div>
+</body>
+</html>`;
+}
+
+/**
+ * Small kitchen token for a sale that has not reached the server yet.
+ *
+ * @param {object} token
+ */
+export function localKitchenTokenHtml(token) {
+    const lines = (token.lines ?? []).map((line) => `
+        <div class="item">${escapeHtml(line.quantity)} x ${escapeHtml(line.name)}</div>
+        ${(line.addOns ?? []).map((addOn) => `<div class="addon">+ ${escapeHtml(addOn.qty)} x ${escapeHtml(addOn.name)}</div>`).join('')}
+    `).join('');
+
+    return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>${escapeHtml(token.invoiceNo)}</title>
+<style>
+@page { size: 58mm auto; margin: 0; }
+body { font-family: 'Noto Sans Bengali', 'Courier New', monospace; width: 52mm; margin: 0 auto; padding: 3mm 0; color: #000; font-size: 13px; line-height: 1.35; }
+.center { text-align: center; }
+.bold { font-weight: 700; }
+.large { font-size: 16px; }
+.hr { border-top: 2px dashed #000; margin: 5px 0; }
+.item { font-weight: 700; font-size: 14px; }
+.addon { padding-left: 10px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="center bold large">${escapeHtml(t('receipt.kitchen_token'))}</div>
+<div class="center bold">${escapeHtml(token.invoiceNo)}</div>
+<div class="center">${escapeHtml(token.when ?? '')}</div>
+<div class="hr"></div>
+<div class="bold">${escapeHtml(token.orderType ?? '')}${token.table ? ` - ${escapeHtml(token.table)}` : ''}</div>
+<div class="hr"></div>
+${lines}
+<div class="hr"></div>
 </body>
 </html>`;
 }

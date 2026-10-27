@@ -127,6 +127,7 @@ return [
     'customize' => 'Customize item',
     'add_to_order' => 'Add to order',
     'add_ons_for' => 'Add-ons for :name',
+    'quick_save' => 'Quick save',
     'mobile_menu_tab' => 'Menu',
     'mobile_order_tab' => 'Order',
     'menu_no_placeholder' => 'Item no.',

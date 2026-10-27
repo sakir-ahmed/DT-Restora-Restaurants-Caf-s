@@ -14,8 +14,9 @@ import { dishKind, localized } from '@/lib/site';
 import { cacheBootstrap, findOutbox, getCachedMenu, getDataVersion, getLocalShift, nextLocalInvoice, queueOutbox, rememberInvoiceCursor, rememberLocalShift, updateOutboxPayload } from '@/lib/offline';
 import { useIncomingOrders } from '@/lib/incomingOrders';
 import { notify } from '@/lib/notify';
-import { printHtml, printUrl } from '@/lib/print';
-import { localReceiptHtml } from '@/lib/receipt';
+import { parseInvoiceSequence } from '@/lib/invoice';
+import { printHtml, printSequence, printUrl } from '@/lib/print';
+import { localKitchenTokenHtml, localReceiptHtml } from '@/lib/receipt';
 
 const props = defineProps({
     categories: { type: Array, required: true },
@@ -456,6 +457,24 @@ function addItem(item) {
 }
 
 const menuNumberInput = ref('');
+
+// Branch-wise POS settings: which buttons show and what each one prints
+const DEFAULT_ACTIONS = {
+    send_to_kitchen: { enabled: true, exact_amount: false, print_invoice: false, print_kitchen: false },
+    confirm_payment: { enabled: true, exact_amount: false, print_invoice: false, print_kitchen: false },
+    quick_save: { enabled: false, exact_amount: true, print_invoice: true, print_kitchen: false },
+};
+const posActions = computed(() => {
+    const configured = branch.value.pos_settings?.actions ?? {};
+
+    return Object.fromEntries(Object.entries(DEFAULT_ACTIONS).map(([key, defaults]) => [key, { ...defaults, ...(configured[key] ?? {}) }]));
+});
+const invoiceLayout = computed(() => branch.value.pos_settings?.invoice_layout ?? 'classic');
+const primarySpanClass = computed(() => {
+    const visible = Object.values(posActions.value).filter((action) => action.enabled).length;
+
+    return { 1: 'col-span-6', 2: 'col-span-3', 3: 'col-span-2' }[visible] ?? 'col-span-6';
+});
 const mobileTab = ref('menu');
 
 function findByMenuNumber(number) {
@@ -1058,7 +1077,7 @@ function startNewOrder() {
     sessionStorage.removeItem(TICKET_KEY);
 }
 
-async function submitOrder() {
+async function submitOrder(mode = 'send_to_kitchen') {
     if (latestOrder.value || discountBlocked.value) {
         if (discountBlocked.value) {
             notify.error(t('orders.discount_limit_exceeded'));
@@ -1129,7 +1148,7 @@ async function submitOrder() {
     }
 
     if (! navigator.onLine) {
-        const invoiceNo = await nextLocalInvoice(branch.value.code, TERMINAL);
+        const invoiceNo = await nextLocalInvoice(branch.value.code, TERMINAL, branch.value.pos_settings);
         const queued = await queueOutbox('order', {
             ...payload,
             branch_id: branch.value.id,
@@ -1144,6 +1163,7 @@ async function submitOrder() {
             total: total.value,
         };
         notify.info(t('sync.queued'));
+        finishSave(mode, latestOrder.value);
 
         return;
     }
@@ -1161,9 +1181,9 @@ async function submitOrder() {
             editingOrder.value = null;
 
             if (order?.invoice_no) {
-                const sequence = Number(String(order.invoice_no).split('-').pop());
+                const sequence = parseInvoiceSequence(branch.value.pos_settings, order.invoice_no, branch.value.code, TERMINAL);
 
-                if (Number.isFinite(sequence)) {
+                if (Number.isFinite(sequence) && sequence !== null) {
                     rememberInvoiceCursor(branch.value.code, TERMINAL, sequence);
                 }
 
@@ -1171,6 +1191,10 @@ async function submitOrder() {
             }
 
             notify.success(order?.invoice_no ? `${t(editing ? 'orders.order_updated' : 'orders.sent_to_kitchen')} ${order.invoice_no}` : t('orders.sent_to_kitchen'));
+
+            if (order?.invoice_no) {
+                finishSave(mode, order);
+            }
         },
         onError: (errors) => {
             // The menu changed since this page loaded (for example after the daily demo reset):
@@ -1188,7 +1212,65 @@ async function submitOrder() {
     });
 }
 
-async function payNow() {
+// After the order is saved: quick save takes the exact amount at once, the kitchen button prints its slips.
+function finishSave(mode, order) {
+    if (mode === 'quick_save') {
+        tendered.value = Number(order.total ?? total.value).toFixed(2);
+        payMode.value = 'cash';
+        payNow('quick_save');
+
+        return;
+    }
+
+    printAfter('send_to_kitchen', order);
+}
+
+function localInvoiceHtml(order) {
+    return localReceiptHtml({
+        layout: invoiceLayout.value,
+        branch: branch.value,
+        invoiceNo: order.invoice_no,
+        when: new Date().toLocaleString(),
+        orderType: t(`orders.type.${orderType.value}`),
+        lines: receiptLines(),
+        subtotal: subtotal.value,
+        discount: discountAmount.value,
+        service: serviceCharge.value,
+        extra: extraTotal.value,
+        vat: vatAmount.value,
+        total: order.total ?? total.value,
+        change: changeShown.value,
+    });
+}
+
+function localKitchenHtml(order) {
+    return localKitchenTokenHtml({
+        invoiceNo: order.invoice_no,
+        when: new Date().toLocaleString(),
+        orderType: t(`orders.type.${orderType.value}`),
+        table: orderType.value === 'dine_in' ? (tables.value.find((entry) => entry.id === tableId.value)?.name ?? null) : null,
+        lines: cart.value.map((line) => ({ name: [localized(line.item, 'name'), line.variant ? localized(line.variant, 'name') : null].filter(Boolean).join(' - '), quantity: line.quantity, addOns: line.addOns })),
+    });
+}
+
+// Print what the branch settings ask for after this button: customer invoice, kitchen token or both.
+function printAfter(action, order) {
+    const flags = posActions.value[action];
+    const orderId = order?.id ?? null;
+    const documents = [];
+
+    if (flags.print_invoice) {
+        documents.push(orderId ? { url: route('admin.orders.receipt', orderId) } : { html: localInvoiceHtml(order) });
+    }
+
+    if (flags.print_kitchen) {
+        documents.push(orderId ? { url: route('admin.orders.kitchen-token', orderId) } : { html: localKitchenHtml(order) });
+    }
+
+    printSequence(documents);
+}
+
+async function payNow(source = 'confirm_payment') {
     const order = pagePropsOrder();
 
     if (! order) {
@@ -1215,6 +1297,7 @@ async function payNow() {
             invoice_no: order.invoice_no,
         };
         notify.info(t('sync.queued'));
+        printAfter(source, order);
 
         return;
     }
@@ -1230,6 +1313,7 @@ async function payNow() {
                 change_due: changeDue.value,
             };
             notify.success(t('orders.paid_success'));
+            printAfter(source, order);
         },
         onError: (errors) => {
             const first = Object.values(errors)[0];
@@ -1340,20 +1424,7 @@ function printCustomerCopy() {
     const orderId = lastPayment.value?.order_id ?? order?.id;
 
     if (! orderId && order?.invoice_no) {
-        printHtml(localReceiptHtml({
-            branch: branch.value,
-            invoiceNo: order.invoice_no,
-            when: new Date().toLocaleString(),
-            orderType: t(`orders.type.${orderType.value}`),
-            lines: receiptLines(),
-            subtotal: subtotal.value,
-            discount: discountAmount.value,
-            service: serviceCharge.value,
-            extra: extraTotal.value,
-            vat: vatAmount.value,
-            total: order.total ?? total.value,
-            change: changeShown.value,
-        }));
+        printHtml(localInvoiceHtml(order));
 
         return;
     }
@@ -1515,6 +1586,7 @@ function paySplit() {
                 invoice_no: order.invoice_no,
             };
             notify.info(t('sync.queued'));
+            printAfter('confirm_payment', order);
         });
 
         return;
@@ -1535,6 +1607,7 @@ function paySplit() {
                 change_due: 0,
             };
             notify.success(t('payments.split_completed'));
+            printAfter('confirm_payment', order);
         },
         onError: (errors) => notify.error(Object.values(errors)[0] ?? t('payments.split_mismatch')),
     });
@@ -1560,6 +1633,7 @@ function payWalletManual() {
                 invoice_no: order.invoice_no,
             };
             notify.info(t('sync.queued'));
+            printAfter('confirm_payment', order);
         });
 
         return;
@@ -1578,6 +1652,7 @@ function payWalletManual() {
                 change_due: 0,
             };
             notify.success(t('payments.manual_recorded'));
+            printAfter('confirm_payment', order);
         },
         onError: (errors) => notify.error(Object.values(errors)[0] ?? t('common.error_occurred')),
     });
@@ -1611,6 +1686,13 @@ const confirmPaymentLabel = computed(() => (payMode.value === 'wallet' ? t('paym
 const laneLocked = computed(() => !! lastPayment.value);
 const discountAllTotal = computed(() => itemDiscountTotal.value + billDiscountAmount.value);
 const changeShown = computed(() => (lastPayment.value ? Number(lastPayment.value.change_due ?? 0) : changeDue.value));
+
+// Exact amount: put the bill total in the received box once an order is saved.
+watch(() => [latestOrder.value, payMode.value], () => {
+    if (posActions.value.confirm_payment.exact_amount && latestOrder.value && ! lastPayment.value && payMode.value === 'cash' && ! tendered.value) {
+        tendered.value = Number(latestOrder.value.total ?? total.value).toFixed(2);
+    }
+});
 
 const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (latestOrder.value ? Number(latestOrder.value.total) : total.value)));
 </script>
@@ -1987,18 +2069,33 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                 <!-- Actions -->
                 <div class="grid grid-cols-6 gap-1">
                     <button
+                        v-if="posActions.send_to_kitchen.enabled"
                         type="button"
                         :disabled="cart.length === 0 || !! latestOrder || discountBlocked"
-                        class="col-span-3 flex h-7 items-center justify-center gap-1 rounded-md bg-primary text-[13px] font-semibold text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-                        @click="submitOrder"
+                        class="flex h-7 items-center justify-center gap-1 rounded-md bg-primary text-[13px] font-semibold text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                        :class="primarySpanClass"
+                        @click="submitOrder('send_to_kitchen')"
                     >
                         <AppIcon name="utensils" size="12" />
                         {{ editingOrder ? t('orders.update_order') : t('orders.send_kitchen') }}
                     </button>
                     <button
+                        v-if="posActions.quick_save.enabled"
+                        type="button"
+                        :disabled="cart.length === 0 || !! latestOrder || discountBlocked"
+                        class="flex h-7 items-center justify-center gap-1 rounded-md bg-accent text-[13px] font-semibold text-accent-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                        :class="primarySpanClass"
+                        @click="submitOrder('quick_save')"
+                    >
+                        <AppIcon name="bolt" size="12" />
+                        {{ t('orders.quick_save') }}
+                    </button>
+                    <button
+                        v-if="posActions.confirm_payment.enabled"
                         type="button"
                         :disabled="! canConfirmPayment"
-                        class="col-span-3 flex h-7 items-center justify-center gap-1 rounded-md bg-success text-[13px] font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                        class="flex h-7 items-center justify-center gap-1 rounded-md bg-success text-[13px] font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                        :class="primarySpanClass"
                         @click="confirmPayment"
                     >
                         <AppIcon name="money-bill-wave" size="12" />

@@ -127,6 +127,7 @@ return [
     'customize' => 'আইটেম কাস্টমাইজ',
     'add_to_order' => 'অর্ডারে যোগ করুন',
     'add_ons_for' => ':name এর অ্যাড-অন',
+    'quick_save' => 'দ্রুত সেভ',
     'mobile_menu_tab' => 'মেনু',
     'mobile_order_tab' => 'অর্ডার',
     'menu_no_placeholder' => 'আইটেম নং',

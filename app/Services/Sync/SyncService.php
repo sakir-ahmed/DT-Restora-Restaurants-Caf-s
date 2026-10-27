@@ -26,6 +26,7 @@ use App\Models\StockCount;
 use App\Models\SyncItem;
 use App\Models\Unit;
 use App\Models\User;
+use App\Services\PosSettings;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -430,7 +431,10 @@ class SyncService
 
         return [
             'data_version' => DataVersion::current(),
-            'branch' => $branch->only(['id', 'name', 'name_bn', 'code', 'phone', 'address', 'vat_percent', 'vat_inclusive', 'service_charge_percent', 'receipt_footer']),
+            'branch' => [
+                ...$branch->only(['id', 'name', 'name_bn', 'code', 'phone', 'address', 'vat_percent', 'vat_inclusive', 'service_charge_percent', 'receipt_footer']),
+                'pos_settings' => PosSettings::for($branch),
+            ],
             'categories' => MenuCategory::query()
                 ->where('branch_id', $branch->id)
                 ->active()

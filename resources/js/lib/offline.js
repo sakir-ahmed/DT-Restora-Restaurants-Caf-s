@@ -1,4 +1,5 @@
 import Dexie from 'dexie';
+import { formatInvoice } from '@/lib/invoice';
 
 const db = new Dexie('dt-restora-pos');
 
@@ -86,7 +87,7 @@ export async function rememberInvoiceCursor(branchCode, terminal, lastNumber, fo
  * Next invoice for this device: BR01-T01-20261016-0001.
  * The counter lives in IndexedDB, so a closed browser does not reuse it.
  */
-export async function nextLocalInvoice(branchCode, terminal) {
+export async function nextLocalInvoice(branchCode, terminal, settings = null) {
     const day = deviceDay();
     const key = invoiceCursorKey(branchCode, terminal, day);
     const current = Number((await db.meta.get(key))?.value ?? 0);
@@ -94,7 +95,7 @@ export async function nextLocalInvoice(branchCode, terminal) {
 
     await db.meta.put({ key, value: number });
 
-    return `${branchCode}-${String(terminal).toUpperCase()}-${day}-${String(number).padStart(4, '0')}`;
+    return formatInvoice(settings, { branchCode, terminal, day, number });
 }
 
 export async function rememberLocalShift(shift) {

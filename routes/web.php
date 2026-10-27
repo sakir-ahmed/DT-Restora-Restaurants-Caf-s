@@ -274,6 +274,7 @@ Route::prefix('admin')
         Route::post('orders/{order}/void-request', [OrderController::class, 'requestVoid'])->name('orders.void-request')->middleware('permission:orders.create');
         Route::post('orders/{order}/approve-void', [OrderController::class, 'approveVoid'])->name('orders.approve-void')->middleware('permission:orders.void');
         Route::get('orders/{order}/receipt', [ReceiptController::class, 'show'])->name('orders.receipt')->middleware('permission:orders.view');
+        Route::get('orders/{order}/kitchen-token', [ReceiptController::class, 'kitchenToken'])->name('orders.kitchen-token')->middleware('permission:orders.view');
 
         Route::post('shifts/open', [ShiftController::class, 'open'])->name('shifts.open')->middleware('permission:shifts.manage');
         Route::post('shifts/{shift}/close', [ShiftController::class, 'close'])->name('shifts.close')->middleware('permission:shifts.manage');
@@ -328,6 +329,7 @@ Route::prefix('admin')
 
         Route::get('settings', [SettingController::class, 'index'])->name('settings.index')->middleware('permission:settings.manage');
         Route::put('settings', [SettingController::class, 'update'])->name('settings.update')->middleware('permission:settings.manage');
+        Route::put('settings/branches/{branch}', [SettingController::class, 'updateBranch'])->name('settings.branch')->middleware('permission:settings.manage');
 
         Route::get('activity-log', [ActivityLogController::class, 'index'])->name('activity.index')->middleware('permission:activity.view');
 
