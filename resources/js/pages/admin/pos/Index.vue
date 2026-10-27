@@ -1,13 +1,13 @@
 <script setup>
 import { useForm, router, usePage } from '@inertiajs/vue3';
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
 import DishArt from '@/components/site/DishArt.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
 import MobileInput from '@/components/ui-kit/MobileInput.vue';
 import PosTableTile from '@/components/admin/PosTableTile.vue';
 import MoneyInput from '@/components/ui-kit/MoneyInput.vue';
-import { useConfirm } from '@/components/ui-kit/useConfirm.js';
+import { useConfirm, useConfirmState } from '@/components/ui-kit/useConfirm.js';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/format';
 import { dishKind, localized } from '@/lib/site';
@@ -30,6 +30,7 @@ const props = defineProps({
 });
 
 const confirm = useConfirm();
+const confirmState = useConfirmState().state;
 const page = usePage();
 
 const categories = ref(props.categories);
@@ -1523,10 +1524,172 @@ function printCustomerCopy() {
     printUrl(route('admin.orders.receipt', orderId));
 }
 
-// keyboard shortcuts: / focus search, F2 new order (clear), F8 hold
+// Keyboard shortcuts. The list shown in the help window is shortcutGroups below; keep both in step.
+const shortcutsOpen = ref(false);
+
+const shortcutGroups = computed(() => [
+    {
+        title: t('orders.sc_group_find'),
+        items: [
+            { keys: ['F2'], label: t('orders.sc_item_no') },
+            { keys: ['F3', '/'], label: t('orders.sc_search') },
+            { keys: ['Enter'], label: t('orders.sc_add_by_no') },
+            { keys: ['Shift+Enter'], label: t('orders.sc_remove_by_no') },
+        ],
+    },
+    {
+        title: t('orders.sc_group_order'),
+        items: [
+            { keys: ['F4', 'Ctrl+Enter'], label: t('orders.sc_send') },
+            { keys: ['F6'], label: t('orders.sc_quick') },
+            { keys: ['F8'], label: t('orders.sc_hold') },
+            { keys: ['Alt+N'], label: t('orders.sc_new') },
+            { keys: ['Alt+X'], label: t('orders.sc_clear') },
+        ],
+    },
+    {
+        title: t('orders.sc_group_payment'),
+        items: [
+            { keys: ['Alt+1', '...', 'Alt+9'], label: t('orders.sc_method') },
+            { keys: ['Alt+E'], label: t('orders.sc_exact') },
+            { keys: ['F9'], label: t('orders.sc_confirm') },
+            { keys: ['F10'], label: t('orders.sc_print') },
+        ],
+    },
+    {
+        title: t('orders.sc_group_general'),
+        items: [
+            { keys: ['F1', '?'], label: t('orders.sc_help') },
+            { keys: ['Esc'], label: t('orders.sc_close') },
+        ],
+    },
+]);
+
+function focusField(selector, tab) {
+    mobileTab.value = tab;
+
+    nextTick(() => {
+        const field = document.querySelector(selector);
+
+        field?.focus();
+        field?.select?.();
+    });
+}
+
+function canSendOrder() {
+    return cart.value.length > 0 && ! latestOrder.value && ! discountBlocked.value;
+}
+
+function runShortcut(action) {
+    switch (action) {
+        case 'help': shortcutsOpen.value = ! shortcutsOpen.value; break;
+        case 'item_no': focusField('[data-pos-menu-number]', 'order'); break;
+        case 'search': focusField('[data-pos-search]', 'menu'); break;
+        case 'send':
+            if (posActions.value.send_to_kitchen.enabled && canSendOrder()) {
+                submitOrder('send_to_kitchen');
+            }
+
+            break;
+        case 'quick':
+            if (posActions.value.quick_save.enabled && payMethods.value.includes('cash') && canSendOrder()) {
+                submitOrder('quick_save');
+            }
+
+            break;
+        case 'hold':
+            if (cart.value.length > 0 && ! latestOrder.value) {
+                holdOrder();
+            }
+
+            break;
+        case 'new':
+            if (latestOrder.value || lastPayment.value) {
+                startNewOrder();
+            }
+
+            break;
+        case 'clear':
+            if (hasTicketData.value) {
+                clearAll();
+            }
+
+            break;
+        case 'confirm':
+            if (posActions.value.confirm_payment.enabled && canConfirmPayment.value) {
+                confirmPayment();
+            }
+
+            break;
+        case 'print':
+            if (latestOrder.value || lastPayment.value) {
+                printCustomerCopy();
+            }
+
+            break;
+        case 'exact':
+            if (! lastPayment.value && payLines.value.length === 1 && methodType(payMethod.value) === 'cash') {
+                quickAmount(orderDue());
+            }
+
+            break;
+        default:
+            if (action.startsWith('method:') && ! lastPayment.value) {
+                const method = payMethods.value[Number(action.slice(7)) - 1];
+
+                if (method) {
+                    payMethod.value = method;
+                }
+            }
+    }
+}
+
+function shortcutFor(event) {
+    const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
+    const modifier = event.ctrlKey || event.metaKey;
+
+    if (modifier && event.key === 'Enter') {
+        return 'send';
+    }
+
+    if (event.altKey && ! modifier) {
+        const byCode = { KeyN: 'new', KeyX: 'clear', KeyE: 'exact' };
+
+        if (byCode[event.code]) {
+            return byCode[event.code];
+        }
+
+        if (/^Digit[1-9]$/.test(event.code)) {
+            return `method:${event.code.slice(5)}`;
+        }
+    }
+
+    if (modifier || event.altKey) {
+        return null;
+    }
+
+    const byKey = { F1: 'help', F2: 'item_no', F3: 'search', F4: 'send', F6: 'quick', F8: 'hold', F9: 'confirm', F10: 'print' };
+
+    if (byKey[event.key]) {
+        return byKey[event.key];
+    }
+
+    if (! typing && event.key === '/') {
+        return 'search';
+    }
+
+    if (! typing && event.key === '?') {
+        return 'help';
+    }
+
+    return null;
+}
+
 function onKeydown(event) {
     if (event.key === 'Escape') {
-        if (optionsDialog.value) {
+        if (shortcutsOpen.value) {
+            shortcutsOpen.value = false;
+        } else if (optionsDialog.value) {
             optionsDialog.value = null;
         } else if (variantPicker.value) {
             variantPicker.value = null;
@@ -1537,17 +1700,23 @@ function onKeydown(event) {
         return;
     }
 
-    if (variantPicker.value || itemEditor.value || optionsDialog.value) {
+    if (locked.value || confirmState.open) {
         return;
     }
 
-    if (event.key === '/' && document.activeElement?.tagName !== 'INPUT') {
-        event.preventDefault();
-        document.querySelector('[data-pos-search]')?.focus();
-    } else if (event.key === 'F8') {
-        event.preventDefault();
-        holdOrder();
+    const action = shortcutFor(event);
+
+    if (action === null) {
+        return;
     }
+
+    // The help window opens from anywhere; every other shortcut waits until the item windows are closed.
+    if (action !== 'help' && (shortcutsOpen.value || variantPicker.value || itemEditor.value || optionsDialog.value)) {
+        return;
+    }
+
+    event.preventDefault();
+    runShortcut(action);
 }
 
 async function refreshOfflineCache() {
@@ -1941,6 +2110,15 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                 >
                     {{ category.name }}
                 </button>
+                <button
+                    type="button"
+                    class="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border bg-surface text-muted hover:text-foreground"
+                    :aria-label="t('orders.shortcuts_title')"
+                    :title="`${t('orders.shortcuts_title')} (F1)`"
+                    @click="shortcutsOpen = true"
+                >
+                    <AppIcon name="keyboard" size="13" />
+                </button>
             </div>
 
             <div class="thin-scrollbar grid flex-1 grid-cols-2 content-start gap-2 overflow-y-auto sm:grid-cols-3 xl:grid-cols-4">
@@ -2065,12 +2243,14 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                         </button>
                         <input
                             v-model="menuNumberInput"
+                            data-pos-menu-number
                             type="number"
                             min="1"
                             inputmode="numeric"
                             :placeholder="t('orders.menu_no_placeholder')"
                             :aria-label="t('orders.menu_no_placeholder')"
                             :disabled="!!latestOrder"
+                            @keydown.enter.shift.prevent="removeByMenuNumber"
                             class="w-14 min-w-0 border-0 bg-transparent px-1 text-center text-[11px] tabular-nums text-foreground outline-none [appearance:textfield] disabled:opacity-50 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                         >
                         <button type="submit" class="flex w-5 shrink-0 items-center justify-center border-l border-border bg-accent text-accent-foreground hover:opacity-90 disabled:opacity-40" :disabled="!!latestOrder || ! menuNumberInput" :aria-label="t('orders.menu_no_add')" :title="t('orders.menu_no_add')">
@@ -2528,6 +2708,42 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                             </button>
                         </div>
                     </div>
+                </div>
+            </div>
+        </Teleport>
+
+        <Teleport to="body">
+            <div v-if="shortcutsOpen" class="fixed inset-0 z-[85] flex items-center justify-center bg-black/60 p-3" @click.self="shortcutsOpen = false">
+                <div role="dialog" aria-modal="true" :aria-label="t('orders.shortcuts_title')" class="flex max-h-[min(36rem,calc(100vh-1.5rem))] w-full max-w-lg flex-col overflow-hidden rounded-xl border border-border bg-surface">
+                    <div class="flex items-center justify-between gap-2 border-b border-border px-4 py-2.5">
+                        <h2 class="flex items-center gap-2 text-base font-semibold text-foreground">
+                            <AppIcon name="keyboard" size="14" class="text-muted" />
+                            {{ t('orders.shortcuts_title') }}
+                        </h2>
+                        <button type="button" class="flex h-7 w-7 items-center justify-center rounded-md text-muted hover:text-foreground" :aria-label="t('common.close')" @click="shortcutsOpen = false">
+                            <AppIcon name="xmark" size="14" />
+                        </button>
+                    </div>
+
+                    <div class="thin-scrollbar min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-3">
+                        <section v-for="group in shortcutGroups" :key="group.title">
+                            <h3 class="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">{{ group.title }}</h3>
+                            <dl class="divide-y divide-border rounded-lg border border-border">
+                                <div v-for="item in group.items" :key="item.label" class="flex items-center justify-between gap-3 px-3 py-1.5">
+                                    <dt class="text-[13px] text-foreground">{{ item.label }}</dt>
+                                    <dd class="flex shrink-0 flex-wrap items-center justify-end gap-1">
+                                        <template v-for="(key, index) in item.keys" :key="key">
+                                            <span v-if="index > 0 && key !== '...' && item.keys[index - 1] !== '...'" class="text-[11px] text-muted">{{ t('orders.sc_or') }}</span>
+                                            <span v-if="key === '...'" class="text-xs text-muted">...</span>
+                                            <kbd v-else class="rounded border border-border bg-background px-1.5 py-0.5 font-mono text-[11px] font-medium text-foreground shadow-[0_1px_0_var(--color-border)]">{{ key }}</kbd>
+                                        </template>
+                                    </dd>
+                                </div>
+                            </dl>
+                        </section>
+                    </div>
+
+                    <p class="border-t border-border px-4 py-2 text-xs text-muted">{{ t('orders.shortcuts_hint') }}</p>
                 </div>
             </div>
         </Teleport>
