@@ -10,6 +10,8 @@ return [
     'wastage_spike' => 'Wastage spike multiplier',
     'wastage_spike_helper' => 'Alert when today exceeds this multiple of the 7-day average.',
     'pos_pin' => 'POS lock after (minutes)',
+    'pos_lock_enabled' => 'Lock the POS when idle',
+    'pos_lock_helper' => 'Off by default. When on, the POS asks for the staff PIN after the idle time below.',
     'pos_pin_helper' => 'The POS asks for the staff PIN after this many idle minutes.',
     'delivery_otp' => 'Require a delivery OTP',
     'tab_general' => 'General',

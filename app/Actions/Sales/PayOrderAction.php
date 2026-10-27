@@ -8,6 +8,7 @@ use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
+use App\Models\Reservation;
 use App\Models\RestaurantTable;
 use App\Models\User;
 use App\Services\Accounting\AccountingService;
@@ -39,7 +40,8 @@ class PayOrderAction
                 ]);
             }
 
-            $total = (float) $order->total;
+            // Booking money already taken off the bill leaves only the balance to collect.
+            $total = $order->balanceDue();
 
             if ($tendered < $total) {
                 throw ValidationException::withMessages([
@@ -113,7 +115,7 @@ class PayOrderAction
             $payment = Payment::query()->create([
                 'order_id' => $order->id,
                 'method' => $method->code,
-                'amount' => $order->total,
+                'amount' => $order->balanceDue(),
                 'reference' => $reference,
                 'status' => Payment::STATUS_COMPLETED,
                 'user_id' => $user?->id,
@@ -170,7 +172,7 @@ class PayOrderAction
 
             $sum = round(array_sum(array_map(fn (array $line) => (float) $line['amount'], $lines)), 2);
 
-            if (abs($sum - (float) $order->total) > 0.001) {
+            if (abs($sum - $order->balanceDue()) > 0.001) {
                 throw ValidationException::withMessages([
                     'split' => __('payments.split_mismatch'),
                 ]);
@@ -218,6 +220,66 @@ class PayOrderAction
             activity()->performedOn($order)->causedBy($user)->log('order.paid_split');
 
             return $payments;
+        });
+    }
+
+    /**
+     * Take a booking's held money off this order's bill. The deposit becomes a payment on the
+     * order (kept apart from the payments that close it). If it covers the whole bill, the order
+     * is paid; otherwise only the balance is left to collect.
+     */
+    public function applyAdvance(Order $order, Reservation $reservation, ?User $user = null): ?Payment
+    {
+        return DB::transaction(function () use ($order, $reservation, $user): ?Payment {
+            $order = Order::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
+            $reservation = Reservation::query()->withoutBranchScope()->whereKey($reservation->id)->lockForUpdate()->firstOrFail();
+
+            if ($reservation->deposit_status !== Reservation::DEPOSIT_HELD || $order->isPaid() || $order->isVoid()) {
+                return null;
+            }
+
+            $amount = min($reservation->depositBalance(), $order->balanceDue());
+
+            if ($amount <= 0) {
+                return null;
+            }
+
+            $payment = Payment::query()->create([
+                'order_id' => $order->id,
+                'method' => (string) $reservation->deposit_method,
+                'amount' => (string) $amount,
+                'reference' => $reservation->booking_no.($reservation->deposit_reference ? ' / '.$reservation->deposit_reference : ''),
+                'status' => Payment::STATUS_COMPLETED,
+                'is_advance' => true,
+                'user_id' => $user?->id,
+            ]);
+
+            $applied = round((float) $reservation->deposit_applied + $amount, 2);
+
+            $reservation->update([
+                'deposit_applied' => $applied,
+                'deposit_order_id' => $order->id,
+                'deposit_status' => $applied >= (float) $reservation->deposit_amount ? Reservation::DEPOSIT_APPLIED : Reservation::DEPOSIT_HELD,
+            ]);
+
+            if ($order->balanceDue() <= 0.001) {
+                $order->update([
+                    'status' => OrderStatus::Paid->value,
+                    'paid_at' => now(),
+                    'paid_via_payment_id' => $payment->id,
+                ]);
+
+                if ($order->restaurant_table_id !== null) {
+                    RestaurantTable::query()->whereKey($order->restaurant_table_id)->update(['status' => 'free']);
+                }
+
+                app(AccountingService::class)->postOrderPaid($order->fresh(), $user);
+                app(LoyaltyService::class)->earnForOrder($order);
+            }
+
+            activity()->performedOn($order)->causedBy($user)->log('order.advance_applied');
+
+            return $payment;
         });
     }
 

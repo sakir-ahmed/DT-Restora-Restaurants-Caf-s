@@ -9,6 +9,7 @@ use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
+use App\Models\Setting;
 use App\Models\Shift;
 use App\Models\User;
 use App\Services\InvoiceNumberService;
@@ -402,4 +403,24 @@ it('switches every sound off and rejects a bad volume', function (): void {
     $this->actingAs($this->owner, 'staff')->put(route('admin.settings.branch', $this->branch), branchSettingsPayload([
         'pos' => ['sounds' => ['volume' => 150]],
     ]))->assertSessionHasErrors('pos.sounds.volume');
+});
+
+it('keeps the POS idle lock off until an admin turns it on', function (): void {
+    expect(Setting::current()->pos_lock_enabled)->toBeFalse();
+
+    $this->actingAs($this->cashier, 'staff')->get('/admin/pos')->assertInertia(fn ($page) => $page->where('posLockEnabled', false));
+
+    $this->actingAs($this->owner, 'staff')->put(route('admin.settings.update'), [
+        'discount_limit_percent' => 10,
+        'wastage_spike_multiplier' => 1.5,
+        'pos_pin_minutes' => 3,
+        'pos_lock_enabled' => true,
+        'delivery_otp_enabled' => true,
+    ])->assertRedirect();
+
+    expect(Setting::current()->pos_lock_enabled)->toBeTrue();
+
+    $this->actingAs($this->cashier, 'staff')->get('/admin/pos')->assertInertia(fn ($page) => $page
+        ->where('posLockEnabled', true)
+        ->where('posPinMinutes', 3));
 });

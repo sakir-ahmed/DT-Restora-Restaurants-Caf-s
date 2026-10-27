@@ -141,9 +141,12 @@ it('renders a dish page with schema, related dishes and the dish description', f
 it('keeps private and transactional pages out of search results', function (): void {
     $this->get('/checkout')->assertOk()->assertSee('content="noindex,nofollow"', false);
 
-    RestaurantTable::query()->create(['branch_id' => $this->branch->id, 'name' => 'T5']);
+    $table = RestaurantTable::query()->create(['branch_id' => $this->branch->id, 'name' => 'T5']);
 
-    $this->get('/menu/br01?table=T5')->assertOk()->assertSee('content="noindex,nofollow"', false);
+    $this->get(route('web.table', ['token' => $table->qr_token]))
+        ->assertOk()
+        ->assertHeader('X-Robots-Tag', 'noindex, nofollow')
+        ->assertSee('content="noindex,nofollow"', false);
     $this->get('/menu/br01')->assertOk()->assertSee('content="index,follow,max-image-preview:large"', false);
 });
 

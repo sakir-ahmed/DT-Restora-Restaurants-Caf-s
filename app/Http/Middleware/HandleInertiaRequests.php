@@ -25,7 +25,7 @@ class HandleInertiaRequests extends Middleware
      */
     private const PUBLIC_TRANSLATION_GROUPS = [
         'common', 'web', 'site', 'auth', 'coupons', 'orders', 'payment_method',
-        'payments', 'status', 'menu', 'loyalty', 'errors', 'staff', 'nav', 'legal', 'receipt', 'reasons', 'sync', 'demo',
+        'payments', 'status', 'menu', 'loyalty', 'errors', 'staff', 'nav', 'legal', 'receipt', 'reasons', 'sync', 'demo', 'tablemenu',
     ];
 
     public function share(Request $request): array

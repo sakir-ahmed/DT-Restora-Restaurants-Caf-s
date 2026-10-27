@@ -55,6 +55,7 @@ class SettingController extends Controller
                 'discount_limit_percent',
                 'wastage_spike_multiplier',
                 'pos_pin_minutes',
+                'pos_lock_enabled',
                 'delivery_otp_enabled',
             ]),
         ]);
@@ -68,11 +69,13 @@ class SettingController extends Controller
             'discount_limit_percent' => ['required', 'numeric', 'min:0', 'max:100'],
             'wastage_spike_multiplier' => ['required', 'numeric', 'min:1', 'max:10'],
             'pos_pin_minutes' => ['required', 'integer', 'min:1', 'max:60'],
+            'pos_lock_enabled' => ['sometimes', 'boolean'],
             'delivery_otp_enabled' => ['required', 'boolean'],
         ], [], [
             'discount_limit_percent' => __('settings.discount_limit'),
             'wastage_spike_multiplier' => __('settings.wastage_spike'),
             'pos_pin_minutes' => __('settings.pos_pin'),
+            'pos_lock_enabled' => __('settings.pos_lock_enabled'),
             'delivery_otp_enabled' => __('settings.delivery_otp'),
         ]);
 

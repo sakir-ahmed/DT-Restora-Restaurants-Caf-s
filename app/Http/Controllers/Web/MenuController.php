@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\MenuCategory;
-use App\Models\RestaurantTable;
 use App\Services\PublicCache;
 use App\Services\SeoBuilder;
 use Illuminate\Http\Request;
@@ -26,25 +25,9 @@ class MenuController extends Controller
         /** @var array{branch: array<string, mixed>, categories: list<array<string, mixed>>, seo: array<string, mixed>} $page */
         $page = PublicCache::remember('menu:'.$locale.':'.($branchCode ?? 'default'), fn (): array => $this->pageData($branchCode));
 
-        // QR table ordering: /menu?table=T3 or /q/{code}
-        $tableCode = $request->string('table')->toString();
-        $table = $tableCode !== ''
-            ? RestaurantTable::query()->where('branch_id', $page['branch']['id'])->where('is_active', true)->where('name', $tableCode)->first()
-            : null;
-
-        if ($tableCode !== '' && $table === null) {
-            abort(404);
-        }
-
         session(['web_branch_id' => $page['branch']['id']]);
 
-        // Table QR links are per-table duplicates of the same menu.
-        $page['seo']['noindex'] = $table !== null;
-
-        return Inertia::render('web/Menu', [
-            ...$page,
-            'table' => $table?->only(['id', 'name']),
-        ]);
+        return Inertia::render('web/Menu', $page);
     }
 
     /**

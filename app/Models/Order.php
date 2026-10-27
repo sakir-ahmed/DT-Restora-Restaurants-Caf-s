@@ -122,6 +122,22 @@ class Order extends Model
         return $this->belongsTo(AggregatorChannel::class);
     }
 
+    /**
+     * Money already received for this order, booking money included.
+     */
+    public function amountPaid(): float
+    {
+        return round((float) $this->payments()->where('status', Payment::STATUS_COMPLETED)->sum('amount'), 2);
+    }
+
+    /**
+     * What is still to pay: the total less what has been received (booking money, for one).
+     */
+    public function balanceDue(): float
+    {
+        return max(0.0, round((float) $this->total - $this->amountPaid(), 2));
+    }
+
     public function isPaid(): bool
     {
         return $this->status === OrderStatus::Paid;

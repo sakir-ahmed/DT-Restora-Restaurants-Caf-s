@@ -27,6 +27,7 @@ const form = useForm({
     discount_limit_percent: props.settings.discount_limit_percent,
     wastage_spike_multiplier: props.settings.wastage_spike_multiplier,
     pos_pin_minutes: props.settings.pos_pin_minutes,
+    pos_lock_enabled: Boolean(props.settings.pos_lock_enabled),
     delivery_otp_enabled: Boolean(props.settings.delivery_otp_enabled),
 });
 
@@ -342,6 +343,11 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
                     </template>
                 </FormField>
 
+                <div class="col-span-2 flex flex-col gap-0.5">
+                    <SwitchField v-model="form.pos_lock_enabled" :label="t('settings.pos_lock_enabled')" />
+                    <p class="text-xs text-muted">{{ t('settings.pos_lock_helper') }}</p>
+                </div>
+
                 <FormField :label="t('settings.pos_pin')" :helper="t('settings.pos_pin_helper')" :error="form.errors.pos_pin_minutes" required>
                     <template #default="{ id }">
                         <input
@@ -350,6 +356,7 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
                             type="number"
                             min="1"
                             max="60"
+                            :disabled="! form.pos_lock_enabled"
                             class="h-7 w-full rounded-md border bg-surface px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:ring-2 focus:ring-accent/40"
                             :class="form.errors.pos_pin_minutes ? 'border-danger' : 'border-border focus:border-accent'"
                         >

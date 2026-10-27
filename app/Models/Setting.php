@@ -12,6 +12,7 @@ class Setting extends Model
         'discount_limit_percent',
         'wastage_spike_multiplier',
         'pos_pin_minutes',
+        'pos_lock_enabled',
         'delivery_otp_enabled',
     ];
 
@@ -19,6 +20,7 @@ class Setting extends Model
         'discount_limit_percent' => 'decimal:2',
         'wastage_spike_multiplier' => 'decimal:2',
         'pos_pin_minutes' => 'integer',
+        'pos_lock_enabled' => 'boolean',
         'delivery_otp_enabled' => 'boolean',
     ];
 
@@ -31,6 +33,7 @@ class Setting extends Model
             'discount_limit_percent' => '10.00',
             'wastage_spike_multiplier' => '1.50',
             'pos_pin_minutes' => 5,
+            'pos_lock_enabled' => false,
             'delivery_otp_enabled' => true,
         ]);
     }

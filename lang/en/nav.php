@@ -6,6 +6,7 @@ return [
     'sales' => 'Sales',
     'dashboard' => 'Dashboard',
     'pos' => 'POS',
+    'reservations' => 'Reservations',
     'tables' => 'Tables',
     'orders' => 'Orders',
     'kds' => 'Kitchen Display',

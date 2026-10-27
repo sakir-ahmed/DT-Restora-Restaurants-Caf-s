@@ -26,7 +26,7 @@ class Payment extends Model
         'order_id', 'method', 'amount', 'tendered', 'change_due',
         'reference', 'status', 'user_id',
         'gateway', 'gateway_payment_id', 'gateway_trx_id',
-        'idempotency_key', 'verified_at',
+        'idempotency_key', 'verified_at', 'is_advance',
     ];
 
     protected $casts = [
@@ -34,6 +34,7 @@ class Payment extends Model
         'tendered' => 'decimal:2',
         'change_due' => 'decimal:2',
         'verified_at' => 'datetime',
+        'is_advance' => 'boolean',
     ];
 
     /** @return BelongsTo<Order, $this> */

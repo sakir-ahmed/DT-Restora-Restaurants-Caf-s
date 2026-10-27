@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\ReceiptController;
 use App\Http\Controllers\Admin\RecipeController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ReservationController;
 use App\Http\Controllers\Admin\RestaurantTableController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ShiftController;
@@ -66,6 +67,7 @@ use App\Http\Controllers\Web\LocationController;
 use App\Http\Controllers\Web\MenuController;
 use App\Http\Controllers\Web\RobotsController;
 use App\Http\Controllers\Web\SitemapController;
+use App\Http\Controllers\Web\TableMenuController;
 use App\Http\Controllers\Web\TrackController;
 use App\Http\Controllers\Web\WebPaymentController;
 use Illuminate\Support\Facades\Route;
@@ -90,12 +92,11 @@ Route::post('/coupons/validate', [CheckoutController::class, 'validateCoupon'])-
 Route::get('/track/{token}', [TrackController::class, 'show'])->name('web.track');
 Route::get('/pay/{order}/{gateway}', [WebPaymentController::class, 'start'])->name('web.payment.start');
 
-// QR table ordering: scanning the code opens the menu for that table.
-Route::get('/q/{table}', fn (string $table) => redirect()->route('web.menu', ['table' => $table]))->name('web.qr');
-Route::get('/q/{branchCode}/{table}', fn (string $branchCode, string $table) => redirect()->route('web.menu', [
-    'branchCode' => strtolower($branchCode),
-    'table' => $table,
-]))->name('web.qr.branch');
+// QR table ordering: the code holds a secret token for one table. A new token makes older codes stop working.
+Route::get('/t/{token}', [TableMenuController::class, 'show'])->where('token', '[A-Za-z0-9]{32}')->name('web.table');
+Route::post('/t/{token}/order', [TableMenuController::class, 'place'])->where('token', '[A-Za-z0-9]{32}')->middleware('throttle:30,1')->name('web.table.order');
+// Earlier QR codes pointed at the table name; they are out of date now.
+Route::get('/q/{path}', [TableMenuController::class, 'legacy'])->where('path', '.*')->name('web.qr');
 
 Route::get('/customer/login', [CustomerAuthController::class, 'showLogin'])->name('web.customer.login');
 Route::post('/customer/otp/send', [CustomerAuthController::class, 'sendOtp'])->name('web.customer.otp.send');
@@ -199,6 +200,16 @@ Route::prefix('admin')
         Route::delete('menu/items/{item}', [AdminMenuController::class, 'destroyItem'])->name('menu.items.destroy')->middleware('permission:menu.manage');
 
         Route::get('tables', [RestaurantTableController::class, 'index'])->name('tables.index')->middleware('permission:tables.view');
+        Route::get('tables/qr-sheet', [RestaurantTableController::class, 'qrSheet'])->name('tables.qr-sheet')->middleware('permission:tables.view');
+        Route::post('tables/qr/regenerate-all', [RestaurantTableController::class, 'regenerateAllQr'])->name('tables.qr.regenerate-all')->middleware('permission:tables.manage');
+        Route::post('tables/{table}/qr', [RestaurantTableController::class, 'regenerateQr'])->name('tables.qr.regenerate')->middleware('permission:tables.manage');
+        Route::get('reservations', [ReservationController::class, 'index'])->name('reservations.index')->middleware('permission:reservations.view');
+        Route::post('reservations', [ReservationController::class, 'store'])->name('reservations.store')->middleware('permission:reservations.manage');
+        Route::put('reservations/{reservation}', [ReservationController::class, 'update'])->name('reservations.update')->middleware('permission:reservations.manage');
+        Route::get('reservations/{reservation}/confirmation', [ReservationController::class, 'confirmation'])->name('reservations.confirmation')->middleware('permission:reservations.view');
+        Route::post('reservations/{reservation}/deposit', [ReservationController::class, 'collectDeposit'])->name('reservations.deposit')->middleware('permission:reservations.manage');
+        Route::post('reservations/{reservation}/deposit/{outcome}', [ReservationController::class, 'closeDeposit'])->where('outcome', 'refund|forfeit')->name('reservations.deposit.close')->middleware('permission:reservations.manage');
+        Route::post('reservations/{reservation}/{action}', [ReservationController::class, 'transition'])->where('action', 'seat|complete|cancel|no-show')->name('reservations.transition')->middleware('permission:reservations.manage');
         Route::post('tables', [RestaurantTableController::class, 'store'])->name('tables.store')->middleware('permission:tables.manage');
         Route::put('tables/{table}', [RestaurantTableController::class, 'update'])->name('tables.update')->middleware('permission:tables.manage');
         Route::delete('tables/{table}', [RestaurantTableController::class, 'destroy'])->name('tables.destroy')->middleware('permission:tables.manage');

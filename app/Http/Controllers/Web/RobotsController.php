@@ -18,7 +18,7 @@ class RobotsController extends Controller
             return response("User-agent: *\nDisallow: /\n", 200, ['Content-Type' => 'text/plain']);
         }
 
-        $private = ['/admin', '/rider', '/api', '/checkout', '/account', '/customer', '/track', '/pay', '/login', '/webhooks', '/payments', '/q/'];
+        $private = ['/admin', '/rider', '/api', '/checkout', '/account', '/customer', '/track', '/pay', '/login', '/webhooks', '/payments', '/q/', '/t/'];
 
         $lines = ['User-agent: *', 'Allow: /', ...array_map(fn (string $path): string => 'Disallow: '.$path, $private), '', 'Sitemap: '.route('web.sitemap')];
 

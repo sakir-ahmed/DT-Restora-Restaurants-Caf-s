@@ -14,6 +14,7 @@ use App\Models\IngredientStock;
 use App\Models\MenuItem;
 use App\Models\Order;
 use App\Models\Recipe;
+use App\Models\Reservation;
 use App\Models\RestaurantTable;
 use App\Models\Setting;
 use App\Models\Shift;
@@ -219,8 +220,11 @@ class CreateOrderAction
                 app(CouponService::class)->redeem($coupon, $order);
             }
 
+            $reservation = null;
+
             if ($type === OrderType::DineIn && $tableId !== null) {
                 RestaurantTable::query()->whereKey($tableId)->update(['status' => 'occupied']);
+                $reservation = Reservation::seatAt($tableId);
             }
 
             try {
@@ -229,6 +233,11 @@ class CreateOrderAction
                 throw ValidationException::withMessages([
                     'items' => __('inventory.insufficient_stock', ['ingredient' => $exception->ingredientId]),
                 ]);
+            }
+
+            // The party's booking money comes off the first bill rung up on their table.
+            if ($reservation !== null && $reservation->deposit_status === Reservation::DEPOSIT_HELD) {
+                app(PayOrderAction::class)->applyAdvance($order, $reservation, $cashier);
             }
 
             return $order->load('items');

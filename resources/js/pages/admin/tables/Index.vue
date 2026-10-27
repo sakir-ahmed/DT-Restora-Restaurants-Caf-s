@@ -1,7 +1,8 @@
 <script setup>
-import { useForm } from '@inertiajs/vue3';
+import { Link, router, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
+import QrCode from '@/components/QrCode.vue';
 import DataTable from '@/components/ui-kit/DataTable.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
 import PageHeader from '@/components/ui-kit/PageHeader.vue';
@@ -11,6 +12,7 @@ import SwitchField from '@/components/ui-kit/SwitchField.vue';
 import { useConfirm } from '@/components/ui-kit/useConfirm.js';
 import { t } from '@/lib/i18n';
 import { notify } from '@/lib/notify';
+import { qrMatrix } from '@/lib/qr';
 
 const props = defineProps({
     tables: { type: Array, required: true },
@@ -21,8 +23,7 @@ const props = defineProps({
 const confirm = useConfirm();
 const slideOverOpen = ref(false);
 const editingId = ref(null);
-const editingStatus = ref('free');
-const qrUrl = ref('');
+const qrBusy = ref(false);
 
 const inputClass = 'h-7 w-full rounded-md border bg-surface px-2 text-[13px] text-foreground outline-none focus:ring-2 focus:ring-accent/40';
 
@@ -30,7 +31,7 @@ const columns = computed(() => [
     { key: 'name', label: t('tables.name'), align: 'left', sortable: true },
     { key: 'area', label: t('tables.area'), align: 'left', sortable: true },
     { key: 'seats', label: t('tables.seats'), type: 'number', sortable: true, minWidth: '64px' },
-    { key: 'status', label: t('tables.status'), minWidth: '104px' },
+    { key: 'state', label: t('tables.state'), minWidth: '104px' },
     { key: 'is_active', label: t('common.status'), minWidth: '104px' },
     { key: 'actions', label: '', align: 'right', type: 'component', width: '64px' },
 ]);
@@ -45,18 +46,18 @@ const emptyForm = () => ({
     to: 10,
     area: '',
     seats: 4,
-    status: 'free',
     is_active: true,
 });
 
 const form = useForm(emptyForm());
 
+// The table whose details are open. It follows the page data, so a freshly issued QR code shows at once.
+const editingTable = computed(() => props.tables.find((entry) => entry.id === editingId.value) ?? null);
+
 const slideTitle = computed(() => (editingId.value === null ? t('tables.add') : t('tables.edit')));
 
 function openCreate() {
     editingId.value = null;
-    editingStatus.value = 'free';
-    qrUrl.value = '';
     form.defaults(emptyForm()).reset();
     form.clearErrors();
     slideOverOpen.value = true;
@@ -64,8 +65,6 @@ function openCreate() {
 
 function openEdit(table) {
     editingId.value = table.id;
-    editingStatus.value = table.status;
-    qrUrl.value = table.qr_url;
     form.defaults({
         is_range: false,
         name: table.name,
@@ -74,7 +73,6 @@ function openEdit(table) {
         to: 10,
         area: table.area ?? '',
         seats: table.seats,
-        status: table.status === 'occupied' ? 'occupied' : table.status,
         is_active: table.is_active,
     }).reset();
     form.clearErrors();
@@ -102,13 +100,14 @@ function payload() {
         ...shared,
         is_range: false,
         name: form.name,
-        ...(editingId.value !== null && editingStatus.value !== 'occupied' ? { status: form.status } : {}),
     };
 }
 
 function save() {
+    // useForm sends its own fields, so the cleaned-up payload goes in through transform.
+    form.transform(() => payload());
+
     const options = {
-        data: payload(),
         preserveScroll: true,
         onSuccess: (page) => {
             slideOverOpen.value = false;
@@ -144,6 +143,86 @@ async function remove(table) {
     });
 }
 
+function qrIssued(table) {
+    return table?.qr_generated_at ? new Date(table.qr_generated_at).toLocaleString() : '';
+}
+
+async function regenerateQr(table) {
+    const result = await confirm({
+        variant: 'danger',
+        level: 'simple',
+        title: t('tables.qr_regenerate_title', { table: table.name }),
+        message: t('tables.qr_regenerate_message'),
+        confirmText: t('tables.qr_regenerate'),
+    });
+
+    if (! result.confirmed) {
+        return;
+    }
+
+    qrBusy.value = true;
+
+    router.post(route('admin.tables.qr.regenerate', table.id), {}, {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: (page) => {
+            notify.success(page.props.flash?.success ?? t('tables.qr_regenerated', { table: table.name }));
+        },
+        onFinish: () => {
+            qrBusy.value = false;
+        },
+    });
+}
+
+async function regenerateAllQr() {
+    const result = await confirm({
+        variant: 'danger',
+        level: 'simple',
+        title: t('tables.qr_regenerate_all_title'),
+        message: t('tables.qr_regenerate_all_message'),
+        confirmText: t('tables.qr_regenerate_all'),
+    });
+
+    if (! result.confirmed) {
+        return;
+    }
+
+    router.post(route('admin.tables.qr.regenerate-all'), {}, {
+        preserveScroll: true,
+        onSuccess: (page) => notify.success(page.props.flash?.success ?? t('tables.qr_regenerated_all', { count: props.tables.length })),
+    });
+}
+
+/**
+ * Save the code as a PNG with a quiet zone, ready to drop into a print layout.
+ */
+function downloadQr(table) {
+    const { size, modules } = qrMatrix(table.qr_url);
+    const border = 4;
+    const scale = 12;
+    const canvas = document.createElement('canvas');
+
+    canvas.width = (size + border * 2) * scale;
+    canvas.height = canvas.width;
+
+    const context = canvas.getContext('2d');
+
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = '#1a1208';
+    modules.forEach((row, y) => row.forEach((dark, x) => {
+        if (dark) {
+            context.fillRect((x + border) * scale, (y + border) * scale, scale, scale);
+        }
+    }));
+
+    const link = document.createElement('a');
+
+    link.href = canvas.toDataURL('image/png');
+    link.download = `qr-${table.name}.png`;
+    link.click();
+}
+
 async function copyQr(url) {
     try {
         await navigator.clipboard.writeText(url);
@@ -157,8 +236,25 @@ async function copyQr(url) {
 <template>
     <div>
         <PageHeader :title="t('tables.title')" :description="t('tables.subtitle', { branch: branchName })">
-            <template v-if="canManage" #actions>
+            <template #actions>
+                <Link
+                    :href="route('admin.tables.qr-sheet')"
+                    class="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 text-[13px] text-foreground hover:bg-background"
+                >
+                    <AppIcon name="print" size="12" />
+                    {{ t('tables.qr_print_sheet') }}
+                </Link>
                 <button
+                    v-if="canManage"
+                    type="button"
+                    class="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 text-[13px] text-foreground hover:bg-background"
+                    @click="regenerateAllQr"
+                >
+                    <AppIcon name="rotate" size="12" />
+                    {{ t('tables.qr_regenerate_all') }}
+                </button>
+                <button
+                    v-if="canManage"
                     type="button"
                     class="inline-flex h-7 items-center gap-1.5 rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground hover:opacity-90"
                     @click="openCreate"
@@ -180,7 +276,7 @@ async function copyQr(url) {
             @row-click="openEdit"
             @empty-action="openCreate"
         >
-            <template #cell(status)="{ value }">
+            <template #cell(state)="{ value }">
                 <StatusBadge :status="value" />
             </template>
             <template #cell(is_active)="{ value }">
@@ -191,10 +287,21 @@ async function copyQr(url) {
                     <button
                         type="button"
                         class="flex h-6 w-6 items-center justify-center rounded text-muted hover:bg-background hover:text-foreground"
-                        :aria-label="t('tables.copy_qr')"
-                        @click.stop="copyQr(row.qr_url)"
+                        :aria-label="t('tables.qr_view')"
+                        :title="t('tables.qr_view')"
+                        @click.stop="openEdit(row)"
                     >
                         <AppIcon name="qrcode" size="12" />
+                    </button>
+                    <button
+                        v-if="canManage"
+                        type="button"
+                        class="flex h-6 w-6 items-center justify-center rounded text-muted hover:bg-background hover:text-foreground"
+                        :aria-label="t('tables.qr_regenerate')"
+                        :title="t('tables.qr_regenerate')"
+                        @click.stop="regenerateQr(row)"
+                    >
+                        <AppIcon name="rotate" size="12" />
                     </button>
                     <button
                         v-if="canManage"
@@ -211,6 +318,37 @@ async function copyQr(url) {
 
         <SlideOver :open="slideOverOpen" :title="slideTitle" @close="slideOverOpen = false">
             <form novalidate class="space-y-3" @submit.prevent="save">
+                <section v-if="editingTable" class="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-background p-3" :aria-label="t('tables.qr_title')">
+                    <div class="shrink-0 rounded-lg border border-border bg-white p-1.5">
+                        <QrCode :value="editingTable.qr_url" :size="124" :border="1" :label="`${t('tables.qr_title')} ${editingTable.name}`" />
+                    </div>
+                    <div class="min-w-0 flex-1 space-y-2">
+                        <div>
+                            <p class="text-[13px] font-semibold text-foreground">{{ t('tables.qr_title') }}</p>
+                            <p class="text-xs text-muted">{{ t('tables.qr_generated', { when: qrIssued(editingTable) }) }}</p>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5">
+                            <button type="button" class="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface px-2 text-xs text-foreground hover:bg-background" @click="copyQr(editingTable.qr_url)">
+                                <AppIcon name="copy" size="11" />
+                                {{ t('tables.copy_qr') }}
+                            </button>
+                            <button type="button" class="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface px-2 text-xs text-foreground hover:bg-background" @click="downloadQr(editingTable)">
+                                <AppIcon name="download" size="11" />
+                                {{ t('tables.qr_download') }}
+                            </button>
+                            <a :href="editingTable.qr_url" target="_blank" rel="noopener" class="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface px-2 text-xs text-foreground hover:bg-background">
+                                <AppIcon name="arrow-up-right" size="11" />
+                                {{ t('tables.qr_open') }}
+                            </a>
+                            <button v-if="canManage" type="button" :disabled="qrBusy" class="inline-flex h-7 items-center gap-1.5 rounded-md border border-danger/40 bg-surface px-2 text-xs text-danger hover:bg-danger/10 disabled:opacity-60" @click="regenerateQr(editingTable)">
+                                <AppIcon name="rotate" size="11" />
+                                {{ t('tables.qr_regenerate') }}
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-muted">{{ t('tables.qr_hint') }}</p>
+                    </div>
+                </section>
+
                 <div v-if="editingId === null" class="grid grid-cols-2 gap-2">
                     <button
                         type="button"
@@ -271,42 +409,10 @@ async function copyQr(url) {
                         </template>
                     </FormField>
 
-                    <div v-if="editingId !== null && editingStatus !== 'occupied'" class="col-span-2">
-                        <FormField :label="t('tables.status')" :error="form.errors.status">
-                            <template #default="{ id }">
-                                <select :id="id" v-model="form.status" :class="[inputClass, 'border-border focus:border-accent']">
-                                    <option value="free">{{ t('tables.free') }}</option>
-                                    <option value="reserved">{{ t('tables.reserved') }}</option>
-                                </select>
-                            </template>
-                        </FormField>
-                    </div>
-
-                    <p v-if="editingStatus === 'occupied'" class="col-span-2 text-[13px] text-muted">
-                        {{ t('tables.occupied_locked') }}
-                    </p>
-
                     <div class="col-span-2">
                         <SwitchField v-model="form.is_active" :label="t('tables.active')" />
                     </div>
 
-                    <div v-if="qrUrl" class="col-span-2">
-                        <FormField :label="t('tables.qr')">
-                            <template #default="{ id }">
-                                <div class="flex gap-2">
-                                    <input :id="id" :value="qrUrl" type="text" readonly class="h-7 min-w-0 flex-1 rounded-md border border-border bg-background px-2 text-[13px] text-foreground">
-                                    <button
-                                        type="button"
-                                        class="inline-flex h-7 shrink-0 items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 text-[13px] text-foreground hover:bg-background"
-                                        @click="copyQr(qrUrl)"
-                                    >
-                                        <AppIcon name="qrcode" size="12" />
-                                        {{ t('tables.copy_qr') }}
-                                    </button>
-                                </div>
-                            </template>
-                        </FormField>
-                    </div>
                 </div>
             </form>
 
@@ -326,6 +432,7 @@ async function copyQr(url) {
                 </button>
             </template>
         </SlideOver>
+
     </div>
 </template>
 

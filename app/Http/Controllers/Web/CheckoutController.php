@@ -14,7 +14,6 @@ use App\Jobs\SendSmsJob;
 use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\DeliveryZone;
-use App\Models\RestaurantTable;
 use App\Services\CouponService;
 use App\Services\DemoJourney;
 use App\Services\OtpService;
@@ -52,7 +51,6 @@ class CheckoutController extends Controller
             ])->values(),
             'customer' => $customer ? $customer->only(['id', 'name', 'mobile']) : null,
             'addresses' => $customer ? $customer->addresses()->with('zone')->get() : [],
-            'table' => session('web_table') ? RestaurantTable::query()->find(session('web_table'))?->only(['id', 'name']) : null,
             'turnstileSiteKey' => config('services.turnstile.site_key'),
         ]);
     }
@@ -96,13 +94,12 @@ class CheckoutController extends Controller
     public function place(Request $request, CreateOrderAction $action, TurnstileService $turnstile): RedirectResponse
     {
         $validated = $request->validate([
-            'order_type' => ['required', 'in:delivery,pickup,dine_in'],
+            'order_type' => ['required', 'in:delivery,pickup'],
             'delivery_zone_id' => ['required_if:order_type,delivery', 'nullable', 'integer', 'exists:delivery_zones,id'],
             'delivery_address' => ['required_if:order_type,delivery', 'nullable', 'string', 'max:500'],
             'customer_name' => ['nullable', 'string', 'max:150'],
             'customer_mobile' => ['nullable', 'string', 'max:20'],
             'scheduled_for' => ['nullable', 'date', 'after:now'],
-            'table_id' => ['nullable', 'integer', 'exists:restaurant_tables,id'],
             'payment_method' => ['required', 'in:cod,cash,bkash,sslcommerz'],
             'coupon_code' => ['nullable', 'string', 'max:40'],
             'guest_otp' => ['nullable', 'string', 'digits:6'],
@@ -201,7 +198,6 @@ class CheckoutController extends Controller
             deliveryZoneId: $zone?->id,
             deliveryAddress: $validated['delivery_address'] ?? null,
             scheduledFor: isset($validated['scheduled_for']) ? new \DateTimeImmutable((string) $validated['scheduled_for']) : null,
-            tableId: $type === OrderType::DineIn ? ($validated['table_id'] ?? session('web_table')) : null,
             couponCode: $validated['coupon_code'] ?? null,
         );
 

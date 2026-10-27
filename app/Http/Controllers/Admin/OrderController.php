@@ -77,10 +77,10 @@ class OrderController extends Controller
 
         $orders = $query->where('id', '>', $after)
             ->where('status', OrderStatus::Pending->value)
-            ->with('aggregatorChannel:id,key,name')
+            ->with(['aggregatorChannel:id,key,name', 'table:id,name'])
             ->orderBy('id')
             ->limit(20)
-            ->get(['id', 'invoice_no', 'channel', 'total', 'aggregator_channel_id']);
+            ->get(['id', 'invoice_no', 'channel', 'total', 'aggregator_channel_id', 'restaurant_table_id']);
 
         return response()->json([
             'last_id' => (int) max($after, $orders->max('id') ?? 0),
@@ -150,6 +150,9 @@ class OrderController extends Controller
             'id' => $order->id,
             'invoice_no' => $order->invoice_no,
             'total' => $order->total,
+            // Booking money can already be on the bill when the order sits at a booked table.
+            'balance' => $order->balanceDue(),
+            'advance' => $order->payments()->where('is_advance', true)->sum('amount'),
         ]);
     }
 
@@ -160,6 +163,11 @@ class OrderController extends Controller
     {
         $user = $request->user('staff');
         abort_unless($user->canAccessBranch($order->branch_id), 404);
+
+        // Revising replaces the order, which would leave the booking money on the old one.
+        if ($order->payments()->where('is_advance', true)->exists()) {
+            return back()->with('error', __('orders.advance_locked'));
+        }
 
         $customer = null;
         $mobile = $request->string('customer_mobile')->toString();

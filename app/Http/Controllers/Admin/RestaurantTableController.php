@@ -38,12 +38,11 @@ class RestaurantTableController extends Controller
                 'name' => $table->name,
                 'area' => $table->area,
                 'seats' => $table->seats,
-                'status' => $table->status,
+                // Occupied comes from open orders, reserved from a running booking: nobody sets it by hand.
+                'state' => $table->liveState(),
                 'is_active' => $table->is_active,
-                'qr_url' => route('web.qr.branch', [
-                    'branchCode' => strtolower($branch->code),
-                    'table' => $table->name,
-                ]),
+                'qr_url' => route('web.table', ['token' => $table->qr_token]),
+                'qr_generated_at' => $table->qr_generated_at?->toIso8601String(),
             ]);
 
         return Inertia::render('admin/tables/Index', [
@@ -51,6 +50,66 @@ class RestaurantTableController extends Controller
             'branchName' => $branch->name,
             'canManage' => (bool) $request->user('staff')?->can('tables.manage'),
         ]);
+    }
+
+    /**
+     * Every active table with its QR link, laid out to print as table cards.
+     */
+    public function qrSheet(Request $request): Response
+    {
+        $this->authorize('tables.view');
+
+        $branch = $this->currentBranch($request);
+
+        $tables = RestaurantTable::query()
+            ->where('branch_id', $branch->id)
+            ->where('is_active', true)
+            ->get()
+            ->sortBy(fn (RestaurantTable $table): string => mb_strtolower(($table->area ?? '')."\0".$table->name), SORT_NATURAL | SORT_FLAG_CASE)
+            ->values()
+            ->map(fn (RestaurantTable $table): array => [
+                'id' => $table->id,
+                'name' => $table->name,
+                'area' => $table->area,
+                'seats' => $table->seats,
+                'qr_url' => route('web.table', ['token' => $table->qr_token]),
+            ]);
+
+        return Inertia::render('admin/tables/QrSheet', [
+            'tables' => $tables,
+            'branch' => $branch->only(['name', 'name_bn', 'phone']),
+        ]);
+    }
+
+    /**
+     * Issue a new secret for one table. The QR code printed before stops working at once.
+     */
+    public function regenerateQr(Request $request, RestaurantTable $table): RedirectResponse
+    {
+        $this->authorize('tables.manage');
+
+        $this->ensureAccessible($request, $table);
+
+        $table->rotateQrToken();
+
+        activity()->performedOn($table)->causedBy($request->user('staff'))->log('tables.qr_regenerated');
+
+        return back()->with('success', __('tables.qr_regenerated', ['table' => $table->name]));
+    }
+
+    public function regenerateAllQr(Request $request): RedirectResponse
+    {
+        $this->authorize('tables.manage');
+
+        $branch = $this->currentBranch($request);
+
+        $tables = RestaurantTable::query()->where('branch_id', $branch->id)->get();
+
+        DB::transaction(fn () => $tables->each(fn (RestaurantTable $table) => $table->rotateQrToken()));
+
+        activity()->causedBy($request->user('staff'))->withProperties(['branch_id' => $branch->id, 'tables' => $tables->count()])->log('tables.qr_regenerated_all');
+
+        return back()->with('success', __('tables.qr_regenerated_all', ['count' => $tables->count()]));
     }
 
     public function store(RestaurantTableRequest $request): RedirectResponse
@@ -86,17 +145,10 @@ class RestaurantTableController extends Controller
 
         $validated = $request->validated();
 
-        if ($table->status === 'occupied' && array_key_exists('status', $validated)) {
-            throw ValidationException::withMessages([
-                'status' => __('tables.occupied_locked'),
-            ]);
-        }
-
         $table->update([
             'name' => $validated['name'],
             'area' => $validated['area'] ?? null,
             'seats' => $validated['seats'],
-            'status' => $validated['status'] ?? $table->status,
             'is_active' => $request->has('is_active') ? $request->boolean('is_active') : $table->is_active,
         ]);
 

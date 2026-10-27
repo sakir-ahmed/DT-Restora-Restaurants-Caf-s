@@ -28,6 +28,7 @@ const props = defineProps({
     canOverrideDiscount: { type: Boolean, default: false },
     canVoid: { type: Boolean, default: false },
     posPinMinutes: { type: Number, default: 5 },
+    posLockEnabled: { type: Boolean, default: false },
 });
 
 const confirm = useConfirm();
@@ -341,7 +342,7 @@ async function markOrderPaid(order) {
 
     clearBusy.value = true;
 
-    router.post(route('admin.orders.pay', order.id), { tendered: order.total }, {
+    router.post(route('admin.orders.pay', order.id), { tendered: order.balance ?? order.total }, {
         preserveScroll: true,
         preserveState: true,
         onSuccess: () => {
@@ -414,8 +415,17 @@ function editOrder(order) {
     tableId.value = order.restaurant_table_id;
     customerMobile.value = order.customer?.mobile ?? '';
     discount.value = order.discount_type ? { type: order.discount_type, value: Number(order.discount_value) } : { type: 'percent', value: 0 };
-    editingOrder.value = order;
     runningOpen.value = false;
+
+    // Booking money is already on this bill, so the items stay as sent and only the balance is paid.
+    if (Number(order.advance) > 0) {
+        latestOrder.value = { id: order.id, invoice_no: order.invoice_no, total: order.total, balance: order.balance, advance: order.advance };
+        notify.info(t('orders.advance_paid'), `${formatMoney(order.advance)} / ${t('orders.balance_due')} ${formatMoney(order.balance)}`, { silent: true });
+
+        return;
+    }
+
+    editingOrder.value = order;
 }
 
 /**
@@ -1098,7 +1108,8 @@ function setQuantity(line, quantity) {
 function armIdleLock() {
     clearTimeout(idleTimer);
 
-    if (locked.value) {
+    // The idle lock is a setting and is off until an admin turns it on.
+    if (locked.value || ! props.posLockEnabled) {
         return;
     }
 
@@ -1282,7 +1293,12 @@ async function submitOrder(mode = 'send_to_kitchen') {
 
             notify.success(order?.invoice_no ? `${t(editing ? 'orders.order_updated' : 'orders.sent_to_kitchen')} ${order.invoice_no}` : t('orders.sent_to_kitchen'));
 
-            if (order?.invoice_no) {
+            if (order?.invoice_no && Number(order.balance ?? 1) <= 0) {
+                // The booking money covered the whole bill.
+                lastPayment.value = { order_id: order.id, change_due: 0, invoice_no: order.invoice_no };
+                playSound('order_paid');
+                notify.success(t('orders.paid_by_advance'));
+            } else if (order?.invoice_no) {
                 if (mode !== 'quick_save') {
                     playSound('order_created');
                 }
@@ -1309,7 +1325,7 @@ async function submitOrder(mode = 'send_to_kitchen') {
 // After the order is saved: quick save takes the exact amount at once, the kitchen button prints its slips.
 function finishSave(mode, order) {
     if (mode === 'quick_save') {
-        payLines.value = [{ method: 'cash', amount: Number(order.total ?? total.value).toFixed(2), reference: '' }];
+        payLines.value = [{ method: 'cash', amount: Number(order.balance ?? order.total ?? total.value).toFixed(2), reference: '' }];
         payNow('quick_save');
 
         return;
@@ -1380,7 +1396,7 @@ async function payNow(source = 'confirm_payment') {
 
     const tenderedAmount = Number(tendered.value || 0);
 
-    if (tenderedAmount < Number(order.total ?? total.value)) {
+    if (tenderedAmount < orderDue()) {
         notify.error(t('orders.tendered_too_low'));
 
         return;
@@ -1394,7 +1410,7 @@ async function payNow(source = 'confirm_payment') {
         lastPayment.value = {
             order_id: order.id ?? null,
             client_id: order.client_id ?? null,
-            change_due: Math.max(0, tenderedAmount - Number(order.total ?? total.value)),
+            change_due: Math.max(0, tenderedAmount - orderDue()),
             invoice_no: order.invoice_no,
         };
         notify.info(t('sync.queued'));
@@ -1833,8 +1849,9 @@ function quickAmount(amount) {
     tendered.value = String(amount);
 }
 
+// What is left to collect: the bill less any booking money already taken off it.
 function orderDue() {
-    return Number(latestOrder.value?.total ?? total.value);
+    return Number(latestOrder.value?.balance ?? latestOrder.value?.total ?? total.value);
 }
 
 function needsReference(method) {
@@ -1948,7 +1965,7 @@ function payWalletManual() {
     if (! navigator.onLine || order.local) {
         queueOfflinePayment(order, {
             method: payMethod.value,
-            amount: Number(order.total ?? total.value),
+            amount: orderDue(),
             reference: walletTrxId.value,
         }).then(() => {
             lastPayment.value = {
@@ -1967,7 +1984,7 @@ function payWalletManual() {
 
     router.post(route('admin.payments.manual', order.id), {
         method: payMethod.value,
-        amount: Number(latestOrder.value?.total ?? total.value),
+        amount: orderDue(),
         reference: walletTrxId.value,
     }, {
         preserveState: true,
@@ -1995,7 +2012,7 @@ function paySingle() {
     if (! navigator.onLine || order.local) {
         queueOfflinePayment(order, {
             method: payMethod.value,
-            amount: Number(order.total ?? total.value),
+            amount: orderDue(),
             reference: payLines.value[0].reference || null,
         }).then(() => {
             lastPayment.value = {
@@ -2063,11 +2080,11 @@ const changeShown = computed(() => (lastPayment.value ? Number(lastPayment.value
 // Exact amount: put the bill total in the received box once an order is saved.
 watch(() => [latestOrder.value, payMode.value], () => {
     if (posActions.value.confirm_payment.exact_amount && latestOrder.value && ! lastPayment.value && payMode.value === 'cash' && ! tendered.value) {
-        tendered.value = Number(latestOrder.value.total ?? total.value).toFixed(2);
+        tendered.value = orderDue().toFixed(2);
     }
 });
 
-const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (latestOrder.value ? Number(latestOrder.value.total) : total.value)));
+const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - orderDue()));
 </script>
 
 <template>
@@ -2383,6 +2400,12 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                         <dd class="text-xs font-medium tabular-nums" :class="vatAmount > 0 ? 'text-foreground' : 'text-muted'">{{ formatMoney(vatAmount) }}</dd>
                     </div>
                 </dl>
+
+                <!-- Booking money already taken off this bill -->
+                <div v-if="Number(latestOrder?.advance) > 0 && ! lastPayment" class="flex items-center justify-between rounded-md border border-accent/50 bg-accent/10 px-2.5 py-1 text-[13px] text-foreground">
+                    <span>{{ t('orders.advance_paid') }} <span class="tabular-nums">-{{ formatMoney(latestOrder.advance) }}</span></span>
+                    <span class="font-semibold">{{ t('orders.balance_due') }} <span class="tabular-nums">{{ formatMoney(orderDue()) }}</span></span>
+                </div>
 
                 <!-- Total and change -->
                 <div class="flex items-stretch gap-1">
@@ -2939,6 +2962,9 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                                         <span class="text-sm font-semibold leading-tight" :class="table.status === 'occupied' && table.id !== tableId ? 'text-danger' : 'text-foreground'">{{ table.name }}</span>
                                         <span class="text-[11px] leading-tight text-muted">
                                             {{ table.status === 'occupied' ? t('orders.table_occupied') : t('orders.table_seats', { count: table.seats }) }}
+                                        </span>
+                                        <span v-if="table.booking && table.status !== 'occupied'" class="max-w-full truncate text-[10px] font-medium leading-tight text-primary" :title="table.booking.guest_name">
+                                            {{ t('orders.table_booked', { time: new Date(table.booking.starts_at).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) }) }}
                                         </span>
                                     </button>
                                     <button v-if="table.status === 'occupied' && table.id !== tableId && (canVoid || ! openOrderByTable.get(table.id))"

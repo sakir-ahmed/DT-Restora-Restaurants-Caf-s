@@ -8,5 +8,6 @@ enum OrderChannel: string
 {
     case Pos = 'pos';
     case Website = 'website';
+    case Qr = 'qr';
     case Aggregator = 'aggregator';
 }

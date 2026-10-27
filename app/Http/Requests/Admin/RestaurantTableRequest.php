@@ -66,7 +66,6 @@ class RestaurantTableRequest extends FormRequest
             ],
             'area' => ['nullable', 'string', 'max:50'],
             'seats' => ['required', 'integer', 'min:1', 'max:30'],
-            'status' => ['sometimes', Rule::in(['free', 'reserved'])],
             'is_active' => ['boolean'],
         ];
     }

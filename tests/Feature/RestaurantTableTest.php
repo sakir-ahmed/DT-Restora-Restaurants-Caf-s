@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Branch;
 use App\Models\DataVersion;
 use App\Models\Order;
+use App\Models\Reservation;
 use App\Models\RestaurantTable;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
@@ -32,10 +33,7 @@ it('lists only the acting branch tables and their branch qr link', function (): 
     $tables = collect($response->viewData('page')['props']['tables']);
 
     expect($tables->pluck('id')->all())->toBe([$own->id])
-        ->and($tables->first()['qr_url'])->toBe(route('web.qr.branch', [
-            'branchCode' => 'br01',
-            'table' => 'T1',
-        ]));
+        ->and($tables->first()['qr_url'])->toBe(route('web.table', ['token' => $own->qr_token]));
 });
 
 it('lists tables by area and then by natural table number', function (): void {
@@ -174,7 +172,7 @@ it('rejects a range larger than 50 tables', function (): void {
     ]);
 });
 
-it('updates seats area and reserved status', function (): void {
+it('updates seats and area, and never lets the form change occupancy', function (): void {
     $table = RestaurantTable::factory()->create([
         'branch_id' => $this->branch->id,
         'name' => 'T4',
@@ -182,41 +180,55 @@ it('updates seats area and reserved status', function (): void {
         'status' => 'free',
     ]);
 
-    $response = $this->actingAs($this->manager, 'staff')->put(route('admin.tables.update', $table), [
+    $this->actingAs($this->manager, 'staff')->put(route('admin.tables.update', $table), [
         'name' => 'T4',
         'area' => 'Family',
         'seats' => 8,
         'status' => 'reserved',
         'is_active' => true,
-    ]);
-
-    $response->assertRedirect();
+    ])->assertRedirect();
 
     $table->refresh();
 
     expect($table->area)->toBe('Family')
         ->and($table->seats)->toBe(8)
-        ->and($table->status)->toBe('reserved');
+        ->and($table->status)->toBe('free');
 });
 
-it('keeps an occupied table occupied when a status change is posted', function (): void {
+it('keeps an occupied table occupied when the form is saved', function (): void {
     $table = RestaurantTable::factory()->occupied()->create([
         'branch_id' => $this->branch->id,
         'name' => 'T5',
     ]);
 
-    $response = $this->actingAs($this->manager, 'staff')->put(route('admin.tables.update', $table), [
+    $this->actingAs($this->manager, 'staff')->put(route('admin.tables.update', $table), [
         'name' => 'T5',
-        'seats' => 4,
+        'seats' => 6,
         'status' => 'free',
         'is_active' => true,
-    ]);
+    ])->assertRedirect();
 
-    $response->assertSessionHasErrors([
-        'status' => __('tables.occupied_locked'),
-    ]);
+    expect($table->refresh()->status)->toBe('occupied')->and($table->seats)->toBe(6);
+});
 
-    expect($table->refresh()->status)->toBe('occupied');
+it('shows each table as occupied, reserved or free from its orders and bookings', function (): void {
+    $busy = RestaurantTable::factory()->occupied()->create(['branch_id' => $this->branch->id, 'name' => 'A1']);
+    $held = RestaurantTable::factory()->create(['branch_id' => $this->branch->id, 'name' => 'A2']);
+    $idle = RestaurantTable::factory()->create(['branch_id' => $this->branch->id, 'name' => 'A3']);
+
+    Reservation::query()->create([
+        'branch_id' => $this->branch->id,
+        'guest_name' => 'Karim',
+        'party_size' => 2,
+        'starts_at' => now()->subMinutes(5),
+        'ends_at' => now()->addHour(),
+    ])->tables()->attach($held->id);
+
+    $response = $this->actingAs($this->manager, 'staff')->get('/admin/tables');
+
+    $states = collect($response->viewData('page')['props']['tables'])->pluck('state', 'name');
+
+    expect($states->all())->toBe(['A1' => 'occupied', 'A2' => 'reserved', 'A3' => 'free']);
 });
 
 it('removes a table that has no orders', function (): void {
@@ -280,21 +292,11 @@ it('redirects a guest away from the tables page', function (): void {
     $this->get('/admin/tables')->assertRedirect(route('login'));
 });
 
-it('sends a branch qr code to that branch menu and hides an inactive table', function (): void {
-    RestaurantTable::factory()->create([
-        'branch_id' => $this->branch->id,
-        'name' => 'T1',
-    ]);
-    RestaurantTable::factory()->inactive()->create([
-        'branch_id' => $this->branch->id,
-        'name' => 'T2',
-    ]);
+it('opens the table menu from a secret qr code and turns away an inactive table', function (): void {
+    $active = RestaurantTable::factory()->create(['branch_id' => $this->branch->id, 'name' => 'T1']);
+    $inactive = RestaurantTable::factory()->inactive()->create(['branch_id' => $this->branch->id, 'name' => 'T2']);
 
-    $this->get('/q/br01/T1')->assertRedirect(route('web.menu', [
-        'branchCode' => 'br01',
-        'table' => 'T1',
-    ]));
-
-    $this->get('/menu/br01?table=T1')->assertOk();
-    $this->get('/menu/br01?table=T2')->assertNotFound();
+    $this->get(route('web.table', ['token' => $active->qr_token]))->assertOk();
+    $this->get(route('web.table', ['token' => $inactive->qr_token]))->assertStatus(410);
+    $this->get('/q/br01/T1')->assertStatus(410);
 });

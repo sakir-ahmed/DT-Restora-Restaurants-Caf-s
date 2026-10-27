@@ -26,7 +26,7 @@ const label = computed(() => {
         return props.aggregator.name;
     }
 
-    return t(props.channel === 'website' ? 'orders.channel_website' : 'orders.channel_pos');
+    return t({ website: 'orders.channel_website', qr: 'orders.channel_qr' }[props.channel] ?? 'orders.channel_pos');
 });
 </script>
 
@@ -38,7 +38,7 @@ const label = computed(() => {
         :title="label"
     >
         <span v-if="brand" class="flex h-3.5 w-3.5 items-center justify-center rounded-sm bg-white/25 text-[8px] font-bold">{{ brand.short }}</span>
-        <AppIcon v-else name="globe" size="10" />
+        <AppIcon v-else :name="channel === 'qr' ? 'qrcode' : 'globe'" size="10" />
         <span v-if="! compact">{{ label }}</span>
     </span>
 </template>

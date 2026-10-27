@@ -204,14 +204,14 @@ it('lets a customer read only their own orders and addresses', function (): void
         ->assertNotFound();
 });
 
-it('keeps QR table ordering simple', function (): void {
-    $table = RestaurantTable::query()->create([
+it('no longer trusts a table name in the menu link', function (): void {
+    RestaurantTable::query()->create([
         'branch_id' => $this->branch->id,
         'name' => 'T5',
     ]);
 
-    $this->get('/q/T5')->assertRedirect(route('web.menu', ['table' => 'T5']));
-
-    $this->get('/menu?table=T5')->assertOk()->assertSee('T5');
-    $this->get('/menu?table=NOPE')->assertNotFound();
+    // The old guessable links are out of service, and ?table= does nothing on the public menu.
+    $this->get('/q/T5')->assertStatus(410);
+    $this->get('/menu?table=T5')->assertOk()->assertInertia(fn ($page) => $page->missing('table'));
+    $this->get('/menu?table=NOPE')->assertOk();
 });
