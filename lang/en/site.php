@@ -14,9 +14,9 @@ return [
     'skip_to_content' => 'Skip to content',
     'currency' => 'Tk',
 
-    'hero_eyebrow' => 'Restaurant and cafe',
-    'hero_title' => 'Real flavour, cooked fresh and served with care',
-    'hero_subtitle' => 'Dine in at our branches, order for delivery, or scan the QR code at your table. Pay online or in cash and follow your order live.',
+    'hero_eyebrow' => 'Mohammadpur, Dhaka. Since 2013',
+    'hero_title' => 'Quality of fine dining, from our kitchen to your table',
+    'hero_subtitle' => 'Burgers, street food, rice and noodles, and our Qasr Al Mandi pre-order range. Dine in at Mohammadpur, order for delivery, or call 01777656561.',
     'hero_cta_menu' => 'Explore the menu',
     'hero_cta_locations' => 'Find a branch',
     'hero_badge_fresh' => 'Cooked to order',
@@ -189,8 +189,8 @@ return [
     'legal_updated' => 'Plain language, no small print.',
     'breadcrumb' => 'Breadcrumb',
 
-    'seo_home_title' => 'Restaurant and Cafe: Order Food Online',
-    'seo_home_description' => 'Order fresh food online from our restaurant and cafe branches. Delivery, takeaway and table QR ordering with live order tracking and easy payment.',
+    'seo_home_title' => "Arman's Kitchen, Mohammadpur: Menu and Online Order",
+    'seo_home_description' => "Arman's Kitchen in Mohammadpur, Dhaka: burgers, street food, rice and noodles, and Qasr Al Mandi on pre-order. Dine in, take away or order for delivery.",
     'seo_about_title' => 'About Us',
     'seo_about_description' => 'Meet the restaurant and cafe behind the menu. Fresh ingredients, honest prices and warm hospitality at every branch.',
     'seo_contact_title' => 'Contact and Opening Hours',

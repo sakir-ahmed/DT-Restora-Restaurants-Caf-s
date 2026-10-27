@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\AggregatorChannel;
+use App\Models\BlogPost;
 use App\Models\Branch;
 use App\Models\Media;
 use App\Models\MenuCategory;
@@ -29,6 +30,19 @@ it("seeds Arman's Kitchen with its menu, variants and photos", function (): void
         ->and(storage_path('app/public/'.$items->firstWhere('name', 'Student Burger')->photo_path))->toBeFile();
 });
 
+it('publishes journal posts with covers and gives dishes more than one photo', function (): void {
+    $this->seed(ArmansKitchenDataSeeder::class);
+
+    $posts = BlogPost::query()->get();
+
+    expect($posts)->toHaveCount(count(ArmansKitchenCatalog::posts()))
+        ->and($posts->every(fn (BlogPost $post): bool => $post->status === BlogPost::STATUS_PUBLISHED && storage_path('app/public/'.$post->cover_path) !== '' && is_file(storage_path('app/public/'.$post->cover_path))))->toBeTrue();
+
+    $sada = MenuItem::query()->withoutGlobalScopes()->where('name', 'Al Faham Sada')->firstOrFail();
+
+    expect(Media::query()->where('mediable_type', 'menu_item')->where('mediable_id', $sada->id)->count())->toBeGreaterThan(1);
+});
+
 it('is safe to run twice', function (): void {
     $this->seed(ArmansKitchenDataSeeder::class);
     $this->seed(ArmansKitchenDataSeeder::class);
@@ -45,6 +59,10 @@ it('ships every photo the catalog and gallery refer to', function (): void {
                 expect(base_path("database/seeders/assets/armans-kitchen/menu/{$item['photo']}.webp"))->toBeFile();
             }
         }
+    }
+
+    foreach (ArmansKitchenCatalog::posts() as $post) {
+        expect(base_path("database/seeders/assets/armans-kitchen/blog/{$post['cover']}.webp"))->toBeFile();
     }
 
     foreach (ArmansKitchenCatalog::gallery() as $entry) {

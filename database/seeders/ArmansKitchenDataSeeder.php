@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Models\AggregatorChannel;
+use App\Models\BlogPost;
 use App\Models\Branch;
 use App\Models\Media;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\MenuItemVariant;
+use App\Models\User;
 use Database\Seeders\Support\ArmansKitchenCatalog;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -37,6 +39,7 @@ class ArmansKitchenDataSeeder extends Seeder
 
             $this->menu($branch);
             $this->gallery($branch);
+            $this->posts();
             $this->deliveryChannels();
         });
 
@@ -107,9 +110,18 @@ class ArmansKitchenDataSeeder extends Seeder
 
                 if ($item->photo_path !== null) {
                     Media::query()->updateOrCreate(
-                        ['mediable_type' => $item->getMorphClass(), 'mediable_id' => $item->id, 'kind' => Media::KIND_IMAGE],
-                        ['path' => $item->photo_path, 'title' => $item->name, 'title_bn' => $item->name_bn, 'sort_order' => 1, 'is_active' => true],
+                        ['mediable_type' => $item->getMorphClass(), 'mediable_id' => $item->id, 'path' => $item->photo_path],
+                        ['kind' => Media::KIND_IMAGE, 'title' => $item->name, 'title_bn' => $item->name_bn, 'sort_order' => 1, 'is_active' => true],
                     );
+
+                    foreach (ArmansKitchenCatalog::extraPhotos((string) $itemData['photo']) as $n => $extra) {
+                        $path = $this->publish($extra, 'menu/armans-kitchen/extra/'.basename($extra));
+
+                        Media::query()->updateOrCreate(
+                            ['mediable_type' => $item->getMorphClass(), 'mediable_id' => $item->id, 'path' => $path],
+                            ['kind' => Media::KIND_IMAGE, 'title' => $item->name, 'title_bn' => $item->name_bn, 'sort_order' => $n + 2, 'is_active' => true],
+                        );
+                    }
                 }
             }
         }
@@ -120,6 +132,30 @@ class ArmansKitchenDataSeeder extends Seeder
             ->whereNotIn('id', $keptCategories)
             ->whereDoesntHave('items')
             ->delete();
+    }
+
+    private function posts(): void
+    {
+        $author = User::query()->where('username', 'admin')->first();
+
+        foreach (ArmansKitchenCatalog::posts() as $post) {
+            $cover = $this->publish("blog/{$post['cover']}.webp", "blog/armans-kitchen/{$post['cover']}.webp");
+
+            BlogPost::query()->updateOrCreate(['slug' => $post['slug']], [
+                'author_id' => $author?->id,
+                'title' => $post['title'],
+                'title_bn' => $post['title_bn'],
+                'category' => $post['category'],
+                'excerpt' => $post['excerpt'],
+                'excerpt_bn' => $post['excerpt_bn'],
+                'body' => $post['body'],
+                'body_bn' => $post['body_bn'],
+                'cover_path' => $cover,
+                'cover_alt' => $post['title'],
+                'status' => BlogPost::STATUS_PUBLISHED,
+                'published_at' => now()->subDays((int) $post['days_ago'])->setTime(9, 0),
+            ]);
+        }
     }
 
     /**
