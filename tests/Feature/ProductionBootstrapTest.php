@@ -23,7 +23,7 @@ it("seeds bootstrap data, the Arman's Kitchen outlet and a random admin password
     expect($admin->hasRole('super-admin'))->toBeTrue()
         ->and($admin->branch_id)->toBeNull()
         ->and(Branch::query()->pluck('code')->all())->toBe(['AK01'])
-        ->and(MenuItem::query()->withoutGlobalScopes()->count())->toBe(45)
+        ->and(MenuItem::query()->withoutGlobalScopes()->count())->toBe(55)
         ->and(Setting::query()->count())->toBe(1)
         ->and(User::query()->count())->toBe(1);
 });

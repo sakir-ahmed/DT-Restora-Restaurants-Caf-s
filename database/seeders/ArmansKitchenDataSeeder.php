@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Models\AggregatorChannel;
 use App\Models\Branch;
 use App\Models\Media;
 use App\Models\MenuCategory;
@@ -36,6 +37,7 @@ class ArmansKitchenDataSeeder extends Seeder
 
             $this->menu($branch);
             $this->gallery($branch);
+            $this->deliveryChannels();
         });
 
         $this->command?->info("Arman's Kitchen branch, menu and gallery are seeded.");
@@ -73,20 +75,22 @@ class ArmansKitchenDataSeeder extends Seeder
             $keptCategories[] = $category->id;
 
             foreach ($categoryData['items'] as $itemData) {
-                $item = MenuItem::query()->withoutGlobalScopes()->updateOrCreate(
-                    ['branch_id' => $branch->id, 'name' => $itemData['name']],
-                    [
-                        'menu_category_id' => $category->id,
-                        'name_bn' => $itemData['name_bn'],
-                        'description' => $itemData['description'],
-                        'photo_path' => $this->publishMenuPhoto($itemData['photo']),
-                        'barcode' => sprintf('AK-%04d', $itemData['number']),
-                        'base_price' => $itemData['price'],
-                        'is_available' => true,
-                        'is_vegetarian' => $itemData['veg'],
-                        'sort_order' => $itemData['number'],
-                    ],
-                );
+                $attributes = ['branch_id' => $branch->id, 'name' => $itemData['name']];
+                $values = [
+                    'menu_category_id' => $category->id,
+                    'name_bn' => $itemData['name_bn'],
+                    'description' => $itemData['description'],
+                    'photo_path' => $this->publishMenuPhoto($itemData['photo']),
+                    'barcode' => sprintf('AK-%04d', $itemData['number']),
+                    'base_price' => $itemData['price'],
+                    'is_available' => $itemData['available'],
+                    'is_vegetarian' => $itemData['veg'],
+                    'sort_order' => $itemData['number'],
+                ];
+
+                $item = ($categoryData['seed_once'] ?? false)
+                    ? MenuItem::query()->withoutGlobalScopes()->firstOrCreate($attributes, $values)
+                    : MenuItem::query()->withoutGlobalScopes()->updateOrCreate($attributes, $values);
 
                 $item->variants()->delete();
 
@@ -116,6 +120,20 @@ class ArmansKitchenDataSeeder extends Seeder
             ->whereNotIn('id', $keptCategories)
             ->whereDoesntHave('items')
             ->delete();
+    }
+
+    /**
+     * The delivery platforms printed on the menu cards. They start switched off
+     * with no commission, ready to be set up in the admin panel.
+     */
+    private function deliveryChannels(): void
+    {
+        foreach (['pathao_food' => 'Pathao Food', 'foodpanda' => 'Foodpanda', 'foodi' => 'Foodi'] as $key => $name) {
+            AggregatorChannel::query()->firstOrCreate(
+                ['key' => $key],
+                ['name' => $name, 'commission_percent' => '0.00', 'is_active' => false],
+            );
+        }
     }
 
     private function gallery(Branch $branch): void

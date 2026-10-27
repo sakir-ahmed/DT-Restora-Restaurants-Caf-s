@@ -13,7 +13,7 @@ namespace Database\Seeders\Support;
 final class ArmansKitchenCatalog
 {
     /**
-     * @return array<int, array{name: string, name_bn: string, items: array<int, array<string, mixed>>}>
+     * @return array<int, array{name: string, name_bn: string, seed_once?: bool, items: array<int, array<string, mixed>>}>
      */
     public static function categories(): array
     {
@@ -111,6 +111,23 @@ final class ArmansKitchenCatalog
                     self::item(45, 'Premium Tok Misti Doi (per KG)', 'প্রিমিয়াম টক মিষ্টি দই (প্রতি কেজি)', 400, 'tok-misti-doi', true, 'Pre-order required.'),
                 ],
             ],
+            [
+                'name' => 'Morning Breakfast',
+                'name_bn' => 'সকালের নাস্তা',
+                'seed_once' => true,
+                'items' => [
+                    self::draft(46, 'Parota', 'পরোটা'),
+                    self::draft(47, 'Pech Porota', 'প্যাঁচ পরোটা'),
+                    self::draft(48, 'Bhaji', 'ভাজি'),
+                    self::draft(49, 'Dal', 'ডাল'),
+                    self::draft(50, 'One Curry Item', 'ওয়ান কারি আইটেম', 'Chicken Jhalfrezi, Chicken Soup or Nehari.'),
+                    self::draft(51, 'Halua', 'হালুয়া'),
+                    self::draft(52, 'Dim Bhaja', 'ডিম ভাজা'),
+                    self::draft(53, 'Singara', 'সিঙ্গারা'),
+                    self::draft(54, 'Samucha', 'সমুচা'),
+                    self::draft(55, 'Cha & Coffee', 'চা ও কফি'),
+                ],
+            ],
         ];
     }
 
@@ -153,9 +170,22 @@ final class ArmansKitchenCatalog
             'price' => $price,
             'photo' => $photo,
             'veg' => $veg,
+            'available' => true,
             'description' => $description,
             'variants' => [],
         ];
+    }
+
+    /**
+     * A dish on the card with no printed price yet. It is created unavailable
+     * at 0 so it shows in the admin panel ready to price; the seeder never
+     * touches it again once created.
+     *
+     * @return array<string, mixed>
+     */
+    private static function draft(int $number, string $name, string $nameBn, ?string $description = null): array
+    {
+        return [...self::item($number, $name, $nameBn, 0, null, false, $description), 'available' => false];
     }
 
     /**

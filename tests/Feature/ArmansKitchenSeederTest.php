@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\AggregatorChannel;
 use App\Models\Branch;
 use App\Models\Media;
 use App\Models\MenuCategory;
@@ -17,9 +18,9 @@ it("seeds Arman's Kitchen with its menu, variants and photos", function (): void
 
     expect($branch->name)->toBe("Arman's Kitchen")
         ->and($branch->phone)->toBe('01777656561')
-        ->and(MenuCategory::query()->withoutGlobalScopes()->where('branch_id', $branch->id)->count())->toBe(8)
-        ->and($items)->toHaveCount(45)
-        ->and($items->pluck('barcode')->unique())->toHaveCount(45);
+        ->and(MenuCategory::query()->withoutGlobalScopes()->where('branch_id', $branch->id)->count())->toBe(9)
+        ->and($items)->toHaveCount(55)
+        ->and($items->pluck('barcode')->unique())->toHaveCount(55);
 
     $kabsa = $items->firstWhere('name', 'Kabsa');
 
@@ -33,7 +34,7 @@ it('is safe to run twice', function (): void {
     $this->seed(ArmansKitchenDataSeeder::class);
 
     expect(Branch::query()->where('code', 'AK01')->count())->toBe(1)
-        ->and(MenuItem::query()->withoutGlobalScopes()->count())->toBe(45)
+        ->and(MenuItem::query()->withoutGlobalScopes()->count())->toBe(55)
         ->and(Media::query()->where('mediable_type', 'branch')->count())->toBe(count(ArmansKitchenCatalog::gallery()));
 });
 
@@ -49,4 +50,21 @@ it('ships every photo the catalog and gallery refer to', function (): void {
     foreach (ArmansKitchenCatalog::gallery() as $entry) {
         expect(base_path("database/seeders/assets/armans-kitchen/gallery/{$entry['file']}.webp"))->toBeFile();
     }
+});
+
+it('adds the delivery channels switched off and keeps breakfast edits', function (): void {
+    $this->seed(ArmansKitchenDataSeeder::class);
+
+    expect(AggregatorChannel::query()->where('is_active', false)->pluck('key')->sort()->values()->all())->toBe(['foodi', 'foodpanda', 'pathao_food']);
+
+    $parota = MenuItem::query()->withoutGlobalScopes()->where('name', 'Parota')->firstOrFail();
+
+    expect($parota->is_available)->toBeFalse();
+
+    $parota->update(['base_price' => 15, 'is_available' => true]);
+
+    $this->seed(ArmansKitchenDataSeeder::class);
+
+    expect((int) $parota->fresh()->base_price)->toBe(15)
+        ->and($parota->fresh()->is_available)->toBeTrue();
 });
