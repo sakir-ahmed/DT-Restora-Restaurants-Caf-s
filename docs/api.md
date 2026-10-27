@@ -52,7 +52,7 @@
 | POST   | `/login`      | `login` (username, email or mobile) + `password`. Returns Sanctum token. |
 | POST   | `/logout`     | Revokes current token                                                    |
 | GET    | `/me`         | Current user, roles, permissions, branches                               |
-| POST   | `/google`     | Exchange Google token via Socialite                                      |
+| POST   | `/google`     | Exchange a Google token for a customer token                                    |
 | POST   | `/otp/send`   | Sends OTP via BdBulkSMS. Rate limited by IP + mobile.                    |
 | POST   | `/otp/verify` | Verifies OTP (hashed, 5-minute expiry, 5 attempts)                       |
 

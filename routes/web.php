@@ -42,7 +42,6 @@ use App\Http\Controllers\Admin\SyncConflictController;
 use App\Http\Controllers\Admin\UiKitController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WastageController;
-use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Payments\GatewayCallbackController;
@@ -152,8 +151,6 @@ Route::middleware('guest')->group(function (): void {
     Route::post('/login', [LoginController::class, 'store'])->name('login.attempt');
     Route::post('/login/demo', [LoginController::class, 'demo'])->name('login.demo');
 
-    Route::get('/auth/google/redirect', [GoogleController::class, 'redirect'])->name('google.redirect');
-    Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
 });
 
 Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');

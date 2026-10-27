@@ -9,6 +9,7 @@ import { t } from '@/lib/i18n';
 defineProps({
     mobile: { type: String, default: '' },
     codeSent: { type: Boolean, default: false },
+    googleEnabled: { type: Boolean, default: false },
 });
 
 const mobile = ref('');
@@ -49,7 +50,8 @@ function verify() {
 <template>
     <Head :title="t('web.nav_login')" />
 
-    <div class="mx-auto max-w-sm rounded-xl border border-border bg-surface p-6">
+    <div class="flex min-h-[60vh] items-center justify-center">
+    <div class="w-full max-w-sm rounded-xl border border-border bg-surface p-6">
         <h1 class="text-lg font-semibold">{{ t('web.customer_login') }}</h1>
         <p class="mt-0.5 text-sm text-muted">{{ t('web.customer_login_hint') }}</p>
 
@@ -71,7 +73,7 @@ function verify() {
 
             <p v-if="message" role="alert" class="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger">{{ message }}</p>
 
-            <a :href="route('web.customer.google.redirect')" class="flex h-10 w-full items-center justify-center rounded-lg border border-border text-sm font-medium">
+            <a v-if="googleEnabled" :href="route('web.customer.google.redirect')" class="flex h-10 w-full items-center justify-center rounded-lg border border-border text-sm font-medium">
                 {{ t('web.continue_google') }}
             </a>
 
@@ -86,6 +88,7 @@ function verify() {
                 {{ t('auth.sign_in') }}
             </button>
         </div>
+    </div>
     </div>
 </template>
 

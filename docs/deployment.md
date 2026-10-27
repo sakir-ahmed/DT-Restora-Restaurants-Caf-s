@@ -14,7 +14,7 @@ A fresh server can be deployed from this guide. The application is Laravel with 
 1. Copy the repository onto the server and point the web root at `public/`.
 2. Copy `.env.example` to `.env`. Set `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL`, and the database credentials.
 3. Set `APP_KEY` with `php artisan key:generate`.
-4. Set the root admin in `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_USERNAME`, and `ADMIN_PASSWORD` before seeding.
+4. Keep `IS_DEMO=false`. The seeder then creates only the bootstrap data (roles, chart of accounts, units, payment methods, default settings) and the root administrator. Create the first branch and menu in the admin panel.
 5. Install dependencies and build the interface:
 
 ```bash
@@ -28,6 +28,11 @@ npm run build
 ```bash
 php artisan migrate --force
 php artisan db:seed --force
+```
+
+The seeder prints the root administrator's username and a random strong password once. Save it straight away. If it is lost, run `php artisan admin:reset-password` to generate a new one.
+
+```bash
 php artisan storage:link
 ```
 

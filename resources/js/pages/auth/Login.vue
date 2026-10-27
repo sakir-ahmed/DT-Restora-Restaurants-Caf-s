@@ -92,7 +92,7 @@ async function submit() {
                 <p class="relative mt-8 text-xs text-primary-foreground/70">A Datatech product by Datatech BD Ltd.</p>
             </section>
 
-            <section class="flex flex-col bg-surface px-5 py-16 sm:px-8 lg:py-10">
+            <section class="flex flex-col justify-center bg-surface px-5 py-16 sm:px-8 lg:py-10">
                 <div class="mx-auto w-full max-w-sm">
                     <h1 class="text-lg font-semibold text-foreground">{{ t('auth.login_title') }}</h1>
                     <p class="mt-0.5 text-[13px] text-muted">{{ t('auth.login_hint') }}</p>
@@ -102,7 +102,7 @@ async function submit() {
                             :label="t('auth.login_field')"
                             required
                             :error="form.errors.login"
-                            :helper="t('auth.login_helper')"
+                            :helper="page.props.isDemo ? t('auth.login_helper') : undefined"
                         >
                             <template #default="{ id, ariaInvalid, ariaDescribedby }">
                                 <input
@@ -165,19 +165,6 @@ async function submit() {
                             <AppIcon v-if="form.processing" name="spinner" spin />
                             {{ t('auth.sign_in') }}
                         </button>
-
-                        <div class="relative py-1 text-center">
-                            <span class="relative z-10 bg-surface px-2 text-xs text-muted">{{ t('common.or') }}</span>
-                            <span class="absolute inset-x-0 top-1/2 h-px bg-border" aria-hidden="true" />
-                        </div>
-
-                        <a
-                            href="/auth/google/redirect"
-                            class="flex h-8 w-full items-center justify-center gap-2 rounded-md border border-border bg-background text-[13px] font-medium text-foreground hover:border-accent"
-                        >
-                            <AppIcon name="globe" size="14" />
-                            {{ t('auth.google_login') }}
-                        </a>
                     </form>
                 </div>
 

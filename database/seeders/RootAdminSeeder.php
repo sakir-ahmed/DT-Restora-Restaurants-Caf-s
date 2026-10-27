@@ -6,34 +6,54 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
+/**
+ * Creates the root administrator once, with a random strong password that is
+ * printed a single time on the console. A seed run never touches an admin
+ * that already exists, so re-seeding in production cannot reset the password.
+ */
 class RootAdminSeeder extends Seeder
 {
+    public const USERNAME = 'admin';
+
     public function run(): void
     {
-        $password = config('admin.password');
+        if (User::query()->where('username', self::USERNAME)->exists()) {
+            $this->command?->info('Root administrator already exists. Use "php artisan admin:reset-password" if the password is lost.');
 
-        if (! is_string($password) || $password === '') {
-            $password = bin2hex(random_bytes(12));
-
-            if ($this->command !== null) {
-                $this->command->warn('ADMIN_PASSWORD is not set in .env. Generated a one-time password: '.$password);
-            }
-
+            return;
         }
 
-        $user = User::query()->updateOrCreate(
-            ['email' => config('admin.email')],
-            [
-                'name' => config('admin.name'),
-                'username' => config('admin.username'),
-                'password' => Hash::make($password),
-                'is_active' => true,
-                'branch_id' => null,
-            ],
-        );
+        $password = Str::password(20, symbols: false);
+
+        $user = User::query()->create([
+            'name' => 'Administrator',
+            'username' => self::USERNAME,
+            'email' => self::USERNAME.'@'.self::mailDomain(),
+            'password' => $password,
+            'is_active' => true,
+            'branch_id' => null,
+        ]);
 
         $user->syncRoles(['super-admin']);
+
+        $this->command?->newLine();
+        $this->command?->warn('Root administrator created. Save this password now, it is shown only once.');
+        $this->command?->table(['Username', 'Email', 'Password'], [[$user->username, $user->email, $password]]);
+    }
+
+    /**
+     * Mail domain of the root account, taken from APP_URL.
+     */
+    public static function mailDomain(): string
+    {
+        $host = parse_url((string) config('app.url'), PHP_URL_HOST);
+
+        if (! is_string($host) || $host === '') {
+            return 'dtrestora.local';
+        }
+
+        return str_contains($host, '.') ? $host : $host.'.local';
     }
 }

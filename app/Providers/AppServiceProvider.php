@@ -40,7 +40,7 @@ class AppServiceProvider extends ServiceProvider
         Inertia::withoutSsr(['admin', 'admin/*', 'rider', 'rider/*', 'login', 'checkout', 'account', 'customer/*', 'track/*', 'pay/*']);
 
         // OpenAPI is the contract for the mobile apps, including on a deployed server.
-        Gate::define('viewApiDocs', fn (?User $user = null): bool => true);
+        Gate::define('viewApiDocs', fn (?User $user = null): bool => ! $this->app->isProduction() || config('app.is_demo') === true);
 
         // OpenAPI docs are served at /api-docs (see docs/api.md).
         Scramble::configure()->expose(ui: 'api-docs', document: 'api-docs.json');

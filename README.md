@@ -87,15 +87,8 @@ docker compose exec app npm run dev
 
 The service names above (`app`) follow the Docker Compose file created in Phase 0 of the roadmap. Adjust them if yours differ.
 
-Open the app at `http://localhost`. The admin panel is at `/admin`. The root administrator account is created by the seeder from the values in `.env`:
+Open the app at `http://localhost`. The admin panel is at `/admin`. The seeder creates the root administrator (username `admin`) with a random strong password and prints it once at the end of `php artisan migrate:fresh --seed`. If it is lost, run `php artisan admin:reset-password`. Sample branches, menu and staff are seeded only when `IS_DEMO=true`.
 
-```text
-ADMIN_NAME=
-ADMIN_EMAIL=
-ADMIN_PASSWORD=
-```
-
-Never commit real credentials. Change the default password before deploying.
 
 ### Docker
 

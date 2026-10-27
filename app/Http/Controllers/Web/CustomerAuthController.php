@@ -22,6 +22,7 @@ class CustomerAuthController extends Controller
         return inertia('web/Login', [
             'mobile' => old('mobile', $request->session()->get('otp_mobile')),
             'codeSent' => (bool) $request->session()->get('otp_mobile'),
+            'googleEnabled' => filled(config('services.google.client_id')) && filled(config('services.google.client_secret')),
         ]);
     }
 

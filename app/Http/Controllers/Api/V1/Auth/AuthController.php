@@ -65,7 +65,6 @@ class AuthController extends Controller
 
         $validated = $request->validate([
             'token' => ['required', 'string'],
-            'audience' => ['nullable', 'in:staff,customer'],
         ]);
 
         $driver = Socialite::driver('google');
@@ -80,39 +79,24 @@ class AuthController extends Controller
             return $this->error('UNAUTHENTICATED', __('auth.failed'), 401);
         }
 
-        if (($validated['audience'] ?? 'staff') === 'customer') {
-            $email = $googleUser->getEmail();
-            $customer = Customer::query()
-                ->where('google_id', $googleUser->getId())
-                ->when($email !== null, fn ($query) => $query->orWhere('email', $email))
-                ->first();
+        $email = $googleUser->getEmail();
+        $customer = Customer::query()
+            ->where('google_id', $googleUser->getId())
+            ->when($email !== null, fn ($query) => $query->orWhere('email', $email))
+            ->first();
 
-            if ($customer === null) {
-                $customer = Customer::query()->create([
-                    'name' => $googleUser->getName() ?: __('web.google_customer'),
-                    'email' => $email,
-                    'google_id' => $googleUser->getId(),
-                    'is_active' => true,
-                ]);
-            }
-
-            $token = $customer->createToken('customer-google', ['customer']);
-
-            return $this->success(['token' => $token->plainTextToken, 'customer_id' => $customer->id]);
+        if ($customer === null) {
+            $customer = Customer::query()->create([
+                'name' => $googleUser->getName() ?: __('web.google_customer'),
+                'email' => $email,
+                'google_id' => $googleUser->getId(),
+                'is_active' => true,
+            ]);
         }
 
-        $user = User::query()->where('email', $googleUser->getEmail())->where('is_active', true)->first();
+        $token = $customer->createToken('customer-google', ['customer']);
 
-        if ($user === null) {
-            return $this->error('UNAUTHENTICATED', __('auth.failed'), 401);
-        }
-
-        $token = $user->createToken('staff-google', ['staff']);
-
-        return $this->success([
-            'token' => $token->plainTextToken,
-            'user' => $this->userPayload($user),
-        ]);
+        return $this->success(['token' => $token->plainTextToken, 'customer_id' => $customer->id]);
     }
 
     public function me(Request $request): JsonResponse
