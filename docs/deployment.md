@@ -1,4 +1,4 @@
-# DT Restora deployment
+# Arman's Kitchen deployment (branch production/armanskitchen)
 
 A fresh server can be deployed from this guide. The application is Laravel with Inertia, a database, a queue worker, a scheduler, and Reverb for live kitchen and rider updates.
 
@@ -14,7 +14,7 @@ A fresh server can be deployed from this guide. The application is Laravel with 
 1. Copy the repository onto the server and point the web root at `public/`.
 2. Copy `.env.example` to `.env`. Set `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL`, and the database credentials.
 3. Set `APP_KEY` with `php artisan key:generate`.
-4. Keep `IS_DEMO=false`. The seeder then creates only the bootstrap data (roles, chart of accounts, units, payment methods, default settings) and the root administrator. Create the first branch and menu in the admin panel.
+4. Keep `IS_DEMO=false`. On a fresh database the seeder creates the bootstrap data (roles, chart of accounts, units, payment methods, default settings), the root administrator, and Arman's Kitchen: the outlet, the full printed menu with photos, the Qasr Al Mandi pre-order range and the website gallery.
 5. Install dependencies and build the interface:
 
 ```bash
@@ -32,14 +32,27 @@ php artisan db:seed --force
 
 The seeder prints the root administrator's username and a random strong password once. Save it straight away. If it is lost, run `php artisan admin:reset-password` to generate a new one.
 
-For Arman's Kitchen, load the outlet, printed menu, photos and website gallery with:
+Link the public storage so the menu photos are served:
+
+```bash
+php artisan storage:link
+```
+
+Seeding again is safe: `php artisan db:seed --force` never resets the admin password and does not touch the branch or menu once a branch exists, so edits made in the admin panel are kept. To re-sync the outlet and menu from the catalog on purpose (this overwrites names, prices and photos of the seeded dishes), run:
 
 ```bash
 php artisan db:seed --class=ArmansKitchenDataSeeder --force
 ```
 
+## Updating the server later
+
 ```bash
-php artisan storage:link
+git pull origin production/armanskitchen
+composer install --no-dev --optimize-autoloader
+npm ci && npm run build
+php artisan migrate --force
+php artisan config:cache && php artisan route:cache && php artisan view:cache
+php artisan queue:restart
 ```
 
 7. Cache the configuration:
