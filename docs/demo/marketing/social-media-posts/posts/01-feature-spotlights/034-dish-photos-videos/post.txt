@@ -1,0 +1,65 @@
+POST 034 | Feature spotlight | English
+Folder: 01-feature-spotlights/034-dish-photos-videos
+Images: 1, 1080x1350 (4:5).
+Best time to post (Bangladesh time): Mon 12:30 pm
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
+Status and schedule are tracked in content-plan.json (id P034). Links are not used in captions.
+
+=== FACEBOOK ===
+Every dish with photos and videos
+
+People order what they can see. Add several photos and short videos to every dish, and show them in a gallery on the dish page. Better visuals help conversion and keep guests on your site longer.
+
+- Multiple photos per dish
+- YouTube and Vimeo links
+- Or upload your own
+
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
+
+#FoodPhotography #MenuDesign #OnlineMenu #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
+
+=== LINKEDIN ===
+Every dish with photos and videos
+
+People order what they can see. Add several photos and short videos to every dish, and show them in a gallery on the dish page. Better visuals help conversion and keep guests on your site longer.
+
+Key points:
+- Multiple photos per dish
+- YouTube and Vimeo links
+- Or upload your own
+
+If you run or advise a restaurant or cafe group, message or call Datatech BD Ltd.: +880 1575-888775
+
+#FoodPhotography #MenuDesign #OnlineMenu #DTRestora #SaaS
+
+=== X (TWITTER) ===
+Every dish with photos and videos
+
+Make guests hungry before they order.
+
+Datatech BD Ltd. +880 1575-888775
+
+#FoodPhotography #MenuDesign
+(characters counted by X: 131 of 280)
+
+=== INSTAGRAM ===
+Every dish with photos and videos
+
+People order what they can see. Add several photos and short videos to every dish, and show them in a gallery on the dish page. Better visuals help conversion and keep guests on your site longer.
+
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com (or DM "DEMO").
+
+#FoodPhotography #MenuDesign #OnlineMenu #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
+
+=== GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
+Make guests hungry before they order. Try the free demo. Call Datatech BD Ltd.: +880 1575-888775.
+
+=== SEO (use for a blog post, landing page or video description) ===
+SEO title: Every dish with photos and videos | DT Restora
+Meta description: Make guests hungry before they order. People order what they can see
+Primary keyword: online menu with photos and videos restaurant
+Secondary keywords: food photography, menu design, online menu, restaurant management software bangladesh, restaurant pos system dhaka
+Suggested URL slug: /blog/dish-photos-videos
+
+=== IMAGE ALT TEXT ===
+image-01.png: Every dish with photos and videos - screenshot of DT Restora restaurant software showing the dish photos and videos screen.

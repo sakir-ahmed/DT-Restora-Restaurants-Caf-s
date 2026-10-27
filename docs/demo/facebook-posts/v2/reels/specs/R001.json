@@ -1,0 +1,71 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "Restaurant",
+    "owners, one",
+    "minute",
+    "please."
+   ],
+   "small": "",
+   "caption": "Hello, we are DT Restora.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "dash.jpg",
+   "crop": [
+    236,
+    166,
+    1348,
+    104
+   ],
+   "callout": "Sales, food cost and profit at a glance",
+   "caption": "We built one system for restaurants and cafes in Bangladesh.",
+   "dur": 5.8
+  },
+  {
+   "kind": "screen",
+   "shot": "kds.jpg",
+   "crop": [
+    240,
+    70,
+    900,
+    430
+   ],
+   "callout": "One live kitchen screen",
+   "caption": "POS, kitchen screen, stock, staff, loyalty, delivery and accounts.",
+   "dur": 5.4
+  },
+  {
+   "kind": "screen",
+   "shot": "pos-cart.jpg",
+   "crop": [
+    1165,
+    600,
+    410,
+    270
+   ],
+   "callout": "Tap, pay, print",
+   "caption": "So you see your real profit, not just your sales. Follow this page, we will share simple tips every day.",
+   "dur": 8.0
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "Every void and discount is logged",
+    "Your own database, daily backups",
+    "Bangla and English screens"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or email us.",
+   "dur": 4.0
+  }
+ ]
+}

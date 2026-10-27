@@ -1,0 +1,57 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "Why does the",
+    "cashier see",
+    "the profit?"
+   ],
+   "small": "",
+   "caption": "In a small restaurant, everyone sees everything.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "staff.jpg",
+   "crop": [
+    190,
+    130,
+    1100,
+    350
+   ],
+   "callout": "Each role sees only its job",
+   "caption": "Not here. Owner sees the dashboard, manager sees daily operations, cashier sees POS and shifts, kitchen sees the display.",
+   "dur": 8.0
+  },
+  {
+   "kind": "screen",
+   "shot": "activity.jpg",
+   "crop": [
+    200,
+    110,
+    1200,
+    300
+   ],
+   "callout": "Who changed what, and when",
+   "caption": "Training is faster and data stays safe.",
+   "dur": 4.5
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "We install it for you",
+    "Local support, Bangla and English",
+    "First month free after installation"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or email us.",
+   "dur": 4.0
+  }
+ ]
+}

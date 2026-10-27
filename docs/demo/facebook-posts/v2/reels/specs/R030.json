@@ -1,0 +1,57 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "A void",
+    "without a",
+    "reason?"
+   ],
+   "small": "",
+   "caption": "Tanvir voids an order.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "activity.jpg",
+   "crop": [
+    200,
+    110,
+    1200,
+    300
+   ],
+   "callout": "Who changed what, and when",
+   "caption": "The system asks for a reason. Above the limit it needs manager approval, and stock is restored.",
+   "dur": 8.0
+  },
+  {
+   "kind": "screen",
+   "shot": "pos-paid.jpg",
+   "crop": [
+    1165,
+    560,
+    410,
+    310
+   ],
+   "callout": "Payment done, receipt ready",
+   "caption": "Everything lands in the log. Easy to review later, and nobody argues.",
+   "dur": 6.6
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "Your own system and database",
+    "Daily backups of your data",
+    "Installation refundable after one year"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or email us.",
+   "dur": 4.0
+  }
+ ]
+}

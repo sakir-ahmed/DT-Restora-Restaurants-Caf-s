@@ -1,0 +1,57 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "Reprint the",
+    "menu every",
+    "price change?"
+   ],
+   "small": "",
+   "caption": "A QR menu is about speed and accuracy.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "w-home.jpg",
+   "crop": [
+    230,
+    40,
+    1140,
+    520
+   ],
+   "callout": "Your own ordering website",
+   "caption": "Prices are always current, no reprinting. Photos help guests choose.",
+   "dur": 5.8
+  },
+  {
+   "kind": "screen",
+   "shot": "dishmedia.jpg",
+   "crop": [
+    190,
+    300,
+    900,
+    420
+   ],
+   "callout": "Photos and videos for every dish",
+   "caption": "Orders go straight to the kitchen without handwriting mistakes. Fewer waiter trips.",
+   "dur": 6.6
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "Your own system and database",
+    "Daily backups of your data",
+    "Installation refundable after one year"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or email us.",
+   "dur": 4.0
+  }
+ ]
+}

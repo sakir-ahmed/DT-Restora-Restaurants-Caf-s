@@ -1,0 +1,65 @@
+POST 026 | Feature spotlight | English
+Folder: 01-feature-spotlights/026-delivery-app-orders
+Images: 1, 1080x1350 (4:5).
+Best time to post (Bangladesh time): Sun 8:00 pm
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
+Status and schedule are tracked in content-plan.json (id P026). Links are not used in captions.
+
+=== FACEBOOK ===
+Delivery-app orders without the chaos
+
+Delivery apps bring orders but also commission. Enter or receive each app order in DT Restora tagged with its channel, record the commission, and reconcile the payout you expected against what you received.
+
+- Channel tags
+- Commission per order
+- Payout matching
+
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
+
+#Foodpanda #PathaoFood #DeliveryApps #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
+
+=== LINKEDIN ===
+Delivery-app orders without the chaos
+
+Delivery apps bring orders but also commission. Enter or receive each app order in DT Restora tagged with its channel, record the commission, and reconcile the payout you expected against what you received.
+
+Key points:
+- Channel tags
+- Commission per order
+- Payout matching
+
+If you run or advise a restaurant or cafe group, message or call Datatech BD Ltd.: +880 1575-888775
+
+#Foodpanda #PathaoFood #DeliveryApps #DTRestora #SaaS
+
+=== X (TWITTER) ===
+Delivery-app orders without the chaos
+
+One screen for every channel, with commission recorded.
+
+Datatech BD Ltd. +880 1575-888775
+
+#Foodpanda #PathaoFood
+(characters counted by X: 147 of 280)
+
+=== INSTAGRAM ===
+Delivery-app orders without the chaos
+
+Delivery apps bring orders but also commission. Enter or receive each app order in DT Restora tagged with its channel, record the commission, and reconcile the payout you expected against what you received.
+
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com (or DM "DEMO").
+
+#Foodpanda #PathaoFood #DeliveryApps #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
+
+=== GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
+One screen for every channel, with commission recorded. Try the free demo. Call Datatech BD Ltd.: +880 1575-888775.
+
+=== SEO (use for a blog post, landing page or video description) ===
+SEO title: Delivery-app orders without the chaos | DT Restora
+Meta description: One screen for every channel, with commission recorded. Delivery apps bring orders but also commission
+Primary keyword: delivery app order management restaurant
+Secondary keywords: foodpanda, pathao food, delivery apps, restaurant management software bangladesh, restaurant pos system dhaka
+Suggested URL slug: /blog/delivery-app-orders
+
+=== IMAGE ALT TEXT ===
+image-01.png: Delivery-app orders without the chaos - screenshot of DT Restora restaurant software showing the delivery-app channels screen.

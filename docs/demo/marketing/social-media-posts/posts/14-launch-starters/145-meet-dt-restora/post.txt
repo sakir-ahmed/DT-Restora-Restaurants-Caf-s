@@ -1,0 +1,26 @@
+POST 145 | Launch starter | English
+Folder: 14-launch-starters/145-meet-dt-restora
+Images: 1, 1080x1350 (4:5).
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
+Status and schedule are tracked in content-plan.json (id P145). Links are not used in captions.
+
+=== FACEBOOK ===
+Meet DT Restora.
+
+Eight jobs in one system, so you stop juggling separate apps, notebooks and spreadsheets.
+
+1. POS and billing
+2. Kitchen display
+3. Recipes and stock
+4. Staff and payroll
+5. Loyalty and coupons
+6. Ordering website
+7. Delivery tools
+8. Accounts and reports
+
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
+
+#DTRestora #AllInOne #RestaurantSoftware #CafePOS #FoodBusinessBD #RestaurantManagement
+
+=== IMAGE ALT TEXT ===
+image-01.png: Eight tiles listing the DT Restora modules

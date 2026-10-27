@@ -1,0 +1,58 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "Are you",
+    "copying your",
+    "competitor's",
+    "price?"
+   ],
+   "small": "",
+   "caption": "Copying a competitor ignores your own cost.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "recipes.jpg",
+   "crop": [
+    190,
+    50,
+    1000,
+    400
+   ],
+   "callout": "Cost of every dish",
+   "caption": "First know the true cost of each plate. Choose a target food cost.",
+   "dur": 7.1
+  },
+  {
+   "kind": "screen",
+   "shot": "dash.jpg",
+   "crop": [
+    236,
+    636,
+    668,
+    232
+   ],
+   "callout": "Top selling dishes",
+   "caption": "Look at what sells. Review prices every quarter. And never change old orders.",
+   "dur": 7.1
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "We install it for you",
+    "Local support, Bangla and English",
+    "First month free after installation"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or email us.",
+   "dur": 4.0
+  }
+ ]
+}

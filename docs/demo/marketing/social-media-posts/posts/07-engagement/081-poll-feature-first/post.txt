@@ -1,0 +1,56 @@
+POST 081 | Question | English
+Folder: 07-engagement/081-poll-feature-first
+Images: 1, 1080x1350 (4:5).
+Best time to post (Bangladesh time): Sat 8:30 pm
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
+Status and schedule are tracked in content-plan.json (id P081). Links are not used in captions.
+
+=== FACEBOOK ===
+Which feature would you switch on first?
+
+DT Restora lets you start with one part and grow. If you could switch on one feature tomorrow, which would it be?
+
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
+
+#RestaurantPoll #RestaurantSoftware #GrowAtYourPace #DTRestora #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
+
+=== LINKEDIN ===
+Which feature would you switch on first?
+
+DT Restora lets you start with one part and grow. If you could switch on one feature tomorrow, which would it be?
+
+If you run or advise a restaurant or cafe group, message or call Datatech BD Ltd.: +880 1575-888775
+
+#RestaurantPoll #RestaurantSoftware #GrowAtYourPace #DTRestora #SaaS
+
+=== X (TWITTER) ===
+Which feature would you switch on first?
+
+Start where it hurts most.
+
+Datatech BD Ltd. +880 1575-888775
+
+#RestaurantPoll #RestaurantSoftware
+(characters counted by X: 134 of 280)
+
+=== INSTAGRAM ===
+Which feature would you switch on first?
+
+DT Restora lets you start with one part and grow. If you could switch on one feature tomorrow, which would it be?
+
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com (or DM "DEMO").
+
+#RestaurantPoll #RestaurantSoftware #GrowAtYourPace #DTRestora #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
+
+=== GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
+Start where it hurts most. Try the free demo. Call Datatech BD Ltd.: +880 1575-888775.
+
+=== SEO (use for a blog post, landing page or video description) ===
+SEO title: Which feature would you switch on first? | DT Restora
+Meta description: Start where it hurts most. DT Restora lets you start with one part and grow
+Primary keyword: which restaurant software feature first
+Secondary keywords: restaurant poll, restaurant software, grow at your pace, restaurant management software bangladesh, restaurant pos system dhaka
+Suggested URL slug: /blog/poll-feature-first
+
+=== IMAGE ALT TEXT ===
+image-01.png: Which feature would you switch on first? - screenshot of DT Restora restaurant software showing the POS with cart, discount and payment panel.

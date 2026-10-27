@@ -1,0 +1,65 @@
+POST 005 | Feature spotlight | English
+Folder: 01-feature-spotlights/005-kitchen-display
+Images: 1, 1080x1350 (4:5).
+Best time to post (Bangladesh time): Sun 8:00 pm
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
+Status and schedule are tracked in content-plan.json (id P005). Links are not used in captions.
+
+=== FACEBOOK ===
+The kitchen sees every order, instantly
+
+Tickets from the counter, the website and QR tables appear on one live kitchen board. The cook taps start preparing, then mark served. Waiting time shows on every ticket, so slow plates are caught early.
+
+- Pending, preparing, ready
+- Time on every ticket
+- One tap to progress
+
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
+
+#KitchenDisplay #KDS #RestaurantKitchen #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
+
+=== LINKEDIN ===
+The kitchen sees every order, instantly
+
+Tickets from the counter, the website and QR tables appear on one live kitchen board. The cook taps start preparing, then mark served. Waiting time shows on every ticket, so slow plates are caught early.
+
+Key points:
+- Pending, preparing, ready
+- Time on every ticket
+- One tap to progress
+
+If you run or advise a restaurant or cafe group, message or call Datatech BD Ltd.: +880 1575-888775
+
+#KitchenDisplay #KDS #RestaurantKitchen #DTRestora #SaaS
+
+=== X (TWITTER) ===
+The kitchen sees every order, instantly
+
+No shouting. No lost paper slips.
+
+Datatech BD Ltd. +880 1575-888775
+
+#KitchenDisplay #KDS
+(characters counted by X: 125 of 280)
+
+=== INSTAGRAM ===
+The kitchen sees every order, instantly
+
+Tickets from the counter, the website and QR tables appear on one live kitchen board. The cook taps start preparing, then mark served. Waiting time shows on every ticket, so slow plates are caught early.
+
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com (or DM "DEMO").
+
+#KitchenDisplay #KDS #RestaurantKitchen #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
+
+=== GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
+No shouting. No lost paper slips. Try the free demo. Call Datatech BD Ltd.: +880 1575-888775.
+
+=== SEO (use for a blog post, landing page or video description) ===
+SEO title: The kitchen sees every order, instantly | DT Restora
+Meta description: No shouting. No lost paper slips. Tickets from the counter, the website and QR tables appear on one live kitchen board
+Primary keyword: kitchen display system restaurant bangladesh
+Secondary keywords: kitchen display, k d s, restaurant kitchen, restaurant management software bangladesh, restaurant pos system dhaka
+Suggested URL slug: /blog/kitchen-display
+
+=== IMAGE ALT TEXT ===
+image-01.png: The kitchen sees every order, instantly - screenshot of DT Restora restaurant software showing the kitchen display with pending, preparing and ready tickets.

@@ -1,0 +1,70 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "1,000 taka a",
+    "month.",
+    "Really?"
+   ],
+   "small": "",
+   "caption": "Our launch price is one thousand taka per month.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "dash.jpg",
+   "crop": [
+    236,
+    166,
+    1348,
+    104
+   ],
+   "callout": "Sales, food cost and profit at a glance",
+   "caption": "The regular price is five thousand seven hundred.",
+   "dur": 5.0
+  },
+  {
+   "kind": "screen",
+   "shot": "kds.jpg",
+   "crop": [
+    240,
+    70,
+    900,
+    430
+   ],
+   "callout": "One live kitchen screen",
+   "caption": "Installation is two thousand five hundred taka, one time.",
+   "dur": 5.4
+  },
+  {
+   "kind": "screen",
+   "shot": "pos-cart.jpg",
+   "crop": [
+    1165,
+    600,
+    410,
+    270
+   ],
+   "callout": "Tap, pay, print",
+   "caption": "And your first month is free after installation. Choose yearly and get two months free.",
+   "dur": 7.9
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "We install it for you",
+    "Local support, Bangla and English",
+    "First month free after installation"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or email us.",
+   "dur": 4.0
+  }
+ ]
+}

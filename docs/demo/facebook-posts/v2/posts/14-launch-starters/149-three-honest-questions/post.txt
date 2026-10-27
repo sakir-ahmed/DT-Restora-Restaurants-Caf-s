@@ -1,0 +1,21 @@
+POST 149 | Launch starter | English
+Folder: 14-launch-starters/149-three-honest-questions
+Images: 1, 1080x1350 (4:5).
+Contact line on every post: Datatech BD Ltd. +880 1575-888775, sales@datatechbd.com
+Status and schedule are tracked in content-plan.json (id P149). Links are not used in captions.
+
+=== FACEBOOK ===
+3 questions. Be honest.
+
+1. Do you know today's profit?
+2. Do you know this week's waste?
+3. Does the cash drawer match every night?
+
+Comment your score from 0 to 3. If any answer is no, this page is for you.
+
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
+
+#RestaurantOwners #OwnerQuiz #RestaurantProfit #DTRestora #RestaurantSoftware #BangladeshRestaurants
+
+=== IMAGE ALT TEXT ===
+image-01.png: Three self-check questions for restaurant owners

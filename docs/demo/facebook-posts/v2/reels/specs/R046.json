@@ -1,0 +1,56 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "What if I want",
+    "to leave?"
+   ],
+   "small": "",
+   "caption": "Use DT Restora for one year.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "dash.jpg",
+   "crop": [
+    236,
+    166,
+    1348,
+    104
+   ],
+   "callout": "Sales, food cost and profit at a glance",
+   "caption": "If you decide to cancel, the two thousand five hundred taka installation fee is refundable. Your data stays in your own installation with daily backups.",
+   "dur": 8.0
+  },
+  {
+   "kind": "screen",
+   "shot": "accounting.jpg",
+   "crop": [
+    900,
+    150,
+    690,
+    260
+   ],
+   "callout": "Profit and loss, ready",
+   "caption": "We want you to feel safe.",
+   "dur": 4.4
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "Every void and discount is logged",
+    "Your own database, daily backups",
+    "Bangla and English screens"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or email us.",
+   "dur": 4.0
+  }
+ ]
+}

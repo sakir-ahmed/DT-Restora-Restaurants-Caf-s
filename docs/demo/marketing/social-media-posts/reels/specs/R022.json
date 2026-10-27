@@ -1,0 +1,57 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "How do you",
+    "make guests",
+    "come back?"
+   ],
+   "small": "",
+   "caption": "A cafe guest pays and gets points.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "loyalty.jpg",
+   "crop": [
+    190,
+    100,
+    900,
+    260
+   ],
+   "callout": "Points on every order",
+   "caption": "Next week, she comes back to use them. Points on every paid order, birthday message, a coupon with clear limits.",
+   "dur": 8.0
+  },
+  {
+   "kind": "screen",
+   "shot": "coupons.jpg",
+   "crop": [
+    190,
+    100,
+    900,
+    230
+   ],
+   "callout": "Coupons you control",
+   "caption": "Regular customers are your cheapest growth.",
+   "dur": 4.4
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "Every void and discount is logged",
+    "Your own database, daily backups",
+    "Bangla and English screens"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or WhatsApp.",
+   "dur": 4.0
+  }
+ ]
+}

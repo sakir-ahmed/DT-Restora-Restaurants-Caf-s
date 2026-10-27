@@ -1,0 +1,69 @@
+POST 030 | Feature spotlight | English
+Folder: 01-feature-spotlights/030-roles-permissions
+Images: 1, 1080x1350 (4:5).
+Best time to post (Bangladesh time): Thu 8:00 pm
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
+Status and schedule are tracked in content-plan.json (id P030). Links are not used in captions.
+
+=== FACEBOOK ===
+Everyone sees only their job
+
+Owners, branch managers, cashiers, waiters, kitchen managers, accountants and riders each get only the screens they need. Training is faster, mistakes are rarer and sensitive data stays with the right people.
+
+- Owner: dashboard and approvals
+- Manager: daily operations
+- Cashier: POS and shifts
+- Kitchen: display, recipes, stock
+- Accountant and rider screens
+
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
+
+#RolesAndPermissions #StaffTraining #RestaurantSecurity #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
+
+=== LINKEDIN ===
+Everyone sees only their job
+
+Owners, branch managers, cashiers, waiters, kitchen managers, accountants and riders each get only the screens they need. Training is faster, mistakes are rarer and sensitive data stays with the right people.
+
+Key points:
+- Owner: dashboard and approvals
+- Manager: daily operations
+- Cashier: POS and shifts
+- Kitchen: display, recipes, stock
+- Accountant and rider screens
+
+If you run or advise a restaurant or cafe group, message or call Datatech BD Ltd.: +880 1575-888775
+
+#RolesAndPermissions #StaffTraining #RestaurantSecurity #DTRestora #SaaS
+
+=== X (TWITTER) ===
+Everyone sees only their job
+
+Seven roles, one clean screen each.
+
+Datatech BD Ltd. +880 1575-888775
+
+#RolesAndPermissions #StaffTraining
+(characters counted by X: 131 of 280)
+
+=== INSTAGRAM ===
+Everyone sees only their job
+
+Owners, branch managers, cashiers, waiters, kitchen managers, accountants and riders each get only the screens they need. Training is faster, mistakes are rarer and sensitive data stays with the right people.
+
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com (or DM "DEMO").
+
+#RolesAndPermissions #StaffTraining #RestaurantSecurity #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
+
+=== GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
+Seven roles, one clean screen each. Try the free demo. Call Datatech BD Ltd.: +880 1575-888775.
+
+=== SEO (use for a blog post, landing page or video description) ===
+SEO title: Everyone sees only their job | DT Restora
+Meta description: Seven roles, one clean screen each. Owners, branch managers, cashiers, waiters, kitchen managers, accountants and riders each get only the screens they...
+Primary keyword: restaurant pos user roles permissions
+Secondary keywords: roles and permissions, staff training, restaurant security, restaurant management software bangladesh, restaurant pos system dhaka
+Suggested URL slug: /blog/roles-permissions
+
+=== IMAGE ALT TEXT ===
+image-01.png: Everyone sees only their job - screenshot of DT Restora restaurant software showing the staff list.

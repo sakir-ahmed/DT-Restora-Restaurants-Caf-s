@@ -1,0 +1,57 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "Five friends,",
+    "three ways to",
+    "pay."
+   ],
+   "small": "",
+   "caption": "Groups rarely pay the same way.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "pos-split.jpg",
+   "crop": [
+    1165,
+    600,
+    410,
+    270
+   ],
+   "callout": "Cash + bKash + Nagad + card",
+   "caption": "Split one bill between cash, bKash, Nagad or card in a few taps. The system checks the total and the receipt shows each method clearly.",
+   "dur": 8.0
+  },
+  {
+   "kind": "screen",
+   "shot": "pos-paid.jpg",
+   "crop": [
+    1165,
+    560,
+    410,
+    310
+   ],
+   "callout": "Payment done, receipt ready",
+   "caption": "Simple.",
+   "dur": 4.4
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "Every void and discount is logged",
+    "Your own database, daily backups",
+    "Bangla and English screens"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or email us.",
+   "dur": 4.0
+  }
+ ]
+}

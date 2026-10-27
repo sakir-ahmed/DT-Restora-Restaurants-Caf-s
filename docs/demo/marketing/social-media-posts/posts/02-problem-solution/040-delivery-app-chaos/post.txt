@@ -1,0 +1,56 @@
+POST 040 | Owner problem | English
+Folder: 02-problem-solution/040-delivery-app-chaos
+Images: 1, 1080x1350 (4:5).
+Best time to post (Bangladesh time): Sun 8:00 pm
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
+Status and schedule are tracked in content-plan.json (id P040). Links are not used in captions.
+
+=== FACEBOOK ===
+Three tablets. Three headaches.
+
+Orders from delivery apps arrive on separate tablets, get typed again by hand and hide the commission. DT Restora puts every channel on one screen, tagged and costed, so profit is shown after commission.
+
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
+
+#DeliveryApps #Foodpanda #OrderManagement #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
+
+=== LINKEDIN ===
+Three tablets. Three headaches.
+
+Orders from delivery apps arrive on separate tablets, get typed again by hand and hide the commission. DT Restora puts every channel on one screen, tagged and costed, so profit is shown after commission.
+
+If you run or advise a restaurant or cafe group, message or call Datatech BD Ltd.: +880 1575-888775
+
+#DeliveryApps #Foodpanda #OrderManagement #DTRestora #SaaS
+
+=== X (TWITTER) ===
+Three tablets. Three headaches.
+
+Delivery apps on separate devices get re-typed and forgotten.
+
+Datatech BD Ltd. +880 1575-888775
+
+#DeliveryApps #Foodpanda
+(characters counted by X: 149 of 280)
+
+=== INSTAGRAM ===
+Three tablets. Three headaches.
+
+Orders from delivery apps arrive on separate tablets, get typed again by hand and hide the commission. DT Restora puts every channel on one screen, tagged and costed, so profit is shown after commission.
+
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com (or DM "DEMO").
+
+#DeliveryApps #Foodpanda #OrderManagement #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
+
+=== GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
+Delivery apps on separate devices get re-typed and forgotten. Try the free demo. Call Datatech BD Ltd.: +880 1575-888775.
+
+=== SEO (use for a blog post, landing page or video description) ===
+SEO title: Three tablets. Three headaches. | DT Restora
+Meta description: Delivery apps on separate devices get re-typed and forgotten. Orders from delivery apps arrive on separate tablets, get typed again by hand and hide...
+Primary keyword: delivery app order management
+Secondary keywords: delivery apps, foodpanda, order management, restaurant management software bangladesh, restaurant pos system dhaka
+Suggested URL slug: /blog/delivery-app-chaos
+
+=== IMAGE ALT TEXT ===
+image-01.png: Three tablets. Three headaches. - screenshot of DT Restora restaurant software showing the delivery-app channels screen.

@@ -1,0 +1,58 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "Five minutes",
+    "every week",
+    "saves your",
+    "month."
+   ],
+   "small": "",
+   "caption": "Weekly stock habit.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "stockcount.jpg",
+   "crop": [
+    600,
+    90,
+    990,
+    230
+   ],
+   "callout": "Count the shelf, see the difference",
+   "caption": "Count high value items first. Compare the count with the system. Investigate big differences.",
+   "dur": 7.5
+  },
+  {
+   "kind": "screen",
+   "shot": "ingredients.jpg",
+   "crop": [
+    194,
+    105,
+    760,
+    330
+   ],
+   "callout": "Reorder alerts",
+   "caption": "Record waste and gifts. Update reorder levels. Small routine, big saving.",
+   "dur": 6.2
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "We install it for you",
+    "Local support, Bangla and English",
+    "First month free after installation"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or WhatsApp.",
+   "dur": 4.0
+  }
+ ]
+}

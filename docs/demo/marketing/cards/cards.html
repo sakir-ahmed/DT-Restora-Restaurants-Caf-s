@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>DT Restora cards</title>
+<link rel="stylesheet" href="../assets/brand.css"><link rel="stylesheet" href="../assets/mock.css">
+<style>
+body{background:#cbd5e1;display:flex;flex-direction:column;gap:40px;align-items:center;padding:40px}
+.card{width:1080px;height:1350px;position:relative;overflow:hidden;padding:84px 80px 72px;display:flex;flex-direction:column;background:var(--paper);color:var(--ink)}
+.card.dark{background:var(--ink);color:#fff}
+.card.dark::before{content:"";position:absolute;right:-220px;top:-220px;width:620px;height:620px;border-radius:50%;border:70px solid rgba(245,158,11,.10)}
+.card.light::before{content:"";position:absolute;right:-220px;top:-220px;width:620px;height:620px;border-radius:50%;border:70px solid rgba(245,158,11,.14)}
+.brand{display:flex;align-items:center;gap:14px;font-weight:800;font-size:28px;letter-spacing:-.02em;position:relative}
+.brand span{font-weight:600}
+.brand svg{width:48px;height:48px}.dark .brand svg{--t:#F59E0B;--r:#0F172A;--b:#0F172A;--l:#fff}
+.tag{margin-top:64px;font-size:20px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);position:relative}
+.light .tag{color:var(--amber-deep)}
+h2{font-size:84px;line-height:1.02;font-weight:800;letter-spacing:-.035em;margin-top:18px;position:relative}
+h2 em{font-style:normal;color:var(--amber)}
+.light h2 em{color:var(--amber-deep)}
+.lead{font-size:30px;line-height:1.45;margin-top:26px;color:#94A3B8;max-width:880px;position:relative}
+.light .lead{color:var(--ink-3)}
+.body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px;position:relative;margin-top:36px}
+.foot{display:flex;justify-content:space-between;align-items:center;font-size:22px;font-weight:600;color:#94A3B8;border-top:2px solid rgba(148,163,184,.3);padding-top:26px;position:relative}
+.light .foot{color:var(--muted);border-color:var(--line)}
+.foot b{color:var(--amber)}.light .foot b{color:var(--amber-deep)}
+.ic{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.badge{width:84px;height:84px;border-radius:24px;display:grid;place-items:center;font-size:44px;flex:none}
+.b-amber{background:var(--amber);color:var(--ink)}
+.b-ink{background:var(--ink);color:var(--amber)}
+.b-dim{background:rgba(255,255,255,.08);color:var(--amber)}
+.b-green{background:var(--green-soft);color:var(--green)}
+.b-rose{background:var(--rose-soft);color:var(--rose)}
+/* panels */
+.panel{border-radius:28px;padding:30px 34px;display:flex;align-items:center;gap:28px}
+.dark .panel{background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1)}
+.light .panel{background:#fff;border:1.5px solid var(--line);box-shadow:0 2px 0 rgba(15,23,42,.03)}
+.panel h3{font-size:34px;font-weight:700;letter-spacing:-.02em}
+.panel p{font-size:24px;line-height:1.4;margin-top:6px;color:#94A3B8}
+.light .panel p{color:var(--ink-3)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.tile{border-radius:32px;padding:38px 34px;display:flex;flex-direction:column;gap:18px;min-height:340px}
+.dark .tile{background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1)}
+.tile h3{font-size:42px;font-weight:800;letter-spacing:-.03em}
+.tile p{font-size:23px;line-height:1.45;color:#94A3B8}
+.tile.hi{background:var(--amber);border:0;color:var(--ink)}.tile.hi p{color:#451A03}
+/* before/after */
+.vs{display:grid;grid-template-columns:1fr 70px 1fr;align-items:center;gap:0}
+.vs .l,.vs .r{border-radius:22px;padding:22px 26px;font-size:25px;font-weight:600;line-height:1.3;min-height:104px;display:flex;align-items:center;gap:16px}
+.vs .l{background:var(--rose-soft);color:#9F1239}
+.vs .r{background:var(--green-soft);color:#065F46}
+.vs .a{display:grid;place-items:center;font-size:36px;color:var(--ink)}
+.cols{display:grid;grid-template-columns:1fr 70px 1fr;font-size:20px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-top:40px;position:relative}
+.cols span:nth-child(1){color:var(--rose)}.cols span:nth-child(3){color:var(--green)}
+/* formula */
+.eq{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;align-items:center;gap:20px;border-radius:22px;padding:12px 24px;font-size:30px;font-weight:700}
+.row .op{width:50px;height:50px;border-radius:16px;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:36px;font-weight:800;flex:none}
+.row.plus{background:var(--green-soft);color:#065F46}.row.minus{background:#fff;border:1.5px solid var(--line)}
+.row small{margin-left:auto;font-size:21px;font-weight:500;color:var(--muted)}
+.row.total{background:var(--ink);color:#fff;font-size:40px;padding:22px 28px}.row.total .op{background:var(--amber);color:var(--ink)}
+.row.total small{color:#94A3B8}
+/* flow */
+.flow{display:flex;flex-direction:column;gap:0}
+.step{display:flex;gap:30px;align-items:flex-start;position:relative;padding-bottom:30px}
+.step:not(:last-child)::after{content:"";position:absolute;left:41px;top:84px;bottom:0;width:4px;background:repeating-linear-gradient(var(--amber) 0 10px,transparent 10px 18px)}
+.num{width:84px;height:84px;border-radius:50%;background:var(--amber);color:var(--ink);font-size:40px;font-weight:800;display:grid;place-items:center;flex:none}
+.step h3{font-size:36px;font-weight:700;letter-spacing:-.02em;margin-top:6px}
+.step p{font-size:24px;line-height:1.4;margin-top:6px;color:#94A3B8}
+.light .step p{color:var(--ink-3)}
+/* hub */
+.hub{display:grid;grid-template-columns:1fr 90px 1fr;align-items:center}
+.col{display:flex;flex-direction:column;gap:16px}
+.pill{border-radius:20px;padding:20px 24px;display:flex;align-items:center;gap:18px;font-size:27px;font-weight:700}
+.dark .pill{background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12)}
+.pill .ic{font-size:36px;color:var(--amber)}
+.core{border-radius:32px;background:var(--amber);color:var(--ink);padding:34px 30px;display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
+.core .ic{font-size:70px}.core h3{font-size:38px;font-weight:800;letter-spacing:-.03em;line-height:1.05}.core p{font-size:22px;color:#451A03}
+.hub .arr{display:grid;place-items:center;color:var(--amber);font-size:56px}
+/* price */
+.price{display:flex;align-items:baseline;gap:20px;margin-top:30px;position:relative}
+.price .big{font-size:190px;font-weight:800;letter-spacing:-.05em;line-height:.9;color:var(--amber)}
+.price .u{font-size:34px;font-weight:700;line-height:1.2}
+.price s{font-size:38px;color:#94A3B8;font-weight:600}
+.offer{display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:28px}
+.offer .panel{padding:26px 30px}
+.offer .panel h3{font-size:30px}.offer .panel p{font-size:22px}
+.chip{display:inline-flex;align-items:center;gap:10px;border-radius:999px;padding:10px 22px;font-size:22px;font-weight:700}
+.dark .chip{background:rgba(245,158,11,.14);color:var(--amber)}
+.chips{display:flex;flex-wrap:wrap;gap:12px}
+.compact .panel{padding:18px 28px}.compact .badge{width:72px;height:72px;font-size:38px}.compact .panel h3{font-size:31px}.compact .panel p{font-size:22px}
+.cta h2{font-size:92px}
+.contact{border-radius:32px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);padding:40px 44px;display:flex;flex-direction:column;gap:22px}
+.contact .n{font-size:44px;font-weight:800;letter-spacing:-.02em}
+.contact .r{font-size:24px;color:#94A3B8;margin-top:-14px}
+.line{display:flex;align-items:center;gap:20px;font-size:31px;font-weight:600}
+.line .ic{font-size:40px;color:var(--amber)}
+.btn{background:var(--amber);color:var(--ink);border-radius:24px;padding:28px 36px;font-size:36px;font-weight:800;display:flex;align-items:center;justify-content:space-between}
+
+.ftgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;position:relative}
+.ft{border-radius:18px;padding:16px 18px;display:flex;align-items:center;gap:12px;font-size:20px;font-weight:700;line-height:1.2;min-height:78px}
+.light .ft{background:#fff;border:1.5px solid var(--line)}.dark .ft{background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12)}
+.ft .ic{font-size:30px;color:var(--amber-deep)}.dark .ft .ic{color:var(--amber)}
+.stage{flex:1;display:flex;align-items:center;justify-content:center;position:relative;margin:26px 0 22px}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:10px 22px;margin-bottom:18px;position:relative}
+.legend div{display:flex;gap:12px;align-items:center;font-size:21px;font-weight:600}
+.legend .pn{width:32px;height:32px;border-radius:50%;background:var(--amber);color:var(--ink);font-weight:800;font-size:17px;display:grid;place-items:center;flex:none}
+.sysrow{display:grid;grid-template-columns:104px repeat(4,1fr);gap:10px;align-items:stretch;margin-bottom:10px;position:relative}.sysrow .gl{font-size:14px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);display:flex;align-items:center}
+.sg{border-radius:16px;padding:12px 14px;display:flex;flex-direction:row;align-items:center;gap:10px;font-size:17px;font-weight:700;line-height:1.2;min-height:82px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12)}
+.sg .ic{font-size:28px;color:var(--amber)}
+.grp{font-size:15px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);margin:14px 0 8px;position:relative}
+.card h2.sm{font-size:68px}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="mk" viewBox="0 0 120 120"><rect width="120" height="120" rx="28" fill="var(--t,#0F172A)"/><g transform="translate(-10.8,-16.7) scale(1.18)"><path fill-rule="evenodd" fill="var(--r,#F59E0B)" d="M28 82a32 32 0 0 1 64 0z M45 76v-8a3.5 3.5 0 0 1 7 0v8z M56.5 76v-14a3.5 3.5 0 0 1 7 0v14z M68 76v-18a3.5 3.5 0 0 1 7 0v18z"/><rect x="20" y="86" width="80" height="8" rx="4" fill="var(--r,#F59E0B)"/><circle cx="60" cy="45" r="5.5" fill="var(--r,#F59E0B)"/></g></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15v3M12 10v8M17 6v12"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+<symbol id="i-store" viewBox="0 0 24 24"><path d="M4 9l1-5h14l1 5M4 9v11h16V9M4 9h16M9 20v-6h6v6"/></symbol>
+<symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></symbol>
+<symbol id="i-bike" viewBox="0 0 24 24"><circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l4-8h5l3 8M10 9L9 6H7"/></symbol>
+<symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></symbol>
+<symbol id="i-box" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-4 3-6 7-6s7 2 7 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c3 0 5 1.5 5 4"/></symbol>
+<symbol id="i-wallet" viewBox="0 0 24 24"><path d="M3 7h16a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2zM3 7V6a2 2 0 012-2h11M16 14h2"/></symbol>
+<symbol id="i-cart" viewBox="0 0 24 24"><path d="M3 4h2l2 12h11l2-8H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></symbol>
+<symbol id="i-wifioff" viewBox="0 0 24 24"><path d="M2 8c5-4 15-4 20 0M5 12c4-3 10-3 14 0M8.5 15.5c2-1.5 5-1.5 7 0M12 19h.01M3 3l18 18"/></symbol>
+<symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></symbol>
+<symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></symbol>
+<symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></symbol>
+<symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></symbol>
+<symbol id="i-screen" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4h7a3 3 0 013 3v13a2 2 0 00-2-2H4zM20 4h-6M20 4v14h-6"/></symbol>
+<symbol id="i-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3M21 14v7M14 21h3"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h7"/></symbol>
+<symbol id="i-brief" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V4h6v3M3 13h18"/></symbol>
+<symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M3 17l5-5 4 4 3-3 6 5"/></symbol>
+<symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 3v18M6 21h12M5 7h14M5 7l-3 7a3 3 0 006 0zM19 7l-3 7a3 3 0 006 0z"/></symbol>
+<symbol id="i-sync" viewBox="0 0 24 24"><path d="M20 8a8 8 0 00-14-2M4 4v4h4M4 16a8 8 0 0014 2M20 20v-4h-4"/></symbol>
+<symbol id="i-fp" viewBox="0 0 24 24"><path d="M12 4a7 7 0 00-7 7v2M12 8a3 3 0 00-3 3v3a5 5 0 01-1 3M12 11v4c0 2-1 4-2 5M16 12v2c0 3-1 5-3 7M19 10v3"/></symbol>
+<symbol id="i-fork" viewBox="0 0 24 24"><path d="M7 3v8a2 2 0 002 2v8M5 3v6M9 3v6M17 3c-2 2-3 5-3 8h3v10"/></symbol>
+<symbol id="i-id" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M5.5 16c.8-2 2-2.5 3.5-2.5s2.7.5 3.5 2.5M15 10h4M15 14h3"/></symbol>
+<symbol id="i-gift" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="5"/><path d="M12 8v13M5 13v8h14v-8M12 8c-2-4-6-3-5 0 1 1 3 0 5 0 2 0 4 1 5 0 1-3-3-4-5 0"/></symbol>
+<symbol id="i-truck" viewBox="0 0 24 24"><path d="M3 6h11v10H3zM14 9h4l3 3v4h-7"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></symbol>
+</defs></svg>
+
+<section data-file="01-value-proposition" class="card dark compact" id="c01">
+  <div class="brand"><svg><use href="#mk"/></svg><div>DT <span>Restora</span></div></div>
+  <div class="tag">Value proposition</div>
+  <h2>Know your <em>profit</em>.<br>Not just your sales.</h2>
+  <p class="lead">DT Restora is the owner control system for restaurants and cafes in Bangladesh. Orders, kitchen, stock, staff and accounts in one place.</p>
+  <div class="body" style="gap:16px">
+    <div class="panel"><div class="badge b-amber"><svg class="ic"><use href="#i-cart"/></svg></div><div><h3>Sell more</h3><p>Website, QR table and delivery-app orders land in one screen.</p></div></div>
+    <div class="panel"><div class="badge b-amber"><svg class="ic"><use href="#i-trash"/></svg></div><div><h3>Waste less</h3><p>Stock falls with every sale and every loss is logged.</p></div></div>
+    <div class="panel"><div class="badge b-amber"><svg class="ic"><use href="#i-clock"/></svg></div><div><h3>Serve faster</h3><p>Fast POS, live kitchen screen and easy split bills.</p></div></div>
+    <div class="panel"><div class="badge b-amber"><svg class="ic"><use href="#i-chart"/></svg></div><div><h3>See clearly</h3><p>Real profit per branch, today, not at month end.</p></div></div>
+  </div>
+  <div class="foot"><span>English and Bangla</span><b>dt-restora.datatechbd.com</b></div>
+</section>
+<section data-file="02-business-case" class="card light" id="c02">
+  <div class="brand"><svg><use href="#mk"/></svg><div>DT <span>Restora</span></div></div>
+  <div class="tag">The business case</div>
+  <h2>Paper hides your <em>money</em>.</h2>
+  <p class="lead">Every restaurant loses money in small, invisible ways. Going digital makes each one visible and fixable.</p>
+  <div class="cols"><span>Without a system</span><span></span><span>With DT Restora</span></div>
+  <div class="body" style="gap:14px;margin-top:20px">
+    <div class="vs"><div class="l">Bills written by hand</div><div class="a"><svg class="ic"><use href="#i-arrow"/></svg></div><div class="r">Every order recorded at the till</div></div>
+    <div class="vs"><div class="l">Stock counted by guess</div><div class="a"><svg class="ic"><use href="#i-arrow"/></svg></div><div class="r">Stock drops automatically with each sale</div></div>
+    <div class="vs"><div class="l">Waste noticed too late</div><div class="a"><svg class="ic"><use href="#i-arrow"/></svg></div><div class="r">Every loss logged with a reason and cost</div></div>
+    <div class="vs"><div class="l">Profit known at month end</div><div class="a"><svg class="ic"><use href="#i-arrow"/></svg></div><div class="r">Profit visible today, per branch</div></div>
+    <div class="vs"><div class="l">Sales only at your door</div><div class="a"><svg class="ic"><use href="#i-arrow"/></svg></div><div class="r">Website and delivery-app orders in one place</div></div>
+  </div>
+  <div class="foot"><span>Datatech BD Ltd</span><b>dt-restora.datatechbd.com</b></div>
+</section>
+<section class="card dark" id="nsys" data-file="03-complete-system"><div class="brand"><svg><use href="#mk"/></svg><div>DT <span>Restora</span></div></div><div class="tag">The full picture</div><h2 class="sm">Not just a POS.<br>A <em>complete</em> restaurant system.</h2><div class="body" style="margin-top:20px;justify-content:center;gap:0"><div class="sysrow"><div class="gl">Sell</div><div class="sg"><svg class="ic"><use href="#i-cart"/></svg><span>POS and tables</span></div><div class="sg"><svg class="ic"><use href="#i-screen"/></svg><span>Kitchen display</span></div><div class="sg"><svg class="ic"><use href="#i-receipt"/></svg><span>Orders and payments</span></div><div class="sg"><svg class="ic"><use href="#i-globe"/></svg><span>Ordering website</span></div></div><div class="sysrow"><div class="gl">Customers</div><div class="sg"><svg class="ic"><use href="#i-gift"/></svg><span>Loyalty points</span></div><div class="sg"><svg class="ic"><use href="#i-tag"/></svg><span>Coupons</span></div><div class="sg"><svg class="ic"><use href="#i-qr"/></svg><span>QR table ordering</span></div><div class="sg"><svg class="ic"><use href="#i-users"/></svg><span>Customer accounts</span></div></div><div class="sysrow"><div class="gl">Stock</div><div class="sg"><svg class="ic"><use href="#i-book"/></svg><span>Recipes and costing</span></div><div class="sg"><svg class="ic"><use href="#i-box"/></svg><span>Purchasing</span></div><div class="sg"><svg class="ic"><use href="#i-trash"/></svg><span>Wastage log</span></div><div class="sg"><svg class="ic"><use href="#i-sync"/></svg><span>Counts and transfers</span></div></div><div class="sysrow"><div class="gl">People</div><div class="sg"><svg class="ic"><use href="#i-users"/></svg><span>Staff and shifts</span></div><div class="sg"><svg class="ic"><use href="#i-fp"/></svg><span>Attendance device</span></div><div class="sg"><svg class="ic"><use href="#i-wallet"/></svg><span>Payroll and slips</span></div><div class="sg"><svg class="ic"><use href="#i-file"/></svg><span>HR letters</span></div></div><div class="sysrow"><div class="gl">Grow</div><div class="sg"><svg class="ic"><use href="#i-truck"/></svg><span>Delivery and riders</span></div><div class="sg"><svg class="ic"><use href="#i-bike"/></svg><span>Delivery apps</span></div><div class="sg"><svg class="ic"><use href="#i-brief"/></svg><span>Careers and blog</span></div><div class="sg"><svg class="ic"><use href="#i-image"/></svg><span>Photo gallery</span></div></div><div class="sysrow"><div class="gl">Control</div><div class="sg"><svg class="ic"><use href="#i-scale"/></svg><span>Accounting</span></div><div class="sg"><svg class="ic"><use href="#i-chart"/></svg><span>Reports</span></div><div class="sg"><svg class="ic"><use href="#i-store"/></svg><span>Many branches</span></div><div class="sg"><svg class="ic"><use href="#i-shield"/></svg><span>Activity log</span></div></div></div><div class="foot"><span>24 tools, one login, one set of numbers</span><b>dt-restora.datatechbd.com</b></div></section>
+<section data-file="04-four-wins" class="card dark" id="c03">
+  <div class="brand"><svg><use href="#mk"/></svg><div>DT <span>Restora</span></div></div>
+  <div class="tag">How it helps</div>
+  <h2>One system.<br>Four <em>wins</em>.</h2>
+  <div class="body" style="margin-top:44px">
+    <div class="grid2">
+      <div class="tile hi"><div class="badge b-ink"><svg class="ic"><use href="#i-cart"/></svg></div><h3>More orders</h3><p>Online ordering, QR tables, delivery apps, loyalty points and coupons that bring guests back.</p></div>
+      <div class="tile"><div class="badge b-dim"><svg class="ic"><use href="#i-trash"/></svg></div><h3>Less waste</h3><p>Recipes with exact quantities, automatic stock deduction and a wastage log with reasons.</p></div>
+      <div class="tile"><div class="badge b-dim"><svg class="ic"><use href="#i-clock"/></svg></div><h3>Faster service</h3><p>Quick POS, tables, hold and resume, and a live kitchen display so nothing is missed.</p></div>
+      <div class="tile hi"><div class="badge b-ink"><svg class="ic"><use href="#i-chart"/></svg></div><h3>Clearer reports</h3><p>Owner dashboard, branch comparison and full accounting with statements ready to export.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Built for restaurants and cafes</span><b>dt-restora.datatechbd.com</b></div>
+</section>
+<section class="card light" id="npos" data-file="04-pos-terminal"><div class="brand"><svg><use href="#mk"/></svg><div>DT <span>Restora</span></div></div><div class="tag">Sell faster</div><h2 class="sm">A till your cashier learns in <em>minutes.</em></h2><p class="lead" style="font-size:26px;margin-top:18px">Tables, hold orders, split bills and every payment method, with receipts and cash counting built in.</p><div class="stage"><div style="zoom:.95"><div class="desk"><div class="wall"></div><div class="shelf"></div><div class="jar" style="left:44px"></div><div class="jar" style="left:90px;height:30px;top:16px"></div><div class="jar" style="left:136px"></div>
+<div class="term"><div class="head"><div class="scr"><img src="../assets/shots/pos-cart.jpg"></div></div><div class="neck"></div><div class="base"></div></div>
+<div class="counter"></div><div class="printer"></div><div class="receipt"><b>DT Restora</b><div><span>Kacchi</span><span>560</span></div><div><span>Biryani</span><span>340</span></div><div><span>Water</span><span>20</span></div><div><span>Total</span><span>1,055</span></div></div>
+<div class="scanner"></div><div class="cup"></div><div class="drawer"></div><div class="phone-dev"><div class="s">bKash<br>paid</div></div>
+<div class="chip" style="left:24px;top:150px"><i></i>Hold and resume</div><div class="chip g" style="right:22px;top:120px"><i></i>Split payments</div><div class="chip" style="right:34px;top:200px"><i></i>bKash, Nagad, card</div></div></div></div><div class="ftgrid"><div class="ft"><svg class="ic"><use href="#i-store"/></svg><span>Tables, hold orders</span></div><div class="ft"><svg class="ic"><use href="#i-wallet"/></svg><span>Cash, bKash, Nagad</span></div><div class="ft"><svg class="ic"><use href="#i-sync"/></svg><span>Split one bill</span></div><div class="ft"><svg class="ic"><use href="#i-shield"/></svg><span>Approved discounts</span></div><div class="ft"><svg class="ic"><use href="#i-receipt"/></svg><span>Thermal receipts</span></div><div class="ft"><svg class="ic"><use href="#i-clock"/></svg><span>Shift cash count</span></div></div><div class="foot"><span>Works offline too</span><b>dt-restora.datatechbd.com</b></div></section>
+<section class="card light" id="ndash" data-file="05-owner-dashboard"><div class="brand"><svg><use href="#mk"/></svg><div>DT <span>Restora</span></div></div><div class="tag">Owner dashboard</div><h2 class="sm">See your profit before the <em>day ends.</em></h2><p class="lead" style="font-size:26px;margin-top:18px">Sales, costs and profit for every branch, updated as the orders happen.</p><div class="stage" style="margin-bottom:14px"><div class="browser" style="width:920px"><div class="bar"><i></i><i></i><i></i><span>dt-restora.datatechbd.com/admin/dashboard</span></div><div style="position:relative"><img src="../assets/shots/dash-crop.jpg"><div class="ring" style="left:12%;top:2%;width:43.5%;height:8%"></div><div class="pin" style="left:10.5%;top:-1.5%">1</div>
+<div class="ring" style="left:55.8%;top:12%;width:43.6%;height:33%"></div><div class="pin" style="left:54.4%;top:8.5%">2</div>
+<div class="ring" style="left:55.8%;top:46.5%;width:43.6%;height:31.5%"></div><div class="pin" style="left:54.4%;top:43%">3</div>
+<div class="ring" style="left:12%;top:80%;width:87.4%;height:20%"></div><div class="pin" style="left:10.5%;top:77%">4</div></div></div></div><div class="legend"><div><span class="pn">1</span>Low-stock and waste alerts</div><div><span class="pn">2</span>Sales by channel</div><div><span class="pn">3</span>Profit build-up, cost by cost</div><div><span class="pn">4</span>Branch comparison</div></div><div class="ftgrid"><div class="ft"><svg class="ic"><use href="#i-chart"/></svg><span>Today, week, month</span></div><div class="ft"><svg class="ic"><use href="#i-store"/></svg><span>Every branch</span></div><div class="ft"><svg class="ic"><use href="#i-trend"/></svg><span>Top-selling items</span></div></div><div class="foot"><span>Same numbers as your accounts</span><b>dt-restora.datatechbd.com</b></div></section>
+<section class="card dark" id="nkds" data-file="06-kitchen-display"><div class="brand"><svg><use href="#mk"/></svg><div>DT <span>Restora</span></div></div><div class="tag">Serve faster</div><h2 class="sm">The kitchen sees every order, <em>instantly.</em></h2><p class="lead" style="font-size:26px;margin-top:18px">Tickets reach the kitchen the second an order is placed, from the till, website or QR table.</p><div class="stage"><div class="browser" style="width:760px;"><div class="bar"><i></i><i></i><i></i><span>dt-restora.datatechbd.com/admin/kds</span></div><img src="../assets/shots/kds.jpg"></div></div><div class="ftgrid"><div class="ft"><svg class="ic"><use href="#i-screen"/></svg><span>Live ticket columns</span></div><div class="ft"><svg class="ic"><use href="#i-clock"/></svg><span>Time since ordered</span></div><div class="ft"><svg class="ic"><use href="#i-check"/></svg><span>One tap: preparing, served</span></div><div class="ft"><svg class="ic"><use href="#i-globe"/></svg><span>Website and QR orders</span></div><div class="ft"><svg class="ic"><use href="#i-store"/></svg><span>Dine-in and takeaway</span></div><div class="ft"><svg class="ic"><use href="#i-bike"/></svg><span>Delivery orders</span></div></div><div class="foot"><span>Pending, preparing, ready, served</span><b>dt-restora.datatechbd.com</b></div></section>
+<section class="card light" id="nstaff" data-file="07-staff-and-salary"><div class="brand"><svg><use href="#mk"/></svg><div>DT <span>Restora</span></div></div><div class="tag">Staff, attendance and salary</div><h2 class="sm">Know who worked. Pay them <em>right.</em></h2><p class="lead" style="font-size:26px;margin-top:18px">Attendance from a fingerprint device or manual entry flows straight into payroll and salary slips.</p><div class="stage"><div style="position:relative;width:920px;height:476px"><div class="browser" style="width:700px;position:absolute;left:0;top:0"><div class="bar"><i></i><i></i><i></i><span>dt-restora.datatechbd.com/admin</span></div><div style="overflow:hidden;aspect-ratio:16/7"><img src="../assets/shots/attendance.jpg" style="width:114%;margin-left:-14%"></div></div><div class="browser" style="width:700px;position:absolute;right:0;bottom:0"><div class="bar"><i></i><i></i><i></i><span>dt-restora.datatechbd.com/admin</span></div><div style="overflow:hidden;aspect-ratio:16/7"><img src="../assets/shots/payroll.jpg" style="width:114%;margin-left:-14%"></div></div></div></div><div class="ftgrid"><div class="ft"><svg class="ic"><use href="#i-fp"/></svg><span>Attendance device</span></div><div class="ft"><svg class="ic"><use href="#i-clock"/></svg><span>Clock in and out</span></div><div class="ft"><svg class="ic"><use href="#i-wallet"/></svg><span>Salary slips</span></div><div class="ft"><svg class="ic"><use href="#i-tag"/></svg><span>Advances deducted</span></div><div class="ft"><svg class="ic"><use href="#i-file"/></svg><span>HR letters</span></div><div class="ft"><svg class="ic"><use href="#i-chart"/></svg><span>Salary in daily profit</span></div></div><div class="foot"><span>Daily, monthly and hourly pay</span><b>dt-restora.datatechbd.com</b></div></section>
+<section class="card dark" id="nweb" data-file="08-ordering-website"><div class="brand"><svg><use href="#mk"/></svg><div>DT <span>Restora</span></div></div><div class="tag">Your own website</div><h2 class="sm">Orders come in while you <em>cook.</em></h2><p class="lead" style="font-size:26px;margin-top:18px">A bilingual website with menu, photos, checkout, tracking, blog and careers, all feeding your kitchen.</p><div class="stage"><div style="position:relative;width:920px;height:520px"><div class="browser" style="width:700px;position:absolute;left:0;top:30px"><div class="bar"><i></i><i></i><i></i><span>your-restaurant.com</span></div><img src="../assets/shots/w-home.jpg"></div><div class="phone" style="position:absolute;right:10px;top:0;width:250px"><div class="scr"><img src="../assets/shots/m-menu.jpg"></div></div><div class="phone" style="position:absolute;right:210px;top:150px;width:200px"><div class="scr"><img src="../assets/shots/m-home.jpg"></div></div></div></div><div class="ftgrid"><div class="ft"><svg class="ic"><use href="#i-globe"/></svg><span>Bangla and English</span></div><div class="ft"><svg class="ic"><use href="#i-qr"/></svg><span>QR table ordering</span></div><div class="ft"><svg class="ic"><use href="#i-image"/></svg><span>Dish photos and videos</span></div><div class="ft"><svg class="ic"><use href="#i-phone"/></svg><span>Order with SMS code</span></div><div class="ft"><svg class="ic"><use href="#i-truck"/></svg><span>Live order tracking</span></div><div class="ft"><svg class="ic"><use href="#i-brief"/></svg><span>Blog, careers, gallery</span></div></div><div class="foot"><span>Built to be found on Google</span><b>dt-restora.datatechbd.com</b></div></section>
+<section class="card light" id="nloy" data-file="09-loyalty-and-coupons"><div class="brand"><svg><use href="#mk"/></svg><div>DT <span>Restora</span></div></div><div class="tag">Bring guests back</div><h2 class="sm">Turn first visits into <em>regulars.</em></h2><p class="lead" style="font-size:26px;margin-top:18px">Points, tiers and coupons that work at the till and online, plus a customer directory.</p><div class="stage"><div style="position:relative;width:920px;height:476px"><div class="browser" style="width:700px;position:absolute;left:0;top:0"><div class="bar"><i></i><i></i><i></i><span>dt-restora.datatechbd.com/admin</span></div><div style="overflow:hidden;aspect-ratio:16/7"><img src="../assets/shots/loyalty.jpg" style="width:114%;margin-left:-14%"></div></div><div class="browser" style="width:700px;position:absolute;right:0;bottom:0"><div class="bar"><i></i><i></i><i></i><span>dt-restora.datatechbd.com/admin</span></div><div style="overflow:hidden;aspect-ratio:16/7"><img src="../assets/shots/coupons.jpg" style="width:114%;margin-left:-14%"></div></div></div></div><div class="ftgrid"><div class="ft"><svg class="ic"><use href="#i-gift"/></svg><span>Points on every order</span></div><div class="ft"><svg class="ic"><use href="#i-star"/></svg><span>Silver and Gold tiers</span></div><div class="ft"><svg class="ic"><use href="#i-tag"/></svg><span>Coupons by channel</span></div><div class="ft"><svg class="ic"><use href="#i-phone"/></svg><span>Birthday SMS offers</span></div><div class="ft"><svg class="ic"><use href="#i-users"/></svg><span>Customer directory</span></div><div class="ft"><svg class="ic"><use href="#i-book"/></svg><span>Points ledger</span></div></div><div class="foot"><span>Works at the till and online</span><b>dt-restora.datatechbd.com</b></div></section>
+<section class="card dark" id="nstock" data-file="10-recipes-and-stock"><div class="brand"><svg><use href="#mk"/></svg><div>DT <span>Restora</span></div></div><div class="tag">Less waste, lower cost</div><h2 class="sm">Every plate costed. Every gram <em>counted.</em></h2><p class="lead" style="font-size:26px;margin-top:18px">Recipes deduct stock on every sale, so you see real food cost and catch waste early.</p><div class="stage"><div style="position:relative;width:920px;height:476px"><div class="browser" style="width:700px;position:absolute;left:0;top:0"><div class="bar"><i></i><i></i><i></i><span>dt-restora.datatechbd.com/admin</span></div><div style="overflow:hidden;aspect-ratio:16/7"><img src="../assets/shots/recipes.jpg" style="width:114%;margin-left:-14%"></div></div><div class="browser" style="width:700px;position:absolute;right:0;bottom:0"><div class="bar"><i></i><i></i><i></i><span>dt-restora.datatechbd.com/admin</span></div><div style="overflow:hidden;aspect-ratio:16/7"><img src="../assets/shots/purchases.jpg" style="width:114%;margin-left:-14%"></div></div></div></div><div class="ftgrid"><div class="ft"><svg class="ic"><use href="#i-book"/></svg><span>Recipe builder</span></div><div class="ft"><svg class="ic"><use href="#i-sync"/></svg><span>Auto stock deduction</span></div><div class="ft"><svg class="ic"><use href="#i-box"/></svg><span>Purchase orders</span></div><div class="ft"><svg class="ic"><use href="#i-trash"/></svg><span>Wastage with reasons</span></div><div class="ft"><svg class="ic"><use href="#i-check"/></svg><span>Stock counts</span></div><div class="ft"><svg class="ic"><use href="#i-store"/></svg><span>Branch transfers</span></div></div><div class="foot"><span>Alerts before you run out</span><b>dt-restora.datatechbd.com</b></div></section>
+<section class="card light" id="nacc" data-file="11-accounting-and-reports"><div class="brand"><svg><use href="#mk"/></svg><div>DT <span>Restora</span></div></div><div class="tag">Accounts and reports</div><h2 class="sm">Books that <em>write themselves.</em></h2><p class="lead" style="font-size:26px;margin-top:18px">Sales, VAT, purchases, payroll and expenses post to the books automatically.</p><div class="stage"><div style="position:relative;width:920px;height:476px"><div class="browser" style="width:700px;position:absolute;left:0;top:0"><div class="bar"><i></i><i></i><i></i><span>dt-restora.datatechbd.com/admin</span></div><div style="overflow:hidden;aspect-ratio:16/7"><img src="../assets/shots/accounting.jpg" style="width:114%;margin-left:-14%"></div></div><div class="browser" style="width:700px;position:absolute;right:0;bottom:0"><div class="bar"><i></i><i></i><i></i><span>dt-restora.datatechbd.com/admin</span></div><div style="overflow:hidden;aspect-ratio:16/7"><img src="../assets/shots/reports.jpg" style="width:114%;margin-left:-14%"></div></div></div></div><div class="ftgrid"><div class="ft"><svg class="ic"><use href="#i-scale"/></svg><span>Automatic journals</span></div><div class="ft"><svg class="ic"><use href="#i-receipt"/></svg><span>Vouchers and expenses</span></div><div class="ft"><svg class="ic"><use href="#i-chart"/></svg><span>P&amp;L, balance sheet</span></div><div class="ft"><svg class="ic"><use href="#i-shield"/></svg><span>Lock closed years</span></div><div class="ft"><svg class="ic"><use href="#i-file"/></svg><span>PDF and Excel export</span></div><div class="ft"><svg class="ic"><use href="#i-store"/></svg><span>Branch comparison</span></div></div><div class="foot"><span>Every entry balanced</span><b>dt-restora.datatechbd.com</b></div></section>
+<section class="card dark" id="ndel" data-file="12-delivery-and-apps"><div class="brand"><svg><use href="#mk"/></svg><div>DT <span>Restora</span></div></div><div class="tag">Delivery and delivery apps</div><h2 class="sm">Every delivery tracked, <em>every taka matched.</em></h2><p class="lead" style="font-size:26px;margin-top:18px">Assign riders, track every trip, match cash on delivery and reconcile delivery-app payouts.</p><div class="stage"><div style="position:relative;width:920px;height:476px"><div class="browser" style="width:700px;position:absolute;left:0;top:0"><div class="bar"><i></i><i></i><i></i><span>dt-restora.datatechbd.com/admin</span></div><div style="overflow:hidden;aspect-ratio:16/7"><img src="../assets/shots/delivery.jpg" style="width:114%;margin-left:-14%"></div></div><div class="browser" style="width:700px;position:absolute;right:0;bottom:0"><div class="bar"><i></i><i></i><i></i><span>dt-restora.datatechbd.com/admin</span></div><div style="overflow:hidden;aspect-ratio:16/7"><img src="../assets/shots/aggr.jpg" style="width:114%;margin-left:-14%"></div></div></div></div><div class="ftgrid"><div class="ft"><svg class="ic"><use href="#i-bike"/></svg><span>Rider assignment</span></div><div class="ft"><svg class="ic"><use href="#i-phone"/></svg><span>Rider mobile page</span></div><div class="ft"><svg class="ic"><use href="#i-truck"/></svg><span>Customer live tracking</span></div><div class="ft"><svg class="ic"><use href="#i-wallet"/></svg><span>Cash on delivery check</span></div><div class="ft"><svg class="ic"><use href="#i-sync"/></svg><span>Delivery-app orders</span></div><div class="ft"><svg class="ic"><use href="#i-scale"/></svg><span>App payout matching</span></div></div><div class="foot"><span>Commission shown in profit</span><b>dt-restora.datatechbd.com</b></div></section>
+<section data-file="13-real-profit" class="card light" id="c04">
+  <div class="brand"><svg><use href="#mk"/></svg><div>DT <span>Restora</span></div></div>
+  <div class="tag">Owner control</div>
+  <h2 style="font-size:76px">Your real <em>profit</em>, worked out for you.</h2>
+  <p class="lead">DT Restora counts every cost that touches a sale, then shows what is really left.</p>
+  <div class="body eq" style="gap:12px">
+    <div class="row plus"><div class="op">+</div>Net sales<small>all channels</small></div>
+    <div class="row minus"><div class="op">-</div>Food cost<small>from your recipes</small></div>
+    <div class="row minus"><div class="op">-</div>Wastage<small>logged with reasons</small></div>
+    <div class="row minus"><div class="op">-</div>Staff salary<small>allocated daily</small></div>
+    <div class="row minus"><div class="op">-</div>Running expenses<small>rent, bills, more</small></div>
+    <div class="row minus"><div class="op">-</div>Delivery-app commission<small>per order</small></div>
+    <div class="row total"><div class="op">=</div>Net profit<small>per branch, today</small></div>
+  </div>
+  <div class="foot"><span>Same number on dashboard, reports and accounts</span><b>dt-restora.datatechbd.com</b></div>
+</section>
+<section data-file="14-every-channel" class="card dark" id="c05">
+  <div class="brand"><svg><use href="#mk"/></svg><div>DT <span>Restora</span></div></div>
+  <div class="tag">More orders</div>
+  <h2>Every channel.<br><em>One</em> screen.</h2>
+  <p class="lead">Stop juggling phones and tablets. Every order arrives in the same place, tagged by channel.</p>
+  <div class="body">
+    <div class="hub">
+      <div class="col">
+        <div class="pill"><svg class="ic"><use href="#i-store"/></svg>Dine-in</div>
+        <div class="pill"><svg class="ic"><use href="#i-qr"/></svg>QR table order</div>
+        <div class="pill"><svg class="ic"><use href="#i-globe"/></svg>Your website</div>
+        <div class="pill"><svg class="ic"><use href="#i-bike"/></svg>Delivery apps</div>
+        <div class="pill"><svg class="ic"><use href="#i-phone"/></svg>Takeaway</div>
+      </div>
+      <div class="arr"><svg class="ic"><use href="#i-arrow"/></svg></div>
+      <div class="core"><svg class="ic"><use href="#i-screen"/></svg><h3>DT Restora</h3><p>Kitchen screen, stock and accounts update by themselves</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Customers can track their order live</span><b>dt-restora.datatechbd.com</b></div>
+</section>
+<section data-file="15-works-offline" class="card dark compact" id="c07">
+  <div class="brand"><svg><use href="#mk"/></svg><div>DT <span>Restora</span></div></div>
+  <div class="tag">Peace of mind</div>
+  <h2>Internet down?<br>Keep <em>selling</em>.</h2>
+  <p class="lead">The POS keeps working without a connection, so rush hour never stops.</p>
+  <div class="body">
+    <div class="panel"><div class="badge b-amber"><svg class="ic"><use href="#i-wifioff"/></svg></div><div><h3>Open and sell offline</h3><p>Menu, prices and tables are saved on the device.</p></div></div>
+    <div class="panel"><div class="badge b-amber"><svg class="ic"><use href="#i-receipt"/></svg></div><div><h3>Print receipts as usual</h3><p>Cash orders print without waiting for the network.</p></div></div>
+    <div class="panel"><div class="badge b-amber"><svg class="ic"><use href="#i-check"/></svg></div><div><h3>Syncs on its own</h3><p>When the internet returns, everything uploads with no double entries.</p></div></div>
+    <div class="panel"><div class="badge b-dim"><svg class="ic"><use href="#i-shield"/></svg></div><div><h3>Honest about online payments</h3><p>bKash, Nagad and card need internet, and the screen says so clearly.</p></div></div>
+  </div>
+  <div class="foot"><span>Works on tablets and phones</span><b>dt-restora.datatechbd.com</b></div>
+</section>
+<section data-file="16-five-steps" class="card light" id="c08">
+  <div class="brand"><svg><use href="#mk"/></svg><div>DT <span>Restora</span></div></div>
+  <div class="tag">Step by step</div>
+  <h2>Go digital in <em>five</em> simple steps.</h2>
+  <div class="body" style="margin-top:44px">
+    <div class="flow">
+      <div class="step"><div class="num">1</div><div><h3>Try the live demo</h3><p>See it work before you decide. Nothing to install.</p></div></div>
+      <div class="step"><div class="num">2</div><div><h3>We install it for you</h3><p>One-time installation. Your own system, your own data.</p></div></div>
+      <div class="step"><div class="num">3</div><div><h3>Add your menu, recipes and team</h3><p>Branches, staff roles, prices, tables and stock, set up once.</p></div></div>
+      <div class="step"><div class="num">4</div><div><h3>Train your staff</h3><p>Simple guides in English and Bangla for every role.</p></div></div>
+      <div class="step"><div class="num">5</div><div><h3>Go live and watch profit</h3><p>Take orders, track stock and read your numbers every day.</p></div></div>
+    </div>
+  </div>
+  <div class="foot"><span>First month free after installation</span><b>dt-restora.datatechbd.com</b></div>
+</section>
+<section data-file="17-launch-offer" class="card dark" id="c09">
+  <div class="brand"><svg><use href="#mk"/></svg><div>DT <span>Restora</span></div></div>
+  <div class="tag">Launch offer</div>
+  <h2>Start free.<br>Then <em>pay less</em>.</h2>
+  <div class="price"><div class="big tnum">1,000</div><div class="u">BDT<br>per month<br><s>5,700 BDT regular</s></div></div>
+  <div class="body offer" style="margin-top:34px;gap:14px">
+    <div class="panel"><div class="badge b-amber"><svg class="ic"><use href="#i-star"/></svg></div><div><h3>First month free</h3><p>Starts after installation. Try everything with no monthly charge.</p></div></div>
+    <div class="panel"><div class="badge b-dim"><svg class="ic"><use href="#i-tag"/></svg></div><div><h3>2,500 BDT one-time installation</h3><p>Refundable after one year of use if you cancel.</p></div></div>
+    <div class="panel"><div class="badge b-dim"><svg class="ic"><use href="#i-wallet"/></svg></div><div><h3>Pay yearly, get 2 months free</h3><p>Choose the yearly plan and save two months of fees.</p></div></div>
+  </div>
+  <div class="foot"><span>Discounted price per month</span><b>dt-restora.datatechbd.com</b></div>
+</section>
+<section data-file="18-contact" class="card dark cta" id="c10">
+  <div class="brand"><svg><use href="#mk"/></svg><div>DT <span>Restora</span></div></div>
+  <div class="tag">Let us talk</div>
+  <h2>Ready to see your <em>real</em> numbers?</h2>
+  <p class="lead">Book a free demo and we will show you how it fits your restaurant.</p>
+  <div class="body" style="gap:22px">
+    <div class="contact">
+      <div class="n">Md. Sakir Ahmed</div><div class="r">Managing Director, Datatech BD Ltd</div>
+      <div class="line"><svg class="ic"><use href="#i-phone"/></svg>+880 1575-888775 <span style="font-size:22px;color:#94A3B8;font-weight:500">Phone and WhatsApp</span></div>
+      <div class="line"><svg class="ic"><use href="#i-store"/></svg>Flat 4-A, Dhumketu Shikder Tower, Holding No. 66, Paschim Monipur, Mirpur, Dhaka-1216, Bangladesh</div>
+      <div class="line"><svg class="ic"><use href="#i-mail"/></svg>sales@datatechbd.com</div>
+      <div class="line"><svg class="ic"><use href="#i-globe"/></svg>dt-restora.datatechbd.com</div>
+    </div>
+    <div class="btn">Try the live demo<svg class="ic" style="font-size:46px"><use href="#i-arrow"/></svg></div>
+  </div>
+  <div class="foot"><span>Restaurants and cafes in Bangladesh</span><b>Datatech BD Ltd</b></div>
+</section>
+</body></html>

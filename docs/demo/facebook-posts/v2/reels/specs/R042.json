@@ -1,0 +1,69 @@
+{
+ "voice": "none",
+ "scenes": [
+  {
+   "kind": "problem",
+   "title": [
+    "Can I try",
+    "before I pay?"
+   ],
+   "small": "",
+   "caption": "Rafiq bhai was not sure.",
+   "dur": 3.8
+  },
+  {
+   "kind": "screen",
+   "shot": "dash.jpg",
+   "crop": [
+    236,
+    166,
+    1348,
+    104
+   ],
+   "callout": "Sales, food cost and profit at a glance",
+   "caption": "So he tried the free live demo.",
+   "dur": 4.5
+  },
+  {
+   "kind": "screen",
+   "shot": "kds.jpg",
+   "crop": [
+    240,
+    70,
+    900,
+    430
+   ],
+   "callout": "One live kitchen screen",
+   "caption": "He clicked every screen as owner, cashier and kitchen.",
+   "dur": 5.4
+  },
+  {
+   "kind": "screen",
+   "shot": "pos-cart.jpg",
+   "crop": [
+    1165,
+    600,
+    410,
+    270
+   ],
+   "callout": "Tap, pay, print",
+   "caption": "Then we showed it on his own menu. Free, no pressure, nothing to install to try.",
+   "dur": 8.0
+  },
+  {
+   "kind": "trust",
+   "lines": [
+    "Your own system and database",
+    "Daily backups of your data",
+    "Installation refundable after one year"
+   ],
+   "caption": "Owners rely on it because it is theirs.",
+   "dur": 4.0
+  },
+  {
+   "kind": "phone",
+   "caption": "Free demo. Call or email us.",
+   "dur": 4.0
+  }
+ ]
+}

@@ -1,0 +1,65 @@
+POST 015 | Feature spotlight | English
+Folder: 01-feature-spotlights/015-staff-attendance
+Images: 1, 1080x1350 (4:5).
+Best time to post (Bangladesh time): Wed 12:30 pm
+Contact line on every post: Datatech BD Ltd. +880 1575-888775
+Status and schedule are tracked in content-plan.json (id P015). Links are not used in captions.
+
+=== FACEBOOK ===
+Attendance from a fingerprint device
+
+Connect a ZKTeco attendance device and punches flow into DT Restora automatically. For staff without a device, record clock-in and clock-out manually. Attendance becomes the base for payroll, so there are no arguments about who worked.
+
+- ZKTeco device support
+- Manual clock in and out
+- Feeds payroll
+
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com
+
+#StaffAttendance #ZKTeco #RestaurantStaff #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement
+
+=== LINKEDIN ===
+Attendance from a fingerprint device
+
+Connect a ZKTeco attendance device and punches flow into DT Restora automatically. For staff without a device, record clock-in and clock-out manually. Attendance becomes the base for payroll, so there are no arguments about who worked.
+
+Key points:
+- ZKTeco device support
+- Manual clock in and out
+- Feeds payroll
+
+If you run or advise a restaurant or cafe group, message or call Datatech BD Ltd.: +880 1575-888775
+
+#StaffAttendance #ZKTeco #RestaurantStaff #DTRestora #SaaS
+
+=== X (TWITTER) ===
+Attendance from a fingerprint device
+
+ZKTeco punches arrive on their own. Manual entry for everyone else.
+
+Datatech BD Ltd. +880 1575-888775
+
+#StaffAttendance #ZKTeco
+(characters counted by X: 160 of 280)
+
+=== INSTAGRAM ===
+Attendance from a fingerprint device
+
+Connect a ZKTeco attendance device and punches flow into DT Restora automatically. For staff without a device, record clock-in and clock-out manually. Attendance becomes the base for payroll, so there are no arguments about who worked.
+
+To book a free demo, contact Datatech BD Ltd.: +880 1575-888775, sales@datatechbd.com (or DM "DEMO").
+
+#StaffAttendance #ZKTeco #RestaurantStaff #DTRestora #RestaurantSoftware #RestaurantPOS #BangladeshRestaurants #RestaurantManagement #CafeBusiness #FoodBusinessBD #DigitalBangladesh #RestaurantOwners #POSSystem
+
+=== GOOGLE BUSINESS PROFILE POST (max 300 characters) ===
+ZKTeco punches arrive on their own. Manual entry for everyone else. Try the free demo. Call Datatech BD Ltd.: +880 1575-888775.
+
+=== SEO (use for a blog post, landing page or video description) ===
+SEO title: Attendance from a fingerprint device | DT Restora
+Meta description: ZKTeco punches arrive on their own. Manual entry for everyone else. Connect a ZKTeco attendance device and punches flow into DT Restora automatically
+Primary keyword: staff attendance software restaurant
+Secondary keywords: staff attendance, z k teco, restaurant staff, restaurant management software bangladesh, restaurant pos system dhaka
+Suggested URL slug: /blog/staff-attendance
+
+=== IMAGE ALT TEXT ===
+image-01.png: Attendance from a fingerprint device - screenshot of DT Restora restaurant software showing the staff attendance screen with device support.
