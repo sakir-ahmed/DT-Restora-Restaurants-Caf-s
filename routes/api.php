@@ -117,6 +117,7 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
             Route::post('/purchases', [StaffApiController::class, 'storePurchase'])->name('purchases.store');
             Route::get('/employees', [StaffApiController::class, 'employees'])->name('employees.index');
             Route::post('/employees', [StaffApiController::class, 'storeEmployee'])->name('employees.store');
+            Route::get('/reference', [StaffApiController::class, 'reference'])->name('reference');
             Route::post('/shifts/open', [StaffApiController::class, 'openShift'])->name('shifts.open');
             Route::get('/deliveries', [StaffApiController::class, 'deliveries'])->name('deliveries');
             Route::post('/orders/manual-aggregator', [StaffApiController::class, 'manualAggregator'])->name('aggregators.manual');

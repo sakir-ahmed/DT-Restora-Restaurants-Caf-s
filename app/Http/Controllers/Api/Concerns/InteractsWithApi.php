@@ -91,7 +91,7 @@ trait InteractsWithApi
      */
     protected function orderPayload(Order $order): array
     {
-        $order->loadMissing(['items', 'payments']);
+        $order->loadMissing(['items', 'payments', 'table', 'cashier', 'voidRequest']);
 
         return [
             'id' => $order->id,
@@ -100,10 +100,30 @@ trait InteractsWithApi
             'order_type' => $order->order_type->value,
             'total' => (string) $order->total,
             'tracking_token' => $order->tracking_token,
+            'created_at' => $order->created_at?->toIso8601String(),
+            'subtotal' => (string) $order->subtotal,
+            'discount_amount' => (string) $order->discount_amount,
+            'service_charge' => (string) $order->service_charge,
+            'vat_amount' => (string) $order->vat_amount,
+            'delivery_fee' => (string) $order->delivery_fee,
+            'rounding' => (string) $order->rounding,
+            'table' => $order->table?->name,
+            'cashier' => $order->cashier?->name,
+            'note' => $order->note,
+            'void_status' => $order->voidRequest?->status,
             'items' => $order->items->map(fn ($item) => [
                 'name' => $item->name,
+                'name_bn' => $item->name_bn,
                 'quantity' => $item->quantity,
+                'unit_price' => (string) $item->unit_price,
+                'add_ons' => $item->add_ons,
                 'line_total' => (string) $item->line_total,
+            ])->all(),
+            'payments' => $order->payments->map(fn ($payment) => [
+                'method' => $payment->method,
+                'amount' => (string) $payment->amount,
+                'tendered' => $payment->tendered === null ? null : (string) $payment->tendered,
+                'change_due' => $payment->change_due === null ? null : (string) $payment->change_due,
             ])->all(),
         ];
     }

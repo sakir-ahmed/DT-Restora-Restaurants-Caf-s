@@ -5,6 +5,7 @@ import AppIcon from '@/components/AppIcon.vue';
 import DishArt from '@/components/site/DishArt.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
 import MobileInput from '@/components/ui-kit/MobileInput.vue';
+import PosTableTile from '@/components/admin/PosTableTile.vue';
 import MoneyInput from '@/components/ui-kit/MoneyInput.vue';
 import { useConfirm } from '@/components/ui-kit/useConfirm.js';
 import { t } from '@/lib/i18n';
@@ -257,6 +258,39 @@ async function clearTable(table) {
     }
 }
 
+async function markOrderPaid(order) {
+    const result = await confirm({
+        variant: 'success',
+        title: t('orders.mark_paid'),
+        message: t('orders.mark_paid_hint'),
+        facts: [{ label: order.invoice_no, value: formatMoney(order.total) }],
+        confirmText: t('orders.mark_paid'),
+    });
+
+    if (! result.confirmed) {
+        return;
+    }
+
+    clearBusy.value = true;
+
+    router.post(route('admin.orders.pay', order.id), { tendered: order.total }, {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => {
+            router.reload({ only: ['openOrders'], preserveScroll: true });
+            tables.value = tables.value.map((table) => (table.id === order.restaurant_table_id ? { ...table, status: 'free' } : table));
+        },
+        onError: (errors) => notify.error(String(Object.values(errors)[0] ?? t('common.error_occurred'))),
+        onFinish: () => {
+            clearBusy.value = false;
+        },
+    });
+}
+
+function printOrderInvoice(order) {
+    printUrl(route('admin.orders.receipt', order.id));
+}
+
 async function clearRunningOrder(order) {
     const result = await confirm({
         variant: 'danger',
@@ -421,6 +455,78 @@ function addItem(item) {
     pushLine(item, null);
 }
 
+const menuNumberInput = ref('');
+const mobileTab = ref('menu');
+
+function findByMenuNumber(number) {
+    for (const item of allItems.value) {
+        if (item.menu_no === number) {
+            return { item, variant: null, addOn: null };
+        }
+
+        const variant = (item.variants ?? []).find((candidate) => candidate.menu_no === number);
+
+        if (variant) {
+            return { item, variant, addOn: null };
+        }
+
+        const addOn = activeAddOns(item).find((candidate) => candidate.menu_no === number);
+
+        if (addOn) {
+            return { item, variant: null, addOn };
+        }
+    }
+
+    return null;
+}
+
+function menuNumberTarget() {
+    const number = Math.round(Number(menuNumberInput.value));
+
+    if (latestOrder.value || ! Number.isFinite(number) || number <= 0) {
+        return null;
+    }
+
+    const match = findByMenuNumber(number);
+
+    if (! match) {
+        notify.error(t('orders.menu_no_not_found', { number }));
+
+        return null;
+    }
+
+    const { item, addOn } = match;
+    const variant = match.variant
+        ?? (itemHasVariants(item) ? (sortedVariants(item).find((candidate) => candidate.is_default) ?? sortedVariants(item)[0]) : null);
+    const addOns = addOn ? [{ id: addOn.id, name: addOn.name, name_bn: addOn.name_bn, price: Number(addOn.price), qty: 1 }] : [];
+
+    return { item, variant, addOns };
+}
+
+function addByMenuNumber() {
+    const target = menuNumberTarget();
+
+    if (target) {
+        pushLine(target.item, target.variant, target.addOns);
+    }
+}
+
+function removeByMenuNumber() {
+    const target = menuNumberTarget();
+
+    if (! target) {
+        return;
+    }
+
+    const line = cart.value.find((entry) => entry.item.id === target.item.id
+        && (entry.variant?.id ?? null) === (target.variant?.id ?? null)
+        && addOnSignature(entry.addOns) === addOnSignature(target.addOns));
+
+    if (line) {
+        setQuantity(line, line.quantity - 1);
+    }
+}
+
 function variantLine(variant) {
     const item = variantPicker.value;
 
@@ -569,6 +675,9 @@ function openOptions(item, line = null) {
         item,
         line,
         variantId: chosen?.id ?? null,
+        variantQuantities: {},
+        variantAddOns: {},
+        activeVariantId: null,
         quantity: line?.quantity ?? 1,
         addOns: Object.fromEntries((line?.addOns ?? []).map((addOn) => [addOn.id, addOn.qty])),
     };
@@ -604,8 +713,122 @@ const optionsUnitTotal = computed(() => {
     return base + optionsAddOnsList.value.reduce((sum, addOn) => sum + addOn.price * addOn.qty, 0);
 });
 
+function optionsPicksVariants() {
+    const dialog = optionsDialog.value;
+
+    return !! dialog && ! dialog.line && itemHasVariants(dialog.item);
+}
+
+function optionVariantQuantity(variant) {
+    return optionsDialog.value?.variantQuantities[variant.id] ?? 0;
+}
+
+function setOptionVariant(variant, quantity) {
+    const dialog = optionsDialog.value;
+    const clamped = Math.min(999, Math.max(0, quantity));
+
+    dialog.variantQuantities = { ...dialog.variantQuantities, [variant.id]: clamped };
+
+    if (clamped > 0) {
+        dialog.activeVariantId = variant.id;
+
+        return;
+    }
+
+    const { [variant.id]: removed, ...remaining } = dialog.variantAddOns;
+
+    dialog.variantAddOns = remaining;
+
+    if (dialog.activeVariantId === variant.id) {
+        dialog.activeVariantId = sortedVariants(dialog.item).find((candidate) => (dialog.variantQuantities[candidate.id] ?? 0) > 0)?.id ?? null;
+    }
+}
+
+// The first click on a size picks it, a click on a picked size that is not active only makes it
+// active (to edit its add-ons), and a click on the active size adds one more.
+function clickOptionVariant(variant) {
+    const dialog = optionsDialog.value;
+    const current = optionVariantQuantity(variant);
+
+    if (current > 0 && dialog.activeVariantId !== variant.id) {
+        dialog.activeVariantId = variant.id;
+
+        return;
+    }
+
+    setOptionVariant(variant, current + 1);
+}
+
+const optionsActiveVariant = computed(() => {
+    const dialog = optionsDialog.value;
+
+    return dialog ? (dialog.item.variants ?? []).find((variant) => variant.id === dialog.activeVariantId) ?? null : null;
+});
+
+function optionAddOnQty(id) {
+    const dialog = optionsDialog.value;
+
+    if (optionsPicksVariants()) {
+        return dialog.variantAddOns[dialog.activeVariantId]?.[id] ?? 0;
+    }
+
+    return dialog.addOns[id] ?? 0;
+}
+
+function pickedAddOns(quantities) {
+    return activeAddOns(optionsDialog.value.item)
+        .map((addOn) => ({ id: addOn.id, name: addOn.name, name_bn: addOn.name_bn, price: Number(addOn.price), qty: quantities?.[addOn.id] ?? 0 }))
+        .filter((addOn) => addOn.qty > 0);
+}
+
+const optionsPickedVariants = computed(() => {
+    const dialog = optionsDialog.value;
+
+    if (! dialog || ! optionsPicksVariants()) {
+        return [];
+    }
+
+    return sortedVariants(dialog.item)
+        .map((variant) => ({ variant, quantity: dialog.variantQuantities[variant.id] ?? 0, addOns: pickedAddOns(dialog.variantAddOns[variant.id]) }))
+        .filter((entry) => entry.quantity > 0);
+});
+
+const optionsTotal = computed(() => {
+    const dialog = optionsDialog.value;
+
+    if (! dialog) {
+        return 0;
+    }
+
+    if (optionsPicksVariants()) {
+        return optionsPickedVariants.value.reduce((sum, entry) => sum
+            + (Number(entry.variant.price) + entry.addOns.reduce((total, addOn) => total + addOn.price * addOn.qty, 0)) * entry.quantity, 0);
+    }
+
+    return optionsUnitTotal.value * dialog.quantity;
+});
+
 function setOptionAddOn(id, qty) {
-    optionsDialog.value.addOns = { ...optionsDialog.value.addOns, [id]: Math.min(9, Math.max(0, qty)) };
+    const dialog = optionsDialog.value;
+    const clamped = Math.min(9, Math.max(0, qty));
+
+    if (! optionsPicksVariants()) {
+        dialog.addOns = { ...dialog.addOns, [id]: clamped };
+
+        return;
+    }
+
+    // An add-on belongs to one size: with none picked yet, picking an add-on picks the default size.
+    if (dialog.activeVariantId === null) {
+        const variants = sortedVariants(dialog.item);
+
+        setOptionVariant(variants.find((variant) => variant.is_default) ?? variants[0], 1);
+    }
+
+    dialog.variantAddOns = {
+        ...dialog.variantAddOns,
+        [dialog.activeVariantId]: { ...(dialog.variantAddOns[dialog.activeVariantId] ?? {}), [id]: clamped },
+    };
 }
 
 function confirmOptions() {
@@ -617,6 +840,18 @@ function confirmOptions() {
 
     const variant = optionsVariant.value;
     const addOns = optionsAddOnsList.value;
+
+    if (optionsPicksVariants()) {
+        if (optionsPickedVariants.value.length === 0) {
+            return;
+        }
+
+        optionsPickedVariants.value.forEach((entry) => pushLine(dialog.item, entry.variant, entry.addOns, entry.quantity));
+        optionsDialog.value = null;
+
+        return;
+    }
+
     const quantity = Math.min(999, Math.max(1, Math.round(Number(dialog.quantity) || 1)));
 
     if (dialog.line) {
@@ -1382,8 +1617,35 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
 
 <template>
     <div class="flex h-[calc(100vh-3.5rem-var(--demo-banner-h))] flex-col gap-2 overflow-hidden p-2 lg:flex-row">
+        <!-- Phones show the menu and the order one at a time -->
+        <div class="grid shrink-0 grid-cols-2 gap-1 lg:hidden" role="tablist">
+            <button
+                type="button"
+                role="tab"
+                :aria-selected="mobileTab === 'menu'"
+                class="flex h-8 items-center justify-center gap-1.5 rounded-md border text-[13px] font-semibold"
+                :class="mobileTab === 'menu' ? 'border-accent bg-accent/15 text-foreground' : 'border-border bg-surface text-muted'"
+                @click="mobileTab = 'menu'"
+            >
+                <AppIcon name="utensils" size="12" />
+                {{ t('orders.mobile_menu_tab') }}
+            </button>
+            <button
+                type="button"
+                role="tab"
+                :aria-selected="mobileTab === 'order'"
+                class="flex h-8 items-center justify-center gap-1.5 rounded-md border text-[13px] font-semibold"
+                :class="mobileTab === 'order' ? 'border-accent bg-accent/15 text-foreground' : 'border-border bg-surface text-muted'"
+                @click="mobileTab = 'order'"
+            >
+                <AppIcon name="receipt" size="12" />
+                {{ t('orders.mobile_order_tab') }}
+                <span v-if="itemCount > 0" class="flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold tabular-nums text-accent-foreground">{{ itemCount }}</span>
+            </button>
+        </div>
+
         <!-- Left: categories + items -->
-        <section class="flex min-w-0 flex-1 flex-col gap-2">
+        <section class="min-h-0 min-w-0 flex-1 flex-col gap-2" :class="mobileTab === 'order' ? 'hidden lg:flex' : 'flex'">
             <div class="flex flex-wrap items-center gap-1" role="tablist">
                 <div class="flex h-7 w-full items-center gap-1.5 rounded-md border border-border bg-surface px-2 sm:w-52">
                     <AppIcon name="magnifying-glass" size="12" class="text-muted" />
@@ -1426,10 +1688,11 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                     v-for="item in filteredItems"
                     :key="item.id"
                     type="button"
-                    class="flex min-h-16 items-center gap-2 rounded-lg border p-2 text-left transition-colors hover:border-accent"
+                    class="relative flex min-h-16 items-center gap-2 rounded-lg border p-2 text-left transition-colors hover:border-accent"
                     :class="selectedQuantity[item.id] ? 'border-accent bg-accent/20 ring-1 ring-accent' : 'border-border bg-surface'"
                     @click="addItem(item)"
                 >
+                    <span class="pointer-events-none absolute left-0.5 top-0.5 z-10 flex h-4 min-w-4 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--color-primary)_65%,black)] px-1 text-[9px] font-semibold leading-none tabular-nums text-white">{{ item.menu_no }}</span>
                     <span class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-background">
                         <img
                             v-if="itemPhotoSrc(item)"
@@ -1457,7 +1720,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
         </section>
 
         <!-- Right: cart -->
-        <section class="flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden rounded-lg border border-border bg-surface lg:w-[26rem]">
+        <section class="min-h-0 w-full flex-1 shrink-0 flex-col overflow-hidden rounded-lg border border-border bg-surface lg:h-full lg:w-[26rem] lg:flex-none" :class="mobileTab === 'menu' ? 'hidden lg:flex' : 'flex'">
             <div v-if="editingOrder" class="flex items-center justify-between gap-2 border-b border-warning/40 bg-warning/15 px-2 py-1 text-[13px] text-foreground">
                 <span class="flex min-w-0 items-center gap-1.5">
                     <AppIcon name="pen-to-square" size="12" />
@@ -1536,6 +1799,24 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                             </span>
                         </button>
                     </div>
+                    <form class="flex shrink-0 items-center gap-0.5" @submit.prevent="addByMenuNumber">
+                        <input
+                            v-model="menuNumberInput"
+                            type="number"
+                            min="1"
+                            inputmode="numeric"
+                            :placeholder="t('orders.menu_no_placeholder')"
+                            :aria-label="t('orders.menu_no_placeholder')"
+                            :disabled="!!latestOrder"
+                            class="h-5 w-16 rounded border border-border bg-background px-1 text-[11px] tabular-nums text-foreground outline-none [appearance:textfield] focus:border-accent disabled:opacity-50 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                        >
+                        <button type="button" class="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-border bg-background text-foreground hover:border-accent disabled:opacity-50" :disabled="!!latestOrder || ! menuNumberInput" :aria-label="t('common.decrease')" :title="t('common.decrease')" @click="removeByMenuNumber">
+                            <AppIcon name="minus" size="10" />
+                        </button>
+                        <button type="submit" class="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-accent text-accent-foreground hover:opacity-90 disabled:opacity-50" :disabled="!!latestOrder || ! menuNumberInput" :aria-label="t('orders.menu_no_add')" :title="t('orders.menu_no_add')">
+                            <AppIcon name="plus" size="10" />
+                        </button>
+                    </form>
                     <button type="button" :disabled="! hasTicketData" class="inline-flex h-5 shrink-0 items-center gap-1 rounded-md px-1 text-[11px] font-medium text-danger hover:underline disabled:cursor-not-allowed disabled:text-muted disabled:opacity-50 disabled:no-underline" @click="clearAll">
                         <AppIcon name="trash" size="10" />
                         {{ t('orders.clear_all') }}
@@ -1790,9 +2071,10 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                             <div
                                 v-for="variant in sortedVariants(variantPicker)"
                                 :key="variant.id"
-                                class="flex items-center gap-2 rounded-lg border px-2 py-1 transition-colors"
+                                class="relative flex items-center gap-2 rounded-lg border px-2 py-1 transition-colors"
                                 :class="variantQuantity(variant) > 0 ? 'border-accent bg-accent/10' : 'border-border bg-background'"
                             >
+                                <span class="pointer-events-none absolute left-0.5 top-0.5 z-10 flex h-4 min-w-4 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--color-primary)_65%,black)] px-1 text-[9px] font-semibold leading-none tabular-nums text-white">{{ variant.menu_no }}</span>
                                 <button
                                     type="button"
                                     class="flex min-h-11 min-w-0 flex-1 flex-col items-start justify-center text-left disabled:opacity-50"
@@ -1856,47 +2138,58 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                     <div class="thin-scrollbar min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
                         <section v-if="itemHasVariants(optionsDialog.item)">
                             <h3 class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">{{ t('orders.choose_size') }}</h3>
-                            <div class="grid grid-cols-2 gap-1.5" role="radiogroup">
-                                <button
-                                    v-for="variant in sortedVariants(optionsDialog.item)"
-                                    :key="variant.id"
-                                    type="button"
-                                    role="radio"
-                                    :aria-checked="optionsDialog.variantId === variant.id"
-                                    class="flex min-h-11 flex-col items-start justify-center rounded-lg border px-2.5 py-1 text-left"
-                                    :class="optionsDialog.variantId === variant.id ? 'border-accent bg-accent/10' : 'border-border bg-background hover:border-accent/60'"
-                                    @click="optionsDialog.variantId = variant.id"
-                                >
-                                    <span class="text-sm font-semibold text-foreground">{{ localized(variant, 'name') }}</span>
-                                    <span class="text-xs tabular-nums text-muted">{{ formatMoney(variant.price) }}</span>
-                                </button>
+                            <div class="grid grid-cols-2 gap-1.5" :role="optionsPicksVariants() ? 'group' : 'radiogroup'">
+                                <div v-for="variant in sortedVariants(optionsDialog.item)" :key="variant.id" class="relative">
+                                    <span class="pointer-events-none absolute left-0.5 top-0.5 z-10 flex h-4 min-w-4 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--color-primary)_65%,black)] px-1 text-[9px] font-semibold leading-none tabular-nums text-white">{{ variant.menu_no }}</span>
+                                    <button
+                                        type="button"
+                                        :role="optionsPicksVariants() ? undefined : 'radio'"
+                                        :aria-checked="optionsPicksVariants() ? undefined : optionsDialog.variantId === variant.id"
+                                        class="flex min-h-11 w-full flex-col items-start justify-center rounded-lg border px-2.5 py-1 text-left"
+                                        :class="(optionsPicksVariants() ? optionVariantQuantity(variant) > 0 : optionsDialog.variantId === variant.id) ? 'border-accent bg-accent/10' : 'border-border bg-background hover:border-accent/60'"
+                                        :style="optionsPicksVariants() && optionsDialog.activeVariantId === variant.id ? { boxShadow: '0 0 0 1px var(--color-accent)' } : null"
+                                        @click="optionsPicksVariants() ? clickOptionVariant(variant) : (optionsDialog.variantId = variant.id)"
+                                    >
+                                        <span class="pl-3 text-sm font-semibold text-foreground">{{ localized(variant, 'name') }}</span>
+                                        <span class="pl-3 text-xs tabular-nums text-muted">{{ formatMoney(variant.price) }}</span>
+                                    </button>
+                                    <div v-if="optionsPicksVariants() && optionVariantQuantity(variant) > 0" class="absolute right-1 top-1 flex items-center overflow-hidden rounded-md border border-border bg-surface">
+                                        <button type="button" class="flex h-6 w-6 items-center justify-center text-foreground" :aria-label="t('common.decrease')" @click="setOptionVariant(variant, optionVariantQuantity(variant) - 1)">
+                                            <AppIcon name="minus" size="10" />
+                                        </button>
+                                        <span class="w-5 text-center text-xs font-semibold tabular-nums">{{ optionVariantQuantity(variant) }}</span>
+                                    </div>
+                                </div>
                             </div>
                         </section>
 
                         <section>
-                            <h3 class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">{{ t('orders.add_ons') }}</h3>
+                            <h3 class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">
+                                {{ optionsPicksVariants() && optionsActiveVariant ? t('orders.add_ons_for', { name: localized(optionsActiveVariant, 'name') }) : t('orders.add_ons') }}
+                            </h3>
                             <div class="space-y-1.5">
                                 <div
                                     v-for="addOn in activeAddOns(optionsDialog.item)"
                                     :key="addOn.id"
-                                    class="flex items-center gap-2 rounded-lg border px-2.5 py-1"
-                                    :class="(optionsDialog.addOns[addOn.id] ?? 0) > 0 ? 'border-accent bg-accent/10' : 'border-border bg-background'"
+                                    class="relative flex items-center gap-2 rounded-lg border py-1 pl-6 pr-2.5"
+                                    :class="optionAddOnQty(addOn.id) > 0 ? 'border-accent bg-accent/10' : 'border-border bg-background'"
                                 >
-                                    <button type="button" class="flex min-h-10 min-w-0 flex-1 items-center justify-between gap-2 text-left" @click="setOptionAddOn(addOn.id, (optionsDialog.addOns[addOn.id] ?? 0) > 0 ? 0 : 1)">
+                                    <span class="pointer-events-none absolute left-0.5 top-0.5 z-10 flex h-4 min-w-4 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--color-primary)_65%,black)] px-1 text-[9px] font-semibold leading-none tabular-nums text-white">{{ addOn.menu_no }}</span>
+                                    <button type="button" class="flex min-h-10 min-w-0 flex-1 items-center justify-between gap-2 text-left" @click="setOptionAddOn(addOn.id, optionAddOnQty(addOn.id) + 1)">
                                         <span class="flex min-w-0 items-center gap-1.5 text-sm font-medium text-foreground">
-                                            <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded border" :class="(optionsDialog.addOns[addOn.id] ?? 0) > 0 ? 'border-accent bg-accent text-accent-foreground' : 'border-border'">
-                                                <AppIcon v-if="(optionsDialog.addOns[addOn.id] ?? 0) > 0" name="check" size="9" />
+                                            <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded border" :class="optionAddOnQty(addOn.id) > 0 ? 'border-accent bg-accent text-accent-foreground' : 'border-border'">
+                                                <AppIcon v-if="optionAddOnQty(addOn.id) > 0" name="check" size="9" />
                                             </span>
                                             <span class="truncate">{{ localized(addOn, 'name') }}</span>
                                         </span>
                                         <span class="shrink-0 text-xs tabular-nums text-muted">+ {{ formatMoney(addOn.price) }}</span>
                                     </button>
-                                    <div v-if="(optionsDialog.addOns[addOn.id] ?? 0) > 0" class="flex shrink-0 items-center overflow-hidden rounded-md border border-border bg-surface">
-                                        <button type="button" class="flex h-8 w-8 items-center justify-center text-foreground" :aria-label="t('common.decrease')" @click="setOptionAddOn(addOn.id, (optionsDialog.addOns[addOn.id] ?? 0) - 1)">
+                                    <div v-if="optionAddOnQty(addOn.id) > 0" class="flex shrink-0 items-center overflow-hidden rounded-md border border-border bg-surface">
+                                        <button type="button" class="flex h-8 w-8 items-center justify-center text-foreground" :aria-label="t('common.decrease')" @click="setOptionAddOn(addOn.id, optionAddOnQty(addOn.id) - 1)">
                                             <AppIcon name="minus" size="11" />
                                         </button>
-                                        <span class="w-5 text-center text-sm font-semibold tabular-nums">{{ optionsDialog.addOns[addOn.id] }}</span>
-                                        <button type="button" class="flex h-8 w-8 items-center justify-center bg-accent text-accent-foreground disabled:opacity-40" :disabled="optionsDialog.addOns[addOn.id] >= 9" :aria-label="t('common.increase')" @click="setOptionAddOn(addOn.id, (optionsDialog.addOns[addOn.id] ?? 0) + 1)">
+                                        <span class="w-5 text-center text-sm font-semibold tabular-nums">{{ optionAddOnQty(addOn.id) }}</span>
+                                        <button type="button" class="flex h-8 w-8 items-center justify-center bg-accent text-accent-foreground disabled:opacity-40" :disabled="optionAddOnQty(addOn.id) >= 9" :aria-label="t('common.increase')" @click="setOptionAddOn(addOn.id, optionAddOnQty(addOn.id) + 1)">
                                             <AppIcon name="plus" size="11" />
                                         </button>
                                     </div>
@@ -1906,7 +2199,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                     </div>
 
                     <div class="flex items-center gap-2 border-t border-border px-3 py-2">
-                        <div class="flex shrink-0 items-center overflow-hidden rounded-md border border-border bg-background">
+                        <div v-if="! optionsPicksVariants()" class="flex shrink-0 items-center overflow-hidden rounded-md border border-border bg-background">
                             <button type="button" class="flex h-9 w-9 items-center justify-center text-foreground disabled:opacity-40" :disabled="optionsDialog.quantity <= 1" :aria-label="t('common.decrease')" @click="optionsDialog.quantity = Math.max(1, optionsDialog.quantity - 1)">
                                 <AppIcon name="minus" size="12" />
                             </button>
@@ -1915,9 +2208,9 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                                 <AppIcon name="plus" size="12" />
                             </button>
                         </div>
-                        <button type="button" class="flex h-9 min-w-0 flex-1 items-center justify-between gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground hover:opacity-90" @click="confirmOptions">
+                        <button type="button" class="flex h-9 min-w-0 flex-1 items-center justify-between gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground hover:opacity-90 disabled:opacity-50" :disabled="optionsPicksVariants() && optionsPickedVariants.length === 0" @click="confirmOptions">
                             <span>{{ optionsDialog.line ? t('orders.update_item') : t('orders.add_to_order') }}</span>
-                            <span class="tabular-nums">{{ formatMoney(optionsUnitTotal * optionsDialog.quantity) }}</span>
+                            <span class="tabular-nums">{{ formatMoney(optionsTotal) }}</span>
                         </button>
                     </div>
                 </div>
@@ -1985,56 +2278,62 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                         <section v-for="group in tablesByArea" :key="group.area || 'tables'">
                             <h3 class="mb-1.5 text-xs font-semibold text-muted">{{ group.area || t('orders.table_short') }}</h3>
                             <div class="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-4">
-                                <div v-for="table in group.tables" :key="table.id" class="relative">
-                                <button
-                                    type="button"
-                                    :disabled="! openOrderByTable.get(table.id)"
-                                    class="flex min-h-16 w-full flex-col items-start justify-center rounded-lg border px-2 py-1 text-left disabled:cursor-default"
-                                    :class="openOrderByTable.get(table.id) ? 'border-warning/60 bg-warning/10 hover:border-accent' : 'border-border bg-background opacity-60'"
-                                    @click="editOrder(openOrderByTable.get(table.id))"
-                                >
-                                    <span class="text-sm font-semibold leading-tight text-foreground">{{ table.name }}</span>
-                                    <template v-if="openOrderByTable.get(table.id)">
-                                        <span class="text-[11px] leading-tight text-muted">{{ openOrderByTable.get(table.id).invoice_no }}</span>
-                                        <span class="text-xs font-semibold leading-tight tabular-nums text-foreground">{{ formatMoney(openOrderByTable.get(table.id).total) }}</span>
-                                    </template>
-                                    <span v-else class="text-[11px] leading-tight text-muted">{{ t('orders.table_free') }}</span>
-                                </button>
-                                    <button v-if="openOrderByTable.get(table.id) && canVoid"
+                                <PosTableTile v-for="table in group.tables" :key="table.id" :seats="table.seats" :tone="openOrderByTable.get(table.id) ? 'busy' : 'free'">
+                                    <button
                                         type="button"
-                                        class="absolute right-1 top-1 inline-flex h-5 items-center gap-0.5 rounded-md border border-danger/40 bg-surface px-1 text-[11px] font-medium text-danger hover:bg-danger/10 disabled:opacity-50"
-                                        :disabled="clearBusy"
-                                        @click.stop="clearTable(table)"
+                                        :disabled="! openOrderByTable.get(table.id)"
+                                        class="flex w-full flex-col items-center text-center disabled:cursor-default"
+                                        :class="openOrderByTable.get(table.id) ? '' : 'opacity-60'"
+                                        @click="editOrder(openOrderByTable.get(table.id))"
                                     >
-                                        <AppIcon name="trash" size="9" />
-                                        {{ t('orders.clear_short') }}
+                                        <span class="text-sm font-semibold leading-tight text-foreground">{{ table.name }}</span>
+                                        <template v-if="openOrderByTable.get(table.id)">
+                                            <span class="max-w-full truncate text-[11px] leading-tight text-muted">{{ openOrderByTable.get(table.id).invoice_no }}</span>
+                                            <span class="text-xs font-semibold leading-tight tabular-nums text-foreground">{{ formatMoney(openOrderByTable.get(table.id).total) }}</span>
+                                        </template>
+                                        <span v-else class="text-[11px] leading-tight text-muted">{{ t('orders.table_free') }}</span>
                                     </button>
-                                </div>
+                                    <div v-if="openOrderByTable.get(table.id)" class="mt-1 flex items-center gap-1">
+                                            <button type="button" class="inline-flex h-5 flex-1 items-center justify-center gap-0.5 rounded-md border border-border bg-surface text-[11px] font-medium text-foreground hover:border-accent" :title="t('orders.print_invoice')" @click.stop="printOrderInvoice(openOrderByTable.get(table.id))">
+                                                <AppIcon name="print" size="9" />
+                                                {{ t('orders.print_short') }}
+                                            </button>
+                                            <button type="button" class="inline-flex h-5 flex-1 items-center justify-center gap-0.5 rounded-md border border-success/40 bg-surface text-[11px] font-medium text-success hover:bg-success/10 disabled:opacity-50" :disabled="clearBusy" :title="t('orders.mark_paid')" @click.stop="markOrderPaid(openOrderByTable.get(table.id))">
+                                                <AppIcon name="circle-check" size="9" />
+                                                {{ t('orders.paid_short') }}
+                                            </button>
+                                            <button v-if="canVoid" type="button" class="inline-flex h-5 flex-1 items-center justify-center gap-0.5 rounded-md border border-danger/40 bg-surface text-[11px] font-medium text-danger hover:bg-danger/10 disabled:opacity-50" :disabled="clearBusy" @click.stop="clearTable(table)">
+                                                <AppIcon name="trash" size="9" />
+                                                {{ t('orders.clear_short') }}
+                                            </button>
+                                        </div>
+                                </PosTableTile>
                             </div>
                         </section>
 
                         <section v-if="openOrdersWithoutTable.length">
                             <h3 class="mb-1.5 text-xs font-semibold text-muted">{{ t('orders.no_table') }}</h3>
                             <div class="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-4">
-                                <div v-for="order in openOrdersWithoutTable" :key="order.id" class="relative">
-                                <button
-                                    type="button"
-                                    class="flex min-h-16 w-full flex-col items-start justify-center rounded-lg border border-warning/60 bg-warning/10 px-2 py-1 text-left hover:border-accent"
-                                    @click="editOrder(order)"
-                                >
-                                    <span class="text-sm font-semibold leading-tight text-foreground">{{ order.invoice_no }}</span>
-                                    <span class="text-[11px] leading-tight text-muted">{{ t(`orders.type.${order.order_type}`) }}</span>
-                                    <span class="text-xs font-semibold leading-tight tabular-nums text-foreground">{{ formatMoney(order.total) }}</span>
-                                </button>
-                                    <button v-if="canVoid"
-                                        type="button"
-                                        class="absolute right-1 top-1 inline-flex h-5 items-center gap-0.5 rounded-md border border-danger/40 bg-surface px-1 text-[11px] font-medium text-danger hover:bg-danger/10 disabled:opacity-50"
-                                        :disabled="clearBusy"
-                                        @click.stop="clearRunningOrder(order)"
-                                    >
-                                        <AppIcon name="trash" size="9" />
-                                        {{ t('orders.clear_short') }}
+                                <div v-for="order in openOrdersWithoutTable" :key="order.id" class="rounded-xl border border-warning/60 bg-warning/10 px-2 py-1.5">
+                                    <button type="button" class="flex w-full flex-col items-center text-center" @click="editOrder(order)">
+                                        <span class="max-w-full truncate text-sm font-semibold leading-tight text-foreground">{{ order.invoice_no }}</span>
+                                        <span class="text-[11px] leading-tight text-muted">{{ t(`orders.type.${order.order_type}`) }}</span>
+                                        <span class="text-xs font-semibold leading-tight tabular-nums text-foreground">{{ formatMoney(order.total) }}</span>
                                     </button>
+                                    <div class="mt-1 flex items-center gap-1">
+                                            <button type="button" class="inline-flex h-5 flex-1 items-center justify-center gap-0.5 rounded-md border border-border bg-surface text-[11px] font-medium text-foreground hover:border-accent" :title="t('orders.print_invoice')" @click.stop="printOrderInvoice(order)">
+                                                <AppIcon name="print" size="9" />
+                                                {{ t('orders.print_short') }}
+                                            </button>
+                                            <button type="button" class="inline-flex h-5 flex-1 items-center justify-center gap-0.5 rounded-md border border-success/40 bg-surface text-[11px] font-medium text-success hover:bg-success/10 disabled:opacity-50" :disabled="clearBusy" :title="t('orders.mark_paid')" @click.stop="markOrderPaid(order)">
+                                                <AppIcon name="circle-check" size="9" />
+                                                {{ t('orders.paid_short') }}
+                                            </button>
+                                            <button v-if="canVoid" type="button" class="inline-flex h-5 flex-1 items-center justify-center gap-0.5 rounded-md border border-danger/40 bg-surface text-[11px] font-medium text-danger hover:bg-danger/10 disabled:opacity-50" :disabled="clearBusy" @click.stop="clearRunningOrder(order)">
+                                                <AppIcon name="trash" size="9" />
+                                                {{ t('orders.clear_short') }}
+                                            </button>
+                                        </div>
                                 </div>
                             </div>
                         </section>
@@ -2073,23 +2372,18 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                         <section v-for="group in tablesByArea" :key="group.area || 'tables'">
                             <h3 class="mb-1.5 text-xs font-semibold text-muted">{{ group.area || t('orders.table_short') }}</h3>
                             <div class="grid grid-cols-3 gap-1.5 sm:grid-cols-4">
-                                <div v-for="table in group.tables" :key="table.id" class="relative">
-                                <button
-                                    type="button"
-                                    :disabled="table.status === 'occupied' && table.id !== tableId"
-                                    class="flex h-14 w-full flex-col items-center justify-center rounded-lg border text-center transition-colors disabled:cursor-not-allowed"
-                                    :class="table.id === tableId
-                                        ? 'border-accent bg-accent text-accent-foreground'
-                                        : table.status === 'occupied'
-                                            ? 'border-danger/40 bg-danger/10 text-danger opacity-80'
-                                            : 'border-border bg-background text-foreground hover:border-accent'"
-                                    @click="pickTable(table.id)"
-                                >
-                                    <span class="text-sm font-semibold leading-tight">{{ table.name }}</span>
-                                    <span class="text-[11px] leading-tight" :class="table.id === tableId ? 'text-accent-foreground/80' : 'text-muted'">
-                                        {{ table.status === 'occupied' ? t('orders.table_occupied') : t('orders.table_seats', { count: table.seats }) }}
-                                    </span>
-                                </button>
+                                <PosTableTile v-for="table in group.tables" :key="table.id" :seats="table.seats" :tone="table.id === tableId ? 'selected' : table.status === 'occupied' ? 'blocked' : 'free'">
+                                    <button
+                                        type="button"
+                                        :disabled="table.status === 'occupied' && table.id !== tableId"
+                                        class="flex w-full flex-col items-center text-center disabled:cursor-not-allowed"
+                                        @click="pickTable(table.id)"
+                                    >
+                                        <span class="text-sm font-semibold leading-tight" :class="table.status === 'occupied' && table.id !== tableId ? 'text-danger' : 'text-foreground'">{{ table.name }}</span>
+                                        <span class="text-[11px] leading-tight text-muted">
+                                            {{ table.status === 'occupied' ? t('orders.table_occupied') : t('orders.table_seats', { count: table.seats }) }}
+                                        </span>
+                                    </button>
                                     <button v-if="table.status === 'occupied' && table.id !== tableId && (canVoid || ! openOrderByTable.get(table.id))"
                                         type="button"
                                         class="absolute right-1 top-1 inline-flex h-5 items-center gap-0.5 rounded-md border border-danger/40 bg-surface px-1 text-[11px] font-medium text-danger hover:bg-danger/10 disabled:opacity-50"
@@ -2099,7 +2393,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                                         <AppIcon name="trash" size="9" />
                                         {{ t('orders.clear_short') }}
                                     </button>
-                                </div>
+                                </PosTableTile>
                             </div>
                         </section>
                     </div>

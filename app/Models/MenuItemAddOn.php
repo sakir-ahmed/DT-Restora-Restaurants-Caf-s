@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Models\Concerns\FlushesPublicCache;
+use App\Models\Concerns\HasMenuNumber;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,6 +14,7 @@ class MenuItemAddOn extends Model
 {
     use FlushesPublicCache;
     use HasFactory;
+    use HasMenuNumber;
 
     protected $table = 'menu_item_addons';
 

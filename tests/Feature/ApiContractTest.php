@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\DeviceToken;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
+use App\Models\MenuItemAddOn;
 use App\Models\Order;
 use App\Models\User;
 use App\Services\PushNotificationService;
@@ -127,4 +128,54 @@ it('refuses a bKash payment until the gateway is configured', function (): void 
         ->withHeader('Idempotency-Key', 'pay-1')
         ->postJson('/api/v1/payments/bkash/create', ['order_id' => $order->id])
         ->assertStatus(503);
+});
+
+it('returns receipt details on a staff order', function (): void {
+    $token = $this->cashier->createToken('staff', ['staff'])->plainTextToken;
+
+    $created = $this->withToken($token)
+        ->withHeader('Idempotency-Key', 'receipt-1')
+        ->postJson('/api/v1/branches/'.$this->branch->id.'/orders', [
+            'order_type' => 'takeaway',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 2]],
+        ])
+        ->assertCreated();
+
+    $order = $this->withToken($token)
+        ->getJson('/api/v1/branches/'.$this->branch->id.'/orders/'.$created->json('data.id'))
+        ->assertOk()
+        ->json('data');
+
+    expect($order)->toHaveKeys(['subtotal', 'discount_amount', 'service_charge', 'vat_amount', 'created_at', 'cashier', 'payments', 'void_status'])
+        ->and($order['subtotal'])->toBe('400.00')
+        ->and($order['items'][0]['unit_price'])->toBe('200.00')
+        ->and($order['cashier'])->toBe($this->cashier->name);
+});
+
+it('prices add-ons chosen on a staff order and returns them', function (): void {
+    $addOn = MenuItemAddOn::query()->create([
+        'menu_item_id' => $this->item->id,
+        'name' => 'Extra cheese',
+        'price' => '30.00',
+        'is_active' => true,
+    ]);
+    $token = $this->cashier->createToken('staff', ['staff'])->plainTextToken;
+
+    $created = $this->withToken($token)
+        ->withHeader('Idempotency-Key', 'addon-1')
+        ->postJson('/api/v1/branches/'.$this->branch->id.'/orders', [
+            'order_type' => 'takeaway',
+            'items' => [[
+                'menu_item_id' => $this->item->id,
+                'quantity' => 2,
+                'add_ons' => [['id' => $addOn->id, 'qty' => 1]],
+            ]],
+        ])
+        ->assertCreated();
+
+    $line = $created->json('data.items.0');
+
+    expect($line['line_total'])->toBe('460.00')
+        ->and($line['add_ons'][0]['name'])->toBe('Extra cheese')
+        ->and($line['add_ons'][0]['qty'])->toBe(1);
 });

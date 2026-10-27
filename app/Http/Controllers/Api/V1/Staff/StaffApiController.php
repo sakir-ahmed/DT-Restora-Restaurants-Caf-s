@@ -34,9 +34,11 @@ use App\Models\MenuItem;
 use App\Models\Order;
 use App\Models\Purchase;
 use App\Models\Recipe;
+use App\Models\RestaurantTable;
 use App\Models\Rider;
 use App\Models\Shift;
 use App\Models\StockTransfer;
+use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\VoidRequest;
 use App\Services\Aggregators\AggregatorOrderService;
@@ -109,6 +111,9 @@ class StaffApiController extends Controller
                 'items.*.menu_item_id' => ['required', 'integer'],
                 'items.*.variant_id' => ['nullable', 'integer'],
                 'items.*.quantity' => ['required', 'integer', 'min:1'],
+                'items.*.add_ons' => ['nullable', 'array'],
+                'items.*.add_ons.*.id' => ['required', 'integer'],
+                'items.*.add_ons.*.qty' => ['nullable', 'integer', 'min:1'],
                 'discount' => ['nullable', 'array'],
                 'discount.type' => ['required_with:discount', 'in:percent,fixed'],
                 'discount.value' => ['required_with:discount', 'numeric', 'min:0'],
@@ -575,6 +580,80 @@ class StaffApiController extends Controller
         return $this->success($employee, null, 201);
     }
 
+    /**
+     * Lookup lists the staff app needs to build forms offline: each block is
+     * only included when the user holds the matching permission.
+     */
+    public function reference(Request $request, string $branch): JsonResponse
+    {
+        $user = $this->staffUser($request);
+        $branchModel = $this->branchOrFail($request, $branch);
+        $data = [];
+
+        if ($user->can('inventory.view') || $user->can('wastage.log') || $user->can('purchases.manage')) {
+            $data['units'] = Unit::query()->orderBy('name')->get(['id', 'name', 'name_bn', 'symbol'])->all();
+            $data['ingredients'] = Ingredient::query()
+                ->where('is_active', true)
+                ->with('unit:id,symbol')
+                ->orderBy('name')
+                ->get()
+                ->map(fn (Ingredient $ingredient): array => [
+                    'id' => $ingredient->id,
+                    'name' => $ingredient->name,
+                    'name_bn' => $ingredient->name_bn,
+                    'unit_id' => $ingredient->unit_id,
+                    'unit_symbol' => $ingredient->unit?->symbol,
+                    'reorder_level' => (string) $ingredient->reorder_level,
+                ])
+                ->all();
+            $data['suppliers'] = Supplier::query()
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get(['id', 'name', 'name_bn', 'mobile'])
+                ->all();
+        }
+
+        if ($user->can('delivery.dispatch')) {
+            $data['riders'] = Rider::query()
+                ->where('is_active', true)
+                ->with('user:id,name')
+                ->get()
+                ->map(fn (Rider $rider): array => [
+                    'id' => $rider->id,
+                    'name' => $rider->user?->name,
+                    'vehicle' => $rider->vehicle,
+                    'is_on_duty' => $rider->is_on_duty,
+                ])
+                ->all();
+        }
+
+        if ($user->can('pos.access') || $user->can('tables.view')) {
+            $data['tables'] = RestaurantTable::query()
+                ->where('branch_id', $branchModel->id)
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get(['id', 'name', 'area', 'seats', 'status'])
+                ->all();
+        }
+
+        if ($user->can('shifts.manage')) {
+            $shift = Shift::query()
+                ->where('branch_id', $branchModel->id)
+                ->where('user_id', $user->id)
+                ->whereNull('closed_at')
+                ->latest('opened_at')
+                ->first();
+            $data['current_shift'] = $shift === null ? null : [
+                'id' => $shift->id,
+                'opening_cash' => (string) $shift->opening_cash,
+                'terminal_code' => $shift->terminal_code,
+                'opened_at' => $shift->opened_at->toIso8601String(),
+            ];
+        }
+
+        return $this->success($data);
+    }
+
     public function openShift(Request $request, string $branch, OpenShiftAction $action): JsonResponse
     {
         $user = $this->staffUser($request);
@@ -622,7 +701,13 @@ class StaffApiController extends Controller
             ->limit(50)
             ->get();
 
-        return $this->success($orders->map(fn (Order $order) => $this->orderPayload($order))->all());
+        return $this->success($orders->map(fn (Order $order): array => $this->orderPayload($order) + [
+            'delivery' => $order->delivery === null ? null : [
+                'id' => $order->delivery->id,
+                'status' => $order->delivery->status,
+                'rider_id' => $order->delivery->rider_id,
+            ],
+        ])->all());
     }
 
     public function assignDelivery(Request $request, Delivery $delivery, AssignRiderAction $action): JsonResponse

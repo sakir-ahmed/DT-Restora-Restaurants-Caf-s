@@ -219,3 +219,23 @@ it('guards the dispatch board and rider view by role', function (): void {
     $this->actingAs($this->manager, 'staff')->get('/admin/delivery')->assertOk();
     $this->actingAs($this->riderUser, 'staff')->get('/rider')->assertOk();
 });
+
+it('lists the delivery id and rider on the dispatch board and the riders to assign', function (): void {
+    app(AssignRiderAction::class)->execute($this->order, $this->rider, $this->manager);
+    $token = $this->manager->createToken('staff', ['staff'])->plainTextToken;
+
+    $board = $this->withToken($token)
+        ->getJson('/api/v1/branches/'.$this->branch->id.'/deliveries')
+        ->assertOk()
+        ->json('data');
+
+    expect($board[0]['delivery']['rider_id'])->toBe($this->rider->id)
+        ->and($board[0]['delivery']['status'])->toBe(Delivery::STATUS_ASSIGNED);
+
+    $riders = $this->withToken($token)
+        ->getJson('/api/v1/branches/'.$this->branch->id.'/reference')
+        ->assertOk()
+        ->json('data.riders');
+
+    expect(collect($riders)->pluck('name'))->toContain('Sohel Rider');
+});

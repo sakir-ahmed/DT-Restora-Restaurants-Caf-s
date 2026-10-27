@@ -468,3 +468,23 @@ it('force clears an unpaid order that has no table', function (): void {
 
     $this->actingAs($this->manager, 'staff')->post("/admin/pos/orders/{$order->id}/clear", ['reason_code' => 'other'])->assertSessionHasErrors('order');
 });
+
+it('numbers menu items, variants and add-ons from one shared sequence', function (): void {
+    $item = MenuItem::factory()->create(['branch_id' => $this->branch->id, 'menu_category_id' => $this->item->menu_category_id]);
+    $variant = $item->variants()->create(['name' => 'Large', 'price' => 200]);
+    $addOn = $item->addOns()->create(['name' => 'Cheese', 'price' => 20]);
+
+    $numbers = collect([$this->item->fresh(), $item, $variant, $addOn])->pluck('menu_no');
+
+    expect($numbers->filter()->unique())->toHaveCount(4)
+        ->and($addOn->menu_no)->toBeGreaterThan($variant->menu_no)
+        ->and($variant->menu_no)->toBeGreaterThan($item->menu_no);
+});
+
+it('sends menu numbers to the pos page', function (): void {
+    $this->item->variants()->create(['name' => 'Large', 'price' => 200]);
+
+    $this->actingAs($this->cashier, 'staff')->get('/admin/pos')->assertInertia(fn ($page) => $page
+        ->where('categories.0.items.0.menu_no', $this->item->fresh()->menu_no)
+        ->whereNot('categories.0.items.0.variants.0.menu_no', null));
+});
