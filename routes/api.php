@@ -105,6 +105,10 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
 
         Route::prefix('branches/{branch}')->name('branches.')->group(function (): void {
             Route::get('/menu', [StaffApiController::class, 'menu'])->name('menu');
+            Route::get('/menu-items', [StaffApiController::class, 'menuItemsForManagement'])->name('menu.items');
+            Route::post('/menu-items', [StaffApiController::class, 'storeMenuItem'])->name('menu.items.store');
+            Route::put('/menu-items/{item}', [StaffApiController::class, 'updateMenuItem'])->name('menu.items.update');
+            Route::get('/wastage', [StaffApiController::class, 'wastageIndex'])->name('wastage.index');
             Route::get('/orders', [StaffApiController::class, 'orders'])->name('orders.index');
             Route::post('/orders', [StaffApiController::class, 'storeOrder'])->name('orders.store');
             Route::get('/orders/{order}', [StaffApiController::class, 'showOrder'])->name('orders.show');

@@ -49,6 +49,7 @@ use App\Services\Metrics\MetricsService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Support\DataVersion;
 use Illuminate\Support\Facades\DB;
 
 class StaffApiController extends Controller
@@ -336,6 +337,134 @@ class StaffApiController extends Controller
         $recipe = $action->execute($item, $validated['lines'], $validated['note'] ?? null, $user);
 
         return $this->success(['id' => $recipe->id]);
+    }
+
+    /**
+     * Every menu item of the branch, including unavailable ones, so the
+     * mobile app can manage the menu. Shape mirrors /menu.
+     */
+    public function menuItemsForManagement(Request $request, string $branch): JsonResponse
+    {
+        $user = $this->staffUser($request);
+        $this->permit($user, 'menu.manage');
+        $branchModel = $this->branchOrFail($request, $branch);
+
+        $categories = MenuCategory::query()
+            ->where('branch_id', $branchModel->id)
+            ->active()
+            ->ordered()
+            ->with(['items' => fn ($query) => $query->with(['variants', 'addOns'])])
+            ->get();
+
+        return $this->success($categories);
+    }
+
+    /** Validation shared by menu item create and update, mobile edition. */
+    private function menuItemRules(): array
+    {
+        return [
+            'menu_category_id' => ['required', 'integer', 'exists:menu_categories,id'],
+            'name' => ['required', 'string', 'max:150'],
+            'name_bn' => ['nullable', 'string', 'max:150'],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'base_price' => ['required', 'numeric', 'min:0'],
+            'is_available' => ['boolean'],
+            'is_vegetarian' => ['boolean'],
+            'variants' => ['nullable', 'array'],
+            'variants.*.name' => ['required_with:variants', 'string', 'max:150'],
+            'variants.*.price' => ['required_with:variants', 'numeric', 'min:0'],
+            'variants.*.name_bn' => ['nullable', 'string', 'max:150'],
+            'addons' => ['nullable', 'array'],
+            'addons.*.name' => ['required_with:addons', 'string', 'max:150'],
+            'addons.*.price' => ['required_with:addons', 'numeric', 'min:0'],
+            'addons.*.name_bn' => ['nullable', 'string', 'max:150'],
+            'addons.*.is_active' => ['boolean'],
+        ];
+    }
+
+    public function storeMenuItem(Request $request, string $branch): JsonResponse
+    {
+        $user = $this->staffUser($request);
+        $this->permit($user, 'menu.manage');
+        $branchModel = $this->branchOrFail($request, $branch);
+        $validated = $request->validate($this->menuItemRules());
+
+        $category = MenuCategory::query()->findOrFail((int) $validated['menu_category_id']);
+        abort_unless($category->branch_id === $branchModel->id, 404);
+
+        $item = DB::transaction(function () use ($validated, $branchModel, $category): MenuItem {
+            $item = MenuItem::query()->create([
+                ...collect($validated)->except(['variants', 'addons'])->all(),
+                'branch_id' => $branchModel->id,
+                'menu_category_id' => $category->id,
+            ]);
+            $this->syncMenuItemRelations($item, $validated);
+
+            return $item;
+        });
+
+        DataVersion::bump();
+
+        return $this->success(['id' => $item->id], __('menu.item_created'), 201);
+    }
+
+    public function updateMenuItem(Request $request, string $branch, MenuItem $item): JsonResponse
+    {
+        $user = $this->staffUser($request);
+        $this->permit($user, 'menu.manage');
+        $branchModel = $this->branchOrFail($request, $branch);
+        abort_unless($item->branch_id === $branchModel->id, 404);
+        $validated = $request->validate($this->menuItemRules());
+
+        $category = MenuCategory::query()->findOrFail((int) $validated['menu_category_id']);
+        abort_unless($category->branch_id === $branchModel->id, 404);
+
+        DB::transaction(function () use ($validated, $item, $category): void {
+            $item->update([
+                ...collect($validated)->except(['variants', 'addons'])->all(),
+                'menu_category_id' => $category->id,
+            ]);
+            $this->syncMenuItemRelations($item, $validated);
+        });
+
+        DataVersion::bump();
+
+        return $this->success(['id' => $item->id], __('menu.item_updated'));
+    }
+
+    /** Create-or-keep variants and add-ons, delete the missing ones. */
+    private function syncMenuItemRelations(MenuItem $item, array $validated): void
+    {
+        $variants = collect($validated['variants'] ?? []);
+        $addOns = collect($validated['addons'] ?? []);
+
+        $item->variants()->whereNotIn('id', $variants->pluck('id')->filter())->delete();
+        $item->addOns()->whereNotIn('id', $addOns->pluck('id')->filter())->delete();
+
+        foreach ($variants as $variant) {
+            $item->variants()->updateOrCreate(['id' => $variant['id'] ?? null], collect($variant)->except('id')->all());
+        }
+
+        foreach ($addOns as $addOn) {
+            $item->addOns()->updateOrCreate(['id' => $addOn['id'] ?? null], collect($addOn)->except('id')->all());
+        }
+    }
+
+    /** The wastage log table, newest first. */
+    public function wastageIndex(Request $request, string $branch): JsonResponse
+    {
+        $user = $this->staffUser($request);
+        $this->permit($user, 'inventory.view');
+        $branchModel = $this->branchOrFail($request, $branch);
+
+        $rows = \App\Models\Wastage::query()
+            ->where('branch_id', $branchModel->id)
+            ->with(['ingredient:id,name', 'unit:id,symbol', 'user:id,name'])
+            ->latest('id')
+            ->limit(200)
+            ->get();
+
+        return $this->success($rows);
     }
 
     public function recipeCost(Request $request, Recipe $recipe, CostingService $costing): JsonResponse
