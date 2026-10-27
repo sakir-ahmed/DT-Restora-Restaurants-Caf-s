@@ -58,10 +58,10 @@ const nav = computed(() => {
             items: [
                 { label: t('nav.dashboard'), href: '/admin', icon: 'chart-line', permission: null, exact: true },
                 { label: t('nav.pos'), href: '/admin/pos', icon: 'cash-register', permission: 'pos.access' },
-                { label: t('nav.tables'), href: '/admin/tables', icon: 'bell-concierge', permission: 'tables.view' },
-                { label: t('nav.reservations'), href: '/admin/reservations', icon: 'calendar-days', permission: 'reservations.view' },
                 { label: t('nav.orders'), href: '/admin/orders', icon: 'receipt', permission: 'orders.view' },
                 { label: t('nav.kds'), href: '/admin/kds', icon: 'utensils', permission: 'kds.access' },
+                { label: t('nav.reservations'), href: '/admin/reservations', icon: 'calendar-days', permission: 'reservations.view' },
+                { label: t('nav.tables'), href: '/admin/tables', icon: 'bell-concierge', permission: 'tables.view' },
             ],
         },
         {
