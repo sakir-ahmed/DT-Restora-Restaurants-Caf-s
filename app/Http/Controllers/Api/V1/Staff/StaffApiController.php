@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Staff;
 
+use App\Actions\Attendance\RecordStaffAttendanceAction;
 use App\Actions\Delivery\AssignRiderAction;
 use App\Actions\Inventory\ApproveStockTransferAction;
 use App\Actions\Inventory\LogWastageAction;
 use App\Actions\Inventory\ReceivePurchaseAction;
 use App\Actions\Inventory\ReceiveStockTransferAction;
 use App\Actions\Inventory\SaveRecipeAction;
+use App\Actions\Payroll\CalculateStaffPayAction;
 use App\Actions\Sales\ApproveOrderVoidAction;
 use App\Actions\Sales\CloseShiftAction;
 use App\Actions\Sales\CreateOrderAction;
@@ -34,22 +36,25 @@ use App\Models\MenuItem;
 use App\Models\Order;
 use App\Models\Purchase;
 use App\Models\Recipe;
+use App\Models\Reservation;
 use App\Models\RestaurantTable;
 use App\Models\Rider;
 use App\Models\Shift;
+use App\Models\StaffAttendance;
 use App\Models\StockTransfer;
 use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\VoidRequest;
+use App\Models\Wastage;
 use App\Services\Aggregators\AggregatorOrderService;
 use App\Services\CostingService;
 use App\Services\CouponService;
 use App\Services\LoyaltyService;
 use App\Services\Metrics\MetricsService;
+use App\Support\DataVersion;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Support\DataVersion;
 use Illuminate\Support\Facades\DB;
 
 class StaffApiController extends Controller
@@ -457,7 +462,7 @@ class StaffApiController extends Controller
         $this->permit($user, 'inventory.view');
         $branchModel = $this->branchOrFail($request, $branch);
 
-        $rows = \App\Models\Wastage::query()
+        $rows = Wastage::query()
             ->where('branch_id', $branchModel->id)
             ->with(['ingredient:id,name', 'unit:id,symbol', 'user:id,name'])
             ->latest('id')
@@ -465,6 +470,206 @@ class StaffApiController extends Controller
             ->get();
 
         return $this->success($rows);
+    }
+
+    // ------------------------------------------------------------ reservations
+
+    /** Today's and upcoming bookings with their tables. */
+    public function reservationsIndex(Request $request, string $branch): JsonResponse
+    {
+        $user = $this->staffUser($request);
+        $this->permit($user, 'reservations.view');
+        $branchModel = $this->branchOrFail($request, $branch);
+
+        $rows = Reservation::query()
+            ->where('branch_id', $branchModel->id)
+            ->whereDate('starts_at', '>=', now()->subDay())
+            ->with('tables:id,name')
+            ->orderBy('starts_at')
+            ->limit(100)
+            ->get();
+
+        return $this->success($rows);
+    }
+
+    public function storeReservation(Request $request, string $branch): JsonResponse
+    {
+        $user = $this->staffUser($request);
+        $this->permit($user, 'reservations.manage');
+        $branchModel = $this->branchOrFail($request, $branch);
+
+        $validated = $request->validate([
+            'guest_name' => ['required', 'string', 'max:150'],
+            'guest_mobile' => ['nullable', 'string', 'max:32'],
+            'party_size' => ['required', 'integer', 'min:1'],
+            'starts_at' => ['required', 'date'],
+            'note' => ['nullable', 'string', 'max:500'],
+            'table_ids' => ['nullable', 'array'],
+            'table_ids.*' => ['integer', 'exists:restaurant_tables,id'],
+        ]);
+
+        $reservation = Reservation::query()->create([
+            'branch_id' => $branchModel->id,
+            'guest_name' => $validated['guest_name'],
+            'guest_mobile' => $validated['guest_mobile'] ?? null,
+            'party_size' => $validated['party_size'],
+            'starts_at' => CarbonImmutable::parse($validated['starts_at']),
+            'ends_at' => CarbonImmutable::parse($validated['starts_at'])->addHours(2),
+            'note' => $validated['note'] ?? null,
+            'status' => Reservation::BOOKED,
+            'created_by' => $user->id,
+        ]);
+
+        if (! empty($validated['table_ids'])) {
+            $tableIds = RestaurantTable::query()
+                ->where('branch_id', $branchModel->id)
+                ->whereIn('id', $validated['table_ids'])
+                ->pluck('id');
+            $reservation->tables()->sync($tableIds);
+        }
+
+        return $this->success(['id' => $reservation->id, 'booking_no' => $reservation->booking_no], null, 201);
+    }
+
+    public function reservationStatus(Request $request, string $branch, Reservation $reservation): JsonResponse
+    {
+        $user = $this->staffUser($request);
+        $this->permit($user, 'reservations.manage');
+        $branchModel = $this->branchOrFail($request, $branch);
+        abort_unless($reservation->branch_id === $branchModel->id, 404);
+
+        $validated = $request->validate([
+            'status' => ['required', 'in:'.implode(',', Reservation::STATUSES)],
+        ]);
+
+        $reservation->update(['status' => $validated['status']]);
+
+        return $this->success(['id' => $reservation->id, 'status' => $reservation->status]);
+    }
+
+    // ------------------------------------------------------------ attendance
+
+    /** Staff with today's punches, for the attendance board. */
+    public function attendanceToday(Request $request, string $branch): JsonResponse
+    {
+        $user = $this->staffUser($request);
+        $this->permit($user, 'attendance.manage');
+        $branchModel = $this->branchOrFail($request, $branch);
+
+        $employees = Employee::query()
+            ->where('branch_id', $branchModel->id)
+            ->orderBy('name')
+            ->get(['id', 'name', 'designation', 'is_active']);
+
+        $attendance = StaffAttendance::query()
+            ->whereDate('work_date', today())
+            ->whereIn('employee_id', $employees->pluck('id'))
+            ->get();
+
+        return $this->success(['employees' => $employees, 'attendance' => $attendance]);
+    }
+
+    /** Punch in or out for one employee, like the web attendance board. */
+    public function punchAttendance(
+        Request $request,
+        string $branch,
+        RecordStaffAttendanceAction $action,
+    ): JsonResponse {
+        $user = $this->staffUser($request);
+        $this->permit($user, 'attendance.manage');
+        $branchModel = $this->branchOrFail($request, $branch);
+
+        $validated = $request->validate([
+            'employee_id' => ['required', 'integer', 'exists:employees,id'],
+            'direction' => ['required', 'in:in,out'],
+        ]);
+
+        $employee = Employee::query()->where('branch_id', $branchModel->id)->find((int) $validated['employee_id']);
+        abort_if($employee === null, 404);
+
+        $existing = StaffAttendance::query()
+            ->where('employee_id', $employee->id)
+            ->whereDate('work_date', today())
+            ->first();
+
+        if ($validated['direction'] === 'out') {
+            abort_if($existing === null || $existing->clock_in === null, 422, __('attendance.not_punched_in'));
+        }
+
+        $action->execute($branchModel, $employee, [
+            'work_date' => today()->toDateString(),
+            'status' => StaffAttendance::STATUS_PRESENT,
+            'clock_in' => ($validated['direction'] === 'out' ? $existing->clock_in : now())->toDateTimeString(),
+            'clock_out' => $validated['direction'] === 'out' ? now()->toDateTimeString() : null,
+        ], $user);
+
+        return $this->success(['status' => 'ok']);
+    }
+
+    // ------------------------------------------------------------ payroll
+
+    /** Computed pay per employee for a period, read-only. */
+    public function payroll(Request $request, string $branch, CalculateStaffPayAction $calculator): JsonResponse
+    {
+        $user = $this->staffUser($request);
+        $this->permit($user, 'payroll.manage');
+        $branchModel = $this->branchOrFail($request, $branch);
+
+        $from = CarbonImmutable::parse((string) $request->input('from', today()->startOfMonth()->toDateString()));
+        $to = CarbonImmutable::parse((string) $request->input('to', today()->toDateString()));
+        if ($from->greaterThan($to)) {
+            [$from, $to] = [$to, $from];
+        }
+
+        $rows = Employee::query()
+            ->where('branch_id', $branchModel->id)
+            ->orderBy('name')
+            ->get()
+            ->map(fn (Employee $employee): array => [
+                'id' => $employee->id,
+                'name' => $employee->name,
+                'designation' => $employee->designation,
+                'is_active' => $employee->is_active,
+                ...$calculator->forPeriod($employee, $from, $to),
+            ])
+            ->all();
+
+        return $this->success(['from' => $from->toDateString(), 'to' => $to->toDateString(), 'rows' => $rows]);
+    }
+
+    // ------------------------------------------------------------ ingredients
+
+    public function storeIngredient(Request $request): JsonResponse
+    {
+        $user = $this->staffUser($request);
+        $this->permit($user, 'inventory.manage');
+
+        $validated = $this->ingredientRules($request);
+
+        $ingredient = Ingredient::query()->create($validated);
+
+        return $this->success(['id' => $ingredient->id], null, 201);
+    }
+
+    public function updateIngredient(Request $request, Ingredient $ingredient): JsonResponse
+    {
+        $user = $this->staffUser($request);
+        $this->permit($user, 'inventory.manage');
+
+        $ingredient->update($this->ingredientRules($request));
+
+        return $this->success(['id' => $ingredient->id]);
+    }
+
+    private function ingredientRules(Request $request): array
+    {
+        return $request->validate([
+            'name' => ['required', 'string', 'max:150'],
+            'name_bn' => ['nullable', 'string', 'max:150'],
+            'unit_id' => ['required', 'integer', 'exists:units,id'],
+            'reorder_level' => ['nullable', 'numeric', 'min:0'],
+            'is_active' => ['boolean'],
+        ]);
     }
 
     public function recipeCost(Request $request, Recipe $recipe, CostingService $costing): JsonResponse

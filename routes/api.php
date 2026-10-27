@@ -85,6 +85,8 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
         Route::post('/coupons', [StaffApiController::class, 'storeCoupon'])->name('coupons.store');
         Route::put('/coupons/{coupon}', [StaffApiController::class, 'updateCoupon'])->name('coupons.update');
         Route::post('/coupons/validate', [StaffApiController::class, 'validateCoupon'])->name('coupons.validate');
+        Route::post('/ingredients', [StaffApiController::class, 'storeIngredient'])->name('ingredients.store');
+        Route::put('/ingredients/{ingredient}', [StaffApiController::class, 'updateIngredient'])->name('ingredients.update');
         Route::get('/recipes', [StaffApiController::class, 'recipes'])->name('recipes.index');
         Route::post('/recipes', [StaffApiController::class, 'storeRecipe'])->name('recipes.store');
         Route::put('/recipes/{recipe}', [StaffApiController::class, 'updateRecipe'])->name('recipes.update');
@@ -124,6 +126,12 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
             Route::get('/reference', [StaffApiController::class, 'reference'])->name('reference');
             Route::post('/shifts/open', [StaffApiController::class, 'openShift'])->name('shifts.open');
             Route::get('/deliveries', [StaffApiController::class, 'deliveries'])->name('deliveries');
+            Route::get('/reservations', [StaffApiController::class, 'reservationsIndex'])->name('reservations.index');
+            Route::post('/reservations', [StaffApiController::class, 'storeReservation'])->name('reservations.store');
+            Route::patch('/reservations/{reservation}/status', [StaffApiController::class, 'reservationStatus'])->name('reservations.status');
+            Route::get('/attendance/today', [StaffApiController::class, 'attendanceToday'])->name('attendance.today');
+            Route::post('/attendance/punch', [StaffApiController::class, 'punchAttendance'])->name('attendance.punch');
+            Route::get('/payroll', [StaffApiController::class, 'payroll'])->name('payroll');
             Route::post('/orders/manual-aggregator', [StaffApiController::class, 'manualAggregator'])->name('aggregators.manual');
         });
 
