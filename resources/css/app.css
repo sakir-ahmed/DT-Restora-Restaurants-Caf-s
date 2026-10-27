@@ -36,16 +36,16 @@
     --font-sans: 'Inter', 'Hind Siliguri', ui-sans-serif, system-ui, sans-serif;
     --font-display: 'Poppins', 'Hind Siliguri', ui-sans-serif, system-ui, sans-serif;
 
-    /* Datatech BD Ltd. brand: Cloud, Midnight Navy, Datatech Blue, Bright Sky, Slate. */
-    --color-background: #f5f7fa; /* Cloud */
+    /* Arman's Kitchen brand: warm cream, espresso black and logo gold. */
+    --color-background: #faf7f1; /* Cream */
     --color-surface: #ffffff;
-    --color-foreground: #0a1428; /* Midnight Navy */
-    --color-muted: #4a5568; /* Slate */
-    --color-border: #dfe6f0;
+    --color-foreground: #17120b; /* Espresso */
+    --color-muted: #5c5446; /* Warm grey */
+    --color-border: #e6dfd0;
 
-    --color-primary: #0b63ce; /* Datatech Blue */
-    --color-primary-foreground: #ffffff;
-    --color-accent: #1c6fe0; /* Sky Blue, deep enough for white text */
+    --color-primary: #1f180e; /* Espresso black */
+    --color-primary-foreground: #f6e7bd; /* Pale gold */
+    --color-accent: #8f6a1a; /* Logo gold, deep enough for white text */
     --color-accent-foreground: #ffffff;
     --color-success: oklch(0.596 0.145 163); /* emerald-600 */
     --color-success-foreground: oklch(0.98 0.003 248);
@@ -55,14 +55,15 @@
 }
 
 .dark {
-    --color-background: #0a1428; /* Midnight Navy */
-    --color-surface: #101d36;
-    --color-foreground: #f5f7fa;
-    --color-muted: #afc0d6; /* Soft Grey */
-    --color-border: #22345a;
-    --color-primary: #38a8ff;
-    --color-primary-foreground: #0a1428;
-    --color-accent-foreground: #ffffff;
+    --color-background: #0e0b07; /* Night */
+    --color-surface: #17120b;
+    --color-foreground: #f6efe0;
+    --color-muted: #c2b79f; /* Soft sand */
+    --color-border: #34291a;
+    --color-primary: #d9b25c; /* Logo gold */
+    --color-primary-foreground: #17120b;
+    --color-accent: #d9b25c;
+    --color-accent-foreground: #17120b;
 }
 
 html {

@@ -12,7 +12,7 @@ import { createSSRApp, h } from 'vue';
 createServer((page) => createInertiaApp({
     page,
     render: renderToString,
-    title: (title) => (title ? `${title} - ${import.meta.env.VITE_APP_NAME ?? 'DT Restora'}` : import.meta.env.VITE_APP_NAME ?? 'DT Restora'),
+    title: (title) => (title ? `${title} - ${import.meta.env.VITE_APP_NAME ?? "Arman's Kitchen"}` : import.meta.env.VITE_APP_NAME ?? "Arman's Kitchen"),
     resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob('./pages/**/*.vue')),
     setup: ({ App, props, plugin }) => createSSRApp({ render: () => h(App, props) }).use(plugin),
 }));

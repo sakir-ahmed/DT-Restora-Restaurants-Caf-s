@@ -1,18 +1,14 @@
 {
-    "name": "DT Restora POS",
-    "short_name": "DT Restora",
-    "description": "Offline-first restaurant POS",
+    "name": "Arman's Kitchen POS",
+    "short_name": "Arman's Kitchen",
+    "description": "Arman's Kitchen restaurant POS",
     "start_url": "/admin/pos",
     "scope": "/",
     "display": "standalone",
-    "theme_color": "#0b63ce",
-    "background_color": "#f5f7fa",
+    "theme_color": "#17120b",
+    "background_color": "#0e0b07",
     "icons": [
-        {
-            "src": "/favicon.svg",
-            "sizes": "any",
-            "type": "image/svg+xml",
-            "purpose": "any"
-        }
+        {"src": "/images/brand/emblem-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+        {"src": "/images/brand/emblem-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
     ]
 }

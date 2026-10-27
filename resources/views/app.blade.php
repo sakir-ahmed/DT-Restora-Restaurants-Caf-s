@@ -2,7 +2,7 @@
     // The SSR response already carries the page title; print our own only when SSR is unavailable.
     $ssrResponse = app(\Inertia\Ssr\SsrState::class)->setPage($page)->dispatch();
     $seo = $page['props']['seo'] ?? null;
-    $brand = config('app.name', 'DT Restora');
+    $brand = config('app.name', "Arman's Kitchen");
     $title = $seo ? $seo['title'].' - '.$brand : $brand;
     $robots = $seo && ! ($seo['noindex'] ?? false) ? 'index,follow,max-image-preview:large' : 'noindex,nofollow';
 @endphp
@@ -11,7 +11,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#0b63ce">
+    <meta name="theme-color" content="#17120b">
     <link rel="manifest" href="/manifest.webmanifest">
     <meta data-inertia="robots" name="robots" content="{{ $robots }}">
 
@@ -40,7 +40,8 @@
     @endif
 
     <link rel="icon" href="/favicon.ico" sizes="32x32">
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="96x96">
+    <link rel="apple-touch-icon" href="/images/brand/apple-touch-icon.png">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <script>

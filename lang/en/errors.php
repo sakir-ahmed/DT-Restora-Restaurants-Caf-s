@@ -10,7 +10,7 @@ return [
     '500_title' => 'Something went wrong',
     '500_message' => 'An unexpected error occurred on our side. Please try again.',
     '503_title' => 'Under maintenance',
-    '503_message' => 'DT Restora is being updated. Please check back in a few minutes.',
+    '503_message' => 'Arman\'s Kitchen is being updated. Please check back in a few minutes.',
     'reference' => 'Reference: :id',
     'go_dashboard' => 'Go to dashboard',
     'go_back' => 'Go back',

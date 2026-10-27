@@ -32,6 +32,12 @@ php artisan db:seed --force
 
 The seeder prints the root administrator's username and a random strong password once. Save it straight away. If it is lost, run `php artisan admin:reset-password` to generate a new one.
 
+For Arman's Kitchen, load the outlet, printed menu, photos and website gallery with:
+
+```bash
+php artisan db:seed --class=ArmansKitchenDataSeeder --force
+```
+
 ```bash
 php artisan storage:link
 ```
