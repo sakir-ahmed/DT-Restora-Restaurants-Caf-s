@@ -518,6 +518,8 @@ function addItem(item) {
 }
 
 const menuNumberInput = ref('');
+// Round menu-number badge used inside dialog rows (the item cards overlay a smaller one on the photo)
+const menuNoBadge = 'flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--color-primary)_65%,black)] px-1 text-[10px] font-semibold leading-none tabular-nums text-white';
 
 // Branch-wise POS settings: which buttons show and what each one prints
 const DEFAULT_ACTIONS = {
@@ -1327,6 +1329,14 @@ function printAfter(action, order) {
     printSequence(documents);
 }
 
+// Quick save is one tap from cart to printed bill, so the screen is ready for the next customer afterwards.
+function finishQuickSave(source) {
+    if (source === 'quick_save') {
+        startNewOrder();
+        mobileTab.value = 'menu';
+    }
+}
+
 async function payNow(source = 'confirm_payment') {
     const order = pagePropsOrder();
 
@@ -1355,6 +1365,7 @@ async function payNow(source = 'confirm_payment') {
         };
         notify.info(t('sync.queued'));
         printAfter(source, order);
+        finishQuickSave(source);
 
         return;
     }
@@ -1371,6 +1382,7 @@ async function payNow(source = 'confirm_payment') {
             };
             notify.success(t('orders.paid_success'));
             printAfter(source, order);
+            finishQuickSave(source);
         },
         onError: (errors) => {
             const first = Object.values(errors)[0];
@@ -2327,10 +2339,10 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                             <div
                                 v-for="variant in sortedVariants(variantPicker)"
                                 :key="variant.id"
-                                class="relative flex items-center gap-2 rounded-lg border px-2 py-1 transition-colors"
+                                class="flex items-center gap-2 rounded-lg border px-2 py-1 transition-colors"
                                 :class="variantQuantity(variant) > 0 ? 'border-accent bg-accent/10' : 'border-border bg-background'"
                             >
-                                <span class="pointer-events-none absolute left-0.5 top-0.5 z-10 flex h-4 min-w-4 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--color-primary)_65%,black)] px-1 text-[9px] font-semibold leading-none tabular-nums text-white">{{ variant.menu_no }}</span>
+                                <span :class="menuNoBadge">{{ variant.menu_no }}</span>
                                 <button
                                     type="button"
                                     class="flex min-h-11 min-w-0 flex-1 flex-col items-start justify-center text-left disabled:opacity-50"
@@ -2380,94 +2392,125 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
 
         <Teleport to="body">
             <div v-if="optionsDialog" class="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 p-3" @click.self="optionsDialog = null">
-                <div role="dialog" aria-modal="true" :aria-label="t('orders.customize')" class="flex max-h-[min(36rem,calc(100vh-1.5rem))] w-full max-w-md flex-col overflow-hidden rounded-xl border border-border bg-surface">
-                    <div class="flex items-start justify-between gap-2 border-b border-border px-3 py-2">
-                        <div class="min-w-0">
-                            <p class="text-xs font-medium text-muted">{{ t('orders.customize') }}</p>
-                            <h2 class="truncate text-base font-semibold text-foreground">{{ localized(optionsDialog.item, 'name') }}</h2>
+                <div
+                    role="dialog"
+                    aria-modal="true"
+                    :aria-label="t('orders.customize')"
+                    class="grid max-h-[min(36rem,calc(100vh-1.5rem))] w-full max-w-xl overflow-hidden rounded-xl border border-border bg-surface sm:grid-cols-[11rem_minmax(0,1fr)]"
+                >
+                    <div class="relative h-24 overflow-hidden bg-[#f6efe4] dark:bg-background sm:h-auto sm:min-h-full">
+                        <img
+                            v-if="itemPhotoSrc(optionsDialog.item)"
+                            :src="itemPhotoSrc(optionsDialog.item)"
+                            alt=""
+                            class="absolute inset-0 h-full w-full object-cover"
+                            @error="markPhotoFailed(optionsDialog.item.id)"
+                        >
+                        <div v-else class="flex h-full min-h-24 items-center justify-center">
+                            <DishArt
+                                :kind="dishKind(itemCategoryName(optionsDialog.item))"
+                                :seed="optionsDialog.item.id"
+                                class="h-24 w-24 sm:h-32 sm:w-32"
+                            />
                         </div>
-                        <button type="button" class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted hover:text-foreground" :aria-label="t('common.cancel')" @click="optionsDialog = null">
-                            <AppIcon name="xmark" size="14" />
-                        </button>
                     </div>
 
-                    <div class="thin-scrollbar min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
-                        <section v-if="itemHasVariants(optionsDialog.item)">
-                            <h3 class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">{{ t('orders.choose_size') }}</h3>
-                            <div class="grid grid-cols-2 gap-1.5" :role="optionsPicksVariants() ? 'group' : 'radiogroup'">
-                                <div v-for="variant in sortedVariants(optionsDialog.item)" :key="variant.id" class="relative">
-                                    <span class="pointer-events-none absolute left-0.5 top-0.5 z-10 flex h-4 min-w-4 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--color-primary)_65%,black)] px-1 text-[9px] font-semibold leading-none tabular-nums text-white">{{ variant.menu_no }}</span>
-                                    <button
-                                        type="button"
-                                        :role="optionsPicksVariants() ? undefined : 'radio'"
-                                        :aria-checked="optionsPicksVariants() ? undefined : optionsDialog.variantId === variant.id"
-                                        class="flex min-h-11 w-full flex-col items-start justify-center rounded-lg border px-2.5 py-1 text-left"
+                    <div class="flex min-h-0 flex-col">
+                        <div class="flex items-start justify-between gap-2 border-b border-border px-3 py-2">
+                            <div class="min-w-0">
+                                <p class="text-xs font-medium text-muted">{{ t('orders.customize') }}</p>
+                                <h2 class="truncate text-base font-semibold text-foreground">{{ localized(optionsDialog.item, 'name') }}</h2>
+                            </div>
+                            <button type="button" class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted hover:text-foreground" :aria-label="t('common.cancel')" @click="optionsDialog = null">
+                                <AppIcon name="xmark" size="14" />
+                            </button>
+                        </div>
+
+                        <div class="thin-scrollbar min-h-0 flex-1 space-y-3 overflow-y-auto p-2">
+                            <section v-if="itemHasVariants(optionsDialog.item)">
+                                <h3 class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">{{ t('orders.choose_size') }}</h3>
+                                <div class="space-y-1.5" :role="optionsPicksVariants() ? 'group' : 'radiogroup'">
+                                    <div
+                                        v-for="variant in sortedVariants(optionsDialog.item)"
+                                        :key="variant.id"
+                                        class="flex items-center gap-2 rounded-lg border px-2 py-1 transition-colors"
                                         :class="(optionsPicksVariants() ? optionVariantQuantity(variant) > 0 : optionsDialog.variantId === variant.id) ? 'border-accent bg-accent/10' : 'border-border bg-background hover:border-accent/60'"
                                         :style="optionsPicksVariants() && optionsDialog.activeVariantId === variant.id ? { boxShadow: '0 0 0 1px var(--color-accent)' } : null"
-                                        @click="optionsPicksVariants() ? clickOptionVariant(variant) : (optionsDialog.variantId = variant.id)"
                                     >
-                                        <span class="pl-3 text-sm font-semibold text-foreground">{{ localized(variant, 'name') }}</span>
-                                        <span class="pl-3 text-xs tabular-nums text-muted">{{ formatMoney(variant.price) }}</span>
-                                    </button>
-                                    <div v-if="optionsPicksVariants() && optionVariantQuantity(variant) > 0" class="absolute right-1 top-1 flex items-center overflow-hidden rounded-md border border-border bg-surface">
-                                        <button type="button" class="flex h-6 w-6 items-center justify-center text-foreground" :aria-label="t('common.decrease')" @click="setOptionVariant(variant, optionVariantQuantity(variant) - 1)">
-                                            <AppIcon name="minus" size="10" />
+                                        <span :class="menuNoBadge">{{ variant.menu_no }}</span>
+                                        <button
+                                            type="button"
+                                            :role="optionsPicksVariants() ? undefined : 'radio'"
+                                            :aria-checked="optionsPicksVariants() ? undefined : optionsDialog.variantId === variant.id"
+                                            class="flex min-h-11 min-w-0 flex-1 flex-col items-start justify-center text-left"
+                                            @click="optionsPicksVariants() ? clickOptionVariant(variant) : (optionsDialog.variantId = variant.id)"
+                                        >
+                                            <span class="text-sm font-semibold text-foreground">{{ localized(variant, 'name') }}</span>
+                                            <span class="text-sm font-semibold tabular-nums text-foreground">{{ formatMoney(variant.price) }}</span>
                                         </button>
-                                        <span class="w-5 text-center text-xs font-semibold tabular-nums">{{ optionVariantQuantity(variant) }}</span>
+                                        <div v-if="optionsPicksVariants()" class="flex shrink-0 items-center overflow-hidden rounded-md border border-border bg-surface">
+                                            <button type="button" class="flex h-9 w-9 items-center justify-center text-foreground disabled:opacity-40" :disabled="optionVariantQuantity(variant) === 0" :aria-label="t('common.decrease')" @click="setOptionVariant(variant, optionVariantQuantity(variant) - 1)">
+                                                <AppIcon name="minus" size="12" />
+                                            </button>
+                                            <span class="w-6 text-center text-sm font-semibold tabular-nums text-foreground">{{ optionVariantQuantity(variant) }}</span>
+                                            <button type="button" class="flex h-9 w-9 items-center justify-center bg-accent text-accent-foreground disabled:opacity-40" :disabled="optionVariantQuantity(variant) >= 999" :aria-label="t('common.increase')" @click="setOptionVariant(variant, optionVariantQuantity(variant) + 1)">
+                                                <AppIcon name="plus" size="12" />
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </section>
+                            </section>
 
-                        <section>
-                            <h3 class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">
-                                {{ optionsPicksVariants() && optionsActiveVariant ? t('orders.add_ons_for', { name: localized(optionsActiveVariant, 'name') }) : t('orders.add_ons') }}
-                            </h3>
-                            <div class="space-y-1.5">
-                                <div
-                                    v-for="addOn in activeAddOns(optionsDialog.item)"
-                                    :key="addOn.id"
-                                    class="relative flex items-center gap-2 rounded-lg border py-1 pl-6 pr-2.5"
-                                    :class="optionAddOnQty(addOn.id) > 0 ? 'border-accent bg-accent/10' : 'border-border bg-background'"
-                                >
-                                    <span class="pointer-events-none absolute left-0.5 top-0.5 z-10 flex h-4 min-w-4 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--color-primary)_65%,black)] px-1 text-[9px] font-semibold leading-none tabular-nums text-white">{{ addOn.menu_no }}</span>
-                                    <button type="button" class="flex min-h-10 min-w-0 flex-1 items-center justify-between gap-2 text-left" @click="setOptionAddOn(addOn.id, optionAddOnQty(addOn.id) + 1)">
-                                        <span class="flex min-w-0 items-center gap-1.5 text-sm font-medium text-foreground">
-                                            <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded border" :class="optionAddOnQty(addOn.id) > 0 ? 'border-accent bg-accent text-accent-foreground' : 'border-border'">
-                                                <AppIcon v-if="optionAddOnQty(addOn.id) > 0" name="check" size="9" />
+                            <section>
+                                <h3 class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">
+                                    {{ optionsPicksVariants() && optionsActiveVariant ? t('orders.add_ons_for', { name: localized(optionsActiveVariant, 'name') }) : t('orders.add_ons') }}
+                                </h3>
+                                <div class="space-y-1.5">
+                                    <div
+                                        v-for="addOn in activeAddOns(optionsDialog.item)"
+                                        :key="addOn.id"
+                                        class="flex items-center gap-2 rounded-lg border px-2 py-1 transition-colors"
+                                        :class="optionAddOnQty(addOn.id) > 0 ? 'border-accent bg-accent/10' : 'border-border bg-background'"
+                                    >
+                                        <span :class="menuNoBadge">{{ addOn.menu_no }}</span>
+                                        <button type="button" class="flex min-h-10 min-w-0 flex-1 items-center justify-between gap-2 text-left" @click="setOptionAddOn(addOn.id, optionAddOnQty(addOn.id) + 1)">
+                                            <span class="flex min-w-0 items-center gap-1.5 text-sm font-medium text-foreground">
+                                                <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded border" :class="optionAddOnQty(addOn.id) > 0 ? 'border-accent bg-accent text-accent-foreground' : 'border-border'">
+                                                    <AppIcon v-if="optionAddOnQty(addOn.id) > 0" name="check" size="9" />
+                                                </span>
+                                                <span class="truncate">{{ localized(addOn, 'name') }}</span>
                                             </span>
-                                            <span class="truncate">{{ localized(addOn, 'name') }}</span>
-                                        </span>
-                                        <span class="shrink-0 text-xs tabular-nums text-muted">+ {{ formatMoney(addOn.price) }}</span>
-                                    </button>
-                                    <div v-if="optionAddOnQty(addOn.id) > 0" class="flex shrink-0 items-center overflow-hidden rounded-md border border-border bg-surface">
-                                        <button type="button" class="flex h-8 w-8 items-center justify-center text-foreground" :aria-label="t('common.decrease')" @click="setOptionAddOn(addOn.id, optionAddOnQty(addOn.id) - 1)">
-                                            <AppIcon name="minus" size="11" />
+                                            <span class="shrink-0 text-xs tabular-nums text-muted">+ {{ formatMoney(addOn.price) }}</span>
                                         </button>
-                                        <span class="w-5 text-center text-sm font-semibold tabular-nums">{{ optionAddOnQty(addOn.id) }}</span>
-                                        <button type="button" class="flex h-8 w-8 items-center justify-center bg-accent text-accent-foreground disabled:opacity-40" :disabled="optionAddOnQty(addOn.id) >= 9" :aria-label="t('common.increase')" @click="setOptionAddOn(addOn.id, optionAddOnQty(addOn.id) + 1)">
-                                            <AppIcon name="plus" size="11" />
-                                        </button>
+                                        <div v-if="optionAddOnQty(addOn.id) > 0" class="flex shrink-0 items-center overflow-hidden rounded-md border border-border bg-surface">
+                                            <button type="button" class="flex h-8 w-8 items-center justify-center text-foreground" :aria-label="t('common.decrease')" @click="setOptionAddOn(addOn.id, optionAddOnQty(addOn.id) - 1)">
+                                                <AppIcon name="minus" size="11" />
+                                            </button>
+                                            <span class="w-5 text-center text-sm font-semibold tabular-nums">{{ optionAddOnQty(addOn.id) }}</span>
+                                            <button type="button" class="flex h-8 w-8 items-center justify-center bg-accent text-accent-foreground disabled:opacity-40" :disabled="optionAddOnQty(addOn.id) >= 9" :aria-label="t('common.increase')" @click="setOptionAddOn(addOn.id, optionAddOnQty(addOn.id) + 1)">
+                                                <AppIcon name="plus" size="11" />
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </section>
-                    </div>
+                            </section>
+                        </div>
 
-                    <div class="flex items-center gap-2 border-t border-border px-3 py-2">
-                        <div v-if="! optionsPicksVariants()" class="flex shrink-0 items-center overflow-hidden rounded-md border border-border bg-background">
-                            <button type="button" class="flex h-9 w-9 items-center justify-center text-foreground disabled:opacity-40" :disabled="optionsDialog.quantity <= 1" :aria-label="t('common.decrease')" @click="optionsDialog.quantity = Math.max(1, optionsDialog.quantity - 1)">
-                                <AppIcon name="minus" size="12" />
-                            </button>
-                            <span class="w-8 text-center text-sm font-semibold tabular-nums">{{ optionsDialog.quantity }}</span>
-                            <button type="button" class="flex h-9 w-9 items-center justify-center text-foreground" :aria-label="t('common.increase')" @click="optionsDialog.quantity = Math.min(999, optionsDialog.quantity + 1)">
-                                <AppIcon name="plus" size="12" />
+                        <div class="flex items-center gap-2 border-t border-border px-3 py-2">
+                            <div v-if="! optionsPicksVariants()" class="flex shrink-0 items-center overflow-hidden rounded-md border border-border bg-background">
+                                <button type="button" class="flex h-9 w-9 items-center justify-center text-foreground disabled:opacity-40" :disabled="optionsDialog.quantity <= 1" :aria-label="t('common.decrease')" @click="optionsDialog.quantity = Math.max(1, optionsDialog.quantity - 1)">
+                                    <AppIcon name="minus" size="12" />
+                                </button>
+                                <span class="w-8 text-center text-sm font-semibold tabular-nums">{{ optionsDialog.quantity }}</span>
+                                <button type="button" class="flex h-9 w-9 items-center justify-center text-foreground" :aria-label="t('common.increase')" @click="optionsDialog.quantity = Math.min(999, optionsDialog.quantity + 1)">
+                                    <AppIcon name="plus" size="12" />
+                                </button>
+                            </div>
+                            <button type="button" class="flex h-9 min-w-0 flex-1 items-center justify-between gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground hover:opacity-90 disabled:opacity-50" :disabled="optionsPicksVariants() && optionsPickedVariants.length === 0" @click="confirmOptions">
+                                <span>{{ optionsDialog.line ? t('orders.update_item') : t('orders.add_to_order') }}</span>
+                                <span class="tabular-nums">{{ formatMoney(optionsTotal) }}</span>
                             </button>
                         </div>
-                        <button type="button" class="flex h-9 min-w-0 flex-1 items-center justify-between gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground hover:opacity-90 disabled:opacity-50" :disabled="optionsPicksVariants() && optionsPickedVariants.length === 0" @click="confirmOptions">
-                            <span>{{ optionsDialog.line ? t('orders.update_item') : t('orders.add_to_order') }}</span>
-                            <span class="tabular-nums">{{ formatMoney(optionsTotal) }}</span>
-                        </button>
                     </div>
                 </div>
             </div>
