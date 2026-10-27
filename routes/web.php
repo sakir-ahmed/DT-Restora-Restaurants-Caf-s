@@ -99,8 +99,8 @@ Route::post('/t/{token}/order', [TableMenuController::class, 'place'])->where('t
 Route::get('/q/{path}', [TableMenuController::class, 'legacy'])->where('path', '.*')->name('web.qr');
 
 Route::get('/customer/login', [CustomerAuthController::class, 'showLogin'])->name('web.customer.login');
-Route::post('/customer/otp/send', [CustomerAuthController::class, 'sendOtp'])->name('web.customer.otp.send');
-Route::post('/customer/otp/verify', [CustomerAuthController::class, 'verifyOtp'])->name('web.customer.otp.verify');
+Route::post('/customer/otp/send', [CustomerAuthController::class, 'sendOtp'])->name('web.customer.otp.send')->middleware('throttle:10,1');
+Route::post('/customer/otp/verify', [CustomerAuthController::class, 'verifyOtp'])->name('web.customer.otp.verify')->middleware('throttle:20,1');
 Route::post('/customer/logout', [CustomerAuthController::class, 'logout'])->name('web.customer.logout');
 Route::get('/customer/auth/google/redirect', [CustomerGoogleController::class, 'redirect'])->name('web.customer.google.redirect');
 Route::get('/customer/auth/google/callback', [CustomerGoogleController::class, 'callback'])->name('web.customer.google.callback');
@@ -140,11 +140,11 @@ Route::prefix('demo')->name('demo.')->group(function (): void {
 });
 
 // Aggregator webhooks: public, one per channel, CSRF-excluded.
-Route::post('/webhooks/aggregators/{key}', AggregatorWebhookController::class)->name('aggregators.webhook');
+Route::post('/webhooks/aggregators/{key}', AggregatorWebhookController::class)->name('aggregators.webhook')->middleware('throttle:240,1');
 
 // Gateway callbacks and IPN are public web routes (CSRF-excluded).
 Route::get('/payments/bkash/callback', [GatewayCallbackController::class, 'bkashCallback'])->name('payments.bkash.callback');
-Route::post('/payments/sslcommerz/ipn', [GatewayCallbackController::class, 'sslcommerzIpn'])->name('payments.sslcommerz.ipn');
+Route::post('/payments/sslcommerz/ipn', [GatewayCallbackController::class, 'sslcommerzIpn'])->name('payments.sslcommerz.ipn')->middleware('throttle:120,1');
 Route::get('/payments/sslcommerz/return', [GatewayCallbackController::class, 'sslcommerzReturn'])->name('payments.sslcommerz.return');
 
 Route::middleware('guest')->group(function (): void {

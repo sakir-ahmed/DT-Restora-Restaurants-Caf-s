@@ -6,6 +6,7 @@ use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
+use App\Models\StockTransfer;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
 
@@ -100,4 +101,23 @@ it('filters the branch list for branch managers', function (): void {
 
     expect(count($branches))->toBe(1)
         ->and($branches[0]['id'])->toBe($this->branchA->id);
+});
+
+it('hides stock transfers between other branches from a branch manager', function (): void {
+    $other = Branch::factory()->create(['code' => 'BR03']);
+    $manager = User::factory()->role('branch-manager', $this->branchA->id)->create();
+
+    $transfer = StockTransfer::query()->create([
+        'from_branch_id' => $this->branchB->id,
+        'to_branch_id' => $other->id,
+        'status' => StockTransfer::STATUS_REQUESTED,
+    ]);
+
+    $this->actingAs($manager, 'staff')
+        ->post(route('admin.stock-transfers.approve', $transfer))
+        ->assertNotFound();
+
+    $this->actingAs($manager, 'staff')
+        ->post(route('admin.stock-transfers.receive', $transfer))
+        ->assertNotFound();
 });

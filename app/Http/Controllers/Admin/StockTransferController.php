@@ -87,6 +87,8 @@ class StockTransferController extends Controller
 
     public function approve(Request $request, StockTransfer $transfer, ApproveStockTransferAction $action): RedirectResponse
     {
+        $this->ensureInvolved($request, $transfer);
+
         $action->execute($transfer, $request->user('staff'));
 
         return back()->with('success', __('inventory.transfer_approved'));
@@ -94,8 +96,23 @@ class StockTransferController extends Controller
 
     public function receive(Request $request, StockTransfer $transfer, ReceiveStockTransferAction $action): RedirectResponse
     {
+        $this->ensureInvolved($request, $transfer);
+
         $action->execute($transfer, $request->user('staff'));
 
         return back()->with('success', __('inventory.transfer_received'));
+    }
+
+    /**
+     * Branch-bound staff may only act on transfers their branch sends or receives.
+     */
+    private function ensureInvolved(Request $request, StockTransfer $transfer): void
+    {
+        $branchId = $request->user('staff')->branch_id;
+
+        abort_if(
+            $branchId !== null && ! in_array($branchId, [$transfer->from_branch_id, $transfer->to_branch_id], true),
+            404,
+        );
     }
 }

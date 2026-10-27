@@ -216,3 +216,10 @@ it('shows only the branches the user can access in shared props', function (): v
     expect(count($scopedResponse->viewData('page')['props']['branches']))->toBe(1);
     expect(count($globalResponse->viewData('page')['props']['branches']))->toBe(2);
 });
+
+it('sends baseline security headers', function (): void {
+    $this->get('/login')
+        ->assertHeader('X-Content-Type-Options', 'nosniff')
+        ->assertHeader('X-Frame-Options', 'SAMEORIGIN')
+        ->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+});

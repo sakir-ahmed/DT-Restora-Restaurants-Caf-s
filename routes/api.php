@@ -25,8 +25,8 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
     Route::prefix('auth')->name('auth.')->group(function (): void {
         Route::post('/login', [AuthController::class, 'login'])->name('login');
         Route::post('/google', [AuthController::class, 'google'])->name('google');
-        Route::post('/otp/send', [OtpController::class, 'send'])->name('otp.send');
-        Route::post('/otp/verify', [OtpController::class, 'verify'])->name('otp.verify');
+        Route::post('/otp/send', [OtpController::class, 'send'])->name('otp.send')->middleware('throttle:10,1');
+        Route::post('/otp/verify', [OtpController::class, 'verify'])->name('otp.verify')->middleware('throttle:20,1');
 
         Route::middleware('auth:sanctum')->group(function (): void {
             Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
