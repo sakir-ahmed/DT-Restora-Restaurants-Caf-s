@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BranchRequest;
 use App\Models\Branch;
+use App\Services\PosSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -24,14 +25,20 @@ class BranchController extends Controller
             ->get();
 
         return Inertia::render('admin/branches/Index', [
-            'branches' => $branches,
+            'branches' => $branches->map(fn (Branch $branch): array => [
+                ...$branch->toArray(),
+                'pos' => PosSettings::for($branch),
+            ])->values(),
+            'defaultPos' => PosSettings::defaults(),
+            'layouts' => PosSettings::LAYOUTS,
+            'defaultPattern' => PosSettings::DEFAULT_PATTERN,
             'canManage' => $request->user('staff')?->can('branches.manage'),
         ]);
     }
 
     public function store(BranchRequest $request): RedirectResponse
     {
-        Branch::query()->create($request->validated());
+        Branch::query()->create($this->attributes($request));
 
         return back()->with('success', __('branches.created'));
     }
@@ -40,7 +47,7 @@ class BranchController extends Controller
     {
         $this->authorizeBranchAccess($request, $branch);
 
-        $branch->update($request->validated());
+        $branch->update($this->attributes($request));
 
         activity()->performedOn($branch)->causedBy($request->user('staff'))->log('branch.updated');
 
@@ -60,6 +67,23 @@ class BranchController extends Controller
         $branch->delete();
 
         return back()->with('success', __('branches.deleted'));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function attributes(BranchRequest $request): array
+    {
+        $validated = $request->validated();
+        $pos = $validated['pos'] ?? null;
+
+        unset($validated['pos']);
+
+        if (is_array($pos)) {
+            $validated['pos_settings'] = PosSettings::fromInput($pos);
+        }
+
+        return $validated;
     }
 
     private function authorizeBranchAccess(Request $request, Branch $branch): void

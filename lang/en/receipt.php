@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 return [
     'phone' => 'Phone',
+    'bin' => 'BIN',
     'table' => 'Table',
     'served_by' => 'Served by',
     'subtotal' => 'Subtotal',

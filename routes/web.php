@@ -345,7 +345,6 @@ Route::prefix('admin')
         Route::post('settings/payment-methods', [PaymentMethodController::class, 'store'])->name('settings.payment-methods.store')->middleware('permission:settings.manage');
         Route::put('settings/payment-methods/{method}', [PaymentMethodController::class, 'update'])->name('settings.payment-methods.update')->middleware('permission:settings.manage');
         Route::delete('settings/payment-methods/{method}', [PaymentMethodController::class, 'destroy'])->name('settings.payment-methods.destroy')->middleware('permission:settings.manage');
-        Route::put('settings/branches/{branch}', [SettingController::class, 'updateBranch'])->name('settings.branch')->middleware('permission:settings.manage');
 
         Route::get('activity-log', [ActivityLogController::class, 'index'])->name('activity.index')->middleware('permission:activity.view');
 

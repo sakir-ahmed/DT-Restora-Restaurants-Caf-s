@@ -14,6 +14,7 @@ class Setting extends Model
         'pos_pin_minutes',
         'pos_lock_enabled',
         'delivery_otp_enabled',
+        'tax_registration_no',
     ];
 
     protected $casts = [

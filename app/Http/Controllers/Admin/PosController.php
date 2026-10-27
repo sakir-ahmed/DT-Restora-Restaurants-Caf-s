@@ -72,6 +72,7 @@ class PosController extends Controller
             'branch' => [
                 ...$branch->only(['id', 'name', 'name_bn', 'code', 'phone', 'address', 'vat_percent', 'vat_inclusive', 'service_charge_percent', 'receipt_footer']),
                 'pos_settings' => PosSettings::for($branch),
+                'tax_registration_no' => Setting::current()->tax_registration_no,
             ],
             'openShift' => $openShift,
             'canOverrideDiscount' => $user->can('discounts.override'),

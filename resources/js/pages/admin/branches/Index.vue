@@ -2,6 +2,7 @@
 import { useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
+import BranchPosSettings from '@/components/admin/BranchPosSettings.vue';
 import DataTable from '@/components/ui-kit/DataTable.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
 import MoneyInput from '@/components/ui-kit/MoneyInput.vue';
@@ -17,12 +18,16 @@ import { notify } from '@/lib/notify';
 const props = defineProps({
     branches: { type: Array, required: true },
     canManage: { type: Boolean, default: false },
+    defaultPos: { type: Object, required: true },
+    layouts: { type: Array, default: () => [] },
+    defaultPattern: { type: String, required: true },
 });
 
 const confirm = useConfirm();
 
 const slideOverOpen = ref(false);
 const editingId = ref(null);
+const slideTab = ref('details');
 
 const columns = computed(() => [
     { key: 'code', label: t('branches.code'), align: 'left', sortable: true, minWidth: '70px' },
@@ -47,11 +52,23 @@ const emptyForm = {
     online_ordering_enabled: false, receipt_footer: '', is_active: true,
 };
 
-const form = useForm({ ...emptyForm });
+function clone(value) {
+    return JSON.parse(JSON.stringify(value));
+}
+
+function cashText(pos) {
+    return (pos.cash_suggestions ?? []).join(', ');
+}
+
+const form = useForm({ ...emptyForm, pos: clone(props.defaultPos), cash_suggestions_text: cashText(props.defaultPos) });
+
+const showPosErrors = computed(() => Object.keys(form.errors).some((key) => key.startsWith('pos')));
 
 function openCreate() {
     editingId.value = null;
-    form.defaults({ ...emptyForm }).reset();
+    form.defaults({ ...emptyForm, pos: clone(props.defaultPos), cash_suggestions_text: cashText(props.defaultPos) }).reset();
+    form.clearErrors();
+    slideTab.value = 'details';
     slideOverOpen.value = true;
 }
 
@@ -73,11 +90,27 @@ function openEdit(branch) {
         online_ordering_enabled: branch.online_ordering_enabled,
         receipt_footer: branch.receipt_footer ?? '',
         is_active: branch.is_active,
+        pos: clone(branch.pos),
+        cash_suggestions_text: cashText(branch.pos),
     }).reset();
+    form.clearErrors();
+    slideTab.value = 'details';
     slideOverOpen.value = true;
 }
 
 function save() {
+    form.transform((data) => {
+        const { cash_suggestions_text: suggestions, ...rest } = data;
+
+        return {
+            ...rest,
+            pos: {
+                ...rest.pos,
+                cash_suggestions: suggestions.split(/[,\s]+/).filter(Boolean).map(Number).filter((value) => Number.isFinite(value)),
+            },
+        };
+    });
+
     if (editingId.value === null) {
         form.post(route('admin.branches.store'), {
             onSuccess: () => {
@@ -160,9 +193,35 @@ async function remove(branch) {
             :open="slideOverOpen"
             :title="editingId === null ? t('branches.add') : t('branches.edit')"
             :subtitle="t('branches.form_hint')"
+            wide
             @close="slideOverOpen = false"
         >
-            <form novalidate class="space-y-3" @submit.prevent="save">
+            <div class="mb-3 flex gap-1" role="tablist">
+                <button
+                    v-for="entry in [{ key: 'details', label: t('branches.tab_details'), error: ! showPosErrors && Object.keys(form.errors).length > 0 }, { key: 'pos', label: t('branches.tab_pos'), error: showPosErrors }]"
+                    :key="entry.key"
+                    type="button"
+                    role="tab"
+                    :aria-selected="slideTab === entry.key"
+                    class="h-7 rounded-md border px-3 text-[13px] font-medium"
+                    :class="[slideTab === entry.key ? 'border-accent bg-accent/15 text-foreground' : 'border-border bg-surface text-muted hover:text-foreground', entry.error ? 'border-danger' : '']"
+                    @click="slideTab = entry.key"
+                >
+                    {{ entry.label }}
+                </button>
+            </div>
+
+            <BranchPosSettings
+                v-show="slideTab === 'pos'"
+                v-model:cash-text="form.cash_suggestions_text"
+                :pos="form.pos"
+                :errors="form.errors"
+                :layouts="layouts"
+                :default-pattern="defaultPattern"
+                :branch-code="form.code"
+            />
+
+            <form v-show="slideTab === 'details'" novalidate class="space-y-3" @submit.prevent="save">
                 <div class="grid grid-cols-2 gap-x-4 gap-y-3">
                     <FormField :label="t('branches.name')" required :error="form.errors.name">
                         <template #default="{ id }">

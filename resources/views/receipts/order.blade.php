@@ -83,6 +83,9 @@
     @if ($order->branch->address)
         <div class="center">{{ $order->branch->address }}</div>
     @endif
+    @if (\App\Models\Setting::current()->tax_registration_no)
+        <div class="center">{{ __('receipt.bin') }}: {{ \App\Models\Setting::current()->tax_registration_no }}</div>
+    @endif
     @if ($order->branch->phone)
         <div class="center">{{ __('receipt.phone') }}: {{ $order->branch->phone }}</div>
     @endif

@@ -21,6 +21,7 @@ use App\Models\MenuCategory;
 use App\Models\Order;
 use App\Models\PaymentMethod;
 use App\Models\RestaurantTable;
+use App\Models\Setting;
 use App\Models\Shift;
 use App\Models\StockCount;
 use App\Models\SyncItem;
@@ -446,6 +447,7 @@ class SyncService
             'branch' => [
                 ...$branch->only(['id', 'name', 'name_bn', 'code', 'phone', 'address', 'vat_percent', 'vat_inclusive', 'service_charge_percent', 'receipt_footer']),
                 'pos_settings' => PosSettings::for($branch),
+                'tax_registration_no' => Setting::current()->tax_registration_no,
             ],
             'categories' => MenuCategory::query()
                 ->where('branch_id', $branch->id)

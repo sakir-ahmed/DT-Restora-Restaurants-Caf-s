@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin;
 
+use App\Services\PosSettings;
 use Illuminate\Foundation\Http\FormRequest;
 
 class BranchRequest extends FormRequest
@@ -14,13 +15,14 @@ class BranchRequest extends FormRequest
     }
 
     /**
-     * @return array<string, array<int, string>>
+     * @return array<string, array<int, mixed>>
      */
     public function rules(): array
     {
         $branchId = $this->route('branch')->id ?? 'NULL';
 
         return [
+            ...PosSettings::rules(),
             'name' => ['required', 'string', 'max:150'],
             'name_bn' => ['nullable', 'string', 'max:150'],
             'code' => ['required', 'string', 'max:10', 'unique:branches,code,'.$branchId],

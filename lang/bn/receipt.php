@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 return [
     'phone' => 'ফোন',
+    'bin' => 'বিআইএন',
     'table' => 'টেবিল',
     'served_by' => 'পরিবেশনকারী',
     'subtotal' => 'উপমোট',

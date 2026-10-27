@@ -50,6 +50,8 @@ function branchSettingsPayload(array $overrides = []): array
     }
 
     return [
+        'name' => $overrides['name'] ?? 'Main Branch',
+        'code' => 'BR01',
         'vat_percent' => $overrides['vat_percent'] ?? '7.50',
         'vat_inclusive' => $overrides['vat_inclusive'] ?? true,
         'service_charge_percent' => $overrides['service_charge_percent'] ?? '5.00',
@@ -75,7 +77,7 @@ it('saves branch POS settings with VAT and sends them to the POS page', function
     ]]);
 
     $this->actingAs($this->owner, 'staff')
-        ->put(route('admin.settings.branch', $this->branch), $payload)
+        ->put(route('admin.branches.update', $this->branch), $payload)
         ->assertRedirect();
 
     $branch = $this->branch->fresh();
@@ -93,7 +95,7 @@ it('saves branch POS settings with VAT and sends them to the POS page', function
 it('keeps settings separate for each branch', function (): void {
     $other = Branch::factory()->create(['code' => 'BR02']);
 
-    $this->actingAs($this->owner, 'staff')->put(route('admin.settings.branch', $this->branch), branchSettingsPayload([
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
         'pos' => ['actions' => ['quick_save' => ['enabled' => true]]],
     ]))->assertRedirect();
 
@@ -103,7 +105,7 @@ it('keeps settings separate for each branch', function (): void {
 
 it('rejects invoice patterns that could repeat invoice numbers', function (string $pattern): void {
     $this->actingAs($this->owner, 'staff')
-        ->put(route('admin.settings.branch', $this->branch), branchSettingsPayload(['pos' => ['invoice_pattern' => $pattern]]))
+        ->put(route('admin.branches.update', $this->branch), branchSettingsPayload(['pos' => ['invoice_pattern' => $pattern]]))
         ->assertSessionHasErrors('pos.invoice_pattern');
 })->with([
     'no sequence' => '{BRANCH}-{TERMINAL}-{YYYY}{MM}{DD}',
@@ -152,12 +154,12 @@ it('prints the receipt in the branch layout and a priceless kitchen token', func
 
 it('lets only users with the settings permission change branch settings', function (): void {
     $this->actingAs($this->cashier, 'staff')
-        ->put(route('admin.settings.branch', $this->branch), branchSettingsPayload())
+        ->put(route('admin.branches.update', $this->branch), branchSettingsPayload())
         ->assertForbidden();
 });
 
 it('keeps payment methods in the chosen order and hides the ones turned off', function (): void {
-    $this->actingAs($this->owner, 'staff')->put(route('admin.settings.branch', $this->branch), branchSettingsPayload([
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
         'pos' => ['payment_methods' => [
             ['method' => 'bkash', 'enabled' => true],
             ['method' => 'cash', 'enabled' => true],
@@ -179,7 +181,7 @@ it('adds payment methods a branch has not seen yet at the end', function (): voi
 });
 
 it('refuses to turn every payment method off', function (): void {
-    $this->actingAs($this->owner, 'staff')->put(route('admin.settings.branch', $this->branch), branchSettingsPayload([
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
         'pos' => ['payment_methods' => array_map(fn (string $method): array => ['method' => $method, 'enabled' => false], ['cash', 'bkash', 'nagad', 'card'])],
     ]))->assertSessionHasErrors('pos.payment_methods');
 });
@@ -350,13 +352,13 @@ it('completes a bank POS payment at once and keeps a wallet payment pending', fu
 it('stores cash suggestions per branch with sensible defaults', function (): void {
     expect(PosSettings::for($this->branch)['cash_suggestions'])->toBe([1000, 500, 200, 100]);
 
-    $this->actingAs($this->owner, 'staff')->put(route('admin.settings.branch', $this->branch), branchSettingsPayload([
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
         'pos' => ['cash_suggestions' => [2000, 1000, 500]],
     ]))->assertRedirect();
 
     expect(PosSettings::for($this->branch->fresh())['cash_suggestions'])->toBe([2000, 1000, 500]);
 
-    $this->actingAs($this->owner, 'staff')->put(route('admin.settings.branch', $this->branch), branchSettingsPayload([
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
         'pos' => ['cash_suggestions' => [0, 5000000]],
     ]))->assertSessionHasErrors(['pos.cash_suggestions.0', 'pos.cash_suggestions.1']);
 });
@@ -375,7 +377,7 @@ it('has sensible sound defaults for every sound event', function (): void {
 it('saves sound settings per branch and shares them with every page', function (): void {
     $other = Branch::factory()->create(['code' => 'BR02']);
 
-    $this->actingAs($this->owner, 'staff')->put(route('admin.settings.branch', $this->branch), branchSettingsPayload([
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
         'pos' => ['sounds' => ['enabled' => true, 'volume' => 35, 'events' => ['order_held' => false, 'item_added' => true, 'kds_ready' => false]]],
     ]))->assertRedirect();
 
@@ -394,13 +396,13 @@ it('saves sound settings per branch and shares them with every page', function (
 });
 
 it('switches every sound off and rejects a bad volume', function (): void {
-    $this->actingAs($this->owner, 'staff')->put(route('admin.settings.branch', $this->branch), branchSettingsPayload([
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
         'pos' => ['sounds' => ['enabled' => false, 'volume' => 0]],
     ]))->assertRedirect();
 
     expect(PosSettings::soundsFor($this->branch->fresh())['enabled'])->toBeFalse();
 
-    $this->actingAs($this->owner, 'staff')->put(route('admin.settings.branch', $this->branch), branchSettingsPayload([
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
         'pos' => ['sounds' => ['volume' => 150]],
     ]))->assertSessionHasErrors('pos.sounds.volume');
 });
@@ -423,4 +425,36 @@ it('keeps the POS idle lock off until an admin turns it on', function (): void {
     $this->actingAs($this->cashier, 'staff')->get('/admin/pos')->assertInertia(fn ($page) => $page
         ->where('posLockEnabled', true)
         ->where('posPinMinutes', 3));
+});
+
+it('creates a branch with its POS settings in one request', function (): void {
+    $payload = branchSettingsPayload(['name' => 'Gulshan', 'pos' => ['invoice_layout' => 'compact']]);
+    $payload['code'] = 'BR09';
+
+    $this->actingAs($this->owner, 'staff')
+        ->post(route('admin.branches.store'), $payload)
+        ->assertRedirect();
+
+    $branch = Branch::query()->where('code', 'BR09')->firstOrFail();
+
+    expect(PosSettings::for($branch)['invoice_layout'])->toBe('compact');
+});
+
+it('keeps branch settings off the global settings page', function (): void {
+    $this->actingAs($this->owner, 'staff')->get('/admin/settings')->assertInertia(fn ($page) => $page
+        ->missing('branchSettings')
+        ->has('settings.tax_registration_no'));
+});
+
+it('prints the tax registration number from global settings on the receipt data', function (): void {
+    $this->actingAs($this->owner, 'staff')->put('/admin/settings', [
+        'discount_limit_percent' => 10,
+        'wastage_spike_multiplier' => 1.5,
+        'pos_pin_minutes' => 5,
+        'delivery_otp_enabled' => true,
+        'tax_registration_no' => 'BIN-123456',
+    ])->assertRedirect();
+
+    $this->actingAs($this->cashier, 'staff')->get('/admin/pos')->assertInertia(fn ($page) => $page
+        ->where('branch.tax_registration_no', 'BIN-123456'));
 });

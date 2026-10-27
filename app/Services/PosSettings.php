@@ -6,6 +6,8 @@ namespace App\Services;
 
 use App\Models\Branch;
 use App\Models\PaymentMethod;
+use Closure;
+use Illuminate\Validation\Rule;
 
 /**
  * Branch-wise POS configuration kept as JSON on the branch: which POS
@@ -223,5 +225,80 @@ final class PosSettings
             && in_array('BRANCH', $tokens, true)
             && in_array('TERMINAL', $tokens, true)
             && $hasDate;
+    }
+
+    /**
+     * Validation rules for a branch's `pos` input, shared by the branch form.
+     *
+     * @return array<string, array<int, mixed>>
+     */
+    public static function rules(): array
+    {
+        return [
+            'pos' => ['sometimes', 'array'],
+            'pos.actions' => ['required_with:pos', 'array'],
+            'pos.actions.*.enabled' => ['required', 'boolean'],
+            'pos.actions.*.exact_amount' => ['required', 'boolean'],
+            'pos.actions.*.print_invoice' => ['required', 'boolean'],
+            'pos.actions.*.print_kitchen' => ['required', 'boolean'],
+            'pos.invoice_layout' => ['required_with:pos', Rule::in(self::LAYOUTS)],
+            'pos.invoice_pattern' => ['required_with:pos', 'string', 'max:40', function (string $attribute, mixed $value, Closure $fail): void {
+                if (! is_string($value) || ! self::patternIsValid($value)) {
+                    $fail(__('settings.invoice_pattern_invalid'));
+                }
+            }],
+            'pos.invoice_seq_digits' => ['required_with:pos', 'integer', 'min:1', 'max:8'],
+            'pos.payment_methods' => ['required_with:pos', 'array', 'min:1', function (string $attribute, mixed $value, Closure $fail): void {
+                $enabled = collect(is_array($value) ? $value : [])->filter(fn ($entry): bool => is_array($entry) && ! empty($entry['enabled']));
+
+                if ($enabled->isEmpty()) {
+                    $fail(__('settings.payment_methods_none'));
+                }
+            }],
+            'pos.payment_methods.*.method' => ['required', Rule::exists('payment_methods', 'code'), 'distinct'],
+            'pos.payment_methods.*.enabled' => ['required', 'boolean'],
+            'pos.sounds.enabled' => ['required_with:pos', 'boolean'],
+            'pos.sounds.volume' => ['required_with:pos', 'integer', 'min:0', 'max:100'],
+            'pos.sounds.events' => ['required_with:pos', 'array'],
+            'pos.sounds.events.*' => ['boolean'],
+            'pos.cash_suggestions' => ['nullable', 'array', 'max:8'],
+            'pos.cash_suggestions.*' => ['integer', 'min:1', 'max:1000000'],
+        ];
+    }
+
+    /**
+     * Turn validated `pos` input into the JSON stored on the branch.
+     *
+     * @param  array<string, mixed>  $pos
+     * @return array<string, mixed>
+     */
+    public static function fromInput(array $pos): array
+    {
+        $actions = [];
+
+        foreach (self::ACTIONS as $action) {
+            $row = $pos['actions'][$action] ?? null;
+
+            abort_if($row === null, 422);
+
+            $actions[$action] = array_map(fn ($flag): bool => (bool) $flag, $row);
+        }
+
+        return [
+            'actions' => $actions,
+            'invoice_layout' => $pos['invoice_layout'],
+            'invoice_pattern' => $pos['invoice_pattern'],
+            'invoice_seq_digits' => (int) $pos['invoice_seq_digits'],
+            'payment_methods' => self::normalizeMethods($pos['payment_methods']),
+            'sounds' => [
+                'enabled' => (bool) $pos['sounds']['enabled'],
+                'volume' => (int) $pos['sounds']['volume'],
+                'events' => array_map(
+                    fn (string $event): bool => (bool) ($pos['sounds']['events'][$event] ?? self::SOUND_EVENTS[$event]),
+                    array_combine(array_keys(self::SOUND_EVENTS), array_keys(self::SOUND_EVENTS)),
+                ),
+            ],
+            'cash_suggestions' => array_values(array_unique(array_map('intval', $pos['cash_suggestions'] ?? []))),
+        ];
     }
 }

@@ -67,6 +67,7 @@ body.layout-bold .grand td { font-size: 16px; padding: 4px 0; border-top: 2px so
 <body class="layout-${escapeHtml(receipt.layout ?? 'classic')}">
 <div class="center bold large">${escapeHtml(branch.name ?? '')}</div>
 ${branch.address ? `<div class="center">${escapeHtml(branch.address)}</div>` : ''}
+${branch.tax_registration_no ? `<div class="center">${escapeHtml(t('receipt.bin'))}: ${escapeHtml(branch.tax_registration_no)}</div>` : ''}
 ${branch.phone ? `<div class="center">${escapeHtml(t('receipt.phone'))}: ${escapeHtml(branch.phone)}</div>` : ''}
 <div class="hr"></div>
 <div class="bold">${escapeHtml(receipt.invoiceNo)}</div>
