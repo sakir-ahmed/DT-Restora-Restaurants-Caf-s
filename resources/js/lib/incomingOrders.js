@@ -2,36 +2,13 @@ import { onBeforeUnmount, onMounted } from 'vue';
 import { initEcho } from '@/lib/echo.js';
 import { t } from '@/lib/i18n';
 import { notify } from '@/lib/notify';
-
-let audio = null;
+import { playSound } from '@/lib/sounds';
 
 /**
- * Two-tone chime for an order that came from the website or a delivery
- * platform. Browsers keep audio locked until the page has been touched.
+ * Chime for an order that came from the website or a delivery platform.
  */
 export function playOrderChime() {
-    try {
-        audio ??= new AudioContext();
-
-        if (audio.state === 'suspended') {
-            audio.resume();
-        }
-
-        [[880, 0], [1175, 0.2], [880, 0.4], [1175, 0.6]].forEach(([frequency, offset]) => {
-            const osc = audio.createOscillator();
-            const gain = audio.createGain();
-            const start = audio.currentTime + offset;
-
-            osc.frequency.value = frequency;
-            gain.gain.setValueAtTime(0.15, start);
-            gain.gain.exponentialRampToValueAtTime(0.001, start + 0.18);
-            osc.connect(gain).connect(audio.destination);
-            osc.start(start);
-            osc.stop(start + 0.19);
-        });
-    } catch {
-        // audio unavailable
-    }
+    playSound('online_order');
 }
 
 /**
@@ -57,7 +34,7 @@ export function useIncomingOrders(branchId, { pollMs = 15000 } = {}) {
         notify.info(t('orders.incoming_order', {
             source: order.aggregator ?? order.aggregator_channel?.name ?? t(order.channel === 'website' ? 'orders.channel_website' : 'orders.channel_pos'),
             invoice: order.invoice_no,
-        }));
+        }), null, { silent: true });
     }
 
     async function poll() {

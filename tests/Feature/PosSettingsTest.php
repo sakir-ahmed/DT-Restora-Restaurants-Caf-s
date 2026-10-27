@@ -359,3 +359,47 @@ it('stores cash suggestions per branch with sensible defaults', function (): voi
         'pos' => ['cash_suggestions' => [0, 5000000]],
     ]))->assertSessionHasErrors(['pos.cash_suggestions.0', 'pos.cash_suggestions.1']);
 });
+
+it('has sensible sound defaults for every sound event', function (): void {
+    $sounds = PosSettings::soundsFor($this->branch);
+
+    expect($sounds['enabled'])->toBeTrue()
+        ->and($sounds['volume'])->toBe(70)
+        ->and(array_keys($sounds['events']))->toBe(array_keys(PosSettings::SOUND_EVENTS))
+        ->and($sounds['events']['order_created'])->toBeTrue()
+        ->and($sounds['events']['kds_ready'])->toBeTrue()
+        ->and($sounds['events']['item_added'])->toBeFalse();
+});
+
+it('saves sound settings per branch and shares them with every page', function (): void {
+    $other = Branch::factory()->create(['code' => 'BR02']);
+
+    $this->actingAs($this->owner, 'staff')->put(route('admin.settings.branch', $this->branch), branchSettingsPayload([
+        'pos' => ['sounds' => ['enabled' => true, 'volume' => 35, 'events' => ['order_held' => false, 'item_added' => true, 'kds_ready' => false]]],
+    ]))->assertRedirect();
+
+    $sounds = PosSettings::soundsFor($this->branch->fresh());
+
+    expect($sounds['volume'])->toBe(35)
+        ->and($sounds['events']['order_held'])->toBeFalse()
+        ->and($sounds['events']['item_added'])->toBeTrue()
+        ->and($sounds['events']['kds_ready'])->toBeFalse()
+        ->and($sounds['events']['order_paid'])->toBeTrue()
+        ->and(PosSettings::soundsFor($other->fresh())['volume'])->toBe(70);
+
+    $this->actingAs($this->cashier, 'staff')->get('/admin/pos')->assertInertia(fn ($page) => $page
+        ->where('sounds.volume', 35)
+        ->where('sounds.events.order_held', false));
+});
+
+it('switches every sound off and rejects a bad volume', function (): void {
+    $this->actingAs($this->owner, 'staff')->put(route('admin.settings.branch', $this->branch), branchSettingsPayload([
+        'pos' => ['sounds' => ['enabled' => false, 'volume' => 0]],
+    ]))->assertRedirect();
+
+    expect(PosSettings::soundsFor($this->branch->fresh())['enabled'])->toBeFalse();
+
+    $this->actingAs($this->owner, 'staff')->put(route('admin.settings.branch', $this->branch), branchSettingsPayload([
+        'pos' => ['sounds' => ['volume' => 150]],
+    ]))->assertSessionHasErrors('pos.sounds.volume');
+});

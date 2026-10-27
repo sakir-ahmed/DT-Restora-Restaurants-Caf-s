@@ -22,6 +22,26 @@ final class PosSettings
 
     public const TOKENS = ['BRANCH', 'TERMINAL', 'YYYY', 'YY', 'MM', 'DD', 'SEQ'];
 
+    /**
+     * Sound effects an admin can switch on or off, with the default for each.
+     * The sounds themselves are generated in the browser (resources/js/lib/sounds.js).
+     */
+    public const SOUND_EVENTS = [
+        'notification' => true,
+        'success' => false,
+        'error' => true,
+        'item_added' => false,
+        'order_created' => true,
+        'order_paid' => true,
+        'order_held' => true,
+        'order_cancelled' => true,
+        'online_order' => true,
+        'kds_new' => true,
+        'kds_preparing' => true,
+        'kds_ready' => true,
+        'kds_served' => true,
+    ];
+
     public const DEFAULT_CASH_SUGGESTIONS = [1000, 500, 200, 100];
 
     public const DEFAULT_PATTERN = '{BRANCH}-{TERMINAL}-{YYYY}{MM}{DD}-{SEQ}';
@@ -34,6 +54,7 @@ final class PosSettings
      *     invoice_seq_digits: int,
      *     payment_methods: array<int, array{method: string, enabled: bool, name: string, name_bn: ?string, type: string}>,
      *     cash_suggestions: array<int, int>,
+     *     sounds: array{enabled: bool, volume: int, events: array<string, bool>},
      * }
      */
     public static function defaults(): array
@@ -49,7 +70,36 @@ final class PosSettings
             'invoice_seq_digits' => 4,
             'payment_methods' => self::normalizeMethods(null),
             'cash_suggestions' => self::DEFAULT_CASH_SUGGESTIONS,
+            'sounds' => self::defaultSounds(),
         ];
+    }
+
+    /**
+     * @return array{enabled: bool, volume: int, events: array<string, bool>}
+     */
+    public static function defaultSounds(): array
+    {
+        return ['enabled' => true, 'volume' => 70, 'events' => self::SOUND_EVENTS];
+    }
+
+    /**
+     * Just the sound settings of a branch. Cheap enough to send with every page.
+     *
+     * @return array{enabled: bool, volume: int, events: array<string, bool>}
+     */
+    public static function soundsFor(?Branch $branch): array
+    {
+        $stored = is_array($branch?->pos_settings['sounds'] ?? null) ? $branch->pos_settings['sounds'] : [];
+        $sounds = self::defaultSounds();
+
+        $sounds['enabled'] = (bool) ($stored['enabled'] ?? $sounds['enabled']);
+        $sounds['volume'] = max(0, min(100, (int) ($stored['volume'] ?? $sounds['volume'])));
+
+        foreach (array_keys(self::SOUND_EVENTS) as $event) {
+            $sounds['events'][$event] = (bool) ($stored['events'][$event] ?? self::SOUND_EVENTS[$event]);
+        }
+
+        return $sounds;
     }
 
     /**
@@ -60,6 +110,7 @@ final class PosSettings
      *     invoice_seq_digits: int,
      *     payment_methods: array<int, array{method: string, enabled: bool, name: string, name_bn: ?string, type: string}>,
      *     cash_suggestions: array<int, int>,
+     *     sounds: array{enabled: bool, volume: int, events: array<string, bool>},
      * }
      */
     public static function for(Branch $branch): array
@@ -68,10 +119,11 @@ final class PosSettings
         $methods = self::normalizeMethods($stored['payment_methods'] ?? null);
         $suggestions = $stored['cash_suggestions'] ?? null;
 
-        unset($stored['payment_methods'], $stored['cash_suggestions']);
+        unset($stored['payment_methods'], $stored['cash_suggestions'], $stored['sounds']);
 
         $settings = array_replace_recursive(self::defaults(), $stored);
         $settings['payment_methods'] = $methods;
+        $settings['sounds'] = self::soundsFor($branch);
         $settings['cash_suggestions'] = is_array($suggestions)
             ? array_values(array_map('intval', $suggestions))
             : self::DEFAULT_CASH_SUGGESTIONS;

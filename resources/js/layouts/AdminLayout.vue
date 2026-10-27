@@ -1,6 +1,6 @@
 <script setup>
 import { Link, router, usePage } from '@inertiajs/vue3';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
 import BrandMark from '@/components/ui-kit/BrandMark.vue';
 import BrandName from '@/components/ui-kit/BrandName.vue';
@@ -10,6 +10,7 @@ import NotificationBell from '@/components/ui-kit/NotificationBell.vue';
 import SyncStatusPill from '@/components/ui-kit/SyncStatusPill.vue';
 import ThemeToggle from '@/components/ui-kit/ThemeToggle.vue';
 import { t } from '@/lib/i18n';
+import { configureSounds, preloadSounds } from '@/lib/sounds';
 
 const page = usePage();
 
@@ -19,7 +20,12 @@ const permissions = computed(() => new Set(user.value?.permissions ?? []));
 const sidebarOpen = ref(false);
 const userMenuOpen = ref(false);
 
+// The branch's sound settings ride along with every page; keep the local copy fresh.
+watch(() => page.props.sounds, (sounds) => configureSounds(sounds), { immediate: true });
+
 onMounted(() => {
+    preloadSounds();
+
     const saved = localStorage.getItem('sidebar-collapsed');
     sidebarCollapsed.value = saved === '1';
 });

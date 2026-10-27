@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\DemoJourney;
 use App\Services\DemoSmsInbox;
 use App\Services\Metrics\MetricsService;
+use App\Services\PosSettings;
 use App\Services\PublicCache;
 use App\Services\SmsService;
 use Illuminate\Http\Request;
@@ -72,6 +73,7 @@ class HandleInertiaRequests extends Middleware
             'demoSms' => fn () => app(DemoSmsInbox::class)->drain($request),
             'site' => fn () => $request->routeIs('web.*') ? PublicCache::remember('site', fn (): array => $this->siteData()) : null,
             'currentBranchId' => $user ? $this->currentBranchId($user) : null,
+            'sounds' => $user ? fn (): array => PosSettings::soundsFor(Branch::query()->find($this->currentBranchId($user))) : null,
             'notifications' => $user ? $this->cachedNotifications($user) : [],
             'flash' => [
                 'success' => $request->session()->get('success'),

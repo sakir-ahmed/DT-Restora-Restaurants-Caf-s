@@ -10,6 +10,7 @@ import { localized } from '@/lib/site';
 import { DEFAULT_INVOICE_PATTERN, formatInvoice } from '@/lib/invoice';
 import { t } from '@/lib/i18n';
 import { notify } from '@/lib/notify';
+import { playSound } from '@/lib/sounds';
 
 const props = defineProps({
     settings: { type: Object, required: true },
@@ -92,6 +93,16 @@ function moveMethod(index, step) {
     }
 
     [methods[index], methods[target]] = [methods[target], methods[index]];
+}
+
+const SOUND_GROUPS = [
+    { key: 'general', events: ['notification', 'success', 'error'] },
+    { key: 'pos', events: ['item_added', 'order_created', 'order_paid', 'order_held', 'order_cancelled', 'online_order'] },
+    { key: 'kds', events: ['kds_new', 'kds_preparing', 'kds_ready', 'kds_served'] },
+];
+
+function previewSound(event) {
+    playSound(event, { preview: true, volume: branchForm.pos.sounds.volume });
 }
 
 const selectedBranch = computed(() => props.branches.find((branch) => branch.id === props.branchSettings?.id) ?? null);
@@ -187,6 +198,39 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
                     </li>
                 </ul>
                 <p v-if="branchForm.errors['pos.payment_methods']" class="mt-1 text-xs text-danger">{{ branchForm.errors['pos.payment_methods'] }}</p>
+            </section>
+
+            <section class="space-y-3 border-t border-border pt-3">
+                <div>
+                    <h2 class="text-[13px] font-semibold text-foreground">{{ t('settings.section_sounds') }}</h2>
+                    <p class="text-xs text-muted">{{ t('settings.sounds_helper') }}</p>
+                </div>
+
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:items-center">
+                    <SwitchField v-model="branchForm.pos.sounds.enabled" :label="t('settings.sounds_enabled')" />
+                    <label class="flex items-center gap-2 text-[13px] text-foreground">
+                        <span class="shrink-0">{{ t('settings.sounds_volume') }}</span>
+                        <input v-model.number="branchForm.pos.sounds.volume" type="range" min="0" max="100" step="5" :disabled="! branchForm.pos.sounds.enabled" class="w-full accent-[var(--color-primary)] disabled:opacity-50">
+                        <span class="w-9 shrink-0 text-right tabular-nums text-muted">{{ branchForm.pos.sounds.volume }}%</span>
+                    </label>
+                </div>
+
+                <div class="grid grid-cols-1 gap-3 md:grid-cols-3" :class="branchForm.pos.sounds.enabled ? '' : 'opacity-50'">
+                    <div v-for="group in SOUND_GROUPS" :key="group.key">
+                        <h3 class="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">{{ t(`settings.sounds_group_${group.key}`) }}</h3>
+                        <ul class="divide-y divide-border rounded-md border border-border">
+                            <li v-for="event in group.events" :key="event" class="flex items-center gap-2 px-2 py-1.5">
+                                <input v-model="branchForm.pos.sounds.events[event]" type="checkbox" :class="checkboxClass" :disabled="! branchForm.pos.sounds.enabled" :aria-label="t(`settings.sound_${event}`)">
+                                <span class="min-w-0 flex-1 text-[13px] text-foreground">{{ t(`settings.sound_${event}`) }}</span>
+                                <button type="button" class="flex h-6 shrink-0 items-center gap-1 rounded-md border border-border px-1.5 text-xs text-foreground hover:border-accent" :aria-label="`${t('settings.sounds_test')}: ${t(`settings.sound_${event}`)}`" @click="previewSound(event)">
+                                    <AppIcon name="bell" size="10" />
+                                    {{ t('settings.sounds_test') }}
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <p class="text-xs text-muted">{{ t('settings.sounds_device_note') }}</p>
             </section>
 
             <section>

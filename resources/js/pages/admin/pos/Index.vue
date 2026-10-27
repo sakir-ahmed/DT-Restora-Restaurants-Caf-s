@@ -16,6 +16,7 @@ import { useIncomingOrders } from '@/lib/incomingOrders';
 import { notify } from '@/lib/notify';
 import { parseInvoiceSequence } from '@/lib/invoice';
 import { printHtml, printSequence, printUrl } from '@/lib/print';
+import { playSound } from '@/lib/sounds';
 import { localKitchenTokenHtml, localReceiptHtml } from '@/lib/receipt';
 
 const props = defineProps({
@@ -275,6 +276,10 @@ function postClear(url, data, tableId = null) {
         preserveScroll: true,
         preserveState: true,
         onSuccess: () => {
+            if (data.force || data.reason_code) {
+                playSound('order_cancelled');
+            }
+
             afterClear(tableId);
         },
         onError: (errors) => notify.error(String(Object.values(errors)[0] ?? t('common.error_occurred'))),
@@ -432,6 +437,7 @@ async function clearAll() {
     });
 
     if (result.confirmed) {
+        playSound('order_cancelled');
         startNewOrder();
     }
 }
@@ -676,6 +682,8 @@ function decreaseVariant(variant) {
 }
 
 function pushLine(item, variant, addOns = [], quantity = 1) {
+    playSound('item_added');
+
     const signature = addOnSignature(addOns);
     const existing = cart.value.find((line) => line.item.id === item.id
         && (line.variant?.id ?? null) === (variant?.id ?? null)
@@ -1239,7 +1247,12 @@ async function submitOrder(mode = 'send_to_kitchen') {
             invoice_no: invoiceNo,
             total: total.value,
         };
-        notify.info(t('sync.queued'));
+        notify.info(t('sync.queued'), null, { silent: true });
+
+        if (mode !== 'quick_save') {
+            playSound('order_created');
+        }
+
         finishSave(mode, latestOrder.value);
 
         return;
@@ -1270,6 +1283,10 @@ async function submitOrder(mode = 'send_to_kitchen') {
             notify.success(order?.invoice_no ? `${t(editing ? 'orders.order_updated' : 'orders.sent_to_kitchen')} ${order.invoice_no}` : t('orders.sent_to_kitchen'));
 
             if (order?.invoice_no) {
+                if (mode !== 'quick_save') {
+                    playSound('order_created');
+                }
+
                 finishSave(mode, order);
             }
         },
@@ -1381,6 +1398,7 @@ async function payNow(source = 'confirm_payment') {
             invoice_no: order.invoice_no,
         };
         notify.info(t('sync.queued'));
+        playSound('order_paid');
         printAfter(source, order);
         finishQuickSave(source);
 
@@ -1398,7 +1416,8 @@ async function payNow(source = 'confirm_payment') {
                 change_due: changeDue.value,
             };
             notify.success(t('orders.paid_success'));
-            printAfter(source, order);
+            playSound('order_paid');
+        printAfter(source, order);
             finishQuickSave(source);
         },
         onError: (errors) => {
@@ -1427,7 +1446,8 @@ function holdOrder() {
     });
 
     startNewOrder();
-    notify.info(t('orders.held'));
+    playSound('order_held');
+    notify.info(t('orders.held'), null, { silent: true });
 }
 
 function resumeOrder(held) {
@@ -1889,6 +1909,7 @@ function paySplit() {
                 invoice_no: order.invoice_no,
             };
             notify.info(t('sync.queued'));
+            playSound('order_paid');
             printAfter('confirm_payment', order);
         });
 
@@ -1910,6 +1931,7 @@ function paySplit() {
                 change_due: 0,
             };
             notify.success(t('payments.split_completed'));
+            playSound('order_paid');
             printAfter('confirm_payment', order);
         },
         onError: (errors) => notify.error(Object.values(errors)[0] ?? t('payments.split_mismatch')),
@@ -1936,6 +1958,7 @@ function payWalletManual() {
                 invoice_no: order.invoice_no,
             };
             notify.info(t('sync.queued'));
+            playSound('order_paid');
             printAfter('confirm_payment', order);
         });
 
@@ -1955,6 +1978,7 @@ function payWalletManual() {
                 change_due: 0,
             };
             notify.success(t('payments.manual_recorded'));
+            playSound('order_paid');
             printAfter('confirm_payment', order);
         },
         onError: (errors) => notify.error(Object.values(errors)[0] ?? t('common.error_occurred')),
@@ -1981,6 +2005,7 @@ function paySingle() {
                 invoice_no: order.invoice_no,
             };
             notify.info(t('sync.queued'));
+            playSound('order_paid');
             printAfter('confirm_payment', order);
         });
 
@@ -1996,6 +2021,7 @@ function paySingle() {
         onSuccess: (page) => {
             lastPayment.value = page.props.flash?.payment ?? { order_id: order.id, change_due: 0 };
             notify.success(page.props.flash?.success ?? t('payments.manual_recorded'));
+            playSound('order_paid');
             printAfter('confirm_payment', order);
         },
         onError: (errors) => notify.error(String(Object.values(errors)[0] ?? t('common.error_occurred'))),

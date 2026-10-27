@@ -119,6 +119,10 @@ class SettingController extends Controller
             }],
             'pos.payment_methods.*.method' => ['required', Rule::exists('payment_methods', 'code'), 'distinct'],
             'pos.payment_methods.*.enabled' => ['required', 'boolean'],
+            'pos.sounds.enabled' => ['required', 'boolean'],
+            'pos.sounds.volume' => ['required', 'integer', 'min:0', 'max:100'],
+            'pos.sounds.events' => ['required', 'array'],
+            'pos.sounds.events.*' => ['boolean'],
             'pos.cash_suggestions' => ['nullable', 'array', 'max:8'],
             'pos.cash_suggestions.*' => ['integer', 'min:1', 'max:1000000'],
         ], [], [
@@ -149,6 +153,14 @@ class SettingController extends Controller
                 'invoice_pattern' => $validated['pos']['invoice_pattern'],
                 'invoice_seq_digits' => (int) $validated['pos']['invoice_seq_digits'],
                 'payment_methods' => PosSettings::normalizeMethods($validated['pos']['payment_methods']),
+                'sounds' => [
+                    'enabled' => (bool) $validated['pos']['sounds']['enabled'],
+                    'volume' => (int) $validated['pos']['sounds']['volume'],
+                    'events' => array_map(
+                        fn (string $event): bool => (bool) ($validated['pos']['sounds']['events'][$event] ?? PosSettings::SOUND_EVENTS[$event]),
+                        array_combine(array_keys(PosSettings::SOUND_EVENTS), array_keys(PosSettings::SOUND_EVENTS)),
+                    ),
+                ],
                 'cash_suggestions' => array_values(array_unique(array_map('intval', $validated['pos']['cash_suggestions'] ?? []))),
             ],
         ]);

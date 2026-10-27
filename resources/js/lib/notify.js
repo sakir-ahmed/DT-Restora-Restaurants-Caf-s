@@ -1,5 +1,6 @@
 import { toast } from 'vue-sonner';
 import { t } from './i18n';
+import { playSound } from './sounds';
 
 /**
  * Single toast wrapper around vue-sonner so duration, position and
@@ -28,6 +29,7 @@ export const notify = {
             return;
         }
 
+        playSound('success');
         toast.success(message ?? t('common.saved'), { description: detail });
     },
 
@@ -36,6 +38,7 @@ export const notify = {
             return;
         }
 
+        playSound('error');
         toast.error(message ?? t('common.error_occurred'), {
             description: detail,
             duration: 8000,
@@ -65,10 +68,18 @@ export const notify = {
     },
 
     warning(message, detail = null) {
+        playSound('notification');
         toast.warning(message, { description: detail, duration: 6000 });
     },
 
-    info(message, detail = null) {
+    /**
+     * `silent` is for a toast that comes with a sound of its own (a new order, a status change).
+     */
+    info(message, detail = null, { silent = false } = {}) {
+        if (! silent) {
+            playSound('notification');
+        }
+
         toast.info(message, { description: detail });
     },
 

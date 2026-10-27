@@ -5,8 +5,8 @@ import AppIcon from '@/components/AppIcon.vue';
 import ChannelBadge from '@/components/ChannelBadge.vue';
 import { initEcho } from '@/lib/echo.js';
 import { t } from '@/lib/i18n';
-import { playOrderChime } from '@/lib/incomingOrders';
 import { notify } from '@/lib/notify';
+import { isSoundMuted, playSound, setSoundMuted } from '@/lib/sounds';
 
 const props = defineProps({
     orders: { type: Array, required: true },
@@ -14,12 +14,11 @@ const props = defineProps({
 });
 
 const orders = ref([...props.orders]);
-const muted = ref(localStorage.getItem('kds-muted') === '1');
+const muted = ref(isSoundMuted());
 const soundEnabled = ref(false);
 const POLL_SECONDS = 15000;
 let pollTimer = null;
 let echo = null;
-let beepCtx = null;
 
 const statusFlow = ['pending', 'preparing', 'ready'];
 
@@ -39,31 +38,47 @@ function elapsed(order) {
     return `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
 }
 
-function beep() {
-    if (muted.value || ! soundEnabled.value) {
-        return;
-    }
+// What each order's status was at the last refresh, to hear what changed since.
+let known = new Map(orders.value.map((order) => [order.id, order.status]));
+const STATUS_SOUND = { preparing: 'kds_preparing', ready: 'kds_ready', served: 'kds_served' };
 
-    try {
-        beepCtx ??= new AudioContext();
+/**
+ * A new ticket, a status change or a finished order each has its own sound. Comparing two
+ * refreshes covers every way a change arrives: this screen, another screen or a website order.
+ */
+function playChanges(next) {
+    const nextIds = new Set(next.map((order) => order.id));
 
-        const osc = beepCtx.createOscillator();
-        const gain = beepCtx.createGain();
+    next.forEach((order) => {
+        const before = known.get(order.id);
 
-        osc.frequency.value = 880;
-        gain.gain.value = 0.08;
-        osc.connect(gain).connect(beepCtx.destination);
-        osc.start();
-        osc.stop(beepCtx.currentTime + 0.15);
-    } catch {
-        // audio unavailable
-    }
+        if (before === undefined) {
+            playSound(order.channel && order.channel !== 'pos' ? 'online_order' : 'kds_new');
+        } else if (before !== order.status && STATUS_SOUND[order.status]) {
+            playSound(STATUS_SOUND[order.status]);
+        }
+    });
+
+    // A ready order that left the board was served.
+    known.forEach((status, id) => {
+        if (! nextIds.has(id) && status === 'ready') {
+            playSound('kds_served');
+        }
+    });
+
+    known = new Map(next.map((order) => [order.id, order.status]));
+}
+
+function toggleMute() {
+    muted.value = ! muted.value;
+    setSoundMuted(muted.value);
 }
 
 function reload() {
     router.reload({
         only: ['orders'],
         onSuccess: (page) => {
+            playChanges(page.props.orders);
             orders.value = [...page.props.orders];
         },
     });
@@ -86,7 +101,7 @@ function advance(order) {
 
 function enableSound() {
     soundEnabled.value = true;
-    beep();
+    playSound('notification', { preview: true });
 }
 
 onMounted(() => {
@@ -95,8 +110,7 @@ onMounted(() => {
     if (echo) {
         echo.private(`branch.${props.branchId}.kitchen`)
             .listen('.OrderCreated', (event) => {
-                (event.channel && event.channel !== 'pos' ? playOrderChime : beep)();
-                notify.info(t('kds.new_order', { invoice: event.invoice_no }));
+                notify.info(t('kds.new_order', { invoice: event.invoice_no }), null, { silent: true });
                 reload();
             })
             .listen('.OrderStatusChanged', () => reload());
@@ -139,7 +153,7 @@ onBeforeUnmount(() => {
                     class="flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-surface hover:text-foreground"
                     :class="muted ? 'text-danger' : ''"
                     :aria-label="t('kds.toggle_sound')"
-                    @click="muted = ! muted; localStorage.setItem('kds-muted', muted ? '1' : '0')"
+                    @click="toggleMute"
                 >
                     <AppIcon :name="muted ? 'circle-xmark' : 'bell'" size="16" />
                 </button>
