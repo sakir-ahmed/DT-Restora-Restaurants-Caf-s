@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             ChartOfAccountsSeeder::class,
             BranchSeeder::class,
             UnitSeeder::class,
+            PaymentMethodSeeder::class,
             RootAdminSeeder::class,
             DemoStaffSeeder::class,
             DemoMenuSeeder::class,

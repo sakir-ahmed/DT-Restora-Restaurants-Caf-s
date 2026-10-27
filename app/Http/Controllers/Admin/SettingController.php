@@ -6,6 +6,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
+use App\Models\Payment;
+use App\Models\PaymentMethod;
 use App\Models\Setting;
 use App\Services\PosSettings;
 use Illuminate\Http\RedirectResponse;
@@ -36,6 +38,17 @@ class SettingController extends Controller
                 'receipt_footer' => $branch->receipt_footer,
                 'pos' => PosSettings::for($branch),
             ],
+            'paymentMethods' => PaymentMethod::query()->orderBy('sort_order')->orderBy('id')->get()->map(fn (PaymentMethod $method): array => [
+                'id' => $method->id,
+                'code' => $method->code,
+                'name' => $method->name,
+                'name_bn' => $method->name_bn,
+                'type' => $method->type,
+                'is_system' => $method->is_system,
+                'is_active' => $method->is_active,
+                'sort_order' => $method->sort_order,
+                'payments_count' => Payment::query()->where('method', $method->code)->count(),
+            ])->values(),
             'layouts' => PosSettings::LAYOUTS,
             'defaultPattern' => PosSettings::DEFAULT_PATTERN,
             'settings' => Setting::current()->only([
@@ -97,6 +110,17 @@ class SettingController extends Controller
                 }
             }],
             'pos.invoice_seq_digits' => ['required', 'integer', 'min:1', 'max:8'],
+            'pos.payment_methods' => ['required', 'array', 'min:1', function (string $attribute, mixed $value, \Closure $fail): void {
+                $enabled = collect(is_array($value) ? $value : [])->filter(fn ($entry): bool => is_array($entry) && ! empty($entry['enabled']));
+
+                if ($enabled->isEmpty()) {
+                    $fail(__('settings.payment_methods_none'));
+                }
+            }],
+            'pos.payment_methods.*.method' => ['required', Rule::exists('payment_methods', 'code'), 'distinct'],
+            'pos.payment_methods.*.enabled' => ['required', 'boolean'],
+            'pos.cash_suggestions' => ['nullable', 'array', 'max:8'],
+            'pos.cash_suggestions.*' => ['integer', 'min:1', 'max:1000000'],
         ], [], [
             'vat_percent' => __('settings.vat_percent'),
             'service_charge_percent' => __('settings.service_charge'),
@@ -124,6 +148,8 @@ class SettingController extends Controller
                 'invoice_layout' => $validated['pos']['invoice_layout'],
                 'invoice_pattern' => $validated['pos']['invoice_pattern'],
                 'invoice_seq_digits' => (int) $validated['pos']['invoice_seq_digits'],
+                'payment_methods' => PosSettings::normalizeMethods($validated['pos']['payment_methods']),
+                'cash_suggestions' => array_values(array_unique(array_map('intval', $validated['pos']['cash_suggestions'] ?? []))),
             ],
         ]);
 

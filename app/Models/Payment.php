@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Enums\PaymentMethod;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,7 +30,6 @@ class Payment extends Model
     ];
 
     protected $casts = [
-        'method' => PaymentMethod::class,
         'amount' => 'decimal:2',
         'tendered' => 'decimal:2',
         'change_due' => 'decimal:2',

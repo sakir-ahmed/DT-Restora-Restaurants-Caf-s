@@ -20,9 +20,11 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Shift;
 use App\Services\Aggregators\PlatformAdapters;
+use App\Services\PosSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -217,6 +219,10 @@ class OrderController extends Controller
         $validated = $request->validate([
             'tendered' => ['required', 'numeric', 'min:0'],
         ]);
+
+        if (! in_array('cash', PosSettings::enabledMethods($order->branch), true)) {
+            throw ValidationException::withMessages(['tendered' => __('payments.method_disabled')]);
+        }
 
         $payment = $action->executeCash($order, (float) $validated['tendered'], $user);
 

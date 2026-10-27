@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Actions\Sales;
 
 use App\Enums\OrderStatus;
-use App\Enums\PaymentMethod;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Models\PaymentMethod;
 use App\Models\RestaurantTable;
 use App\Models\User;
 use App\Services\Accounting\AccountingService;
@@ -49,7 +49,7 @@ class PayOrderAction
 
             $payment = Payment::query()->create([
                 'order_id' => $order->id,
-                'method' => PaymentMethod::Cash->value,
+                'method' => 'cash',
                 'amount' => $total,
                 'tendered' => $tendered,
                 'change_due' => round($tendered - $total, 2),
@@ -77,6 +77,68 @@ class PayOrderAction
                 ->performedOn($order)
                 ->causedBy($user)
                 ->log('order.paid_cash');
+
+            return $payment;
+        });
+    }
+
+    /**
+     * Pay the whole order with one card or bank POS payment (any method that
+     * is neither cash nor a wallet). The amount is always the order total; an
+     * optional slip reference is kept.
+     */
+    public function executeSingle(Order $order, PaymentMethod $method, ?string $reference = null, ?User $user = null): Payment
+    {
+        if ($method->isCash() || $method->isWallet()) {
+            throw ValidationException::withMessages([
+                'method' => __('payments.method_disabled'),
+            ]);
+        }
+
+        return DB::transaction(function () use ($order, $method, $reference, $user): Payment {
+            $order = Order::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
+
+            if ($order->isPaid()) {
+                throw ValidationException::withMessages([
+                    'order' => __('orders.already_paid'),
+                ]);
+            }
+
+            if ($order->isVoid()) {
+                throw ValidationException::withMessages([
+                    'order' => __('orders.order_void'),
+                ]);
+            }
+
+            $payment = Payment::query()->create([
+                'order_id' => $order->id,
+                'method' => $method->code,
+                'amount' => $order->total,
+                'reference' => $reference,
+                'status' => Payment::STATUS_COMPLETED,
+                'user_id' => $user?->id,
+            ]);
+
+            $order->update([
+                'status' => OrderStatus::Paid->value,
+                'paid_at' => now(),
+                'paid_via_payment_id' => $payment->id,
+                'cashier_id' => $user->id ?? $order->cashier_id,
+            ]);
+
+            if ($order->restaurant_table_id !== null) {
+                RestaurantTable::query()
+                    ->whereKey($order->restaurant_table_id)
+                    ->update(['status' => 'free']);
+            }
+
+            app(AccountingService::class)->postOrderPaid($order->fresh(), $user);
+            app(LoyaltyService::class)->earnForOrder($order);
+
+            activity()
+                ->performedOn($order)
+                ->causedBy($user)
+                ->log('order.paid_'.$method->code);
 
             return $payment;
         });
@@ -117,14 +179,20 @@ class PayOrderAction
             $payments = [];
 
             foreach ($lines as $line) {
-                $method = PaymentMethod::from($line['method']);
+                $method = PaymentMethod::findByCode((string) $line['method']);
+
+                if ($method === null) {
+                    throw ValidationException::withMessages([
+                        'split' => __('payments.invalid_payment'),
+                    ]);
+                }
 
                 $payments[] = Payment::query()->create([
                     'order_id' => $order->id,
-                    'method' => $method->value,
+                    'method' => $method->code,
                     'amount' => (string) $line['amount'],
                     'reference' => $line['reference'] ?? null,
-                    'status' => $method === PaymentMethod::Bkash || $method === PaymentMethod::Nagad
+                    'status' => $method->isWallet()
                         ? Payment::STATUS_PENDING_VERIFICATION
                         : Payment::STATUS_COMPLETED,
                     'user_id' => $user->id ?? $order->cashier_id,
@@ -170,7 +238,7 @@ class PayOrderAction
 
             return Payment::query()->create([
                 'order_id' => $order->id,
-                'method' => $method->value,
+                'method' => $method->code,
                 'amount' => (string) $amount,
                 'reference' => $trxId,
                 'status' => Payment::STATUS_PENDING_VERIFICATION,

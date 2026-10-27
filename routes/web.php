@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\MenuController as AdminMenuController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\PayrollController;
 use App\Http\Controllers\Admin\PosController;
 use App\Http\Controllers\Admin\PurchaseController;
@@ -268,6 +269,7 @@ Route::prefix('admin')
         Route::post('orders/{order}/pay', [OrderController::class, 'pay'])->name('orders.pay')->middleware('permission:orders.create');
         Route::post('orders/{order}/gateway-payment', [PaymentController::class, 'startGateway'])->name('payments.gateway')->middleware('permission:orders.create');
         Route::post('orders/{order}/split', [PaymentController::class, 'split'])->name('payments.split')->middleware('permission:orders.create');
+        Route::post('orders/{order}/single-payment', [PaymentController::class, 'single'])->name('payments.single')->middleware('permission:orders.create');
         Route::post('orders/{order}/manual-payment', [PaymentController::class, 'recordManual'])->name('payments.manual')->middleware('permission:orders.create');
         Route::post('payments/{payment}/approve', [PaymentController::class, 'approveManual'])->name('payments.approve')->middleware('permission:payments.manage');
         Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status')->middleware('permission:orders.create');
@@ -329,6 +331,9 @@ Route::prefix('admin')
 
         Route::get('settings', [SettingController::class, 'index'])->name('settings.index')->middleware('permission:settings.manage');
         Route::put('settings', [SettingController::class, 'update'])->name('settings.update')->middleware('permission:settings.manage');
+        Route::post('settings/payment-methods', [PaymentMethodController::class, 'store'])->name('settings.payment-methods.store')->middleware('permission:settings.manage');
+        Route::put('settings/payment-methods/{method}', [PaymentMethodController::class, 'update'])->name('settings.payment-methods.update')->middleware('permission:settings.manage');
+        Route::delete('settings/payment-methods/{method}', [PaymentMethodController::class, 'destroy'])->name('settings.payment-methods.destroy')->middleware('permission:settings.manage');
         Route::put('settings/branches/{branch}', [SettingController::class, 'updateBranch'])->name('settings.branch')->middleware('permission:settings.manage');
 
         Route::get('activity-log', [ActivityLogController::class, 'index'])->name('activity.index')->middleware('permission:activity.view');

@@ -160,7 +160,7 @@
         </tr>
         @foreach ($order->payments as $payment)
             <tr>
-                <td>{{ __('payment_method.' . $payment->method->value) }}</td>
+                <td>{{ \App\Models\PaymentMethod::findByCode((string) $payment->method)?->displayName(app()->getLocale()) ?? $payment->method }}</td>
                 <td class="right">{{ \Illuminate\Support\Number::format((float) $payment->amount, 2) }}</td>
             </tr>
             @if ($payment->change_due !== null && (float) $payment->change_due > 0)

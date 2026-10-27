@@ -12,6 +12,7 @@ use App\Models\Employee;
 use App\Models\Expense;
 use App\Models\Journal;
 use App\Models\Order;
+use App\Models\PaymentMethod;
 use App\Models\Purchase;
 use App\Models\SalaryAdvance;
 use App\Models\Scopes\BranchScope;
@@ -120,7 +121,7 @@ class AccountingService
         }
 
         foreach ($order->payments()->where('status', 'completed')->get() as $payment) {
-            $lines[] = $this->line($this->paymentAccount($payment->method->value), debit: (float) $payment->amount);
+            $lines[] = $this->line($this->paymentAccount((string) $payment->method), debit: (float) $payment->amount);
         }
 
         $this->poster->execute(
@@ -349,10 +350,15 @@ class AccountingService
 
     private function paymentAccount(string $method): string
     {
-        return match ($method) {
-            'bkash' => 'bkash',
-            'nagad' => 'nagad',
-            'card' => 'card',
+        if (in_array($method, ['cash', 'bkash', 'nagad', 'card'], true)) {
+            return $method;
+        }
+
+        // Methods an admin adds post to the account of their type: other wallets to the bKash
+        // wallet account, bank POS terminals and the like to the card settlement account.
+        return match (PaymentMethod::findByCode($method)?->type) {
+            PaymentMethod::TYPE_WALLET => 'bkash',
+            PaymentMethod::TYPE_CARD, PaymentMethod::TYPE_OTHER => 'card',
             default => 'cash',
         };
     }

@@ -62,15 +62,77 @@ const itemEditor = ref(null);
 const variantPicker = ref(null);
 const optionsDialog = ref(null);
 const heldOrders = ref([]);
-const payMode = ref(savedTicket?.payMode ?? 'cash');
-const tendered = ref(savedTicket?.tendered ?? '');
-const blankSplitLines = () => [
-    { method: 'cash', amount: '', reference: '' },
-    { method: 'bkash', amount: '', reference: '' },
+
+// Payment methods this branch accepts, in the order the admin chose
+const FALLBACK_METHODS = [
+    { method: 'cash', name: 'Cash', name_bn: 'নগদ', type: 'cash', enabled: true },
+    { method: 'bkash', name: 'bKash', name_bn: 'বিকাশ', type: 'wallet', enabled: true },
+    { method: 'nagad', name: 'Nagad', name_bn: 'নগদ (মোবাইল)', type: 'wallet', enabled: true },
+    { method: 'card', name: 'Card / SSLCommerz', name_bn: 'কার্ড / এসএসএলকমার্জ', type: 'card', enabled: true },
 ];
-const splitLines = ref(blankSplitLines());
-const walletTrxId = ref('');
-const walletMethod = ref('bkash');
+const payMethodList = computed(() => {
+    const enabled = (branch.value.pos_settings?.payment_methods ?? FALLBACK_METHODS).filter((entry) => entry.enabled);
+
+    return enabled.length > 0 ? enabled : [FALLBACK_METHODS[0]];
+});
+const payMethods = computed(() => payMethodList.value.map((entry) => entry.method));
+const cashSuggestions = computed(() => branch.value.pos_settings?.cash_suggestions ?? [1000, 500, 200, 100]);
+
+// Quick cash amounts sit on the payment row itself. When the row is narrow the smallest ones go first.
+const chipsWidth = ref(240);
+let chipsElement = null;
+let chipsObserver = null;
+
+function bindChips(element) {
+    if (element === chipsElement) {
+        return;
+    }
+
+    chipsObserver?.disconnect();
+    chipsElement = element;
+
+    if (element && typeof ResizeObserver !== 'undefined') {
+        chipsObserver = new ResizeObserver(([entry]) => {
+            chipsWidth.value = entry.contentRect.width;
+        });
+        chipsObserver.observe(element);
+    }
+}
+
+const cashChips = computed(() => {
+    const all = [...new Set([orderDue(), ...cashSuggestions.value])];
+    const fits = Math.max(1, Math.floor((chipsWidth.value + 4) / 46));
+
+    return all.slice(0, fits);
+});
+
+onBeforeUnmount(() => chipsObserver?.disconnect());
+
+function methodType(code) {
+    return payMethodList.value.find((entry) => entry.method === code)?.type ?? (code === 'cash' ? 'cash' : 'other');
+}
+const blankPayLine = (method = null) => ({ method: method ?? payMethods.value[0], amount: '', reference: '' });
+// One row per payment: the first row is the main payment, more rows (the + button) make a split.
+const payLines = ref(savedTicket?.payLines ?? [{ ...blankPayLine(), amount: savedTicket?.tendered ?? '' }]);
+const tendered = computed({
+    get: () => payLines.value[0].amount,
+    set: (value) => { payLines.value[0].amount = value; },
+});
+const payMethod = computed({
+    get: () => payLines.value[0].method,
+    set: (value) => { payLines.value[0].method = value; },
+});
+const walletTrxId = computed({
+    get: () => payLines.value[0].reference,
+    set: (value) => { payLines.value[0].reference = value; },
+});
+const payMode = computed(() => {
+    if (payLines.value.length > 1) {
+        return 'split';
+    }
+
+    return { cash: 'cash', wallet: 'wallet' }[methodType(payMethod.value)] ?? 'single';
+});
 const shiftDialogOpen = ref(false);
 const tablePickerOpen = ref(false);
 const runningOpen = ref(false);
@@ -86,7 +148,7 @@ const TERMINAL = localStorage.getItem('pos-terminal') ?? 'T01';
 const latestOrder = ref(savedTicket?.latestOrder ?? null);
 
 watch(
-    [cart, discount, orderType, tableId, customerMobile, tendered, payMode, latestOrder, lastPayment],
+    [cart, discount, orderType, tableId, customerMobile, payLines, latestOrder, lastPayment],
     () => {
         if (cart.value.length === 0 && ! latestOrder.value) {
             sessionStorage.removeItem(TICKET_KEY);
@@ -100,8 +162,7 @@ watch(
             orderType: orderType.value,
             tableId: tableId.value,
             customerMobile: customerMobile.value,
-            tendered: tendered.value,
-            payMode: payMode.value,
+            payLines: payLines.value,
             latestOrder: latestOrder.value,
             lastPayment: lastPayment.value,
         }));
@@ -1069,10 +1130,7 @@ function startNewOrder() {
     discount.value = { type: 'percent', value: 0 };
     latestOrder.value = null;
     lastPayment.value = null;
-    tendered.value = '';
-    payMode.value = 'cash';
-    walletTrxId.value = '';
-    splitLines.value = blankSplitLines();
+    payLines.value = [blankPayLine()];
     itemEditor.value = null;
     sessionStorage.removeItem(TICKET_KEY);
 }
@@ -1215,8 +1273,7 @@ async function submitOrder(mode = 'send_to_kitchen') {
 // After the order is saved: quick save takes the exact amount at once, the kitchen button prints its slips.
 function finishSave(mode, order) {
     if (mode === 'quick_save') {
-        tendered.value = Number(order.total ?? total.value).toFixed(2);
-        payMode.value = 'cash';
+        payLines.value = [{ method: 'cash', amount: Number(order.total ?? total.value).toFixed(2), reference: '' }];
         payNow('quick_save');
 
         return;
@@ -1532,6 +1589,15 @@ useIncomingOrders(props.branch?.id ?? branch.value?.id);
 onMounted(() => {
     reconcileCart();
 
+    // A method the branch has turned off since this ticket was saved falls back to the first one on offer.
+    if (! lastPayment.value) {
+        payLines.value.forEach((line) => {
+            if (! payMethods.value.includes(line.method)) {
+                line.method = payMethods.value[0];
+            }
+        });
+    }
+
     window.addEventListener('keydown', onKeydown);
     window.addEventListener('pointerdown', onActivity);
     window.addEventListener('keydown', onActivity);
@@ -1550,17 +1616,57 @@ function quickAmount(amount) {
     tendered.value = String(amount);
 }
 
-function startSplit() {
-    const remaining = Number(latestOrder.value?.total ?? total.value);
-    splitLines.value = [
-        { method: 'cash', amount: Math.ceil(remaining / 2), reference: '' },
-        { method: 'bkash', amount: remaining - Math.ceil(remaining / 2), reference: '' },
-    ];
-    payMode.value = 'split';
+function orderDue() {
+    return Number(latestOrder.value?.total ?? total.value);
 }
 
-function splitTotal() {
-    return splitLines.value.reduce((sum, line) => sum + Number(line.amount || 0), 0);
+function needsReference(method) {
+    return methodType(method) === 'wallet';
+}
+
+// A single non-cash payment always covers the whole bill, so its amount box shows the total.
+function syncSingleAmount() {
+    const line = payLines.value[0];
+
+    if (payLines.value.length === 1 && methodType(line.method) !== 'cash' && ! lastPayment.value) {
+        const due = orderDue();
+
+        line.amount = due > 0 ? String(due) : '';
+    }
+}
+
+watch([() => payLines.value[0].method, () => payLines.value.length, () => latestOrder.value?.total, total], syncSingleAmount);
+
+function payLinesTotal() {
+    return payLines.value.reduce((sum, line) => sum + Number(line.amount || 0), 0);
+}
+
+// The + button adds another payment row for the part of the bill still unpaid.
+function addPayLine() {
+    if (lastPayment.value) {
+        return;
+    }
+
+    const due = orderDue();
+
+    if (payLines.value.length === 1 && (! Number(payLines.value[0].amount) || Math.abs(Number(payLines.value[0].amount) - due) < 0.01)) {
+        payLines.value[0].amount = String(Math.ceil(due / 2));
+    }
+
+    const remaining = Math.max(0, due - payLinesTotal());
+    const used = payLines.value.map((line) => line.method);
+
+    payLines.value.push({
+        method: payMethods.value.find((method) => ! used.includes(method)) ?? payMethods.value[0],
+        amount: remaining > 0 ? String(remaining) : '',
+        reference: '',
+    });
+}
+
+function removePayLine(index) {
+    if (index > 0 && ! lastPayment.value) {
+        payLines.value.splice(index, 1);
+    }
 }
 
 function paySplit() {
@@ -1573,7 +1679,7 @@ function paySplit() {
     if (! navigator.onLine || order.local) {
         queueOfflinePayment(order, {
             method: 'split',
-            lines: splitLines.value.map((line) => ({
+            lines: payLines.value.map((line) => ({
                 method: line.method,
                 amount: line.amount,
                 reference: line.reference || null,
@@ -1593,7 +1699,7 @@ function paySplit() {
     }
 
     router.post(route('admin.payments.split', order.id), {
-        lines: splitLines.value.map((line) => ({
+        lines: payLines.value.map((line) => ({
             method: line.method,
             amount: line.amount,
             reference: line.reference || null,
@@ -1622,7 +1728,7 @@ function payWalletManual() {
 
     if (! navigator.onLine || order.local) {
         queueOfflinePayment(order, {
-            method: walletMethod.value,
+            method: payMethod.value,
             amount: Number(order.total ?? total.value),
             reference: walletTrxId.value,
         }).then(() => {
@@ -1640,7 +1746,7 @@ function payWalletManual() {
     }
 
     router.post(route('admin.payments.manual', order.id), {
-        method: walletMethod.value,
+        method: payMethod.value,
         amount: Number(latestOrder.value?.total ?? total.value),
         reference: walletTrxId.value,
     }, {
@@ -1658,30 +1764,74 @@ function payWalletManual() {
     });
 }
 
-// One confirm button serves all three payment lanes.
-function confirmPayment() {
-    if (payMode.value === 'cash') {
-        payNow();
-    } else if (payMode.value === 'split') {
-        paySplit();
-    } else {
-        payWalletManual();
-    }
-}
+function paySingle() {
+    const order = latestOrder.value;
 
-function chooseLane(mode) {
-    if (lastPayment.value) {
+    if (! order) {
         return;
     }
 
-    if (mode === 'split') {
-        startSplit();
+    if (! navigator.onLine || order.local) {
+        queueOfflinePayment(order, {
+            method: payMethod.value,
+            amount: Number(order.total ?? total.value),
+            reference: payLines.value[0].reference || null,
+        }).then(() => {
+            lastPayment.value = {
+                order_id: order.id ?? null,
+                client_id: order.client_id ?? null,
+                change_due: 0,
+                invoice_no: order.invoice_no,
+            };
+            notify.info(t('sync.queued'));
+            printAfter('confirm_payment', order);
+        });
+
+        return;
+    }
+
+    router.post(route('admin.payments.single', order.id), {
+        method: payMethod.value,
+        reference: payLines.value[0].reference || null,
+    }, {
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: (page) => {
+            lastPayment.value = page.props.flash?.payment ?? { order_id: order.id, change_due: 0 };
+            notify.success(page.props.flash?.success ?? t('payments.manual_recorded'));
+            printAfter('confirm_payment', order);
+        },
+        onError: (errors) => notify.error(String(Object.values(errors)[0] ?? t('common.error_occurred'))),
+    });
+}
+
+// One confirm button serves a single payment (cash, wallet, card) and a split across rows.
+function confirmPayment() {
+    if (payLines.value.length > 1) {
+        paySplit();
+    } else if (payMethod.value === 'cash') {
+        payNow();
+    } else if (methodType(payMethod.value) === 'wallet') {
+        payWalletManual();
     } else {
-        payMode.value = mode;
+        paySingle();
     }
 }
 
-const canConfirmPayment = computed(() => !! latestOrder.value && ! lastPayment.value && (payMode.value !== 'wallet' || !! walletTrxId.value));
+const payLinesReady = computed(() => {
+    if (payLines.value.some((line) => needsReference(line.method) && ! line.reference)) {
+        return false;
+    }
+
+    if (payLines.value.length === 1) {
+        const line = payLines.value[0];
+
+        return methodType(line.method) === 'cash' || ! Number(line.amount) || Math.abs(Number(line.amount) - orderDue()) < 0.01;
+    }
+
+    return Math.abs(payLinesTotal() - orderDue()) < 0.01;
+});
+const canConfirmPayment = computed(() => !! latestOrder.value && ! lastPayment.value && payLinesReady.value);
 const confirmPaymentLabel = computed(() => (payMode.value === 'wallet' ? t('payments.record_manual') : t('orders.confirm_payment')));
 const laneLocked = computed(() => !! lastPayment.value);
 const discountAllTotal = computed(() => itemDiscountTotal.value + billDiscountAmount.value);
@@ -2012,57 +2162,66 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                     </div>
                 </div>
 
-                <!-- Payment lanes: choose a lane to enable its fields -->
-                <div class="space-y-1" role="radiogroup" :aria-label="t('orders.payment_lane')">
-                    <!-- Cash -->
-                    <div class="flex items-center gap-1 rounded-md border px-1.5 py-0.5" :class="payMode === 'cash' ? 'border-accent bg-accent/10' : 'border-border bg-background'">
-                        <button type="button" role="radio" :aria-checked="payMode === 'cash'" :disabled="laneLocked" class="flex h-6 w-16 shrink-0 items-center gap-1.5 text-[13px] font-medium text-foreground disabled:opacity-60" @click="chooseLane('cash')">
-                            <span class="flex h-3.5 w-3.5 items-center justify-center rounded-full border" :class="payMode === 'cash' ? 'border-accent' : 'border-border'"><span class="h-1.5 w-1.5 rounded-full" :class="payMode === 'cash' ? 'bg-accent' : 'bg-transparent'" /></span>
-                            {{ t('payment_method.cash') }}
-                        </button>
-                        <input v-model="tendered" type="number" min="0" step="1" :disabled="payMode !== 'cash' || laneLocked" :placeholder="t('orders.tendered_short')" :title="t('orders.tendered')" :aria-label="t('orders.tendered')" class="h-6 w-20 min-w-0 rounded-md border border-border bg-surface px-1.5 text-right text-[13px] tabular-nums text-foreground outline-none placeholder:text-[11px] placeholder:text-muted/70 focus:border-accent disabled:opacity-50">
-                        <div class="ml-auto flex gap-1">
+                <!-- Payment: one row per payment, + adds another method -->
+                <div class="space-y-1">
+                    <div v-for="(line, index) in payLines" :key="index" class="flex items-center gap-1 rounded-md border border-border bg-background px-1.5 py-0.5">
+                        <select v-model="line.method" :disabled="laneLocked" :aria-label="t('payments.method')" class="h-6 w-[4.5rem] shrink-0 rounded-md border border-border bg-surface px-0.5 text-xs font-medium text-foreground outline-none focus:border-accent disabled:opacity-50">
+                            <option v-for="entry in payMethodList" :key="entry.method" :value="entry.method">{{ localized(entry, 'name') }}</option>
+                        </select>
+                        <input
+                            v-model="line.amount"
+                            type="number"
+                            min="0"
+                            :step="payLines.length > 1 ? '0.01' : '1'"
+                            :disabled="laneLocked"
+                            :placeholder="payLines.length === 1 && line.method === 'cash' ? t('orders.tendered_short') : t('payments.amount')"
+                            :title="payLines.length === 1 && line.method === 'cash' ? t('orders.tendered') : t('payments.amount')"
+                            :aria-label="payLines.length === 1 && line.method === 'cash' ? t('orders.tendered') : t('payments.amount')"
+                            class="h-6 w-[4.5rem] min-w-0 shrink-0 rounded-md border border-border bg-surface px-1.5 text-right text-[13px] tabular-nums text-foreground outline-none placeholder:text-[11px] placeholder:text-muted/70 focus:border-accent disabled:opacity-50"
+                        >
+                        <input
+                            v-if="methodType(line.method) !== 'cash'"
+                            v-model="line.reference"
+                            type="text"
+                            :disabled="laneLocked"
+                            :placeholder="needsReference(line.method) ? t('payments.ref_short') : t('payments.ref_optional')"
+                            :aria-label="t('payments.trxid')"
+                            class="h-6 w-full min-w-0 flex-1 rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none placeholder:text-[11px] placeholder:text-muted/70 focus:border-accent disabled:opacity-50"
+                        >
+                        <div v-else :ref="(element) => index === 0 && bindChips(element)" class="flex min-w-0 flex-1 items-center justify-end gap-1 overflow-hidden">
                             <button
-                                v-for="amount in [total, 100, 500, 1000]"
+                                v-for="amount in (payLines.length === 1 && methodType(line.method) === 'cash' ? cashChips : [])"
                                 :key="amount"
                                 type="button"
-                                :disabled="payMode !== 'cash' || laneLocked"
-                                class="h-6 rounded-md border border-border bg-surface px-1.5 text-xs font-medium tabular-nums text-foreground hover:border-accent disabled:cursor-not-allowed disabled:opacity-50"
+                                :disabled="laneLocked"
+                                class="h-6 shrink-0 rounded-md border border-border bg-surface px-1.5 text-xs font-medium tabular-nums text-foreground hover:border-accent disabled:cursor-not-allowed disabled:opacity-50"
                                 @click="quickAmount(amount)"
                             >
-                                {{ amount === total ? t('orders.exact') : formatMoney(amount, { decimals: 0 }) }}
+                                {{ amount === orderDue() ? t('orders.exact') : formatMoney(amount, { decimals: 0 }) }}
                             </button>
                         </div>
-                    </div>
-
-                    <!-- Split -->
-                    <div class="flex items-center gap-1 rounded-md border px-1.5 py-0.5" :class="payMode === 'split' ? 'border-accent bg-accent/10' : 'border-border bg-background'">
-                        <button type="button" role="radio" :aria-checked="payMode === 'split'" :disabled="laneLocked" class="flex h-6 w-16 shrink-0 items-center gap-1.5 text-[13px] font-medium text-foreground disabled:opacity-60" @click="chooseLane('split')">
-                            <span class="flex h-3.5 w-3.5 items-center justify-center rounded-full border" :class="payMode === 'split' ? 'border-accent' : 'border-border'"><span class="h-1.5 w-1.5 rounded-full" :class="payMode === 'split' ? 'bg-accent' : 'bg-transparent'" /></span>
-                            {{ t('orders.split_short') }}
+                        <button
+                            v-if="index === 0"
+                            type="button"
+                            :disabled="laneLocked"
+                            class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-accent text-accent-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                            :aria-label="t('payments.add_line')"
+                            :title="t('payments.add_line')"
+                            @click="addPayLine"
+                        >
+                            <AppIcon name="plus" size="11" />
                         </button>
-                        <div v-for="(splitLine, index) in splitLines" :key="index" class="flex min-w-0 flex-1 gap-1">
-                            <select v-model="splitLine.method" :disabled="payMode !== 'split' || laneLocked" :aria-label="t('payment_method.split')" class="h-6 w-[4.25rem] shrink-0 rounded-md border border-border bg-surface px-0.5 text-xs text-foreground outline-none focus:border-accent disabled:opacity-50">
-                                <option value="cash">{{ t('payment_method.cash') }}</option>
-                                <option value="bkash">{{ t('payment_method.bkash') }}</option>
-                                <option value="nagad">{{ t('payment_method.nagad') }}</option>
-                                <option value="card">{{ t('payment_method.card') }}</option>
-                            </select>
-                            <input v-model="splitLine.amount" type="number" min="0" :disabled="payMode !== 'split' || laneLocked" :aria-label="t('payments.amount')" class="h-6 w-full min-w-0 rounded-md border border-border bg-surface px-1.5 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent disabled:opacity-50">
-                        </div>
-                    </div>
-
-                    <!-- Wallet -->
-                    <div class="flex items-center gap-1 rounded-md border px-1.5 py-0.5" :class="payMode === 'wallet' ? 'border-accent bg-accent/10' : 'border-border bg-background'">
-                        <button type="button" role="radio" :aria-checked="payMode === 'wallet'" :disabled="laneLocked" class="flex h-6 w-16 shrink-0 items-center gap-1.5 text-[13px] font-medium text-foreground disabled:opacity-60" @click="chooseLane('wallet')">
-                            <span class="flex h-3.5 w-3.5 items-center justify-center rounded-full border" :class="payMode === 'wallet' ? 'border-accent' : 'border-border'"><span class="h-1.5 w-1.5 rounded-full" :class="payMode === 'wallet' ? 'bg-accent' : 'bg-transparent'" /></span>
-                            {{ t('payments.wallet') }}
+                        <button
+                            v-else
+                            type="button"
+                            :disabled="laneLocked"
+                            class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-muted hover:text-danger disabled:cursor-not-allowed disabled:opacity-50"
+                            :aria-label="t('payments.remove_line')"
+                            :title="t('payments.remove_line')"
+                            @click="removePayLine(index)"
+                        >
+                            <AppIcon name="xmark" size="11" />
                         </button>
-                        <select v-model="walletMethod" :disabled="payMode !== 'wallet' || laneLocked" :aria-label="t('payments.wallet')" class="h-6 w-[4.25rem] shrink-0 rounded-md border border-border bg-surface px-0.5 text-xs text-foreground outline-none focus:border-accent disabled:opacity-50">
-                            <option value="bkash">{{ t('payment_method.bkash') }}</option>
-                            <option value="nagad">{{ t('payment_method.nagad') }}</option>
-                        </select>
-                        <input v-model="walletTrxId" type="text" :disabled="payMode !== 'wallet' || laneLocked" :placeholder="t('payments.trxid')" :aria-label="t('payments.trxid')" class="h-6 w-full min-w-0 flex-1 rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none placeholder:text-[11px] placeholder:text-muted/70 focus:border-accent disabled:opacity-50">
                     </div>
                 </div>
 
@@ -2080,7 +2239,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                         {{ editingOrder ? t('orders.update_order') : t('orders.send_kitchen') }}
                     </button>
                     <button
-                        v-if="posActions.quick_save.enabled"
+                        v-if="posActions.quick_save.enabled && payMethods.includes('cash')"
                         type="button"
                         :disabled="cart.length === 0 || !! latestOrder || discountBlocked"
                         class="flex h-7 items-center justify-center gap-1 rounded-md bg-accent text-[13px] font-semibold text-accent-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"

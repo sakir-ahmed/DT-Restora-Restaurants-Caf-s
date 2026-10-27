@@ -6,13 +6,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Actions\Sales\PayOrderAction;
 use App\Actions\Sales\StartGatewayPaymentAction;
-use App\Enums\PaymentMethod;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Models\PaymentMethod;
 use App\Services\Payments\GatewayNotConfiguredException;
+use App\Services\PosSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class PaymentController extends Controller
@@ -49,7 +51,7 @@ class PaymentController extends Controller
 
         $validated = $request->validate([
             'lines' => ['required', 'array', 'min:2'],
-            'lines.*.method' => ['required', 'in:cash,bkash,nagad,card'],
+            'lines.*.method' => ['required', Rule::in(PosSettings::enabledMethods($order->branch))],
             'lines.*.amount' => ['required', 'numeric', 'gt:0'],
             'lines.*.reference' => ['nullable', 'string', 'max:100'],
         ]);
@@ -63,6 +65,31 @@ class PaymentController extends Controller
         return back()->with('success', __('payments.split_completed'));
     }
 
+    /**
+     * Pay the whole order with one card or bank POS method (anything that is neither cash nor a wallet).
+     */
+    public function single(Request $request, Order $order, PayOrderAction $action): RedirectResponse
+    {
+        $this->authorize('orders.create');
+
+        abort_unless($request->user('staff')->canAccessBranch($order->branch_id), 404);
+
+        $validated = $request->validate([
+            'method' => ['required', Rule::in(PosSettings::enabledMethods($order->branch))],
+            'reference' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $method = PaymentMethod::query()->where('code', $validated['method'])->firstOrFail();
+
+        $payment = $action->executeSingle($order, $method, $validated['reference'] ?? null, $request->user('staff'));
+
+        return back()->with('success', __('payments.single_recorded', ['method' => $method->name]))->with('payment', [
+            'order_id' => $order->id,
+            'invoice_no' => $order->invoice_no,
+            'change_due' => $payment->change_due ?? 0,
+        ]);
+    }
+
     public function recordManual(Request $request, Order $order, PayOrderAction $action): RedirectResponse
     {
         $this->authorize('orders.create');
@@ -70,14 +97,18 @@ class PaymentController extends Controller
         abort_unless($request->user('staff')->canAccessBranch($order->branch_id), 404);
 
         $validated = $request->validate([
-            'method' => ['required', 'in:bkash,nagad'],
+            'method' => ['required', Rule::in(PosSettings::enabledMethods($order->branch))],
             'amount' => ['required', 'numeric', 'gt:0'],
             'reference' => ['required', 'string', 'max:100'],
         ]);
 
+        $method = PaymentMethod::query()->where('code', $validated['method'])->firstOrFail();
+
+        abort_unless($method->isWallet(), 422);
+
         $action->recordManualWallet(
             $order,
-            PaymentMethod::from($validated['method']),
+            $method,
             (float) $validated['amount'],
             $validated['reference'],
             $request->user('staff'),

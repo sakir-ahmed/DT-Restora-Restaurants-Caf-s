@@ -11,7 +11,6 @@ use App\Actions\Sales\CreateOrderAction;
 use App\Actions\Sales\OpenShiftAction;
 use App\Actions\Sales\PayOrderAction;
 use App\Enums\OrderType;
-use App\Enums\PaymentMethod;
 use App\Exceptions\InsufficientStockException;
 use App\Models\Branch;
 use App\Models\DataVersion;
@@ -20,6 +19,7 @@ use App\Models\IngredientStock;
 use App\Models\InvoiceSequence;
 use App\Models\MenuCategory;
 use App\Models\Order;
+use App\Models\PaymentMethod;
 use App\Models\RestaurantTable;
 use App\Models\Shift;
 use App\Models\StockCount;
@@ -361,9 +361,21 @@ class SyncService
             return;
         }
 
+        $paymentMethod = PaymentMethod::findByCode($method);
+
+        if ($paymentMethod === null) {
+            throw ValidationException::withMessages(['method' => __('payments.invalid_payment')]);
+        }
+
+        if (! $paymentMethod->isWallet()) {
+            $this->payments->executeSingle($order, $paymentMethod, ($payload['reference'] ?? null) ?: null, $user);
+
+            return;
+        }
+
         $this->payments->recordManualWallet(
             $order,
-            PaymentMethod::from($method),
+            $paymentMethod,
             (float) ($payload['amount'] ?? $order->total),
             (string) ($payload['reference'] ?? ''),
             $user,

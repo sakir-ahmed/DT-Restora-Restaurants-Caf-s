@@ -5,6 +5,8 @@ import AppIcon from '@/components/AppIcon.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
 import SwitchField from '@/components/ui-kit/SwitchField.vue';
 import PageHeader from '@/components/ui-kit/PageHeader.vue';
+import PaymentMethodManager from '@/components/admin/PaymentMethodManager.vue';
+import { localized } from '@/lib/site';
 import { DEFAULT_INVOICE_PATTERN, formatInvoice } from '@/lib/invoice';
 import { t } from '@/lib/i18n';
 import { notify } from '@/lib/notify';
@@ -13,6 +15,7 @@ const props = defineProps({
     settings: { type: Object, required: true },
     branches: { type: Array, default: () => [] },
     branchSettings: { type: Object, default: null },
+    paymentMethods: { type: Array, default: () => [] },
     layouts: { type: Array, default: () => [] },
     defaultPattern: { type: String, default: DEFAULT_INVOICE_PATTERN },
 });
@@ -42,6 +45,7 @@ function branchFormValues() {
     const branch = props.branchSettings;
 
     return {
+        cash_suggestions_text: (branch?.pos?.cash_suggestions ?? [1000, 500, 200, 100]).join(', '),
         vat_percent: branch?.vat_percent ?? '0.00',
         vat_inclusive: Boolean(branch?.vat_inclusive),
         service_charge_percent: branch?.service_charge_percent ?? '0.00',
@@ -63,10 +67,31 @@ function chooseBranch(event) {
 }
 
 function saveBranch() {
-    branchForm.put(route('admin.settings.branch', props.branchSettings.id), {
+    branchForm.transform((data) => {
+        const { cash_suggestions_text: suggestions, ...rest } = data;
+
+        return {
+            ...rest,
+            pos: {
+                ...rest.pos,
+                cash_suggestions: suggestions.split(/[,\s]+/).filter(Boolean).map((value) => Number(value)).filter((value) => Number.isFinite(value)),
+            },
+        };
+    }).put(route('admin.settings.branch', props.branchSettings.id), {
         preserveScroll: true,
         onSuccess: () => notify.success(t('settings.saved')),
     });
+}
+
+function moveMethod(index, step) {
+    const methods = branchForm.pos.payment_methods;
+    const target = index + step;
+
+    if (target < 0 || target >= methods.length) {
+        return;
+    }
+
+    [methods[index], methods[target]] = [methods[target], methods[index]];
 }
 
 const selectedBranch = computed(() => props.branches.find((branch) => branch.id === props.branchSettings?.id) ?? null);
@@ -88,7 +113,7 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
 
         <div class="mb-3 flex gap-1" role="tablist">
             <button
-                v-for="entry in [{ key: 'branch', label: t('settings.tab_branch') }, { key: 'general', label: t('settings.tab_general') }]"
+                v-for="entry in [{ key: 'branch', label: t('settings.tab_branch') }, { key: 'methods', label: t('settings.tab_methods') }, { key: 'general', label: t('settings.tab_general') }]"
                 :key="entry.key"
                 type="button"
                 role="tab"
@@ -144,6 +169,32 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
                         </tbody>
                     </table>
                 </div>
+            </section>
+
+            <section>
+                <h2 class="text-[13px] font-semibold text-foreground">{{ t('settings.section_payments') }}</h2>
+                <p class="mb-2 text-xs text-muted">{{ t('settings.section_payments_helper') }}</p>
+                <ul class="divide-y divide-border rounded-md border border-border">
+                    <li v-for="(entry, index) in branchForm.pos.payment_methods" :key="entry.method" class="flex items-center gap-2 px-2 py-1.5">
+                        <input v-model="entry.enabled" type="checkbox" :class="checkboxClass" :aria-label="entry.name">
+                        <span class="min-w-0 flex-1 text-[13px] font-medium" :class="entry.enabled ? 'text-foreground' : 'text-muted line-through'">{{ localized({ name: entry.name, name_bn: entry.name_bn }, 'name') }}</span>
+                        <button type="button" class="flex h-6 w-6 items-center justify-center rounded-md border border-border text-muted hover:text-foreground disabled:opacity-40" :disabled="index === 0" :aria-label="t('settings.move_up')" @click="moveMethod(index, -1)">
+                            <AppIcon name="chevron-up" size="10" />
+                        </button>
+                        <button type="button" class="flex h-6 w-6 items-center justify-center rounded-md border border-border text-muted hover:text-foreground disabled:opacity-40" :disabled="index === branchForm.pos.payment_methods.length - 1" :aria-label="t('settings.move_down')" @click="moveMethod(index, 1)">
+                            <AppIcon name="chevron-down" size="10" />
+                        </button>
+                    </li>
+                </ul>
+                <p v-if="branchForm.errors['pos.payment_methods']" class="mt-1 text-xs text-danger">{{ branchForm.errors['pos.payment_methods'] }}</p>
+            </section>
+
+            <section>
+                <FormField :label="t('settings.cash_suggestions')" :helper="t('settings.cash_suggestions_helper')" :error="branchForm.errors['pos.cash_suggestions'] ?? branchForm.errors['pos.cash_suggestions.0']">
+                    <template #default="{ id }">
+                        <input :id="id" v-model="branchForm.cash_suggestions_text" type="text" placeholder="1000, 500, 200, 100" :class="[inputClass, 'max-w-xs tabular-nums']">
+                    </template>
+                </FormField>
             </section>
 
             <section class="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
@@ -212,6 +263,8 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
                 </button>
             </div>
         </form>
+
+        <PaymentMethodManager v-show="tab === 'methods'" :methods="paymentMethods" />
 
         <form v-show="tab === 'general'" novalidate class="max-w-2xl rounded-lg border border-border bg-surface p-4" @submit.prevent="save">
             <div class="grid grid-cols-2 gap-x-4 gap-y-3">
