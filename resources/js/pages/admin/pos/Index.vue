@@ -416,12 +416,27 @@ function editOrder(order) {
  * Empty the cart and every field on the ticket: table, customer, order type
  * and discount. Held orders are not touched.
  */
-function clearAll() {
-    startNewOrder();
+async function clearAll() {
+    const sent = !! latestOrder.value && ! lastPayment.value;
+    const result = await confirm({
+        variant: 'danger',
+        level: 'simple',
+        title: t('orders.clear_all_title'),
+        message: sent ? t('orders.clear_all_sent') : t('orders.clear_all_message'),
+        facts: [
+            { label: t('orders.clear_all_items'), value: String(itemCount.value) },
+            { label: t('orders.clear_all_total'), value: formatMoney(latestOrder.value?.total ?? total.value) },
+        ],
+        confirmText: t('orders.clear_all'),
+    });
+
+    if (result.confirmed) {
+        startNewOrder();
+    }
 }
 
 function cancelEditing() {
-    clearAll();
+    startNewOrder();
 }
 
 const hasTicketData = computed(() => cart.value.length > 0 || tableId.value !== null || !! customerMobile.value || !! editingOrder.value || !! latestOrder.value || !! lastPayment.value);
@@ -1133,6 +1148,7 @@ function startNewOrder() {
     latestOrder.value = null;
     lastPayment.value = null;
     payLines.value = [blankPayLine()];
+    menuNumberInput.value = '';
     itemEditor.value = null;
     sessionStorage.removeItem(TICKET_KEY);
 }
@@ -2043,7 +2059,10 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                             </span>
                         </button>
                     </div>
-                    <form class="flex shrink-0 items-center gap-0.5" @submit.prevent="addByMenuNumber">
+                    <form class="flex h-5 shrink-0 items-stretch overflow-hidden rounded border border-border bg-background focus-within:border-accent" @submit.prevent="addByMenuNumber">
+                        <button type="button" class="flex w-5 shrink-0 items-center justify-center border-r border-border text-foreground hover:bg-surface disabled:opacity-40" :disabled="!!latestOrder || ! menuNumberInput" :aria-label="t('common.decrease')" :title="t('common.decrease')" @click="removeByMenuNumber">
+                            <AppIcon name="minus" size="10" />
+                        </button>
                         <input
                             v-model="menuNumberInput"
                             type="number"
@@ -2052,12 +2071,9 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - (late
                             :placeholder="t('orders.menu_no_placeholder')"
                             :aria-label="t('orders.menu_no_placeholder')"
                             :disabled="!!latestOrder"
-                            class="h-5 w-16 rounded border border-border bg-background px-1 text-[11px] tabular-nums text-foreground outline-none [appearance:textfield] focus:border-accent disabled:opacity-50 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                            class="w-14 min-w-0 border-0 bg-transparent px-1 text-center text-[11px] tabular-nums text-foreground outline-none [appearance:textfield] disabled:opacity-50 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                         >
-                        <button type="button" class="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-border bg-background text-foreground hover:border-accent disabled:opacity-50" :disabled="!!latestOrder || ! menuNumberInput" :aria-label="t('common.decrease')" :title="t('common.decrease')" @click="removeByMenuNumber">
-                            <AppIcon name="minus" size="10" />
-                        </button>
-                        <button type="submit" class="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-accent text-accent-foreground hover:opacity-90 disabled:opacity-50" :disabled="!!latestOrder || ! menuNumberInput" :aria-label="t('orders.menu_no_add')" :title="t('orders.menu_no_add')">
+                        <button type="submit" class="flex w-5 shrink-0 items-center justify-center border-l border-border bg-accent text-accent-foreground hover:opacity-90 disabled:opacity-40" :disabled="!!latestOrder || ! menuNumberInput" :aria-label="t('orders.menu_no_add')" :title="t('orders.menu_no_add')">
                             <AppIcon name="plus" size="10" />
                         </button>
                     </form>
