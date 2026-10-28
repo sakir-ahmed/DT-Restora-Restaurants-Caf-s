@@ -12,25 +12,31 @@ use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\MenuItemVariant;
 use App\Models\User;
-use Database\Seeders\Support\ArmansKitchenCatalog;
+use Database\Seeders\Support\ProductionCatalog;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 
 /**
- * Real data for Arman's Kitchen, Mohammadpur: the outlet, the printed menu
- * with photographs, the Qasr Al Mandi pre-order range and the website gallery.
+ * Production data: the real restaurant (Arman's Kitchen, Mohammadpur) with its
+ * outlet, printed menu and photographs, the Qasr Al Mandi pre-order range,
+ * journal posts and the website gallery. DatabaseSeeder runs it when
+ * IS_DEMO=false; with IS_DEMO=true the demo seeders run instead.
+ *
+ * Source photos live in database/seeders/assets/production. They are copied
+ * to the public disk under the legacy "armans-kitchen" folders, so installs
+ * seeded before the rename keep their existing image paths.
  *
  * Run it on top of the bootstrap seed:
- *   php artisan db:seed --class=ArmansKitchenDataSeeder
+ *   php artisan db:seed --class=ProductionDataSeeder
  *
  * It is safe to run again; records are matched by code, name or path.
  */
-class ArmansKitchenDataSeeder extends Seeder
+class ProductionDataSeeder extends Seeder
 {
     private const BRANCH_CODE = 'AK01';
 
-    private const ASSETS = 'database/seeders/assets/armans-kitchen';
+    private const ASSETS = 'database/seeders/assets/production';
 
     public function run(): void
     {
@@ -72,7 +78,7 @@ class ArmansKitchenDataSeeder extends Seeder
     {
         $keptCategories = [];
 
-        foreach (ArmansKitchenCatalog::categories() as $categoryOrder => $categoryData) {
+        foreach (ProductionCatalog::categories() as $categoryOrder => $categoryData) {
             $category = MenuCategory::query()->withoutGlobalScopes()->updateOrCreate(
                 ['branch_id' => $branch->id, 'name' => $categoryData['name']],
                 ['name_bn' => $categoryData['name_bn'], 'sort_order' => $categoryOrder + 1, 'is_active' => true],
@@ -117,7 +123,7 @@ class ArmansKitchenDataSeeder extends Seeder
                         ['kind' => Media::KIND_IMAGE, 'title' => $item->name, 'title_bn' => $item->name_bn, 'sort_order' => 1, 'is_active' => true],
                     );
 
-                    foreach (ArmansKitchenCatalog::extraPhotos((string) $itemData['photo']) as $n => $extra) {
+                    foreach (ProductionCatalog::extraPhotos((string) $itemData['photo']) as $n => $extra) {
                         $path = $this->publish($extra, 'menu/armans-kitchen/extra/'.basename($extra));
 
                         Media::query()->updateOrCreate(
@@ -141,7 +147,7 @@ class ArmansKitchenDataSeeder extends Seeder
     {
         $author = User::query()->where('username', 'admin')->first();
 
-        foreach (ArmansKitchenCatalog::posts() as $post) {
+        foreach (ProductionCatalog::posts() as $post) {
             $cover = $this->publish("blog/{$post['cover']}.webp", "blog/armans-kitchen/{$post['cover']}.webp");
 
             BlogPost::query()->updateOrCreate(['slug' => $post['slug']], [
@@ -177,7 +183,7 @@ class ArmansKitchenDataSeeder extends Seeder
 
     private function gallery(Branch $branch): void
     {
-        foreach (ArmansKitchenCatalog::gallery() as $order => $entry) {
+        foreach (ProductionCatalog::gallery() as $order => $entry) {
             $path = $this->publish("gallery/{$entry['file']}.webp", "gallery/armans-kitchen/{$entry['file']}.webp");
 
             Media::query()->updateOrCreate(

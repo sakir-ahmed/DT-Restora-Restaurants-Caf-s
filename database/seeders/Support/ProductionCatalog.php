@@ -8,9 +8,9 @@ namespace Database\Seeders\Support;
  * Arman's Kitchen menu as printed on the in-house menu card, the Qasr Al
  * Mandi pre-order card and the promotion posters. Prices are in taka.
  * `photo` is the file name (without extension) under
- * database/seeders/assets/armans-kitchen/menu, or null when there is no photo yet.
+ * database/seeders/assets/production/menu, or null when there is no photo yet.
  */
-final class ArmansKitchenCatalog
+final class ProductionCatalog
 {
     /**
      * Dish descriptions by menu number: [English, Bangla].
@@ -247,7 +247,7 @@ final class ArmansKitchenCatalog
      */
     public static function extraPhotos(string $photo): array
     {
-        $files = glob(base_path('database/seeders/assets/armans-kitchen/menu/extra/'.$photo.'-*.webp')) ?: [];
+        $files = glob(base_path('database/seeders/assets/production/menu/extra/'.$photo.'-*.webp')) ?: [];
         sort($files);
 
         return array_map(fn (string $file): string => 'menu/extra/'.basename($file), $files);

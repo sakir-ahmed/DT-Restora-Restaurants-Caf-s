@@ -10,14 +10,16 @@ use Illuminate\Database\Seeder;
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Application bootstrap data always seeds. Branches, menu, staff and the
-     * rest of the sample data seed only when IS_DEMO=true.
+     * The bootstrap data (roles, chart of accounts, units, payment methods,
+     * settings, root administrator) always seeds. The rest depends on IS_DEMO:
      *
-     * This production branch is Arman's Kitchen: on a fresh install (no branch
-     * yet) the real outlet, menu and gallery seed too. Later runs leave them
-     * alone so edits made in the admin panel are never overwritten. To
-     * re-sync from the catalog on purpose, run:
-     *   php artisan db:seed --class=ArmansKitchenDataSeeder --force
+     * - IS_DEMO=false (production): the real restaurant, menu and gallery, see
+     *   ProductionDataSeeder. This only happens on a fresh install (no branch
+     *   yet), so later runs never overwrite edits made in the admin panel. To
+     *   re-sync from the catalog on purpose, run:
+     *   php artisan db:seed --class=ProductionDataSeeder --force
+     * - IS_DEMO=true: sample branches, staff, menu, customers, inventory, sales
+     *   and delivery channels.
      */
     public function run(): void
     {
@@ -30,15 +32,23 @@ class DatabaseSeeder extends Seeder
             RootAdminSeeder::class,
         ]);
 
-        if (config('app.is_demo') !== true) {
-            if (Branch::query()->doesntExist()) {
-                $this->call(ArmansKitchenDataSeeder::class);
-            }
+        if (config('app.is_demo') === true) {
+            $this->call($this->demoSeeders());
 
             return;
         }
 
-        $this->call([
+        if (Branch::query()->doesntExist()) {
+            $this->call(ProductionDataSeeder::class);
+        }
+    }
+
+    /**
+     * @return list<class-string<Seeder>>
+     */
+    private function demoSeeders(): array
+    {
+        return [
             BranchSeeder::class,
             DemoStaffSeeder::class,
             DemoMenuSeeder::class,
@@ -47,6 +57,6 @@ class DatabaseSeeder extends Seeder
             DemoSalesSeeder::class,
             DemoOperationsSeeder::class,
             DemoAggregatorSeeder::class,
-        ]);
+        ];
     }
 }

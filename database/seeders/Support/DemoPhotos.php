@@ -60,8 +60,8 @@ final class DemoPhotos
 
     private static function assetPath(string $key): string
     {
-        $png = database_path('seeders/assets/photos/'.$key.'.png');
+        $png = database_path('seeders/assets/demo/'.$key.'.png');
 
-        return is_file($png) ? $png : database_path('seeders/assets/photos/'.$key.'.webp');
+        return is_file($png) ? $png : database_path('seeders/assets/demo/'.$key.'.webp');
     }
 }

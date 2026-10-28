@@ -8,11 +8,11 @@ use App\Models\Branch;
 use App\Models\Media;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
-use Database\Seeders\ArmansKitchenDataSeeder;
-use Database\Seeders\Support\ArmansKitchenCatalog;
+use Database\Seeders\ProductionDataSeeder;
+use Database\Seeders\Support\ProductionCatalog;
 
 it("seeds Arman's Kitchen with its menu, variants and photos", function (): void {
-    $this->seed(ArmansKitchenDataSeeder::class);
+    $this->seed(ProductionDataSeeder::class);
 
     $branch = Branch::query()->where('code', 'AK01')->firstOrFail();
     $items = MenuItem::query()->withoutGlobalScopes()->where('branch_id', $branch->id)->get();
@@ -31,11 +31,11 @@ it("seeds Arman's Kitchen with its menu, variants and photos", function (): void
 });
 
 it('publishes journal posts with covers and gives dishes more than one photo', function (): void {
-    $this->seed(ArmansKitchenDataSeeder::class);
+    $this->seed(ProductionDataSeeder::class);
 
     $posts = BlogPost::query()->get();
 
-    expect($posts)->toHaveCount(count(ArmansKitchenCatalog::posts()))
+    expect($posts)->toHaveCount(count(ProductionCatalog::posts()))
         ->and($posts->every(fn (BlogPost $post): bool => $post->status === BlogPost::STATUS_PUBLISHED && storage_path('app/public/'.$post->cover_path) !== '' && is_file(storage_path('app/public/'.$post->cover_path))))->toBeTrue();
 
     $sada = MenuItem::query()->withoutGlobalScopes()->where('name', 'Al Faham Sada')->firstOrFail();
@@ -44,34 +44,34 @@ it('publishes journal posts with covers and gives dishes more than one photo', f
 });
 
 it('is safe to run twice', function (): void {
-    $this->seed(ArmansKitchenDataSeeder::class);
-    $this->seed(ArmansKitchenDataSeeder::class);
+    $this->seed(ProductionDataSeeder::class);
+    $this->seed(ProductionDataSeeder::class);
 
     expect(Branch::query()->where('code', 'AK01')->count())->toBe(1)
         ->and(MenuItem::query()->withoutGlobalScopes()->count())->toBe(55)
-        ->and(Media::query()->where('mediable_type', 'branch')->count())->toBe(count(ArmansKitchenCatalog::gallery()));
+        ->and(Media::query()->where('mediable_type', 'branch')->count())->toBe(count(ProductionCatalog::gallery()));
 });
 
 it('ships every photo the catalog and gallery refer to', function (): void {
-    foreach (ArmansKitchenCatalog::categories() as $category) {
+    foreach (ProductionCatalog::categories() as $category) {
         foreach ($category['items'] as $item) {
             if ($item['photo'] !== null) {
-                expect(base_path("database/seeders/assets/armans-kitchen/menu/{$item['photo']}.webp"))->toBeFile();
+                expect(base_path("database/seeders/assets/production/menu/{$item['photo']}.webp"))->toBeFile();
             }
         }
     }
 
-    foreach (ArmansKitchenCatalog::posts() as $post) {
-        expect(base_path("database/seeders/assets/armans-kitchen/blog/{$post['cover']}.webp"))->toBeFile();
+    foreach (ProductionCatalog::posts() as $post) {
+        expect(base_path("database/seeders/assets/production/blog/{$post['cover']}.webp"))->toBeFile();
     }
 
-    foreach (ArmansKitchenCatalog::gallery() as $entry) {
-        expect(base_path("database/seeders/assets/armans-kitchen/gallery/{$entry['file']}.webp"))->toBeFile();
+    foreach (ProductionCatalog::gallery() as $entry) {
+        expect(base_path("database/seeders/assets/production/gallery/{$entry['file']}.webp"))->toBeFile();
     }
 });
 
 it('adds the delivery channels switched off and keeps breakfast edits', function (): void {
-    $this->seed(ArmansKitchenDataSeeder::class);
+    $this->seed(ProductionDataSeeder::class);
 
     expect(AggregatorChannel::query()->where('is_active', false)->pluck('key')->sort()->values()->all())->toBe(['foodi', 'foodpanda', 'pathao_food']);
 
@@ -81,14 +81,14 @@ it('adds the delivery channels switched off and keeps breakfast edits', function
 
     $parota->update(['base_price' => 15, 'is_available' => true]);
 
-    $this->seed(ArmansKitchenDataSeeder::class);
+    $this->seed(ProductionDataSeeder::class);
 
     expect((int) $parota->fresh()->base_price)->toBe(15)
         ->and($parota->fresh()->is_available)->toBeTrue();
 });
 
 it('describes the priced dishes in English and Bangla', function (): void {
-    $this->seed(ArmansKitchenDataSeeder::class);
+    $this->seed(ProductionDataSeeder::class);
 
     $items = MenuItem::query()->withoutGlobalScopes()->where('base_price', '>', 0)->get();
 
