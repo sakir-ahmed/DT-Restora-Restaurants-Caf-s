@@ -86,3 +86,25 @@ it('adds the delivery channels switched off and keeps breakfast edits', function
     expect((int) $parota->fresh()->base_price)->toBe(15)
         ->and($parota->fresh()->is_available)->toBeTrue();
 });
+
+it('describes the priced dishes in English and Bangla', function (): void {
+    $this->seed(ArmansKitchenDataSeeder::class);
+
+    $items = MenuItem::query()->withoutGlobalScopes()->where('base_price', '>', 0)->get();
+
+    expect($items->filter(fn (MenuItem $item): bool => blank($item->description) || blank($item->description_bn)))->toBeEmpty();
+
+    $kabsa = $items->firstWhere('name', 'Kabsa');
+
+    expect($kabsa->description_bn)->toContain('বাতাতা মাকলিয়া')->toContain('প্রি-অর্ডার')
+        ->and($items->firstWhere('name', 'Shahi Chotpoti (AK Special)')->description)->toContain('crisp fried onion');
+});
+
+it('keeps the legal pages in step between English and Bangla', function (): void {
+    $english = require lang_path('en/legal.php');
+    $bangla = require lang_path('bn/legal.php');
+
+    expect(array_map('array_keys', array_filter($bangla, 'is_array')))->toBe(array_map('array_keys', array_filter($english, 'is_array')))
+        ->and(json_encode($bangla, JSON_UNESCAPED_UNICODE))->toContain('০১৭৭৭৬৫৬৫৬১')
+        ->and(json_encode($english))->not->toContain('SSLCommerz');
+});

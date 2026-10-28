@@ -13,6 +13,68 @@ namespace Database\Seeders\Support;
 final class ArmansKitchenCatalog
 {
     /**
+     * Dish descriptions by menu number: [English, Bangla].
+     *
+     * @var array<int, array{0: string, 1: string}>
+     */
+    private const DESCRIPTIONS = [
+        1 => ['Golden, crisp french fries, served hot.', 'সোনালি মচমচে ফ্রেঞ্চ ফ্রাই, গরম গরম পরিবেশন।'],
+        2 => ['Crispy fried chicken, served hot.', 'মচমচে ভাজা চিকেন, গরম গরম পরিবেশন।'],
+        3 => ['Chicken meatbox, packed hot for dine-in or takeaway.', 'চিকেন মিটবক্স, ডাইন-ইন বা টেকঅ্যাওয়ের জন্য গরম গরম প্যাক করা।'],
+        4 => ['Crispy fried chicken wings.', 'মচমচে ভাজা চিকেন উইংস।'],
+        5 => ['Six pieces of BBQ chicken wings.', 'বিবিকিউ চিকেন উইংসের ৬ পিস।'],
+        6 => ['A fresh salad with cashew nuts.', 'কাজুবাদামসহ তাজা সালাদ।'],
+        7 => ['Crispy chicken strips served with rice.', 'ভাতের সঙ্গে মচমচে চিকেন স্ট্রিপ।'],
+        8 => ['Crispy chicken strips served with fries.', 'ফ্রাইয়ের সঙ্গে মচমচে চিকেন স্ট্রিপ।'],
+        9 => ['Thai-style fried fish, about 500 gm.', 'থাই স্টাইলের ভাজা মাছ, ওজন প্রায় ৫০০ গ্রাম।'],
+        10 => ['Fried rice served with chicken fry.', 'ফ্রাইড রাইসের সঙ্গে চিকেন ফ্রাই।'],
+        11 => ['Fried rice served with chili chicken.', 'ফ্রাইড রাইসের সঙ্গে চিলি চিকেন।'],
+        12 => ['Fried rice served with two pieces of BBQ chicken wings.', 'ফ্রাইড রাইসের সঙ্গে ২ পিস বিবিকিউ চিকেন উইংস।'],
+        13 => ['Fried rice served with BBQ chicken.', 'ফ্রাইড রাইসের সঙ্গে বিবিকিউ চিকেন।'],
+        14 => ['Stir-fried chicken chowmein noodles.', 'চিকেন দিয়ে ভাজা চাউমিন নুডলস।'],
+        15 => ['Chicken in a sub roll, made fresh to order.', 'সাব রোলে চিকেন, অর্ডার পেলে বানানো।'],
+        16 => ['Chicken shawarma wrap.', 'চিকেন শাওয়ার্মা র‍্যাপ।'],
+        17 => ['Classic chotpoti, the Dhaka street-food favourite.', 'ঢাকার পথের খাবারের প্রিয় চিরচেনা চটপটি।'],
+        18 => ['AK Special chotpoti topped with nuts, raisins and crisp fried onion.', 'বাদাম, কিশমিশ ও মচমচে পেঁয়াজ ভাজা দেওয়া এ কে স্পেশাল শাহী চটপটি।'],
+        19 => ['Crisp fuchka shells with a tangy filling.', 'মচমচে খোসায় ঝাল-টক পুরের ফুচকা।'],
+        20 => ['AK Special churmur, a street-food favourite.', 'পথের খাবারের প্রিয় চুরমুর, এ কে স্পেশাল।'],
+        21 => ['AK Special fuchka covered in yogurt and sev.', 'দই ও সেভে ঢাকা এ কে স্পেশাল ফুচকা।'],
+        22 => ['Our most affordable chicken burger.', 'আমাদের সবচেয়ে সাশ্রয়ী চিকেন বার্গার।'],
+        23 => ['A classic chicken burger.', 'ক্লাসিক চিকেন বার্গার।'],
+        24 => ['A spicy chicken burger.', 'ঝাল চিকেন বার্গার।'],
+        25 => ['A chicken burger with cheese.', 'চিজসহ চিকেন বার্গার।'],
+        26 => ['A big chicken burger.', 'বড় আকারের চিকেন বার্গার।'],
+        27 => ['A big chicken burger with cheese.', 'চিজসহ বড় আকারের চিকেন বার্গার।'],
+        28 => ['Hot black tea.', 'গরম রং চা।'],
+        29 => ['Black tea with masala.', 'মসলা দেওয়া রং চা।'],
+        30 => ['Hot milk tea.', 'গরম দুধ চা।'],
+        31 => ['Roasted ruti, served hot.', 'ছ্যাঁকা পোড়া রুটি, গরম গরম।'],
+        32 => ['Hot regular coffee.', 'গরম রেগুলার কফি।'],
+        33 => ['Milk tea made with Horlicks.', 'হরলিকস মেশানো দুধ চা।'],
+        34 => ['Chilled lassi.', 'ঠান্ডা লাচ্ছি।'],
+        35 => ['Chilled cold coffee.', 'ঠান্ডা কোল্ড কফি।'],
+        36 => ['Chilled chocolate milk shake.', 'ঠান্ডা চকলেট মিল্ক শেক।'],
+        37 => ['Fresh and cool green lemonade.', 'ফ্রেশ ও ঠান্ডা গ্রিন লেমনেড।'],
+        43 => ['Rice with milk. Pre-order required.', 'দুধে রান্না করা ভাতের মিষ্টান্ন। প্রি-অর্ডার প্রয়োজন।'],
+        44 => ['Pre-order required.', 'প্রি-অর্ডার প্রয়োজন।'],
+        45 => ['Pre-order required.', 'প্রি-অর্ডার প্রয়োজন।'],
+        50 => ['Chicken Jhalfrezi, Chicken Soup or Nehari.', 'চিকেন ঝালফ্রেজি, চিকেন স্যুপ বা নেহারি।'],
+    ];
+
+    /**
+     * What a mandi plate comes with, in Bangla, by menu number.
+     *
+     * @var array<int, string>
+     */
+    private const MANDI_CONTENTS_BN = [
+        38 => 'চিকেন, ভাত, বাতাতা মাকলিয়া, সালাদ, দাকুস সস ও থুম সস',
+        39 => 'চিকেন, ভাত, বাতাতা মাকলিয়া, সালাদ, সস ও দাকুস',
+        40 => 'খাসির মাংস, ভাত, বাতাতা মাকলিয়া, সালাদ, সস ও দাকুস',
+        41 => 'চিকেন, বাতাতা মাকলিয়া, দাকুস সস ও থুম সস',
+        42 => 'চিকেন, ভাত, বাতাতা মাকলিয়া, সালাদ, দাকুস সস ও থুম সস',
+    ];
+
+    /**
      * @return array<int, array{name: string, name_bn: string, seed_once?: bool, items: array<int, array<string, mixed>>}>
      */
     public static function categories(): array
@@ -392,6 +454,8 @@ Inside there is booth seating, a quiet corner by the glass wall and a counter wi
      */
     private static function item(int $number, string $name, string $nameBn, int $price, ?string $photo = null, bool $veg = false, ?string $description = null): array
     {
+        [$text, $textBn] = self::DESCRIPTIONS[$number] ?? [$description, null];
+
         return [
             'number' => $number,
             'name' => $name,
@@ -400,7 +464,8 @@ Inside there is booth seating, a quiet corner by the glass wall and a counter wi
             'photo' => $photo,
             'veg' => $veg,
             'available' => true,
-            'description' => $description,
+            'description' => $text,
+            'description_bn' => $textBn,
             'variants' => [],
         ];
     }
@@ -426,6 +491,7 @@ Inside there is booth seating, a quiet corner by the glass wall and a counter wi
     {
         return [
             ...self::item($number, $name, $nameBn, $price12, $photo, false, $contents.'. The 1:4 portion comes with Zabadi. Pre-order required.'),
+            'description_bn' => self::MANDI_CONTENTS_BN[$number].'। ১:৪ পরিমাণের সঙ্গে জাবাদি থাকে। প্রি-অর্ডার প্রয়োজন।',
             'variants' => [
                 ['name' => '1:2', 'name_bn' => '১:২', 'price' => $price12, 'default' => true],
                 ['name' => '1:4', 'name_bn' => '১:৪', 'price' => $price14, 'default' => false],

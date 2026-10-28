@@ -83,6 +83,7 @@ class ArmansKitchenDataSeeder extends Seeder
                     'menu_category_id' => $category->id,
                     'name_bn' => $itemData['name_bn'],
                     'description' => $itemData['description'],
+                    'description_bn' => $itemData['description_bn'],
                     'photo_path' => $this->publishMenuPhoto($itemData['photo']),
                     'barcode' => sprintf('AK-%04d', $itemData['number']),
                     'base_price' => $itemData['price'],
