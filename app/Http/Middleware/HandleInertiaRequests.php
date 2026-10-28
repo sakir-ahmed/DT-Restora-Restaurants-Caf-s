@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Models\Branch;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\DemoJourney;
 use App\Services\DemoSmsInbox;
@@ -171,11 +172,14 @@ class HandleInertiaRequests extends Middleware
                     'code' => $branch->code,
                     'slug' => $branch->publicSlug(),
                     'address' => $branch->address,
+                    'address_bn' => $branch->address_bn,
                     'city' => $branch->city,
+                    'city_bn' => $branch->city_bn,
                     'phone' => $branch->phone,
                 ])
                 ->values()
                 ->all(),
+            'social' => Setting::current()->only(['social_facebook', 'social_instagram', 'social_youtube', 'social_tiktok', 'social_whatsapp']),
         ];
     }
 }

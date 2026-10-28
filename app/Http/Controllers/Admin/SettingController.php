@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Setting;
+use App\Services\PublicCache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -38,6 +39,11 @@ class SettingController extends Controller
                 'pos_lock_enabled',
                 'delivery_otp_enabled',
                 'tax_registration_no',
+                'social_facebook',
+                'social_instagram',
+                'social_youtube',
+                'social_tiktok',
+                'social_whatsapp',
             ]),
         ]);
     }
@@ -53,6 +59,11 @@ class SettingController extends Controller
             'pos_lock_enabled' => ['sometimes', 'boolean'],
             'delivery_otp_enabled' => ['required', 'boolean'],
             'tax_registration_no' => ['nullable', 'string', 'max:40'],
+            'social_facebook' => ['nullable', 'url:http,https', 'max:255'],
+            'social_instagram' => ['nullable', 'url:http,https', 'max:255'],
+            'social_youtube' => ['nullable', 'url:http,https', 'max:255'],
+            'social_tiktok' => ['nullable', 'url:http,https', 'max:255'],
+            'social_whatsapp' => ['nullable', 'url:http,https', 'max:255'],
         ], [], [
             'discount_limit_percent' => __('settings.discount_limit'),
             'wastage_spike_multiplier' => __('settings.wastage_spike'),
@@ -60,9 +71,15 @@ class SettingController extends Controller
             'pos_lock_enabled' => __('settings.pos_lock_enabled'),
             'delivery_otp_enabled' => __('settings.delivery_otp'),
             'tax_registration_no' => __('settings.tax_registration_no'),
+            'social_facebook' => __('settings.social_facebook'),
+            'social_instagram' => __('settings.social_instagram'),
+            'social_youtube' => __('settings.social_youtube'),
+            'social_tiktok' => __('settings.social_tiktok'),
+            'social_whatsapp' => __('settings.social_whatsapp'),
         ]);
 
         Setting::current()->update($validated);
+        PublicCache::bump();
 
         activity()
             ->causedBy($request->user('staff'))

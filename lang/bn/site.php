@@ -187,6 +187,12 @@ return [
     'footer_explore' => 'ঘুরে দেখুন',
     'footer_branches' => 'আমাদের ঠিকানা',
     'footer_legal' => 'আইনি তথ্য',
+    'footer_follow' => 'আমাদের অনুসরণ করুন',
+    'social_facebook' => 'ফেসবুক',
+    'social_instagram' => 'ইনস্টাগ্রাম',
+    'social_youtube' => 'ইউটিউব',
+    'social_tiktok' => 'টিকটক',
+    'social_whatsapp' => 'হোয়াটসঅ্যাপ',
     'footer_rights' => 'সর্বস্বত্ব সংরক্ষিত।',
     'back_to_top' => 'উপরে যান',
 

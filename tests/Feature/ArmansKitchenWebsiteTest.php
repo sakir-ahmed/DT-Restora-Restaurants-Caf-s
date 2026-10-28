@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Models\Branch;
+use App\Models\User;
 use Database\Seeders\ArmansKitchenDataSeeder;
 use Database\Seeders\ChartOfAccountsSeeder;
 use Database\Seeders\RoleSeeder;
@@ -77,4 +79,56 @@ it('keeps the English and Bangla site copy in step', function (): void {
 
     expect(array_keys($bangla))->toBe(array_keys($english))
         ->and(array_keys($bangla['faq']))->toBe(array_keys($english['faq']));
+});
+
+it('shows the Bangla address of the outlet in Bangla mode', function (): void {
+    $this->withSession(['locale' => 'bn'])->get('/locations')
+        ->assertInertia(fn ($page) => $page
+            ->component('web/locations/Index')
+            ->where('branches.0.address_bn', 'বাসা ১৩৩, রোড ০৬, মোহাম্মদিয়া হাউজিং সোসাইটি, মোহাম্মদপুর')
+            ->where('branches.0.city_bn', 'ঢাকা'));
+});
+
+it('lets the owner save social links, shares them with the footer and rejects bad links', function (): void {
+    $owner = User::factory()->role('owner')->create();
+    $settings = [
+        'discount_limit_percent' => '10',
+        'wastage_spike_multiplier' => '1.5',
+        'pos_pin_minutes' => 5,
+        'delivery_otp_enabled' => true,
+    ];
+
+    $this->get('/')->assertInertia(fn ($page) => $page->where('site.social.social_facebook', null));
+
+    $this->actingAs($owner, 'staff')
+        ->put(route('admin.settings.update'), [...$settings, 'social_facebook' => 'https://facebook.com/armanskitchen', 'social_whatsapp' => 'javascript:alert(1)'])
+        ->assertSessionHasErrors('social_whatsapp');
+
+    $this->actingAs($owner, 'staff')
+        ->put(route('admin.settings.update'), [...$settings, 'social_facebook' => 'https://facebook.com/armanskitchen'])
+        ->assertSessionHasNoErrors();
+
+    auth('staff')->logout();
+
+    $this->get('/')->assertInertia(fn ($page) => $page
+        ->where('site.social.social_facebook', 'https://facebook.com/armanskitchen')
+        ->where('site.social.social_instagram', null));
+});
+
+it('saves the Bangla address from the branch form', function (): void {
+    $owner = User::factory()->role('owner')->create();
+    $branch = Branch::query()->where('code', 'AK01')->firstOrFail();
+
+    $this->actingAs($owner, 'staff')
+        ->put(route('admin.branches.update', $branch), [
+            'name' => $branch->name,
+            'code' => $branch->code,
+            'vat_percent' => '0',
+            'service_charge_percent' => '0',
+            'address_bn' => 'নতুন ঠিকানা',
+            'city_bn' => 'ঢাকা',
+        ])
+        ->assertSessionHasNoErrors();
+
+    expect($branch->fresh()->address_bn)->toBe('নতুন ঠিকানা');
 });

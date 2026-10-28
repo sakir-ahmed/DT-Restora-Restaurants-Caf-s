@@ -23,6 +23,11 @@ const form = useForm({
     pos_lock_enabled: Boolean(props.settings.pos_lock_enabled),
     delivery_otp_enabled: Boolean(props.settings.delivery_otp_enabled),
     tax_registration_no: props.settings.tax_registration_no ?? '',
+    social_facebook: props.settings.social_facebook ?? '',
+    social_instagram: props.settings.social_instagram ?? '',
+    social_youtube: props.settings.social_youtube ?? '',
+    social_tiktok: props.settings.social_tiktok ?? '',
+    social_whatsapp: props.settings.social_whatsapp ?? '',
 });
 
 function save() {
@@ -61,6 +66,36 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
                 <FormField :label="t('settings.tax_registration_no')" :helper="t('settings.tax_registration_no_helper')" :error="form.errors.tax_registration_no">
                     <template #default="{ id }">
                         <input :id="id" v-model="form.tax_registration_no" type="text" maxlength="40" :class="inputClass">
+                    </template>
+                </FormField>
+            </div>
+
+            <h2 class="mb-2 border-t border-border pt-3 text-[13px] font-semibold text-foreground">{{ t('settings.section_social') }}</h2>
+            <p class="mb-2 text-xs text-muted">{{ t('settings.section_social_helper') }}</p>
+            <div class="mb-3 grid grid-cols-2 gap-x-4 gap-y-3">
+                <FormField :label="t('settings.social_facebook')" :error="form.errors.social_facebook">
+                    <template #default="{ id }">
+                        <input :id="id" v-model="form.social_facebook" type="url" maxlength="255" placeholder="https://" :class="inputClass">
+                    </template>
+                </FormField>
+                <FormField :label="t('settings.social_instagram')" :error="form.errors.social_instagram">
+                    <template #default="{ id }">
+                        <input :id="id" v-model="form.social_instagram" type="url" maxlength="255" placeholder="https://" :class="inputClass">
+                    </template>
+                </FormField>
+                <FormField :label="t('settings.social_youtube')" :error="form.errors.social_youtube">
+                    <template #default="{ id }">
+                        <input :id="id" v-model="form.social_youtube" type="url" maxlength="255" placeholder="https://" :class="inputClass">
+                    </template>
+                </FormField>
+                <FormField :label="t('settings.social_tiktok')" :error="form.errors.social_tiktok">
+                    <template #default="{ id }">
+                        <input :id="id" v-model="form.social_tiktok" type="url" maxlength="255" placeholder="https://" :class="inputClass">
+                    </template>
+                </FormField>
+                <FormField :label="t('settings.social_whatsapp')" :error="form.errors.social_whatsapp">
+                    <template #default="{ id }">
+                        <input :id="id" v-model="form.social_whatsapp" type="url" maxlength="255" placeholder="https://" :class="inputClass">
                     </template>
                 </FormField>
             </div>

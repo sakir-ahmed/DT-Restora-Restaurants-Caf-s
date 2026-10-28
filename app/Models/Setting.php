@@ -15,6 +15,11 @@ class Setting extends Model
         'pos_lock_enabled',
         'delivery_otp_enabled',
         'tax_registration_no',
+        'social_facebook',
+        'social_instagram',
+        'social_youtube',
+        'social_tiktok',
+        'social_whatsapp',
     ];
 
     protected $casts = [

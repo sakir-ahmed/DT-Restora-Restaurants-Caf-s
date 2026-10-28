@@ -187,6 +187,12 @@ return [
     'footer_explore' => 'Explore',
     'footer_branches' => 'Visit us',
     'footer_legal' => 'Legal',
+    'footer_follow' => 'Follow us',
+    'social_facebook' => 'Facebook',
+    'social_instagram' => 'Instagram',
+    'social_youtube' => 'YouTube',
+    'social_tiktok' => 'TikTok',
+    'social_whatsapp' => 'WhatsApp',
     'footer_rights' => 'All rights reserved.',
     'back_to_top' => 'Back to top',
 
