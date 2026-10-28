@@ -420,7 +420,6 @@ watch(currentChapter, () => nextTick(() => document.querySelector('[data-chapter
                                     <span class="tm-item-body">
                                         <span class="tm-item-line">
                                             <span class="tm-name">
-                                                <span v-if="item.is_vegetarian" class="tm-veg" :title="t('tablemenu.vegetarian')" />
                                                 {{ localized(item, 'name') }}
                                             </span>
                                             <span class="tm-leader" aria-hidden="true" />
@@ -1090,25 +1089,6 @@ h3 {
     -webkit-line-clamp: unset;
     display: block;
     margin-top: 0.2rem;
-}
-
-.tm-veg {
-    display: inline-block;
-    width: 0.8rem;
-    height: 0.8rem;
-    flex-shrink: 0;
-    border: 1.5px solid var(--green);
-    border-radius: 0.15rem;
-    position: relative;
-    transform: translateY(0.1rem);
-}
-
-.tm-veg::after {
-    content: '';
-    position: absolute;
-    inset: 0.14rem;
-    border-radius: 9999px;
-    background: var(--green);
 }
 
 .tm-plus,

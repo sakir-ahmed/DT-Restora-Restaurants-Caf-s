@@ -74,10 +74,6 @@ function add() {
                             <div class="h-full w-full"><DishPlaceholder :kind="dishKind(category)" :seed="item.id" /></div>
                         </div>
                     </div>
-                    <span v-if="item.is_vegetarian" class="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-lg bg-success px-2.5 py-1 text-xs font-semibold text-white">
-                        <AppIcon name="leaf" size="11" />
-                        {{ t('site.item_vegetarian') }}
-                    </span>
                 </div>
             </Reveal>
 

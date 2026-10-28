@@ -41,6 +41,8 @@ return [
         'a6' => 'You earn points on every order and can redeem them for rewards on the website or at the counter by verifying your mobile number.',
         'q7' => 'How can I track my order?',
         'a7' => 'After you order, you land on a tracking page that shows each step from the kitchen to your door. No sign in is needed, so keep that link.',
+        'q8' => 'Do you serve breakfast?',
+        'a8' => 'Yes. Ask your branch for the morning menu, or look under Breakfast on the menu page.',
         'a9' => 'Please call the branch before you order and tell us about your allergy. Recipes and ingredients can vary, so we cannot guarantee that any dish is free of an allergen.',
     ],
     'cta_text' => 'Order online in a minute and we will take care of the rest.',

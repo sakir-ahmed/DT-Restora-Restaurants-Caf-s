@@ -46,11 +46,6 @@ const lowestPrice = computed(() => {
             <div v-else class="h-full w-full p-3">
                 <DishPlaceholder :kind="kind" :seed="item.id" />
             </div>
-
-            <span v-if="item.is_vegetarian" class="absolute left-3 top-3 inline-flex items-center gap-1 rounded-lg bg-success px-2.5 py-1 text-[11px] font-semibold text-white">
-                <AppIcon name="leaf" size="10" />
-                {{ t('site.item_vegetarian') }}
-            </span>
         </Link>
 
         <div class="flex flex-1 flex-col p-4">

@@ -306,7 +306,10 @@ onBeforeUnmount(() => {
 
             <div class="border-t border-white/10">
                 <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-5 text-sm">
-                    <p class="text-[#a89b82]">&copy; {{ localDigits(new Date().getFullYear()) }} {{ page.props.appName }}. {{ t('site.footer_rights') }} A Datatech product by Datatech BD Ltd.</p>
+                    <div class="flex flex-col gap-1 text-[#a89b82]">
+                        <p>&copy; {{ localDigits(new Date().getFullYear()) }} {{ page.props.appName }}. {{ t('site.footer_rights') }}</p>
+                        <a href="https://datatechbd.com" target="_blank" rel="noopener" class="transition-colors hover:text-[#f6e7bd]">{{ t('site.footer_product') }}</a>
+                    </div>
                     <a href="#main" class="inline-flex items-center gap-2 rounded-lg border border-white/15 px-3 py-1.5 transition-colors hover:border-[#c9a24a] hover:text-[#f6e7bd]">
                         <AppIcon name="arrow-up" size="11" />
                         {{ t('site.back_to_top') }}

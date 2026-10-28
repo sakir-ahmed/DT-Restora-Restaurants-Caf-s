@@ -22,7 +22,6 @@ const props = defineProps({
 
 const mounted = ref(false);
 const search = ref('');
-const vegOnly = ref(false);
 const activeCategory = ref(null);
 const sheetItem = ref(null);
 const selectedVariant = ref(null);
@@ -44,8 +43,7 @@ const filteredCategories = computed(() => {
     return props.categories
         .map((category) => ({
             ...category,
-            items: category.items.filter((item) => (! vegOnly.value || item.is_vegetarian)
-                && (! needle
+            items: category.items.filter((item) => (! needle
                     || item.name.toLowerCase().includes(needle)
                     || (item.name_bn ?? '').includes(search.value.trim()))),
         }))
@@ -178,17 +176,6 @@ onBeforeUnmount(() => {
                         <AppIcon name="magnifying-bg-surface border border-border " size="14" class="shrink-0 text-muted" />
                         <input v-model="search" type="search" :placeholder="t('site.menu_search')" :aria-label="t('site.menu_search')" class="w-full min-w-0 border-0 bg-transparent text-base outline-none placeholder:text-muted/70">
                     </label>
-
-                    <button
-                        type="button"
-                        class="inline-flex h-11 items-center gap-2 rounded-lg border px-4 text-sm font-semibold transition-colors"
-                        :class="vegOnly ? 'border-success bg-success text-white' : 'border-border bg-surface hover:border-success'"
-                        :aria-pressed="vegOnly"
-                        @click="vegOnly = ! vegOnly"
-                    >
-                        <AppIcon name="leaf" size="13" />
-                        {{ t('site.menu_vegetarian_only') }}
-                    </button>
                 </div>
 
                 <div ref="chipRail" class="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
