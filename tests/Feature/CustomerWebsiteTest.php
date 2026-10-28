@@ -112,7 +112,7 @@ it('places an online order that reaches the kitchen with SMS queued', function (
         ->and((float) $order->subtotal)->toBe(500.0)
         ->and((float) $order->delivery_fee)->toBe(60.0)
         ->and($order->customer_id)->toBe($customer->id)
-        ->and($order->invoice_no)->toStartWith('BR01-WEB-')
+        ->and($order->invoice_no)->toStartWith('BR01-WEB-'.now()->format('Ymd').'-')
         ->and($order->tracking_token)->not->toBeNull();
 
     Event::assertDispatched(OrderCreated::class, fn ($event) => $event->branchId === $this->branch->id);

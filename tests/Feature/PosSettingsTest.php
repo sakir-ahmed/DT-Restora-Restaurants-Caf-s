@@ -7,6 +7,7 @@ use App\Enums\OrderType;
 use App\Models\Branch;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
+use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Setting;
@@ -111,6 +112,9 @@ it('rejects invoice patterns that could repeat invoice numbers', function (strin
     'no sequence' => '{BRANCH}-{TERMINAL}-{YYYY}{MM}{DD}',
     'no date' => '{BRANCH}-{TERMINAL}-{SEQ}',
     'no terminal' => '{BRANCH}-{YYYY}{MM}{DD}-{SEQ}',
+    'random without time' => '{BRANCH}-{YYYY}{MM}{DD}-{RAND}',
+    'random and sequence' => '{BRANCH}-{TERMINAL}-{YYYY}{MM}{DD}-{TIME}-{RAND}-{SEQ}',
+    'random without branch' => '{YYYY}{MM}{DD}-{TIME}-{RAND}',
     'unknown token' => '{BRANCH}-{TERMINAL}-{YYYY}{MM}{DD}-{SEQ}-{FOO}',
     'unsafe characters' => '{BRANCH} {TERMINAL} {YYYY}{MM}{DD} {SEQ}',
 ]);
@@ -127,6 +131,26 @@ it('numbers invoices with the branch pattern and claims device numbers back', fu
     expect($service->next($this->branch->fresh(), 'T01'))->toBe("INV/BR01/T01/{$day}/00001")
         ->and($service->claim($this->branch->fresh(), 'T01', "INV/BR01/T01/{$day}/00007"))->toBe("INV/BR01/T01/{$day}/00007")
         ->and($service->next($this->branch->fresh(), 'T01'))->toBe("INV/BR01/T01/{$day}/00008");
+});
+
+it('accepts random invoice patterns and makes unique offline-safe numbers', function (): void {
+    $this->actingAs($this->owner, 'staff')
+        ->put(route('admin.branches.update', $this->branch), branchSettingsPayload(['pos' => ['invoice_pattern' => '{BRANCH}-{YYYY}{MM}{DD}-{TIME}-{RAND}']]))
+        ->assertSessionHasNoErrors();
+
+    $service = app(InvoiceNumberService::class);
+    $branch = $this->branch->fresh();
+
+    $numbers = collect(range(1, 40))->map(function () use ($service, $branch): string {
+        $number = $service->next($branch, 'T01');
+
+        Order::query()->forceCreate(['branch_id' => $branch->id, 'invoice_no' => $number, 'order_type' => 'takeaway', 'status' => 'pending', 'channel' => 'pos', 'subtotal' => 0, 'total' => 0]);
+
+        return $number;
+    });
+
+    expect($numbers->unique())->toHaveCount(40)
+        ->and($numbers->every(fn (string $number): bool => preg_match('/^BR01-\d{8}-\d{6}-[0-9A-HJKMNP-TV-Z]{4}$/', $number) === 1))->toBeTrue();
 });
 
 it('prints the receipt in the branch layout and a priceless kitchen token', function (): void {

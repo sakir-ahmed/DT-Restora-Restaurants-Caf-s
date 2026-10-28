@@ -25,7 +25,7 @@ test('cashier sells tea offline, prints the receipt, and syncs it once', async (
     await expect(page.locator('[data-outbox-count]')).toHaveText('1');
 
     const invoice = (await page.locator('[data-pos-invoice]').innerText()).trim();
-    expect(invoice).toMatch(/^BR01-T01-\d{8}-0001$/);
+    expect(invoice).toMatch(/^BR01-T01-\d{8}-\d{6}-[0-9A-HJKMNP-TV-Z]{4}$/);
 
     await page.getByRole('button', { name: 'Exact' }).click();
     await page.getByRole('button', { name: 'Confirm payment' }).click();

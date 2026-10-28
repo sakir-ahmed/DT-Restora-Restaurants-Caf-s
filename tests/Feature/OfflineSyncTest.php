@@ -63,7 +63,7 @@ it('accepts an offline order, syncs idempotently and pays it', function (): void
 
     expect(Order::count())->toBe(1)
         ->and(Order::first()->status->value)->toBe('paid')
-        ->and(Order::first()->invoice_no)->toStartWith('BR01-T02-');
+        ->and(Order::first()->invoice_no)->toStartWith('BR01-T02-'.now()->format('Ymd').'-');
 
     // Retrying the same client_id never creates a duplicate.
     $retry = $this->withToken($this->cashier->createToken('pos', ['staff'])->plainTextToken)
@@ -314,7 +314,9 @@ it('rejects attendance sync items because clock-in is not supported', function (
         ->assertJsonStructure(['error' => ['details' => ['items.0.type']]]);
 });
 
-it('keeps the invoice number printed offline and continues that terminal series', function (): void {
+it('keeps the invoice number printed offline and continues that terminal series for counter patterns', function (): void {
+    $this->branch->update(['pos_settings' => ['invoice_pattern' => '{BRANCH}-{TERMINAL}-{YYYY}{MM}{DD}-{SEQ}']]);
+
     $day = now()->format('Ymd');
     $invoice = "BR01-T02-{$day}-0007";
 
@@ -331,7 +333,9 @@ it('keeps the invoice number printed offline and continues that terminal series'
     ]);
 
     $accepted->assertOk()
-        ->assertJsonPath('data.results.0.status', SyncItem::STATUS_ACCEPTED);
+        ->assertJsonPath('data.results.0.status', SyncItem::STATUS_ACCEPTED)
+        ->assertJsonPath('data.results.0.invoice_no', $invoice)
+        ->assertJsonPath('data.results.0.invoice_changed', false);
 
     expect(Order::query()->where('client_id', '01H-INV7')->value('invoice_no'))->toBe($invoice)
         ->and(Order::query()->where('client_id', '01H-INV7')->first()->status->value)->toBe('paid');
@@ -344,8 +348,33 @@ it('keeps the invoice number printed offline and continues that terminal series'
     expect(Order::query()->where('client_id', '01H-INV8')->value('invoice_no'))->toBe("BR01-T02-{$day}-0008");
 });
 
-it('records a conflict when an offline invoice number is already used', function (): void {
-    $invoice = 'BR01-T02-'.now()->format('Ymd').'-0003';
+it('accepts offline random invoice numbers from parallel terminals and keeps each one', function (): void {
+    $day = now()->format('Ymd');
+    $invoices = ["BR01-T01-{$day}-143205-K7Q4", "BR01-T02-{$day}-143205-9ZXM", "BR01-T03-{$day}-143205-K7Q4"];
+
+    foreach ($invoices as $index => $invoice) {
+        [$response] = pushItem($this, [
+            'client_id' => "01H-RND{$index}",
+            'payload' => [
+                'branch_id' => $this->branch->id,
+                'order_type' => 'takeaway',
+                'terminal' => 'T0'.($index + 1),
+                'invoice_no' => $invoice,
+                'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+            ],
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('data.results.0.status', SyncItem::STATUS_ACCEPTED)
+            ->assertJsonPath('data.results.0.invoice_no', $invoice)
+            ->assertJsonPath('data.results.0.invoice_changed', false);
+    }
+
+    expect(Order::query()->orderBy('id')->pluck('invoice_no')->all())->toBe($invoices);
+});
+
+it('issues a new invoice number instead of losing a sale when an offline number is already used', function (): void {
+    $invoice = 'BR01-T02-'.now()->format('Ymd').'-143205-K7Q4';
     $payload = [
         'branch_id' => $this->branch->id,
         'order_type' => 'takeaway',
@@ -360,9 +389,42 @@ it('records a conflict when an offline invoice number is already used', function
     [$second] = pushItem($this, ['client_id' => '01H-INV-B', 'payload' => $payload]);
 
     $second->assertOk()
-        ->assertJsonPath('data.results.0.status', SyncItem::STATUS_CONFLICT);
+        ->assertJsonPath('data.results.0.status', SyncItem::STATUS_ACCEPTED)
+        ->assertJsonPath('data.results.0.invoice_changed', true);
 
-    expect(Order::query()->where('invoice_no', $invoice)->count())->toBe(1);
+    $reissued = Order::query()->where('client_id', '01H-INV-B')->value('invoice_no');
+
+    expect($reissued)->not->toBe($invoice)
+        ->and($second->json('data.results.0.invoice_no'))->toBe($reissued)
+        ->and(Order::query()->count())->toBe(2)
+        ->and(Order::query()->where('invoice_no', $invoice)->count())->toBe(1);
+
+    // A retry of the same sale reports the number it ended up with, and makes no new order.
+    [$retry] = pushItem($this, ['client_id' => '01H-INV-B', 'payload' => $payload]);
+
+    $retry->assertJsonPath('data.results.0.status', SyncItem::STATUS_DUPLICATE)
+        ->assertJsonPath('data.results.0.invoice_no', $reissued)
+        ->assertJsonPath('data.results.0.invoice_changed', true);
+
+    expect(Order::query()->count())->toBe(2);
+});
+
+it('issues a fresh number when the offline number does not follow the branch pattern', function (): void {
+    [$response] = pushItem($this, [
+        'client_id' => '01H-INV-ODD',
+        'payload' => [
+            'branch_id' => $this->branch->id,
+            'order_type' => 'takeaway',
+            'terminal' => 'T02',
+            'invoice_no' => 'MADE-UP-1',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        ],
+    ]);
+
+    $response->assertJsonPath('data.results.0.status', SyncItem::STATUS_ACCEPTED)
+        ->assertJsonPath('data.results.0.invoice_changed', true);
+
+    expect(Order::query()->value('invoice_no'))->toMatch('/^BR01-T02-\d{8}-\d{6}-[0-9A-HJKMNP-TV-Z]{4}$/');
 });
 
 it('pays an already synced offline order from the device client id', function (): void {

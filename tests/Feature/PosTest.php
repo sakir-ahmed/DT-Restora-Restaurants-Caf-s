@@ -96,7 +96,7 @@ it('creates an order with correct VAT, service charge, rounding and stock deduct
         ->and((float) $order->service_charge)->toBe(40.0)
         ->and((float) $order->vat_amount)->toBe(22.0)
         ->and((float) $order->total)->toBe(462.0)
-        ->and($order->invoice_no)->toBe('BR01-T01-'.now()->format('Ymd').'-0001')
+        ->and($order->invoice_no)->toMatch('/^BR01-T01-'.now()->format('Ymd').'-\d{6}-[0-9A-HJKMNP-TV-Z]{4}$/')
         ->and((float) $order->food_cost)->toBe(20.0); // 2 x 100 g x 0.1
 
     $stock = IngredientStock::query()
@@ -182,7 +182,9 @@ it('rejects discounts above the limit without the override permission', function
     expect((float) $order->discount_amount)->toBe(100.0);
 });
 
-it('keeps invoice numbers sequential per branch and terminal', function (): void {
+it('keeps invoice numbers sequential per branch and terminal when the pattern uses a counter', function (): void {
+    $this->branch->update(['pos_settings' => ['invoice_pattern' => '{BRANCH}-{TERMINAL}-{YYYY}{MM}{DD}-{SEQ}']]);
+
     $order1 = createPosOrder($this);
     $order2 = createPosOrder($this);
 
