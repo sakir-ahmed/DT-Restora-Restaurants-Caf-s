@@ -66,6 +66,30 @@
     --color-accent-foreground: #17120b;
 }
 
+/* Demo brand (DT Restora, Datatech blue). The production palette above is the default. */
+html[data-brand='demo']:not(.dark) {
+    --color-background: #f5f7fa; /* Cloud */
+    --color-foreground: #0a1428; /* Midnight Navy */
+    --color-muted: #4a5568; /* Slate */
+    --color-border: #dfe6f0;
+    --color-primary: #0b63ce; /* Datatech Blue */
+    --color-primary-foreground: #ffffff;
+    --color-accent: #1c6fe0; /* Sky Blue */
+    --color-accent-foreground: #ffffff;
+}
+
+html[data-brand='demo'].dark {
+    --color-background: #0a1428;
+    --color-surface: #101d36;
+    --color-foreground: #f5f7fa;
+    --color-muted: #afc0d6;
+    --color-border: #22345a;
+    --color-primary: #38a8ff;
+    --color-primary-foreground: #0a1428;
+    --color-accent: #38a8ff;
+    --color-accent-foreground: #ffffff;
+}
+
 html {
     background-color: var(--color-background);
 }

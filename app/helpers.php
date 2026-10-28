@@ -1,6 +1,8 @@
 <?php
 
 declare(strict_types=1);
+
+use App\Support\Brand;
 use Illuminate\Support\Facades\Cache;
 
 if (! function_exists('normalize_bd_mobile')) {
@@ -62,10 +64,19 @@ if (! function_exists('flat_translations')) {
 
         $files = glob($path.'/*.php') ?: [];
 
-        // The signature changes when any lang file is edited, so a deploy never serves stale text.
-        $signature = md5(implode('|', array_map(fn (string $file): string => $file.filemtime($file), $files)).json_encode($groups));
+        // Demo wording replaces the production text group by group (see App\Support\Brand).
+        $overrides = [];
 
-        return Cache::remember("translations:{$locale}:{$signature}", 86400, function () use ($files, $groups): array {
+        if (Brand::isDemo()) {
+            foreach (glob(Brand::languageOverridePath().'/'.$locale.'/*.php') ?: [] as $file) {
+                $overrides[basename($file, '.php')] = $file;
+            }
+        }
+
+        // The signature changes when any lang file is edited, so a deploy never serves stale text.
+        $signature = md5(implode('|', array_map(fn (string $file): string => $file.filemtime($file), [...$files, ...$overrides])).json_encode($groups).Brand::mode());
+
+        return Cache::remember("translations:{$locale}:{$signature}", 86400, function () use ($files, $overrides, $groups): array {
             $flat = [];
 
             foreach ($files as $file) {
@@ -76,6 +87,10 @@ if (! function_exists('flat_translations')) {
                 }
 
                 $lines = require $file;
+
+                if (isset($overrides[$group])) {
+                    $lines = array_replace_recursive($lines, require $overrides[$group]);
+                }
 
                 foreach (array_dot($lines) as $key => $value) {
                     if (is_string($value)) {

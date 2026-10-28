@@ -13,6 +13,7 @@ use App\Services\Metrics\MetricsService;
 use App\Services\PosSettings;
 use App\Services\PublicCache;
 use App\Services\SmsService;
+use App\Support\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
@@ -37,6 +38,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'appName' => config('app.name'),
+            'brand' => Brand::shared(),
             'isDemo' => config('app.is_demo') === true,
             'demoSession' => fn () => config('app.is_demo') === true ? app(DemoJourney::class)->shared($request) : null,
             'locale' => app()->getLocale(),

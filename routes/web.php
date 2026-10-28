@@ -51,6 +51,7 @@ use App\Http\Controllers\Web\AboutController;
 use App\Http\Controllers\Web\AccountController;
 use App\Http\Controllers\Web\AggregatorWebhookController;
 use App\Http\Controllers\Web\BlogController;
+use App\Http\Controllers\Web\BrandController;
 use App\Http\Controllers\Web\CareerController;
 use App\Http\Controllers\Web\CheckoutController;
 use App\Http\Controllers\Web\ContactController;
@@ -128,6 +129,8 @@ Route::get('/faq', FaqController::class)->name('web.faq');
 
 Route::get('/sitemap.xml', SitemapController::class)->name('web.sitemap');
 Route::get('/robots.txt', RobotsController::class)->name('web.robots');
+Route::get('/favicon.ico', [BrandController::class, 'favicon'])->name('web.favicon');
+Route::get('/manifest.webmanifest', [BrandController::class, 'manifest'])->name('web.manifest');
 
 Route::post('/locale', LocaleController::class)->name('locale.switch');
 

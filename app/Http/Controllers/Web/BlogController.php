@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
 use App\Services\SeoBuilder;
+use App\Support\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -105,7 +106,7 @@ class BlogController extends Controller
                 'articleSection' => $post->category,
                 'mainEntityOfPage' => ['@type' => 'WebPage', '@id' => $post->url()],
                 'author' => ['@type' => 'Organization', 'name' => (string) config('app.name'), 'url' => url('/')],
-                'publisher' => ['@type' => 'Organization', 'name' => (string) config('app.name'), 'logo' => ['@type' => 'ImageObject', 'url' => asset('images/brand/emblem-512.png')]],
+                'publisher' => ['@type' => 'Organization', 'name' => (string) config('app.name'), 'logo' => ['@type' => 'ImageObject', 'url' => Brand::logo()]],
             ])],
             breadcrumbs: [
                 ['name' => __('site.nav_home'), 'url' => url('/')],

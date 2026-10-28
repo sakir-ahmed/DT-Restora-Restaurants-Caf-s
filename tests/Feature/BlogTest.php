@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\BlogPost;
 use App\Models\User;
+use App\Support\Brand;
 use Database\Seeders\ChartOfAccountsSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Http\UploadedFile;
@@ -86,7 +87,7 @@ it('publishes each article with article structured data and an article social pr
         ->and($article['image'])->toBe([url('/storage/blog/cover.jpg')])
         ->and($article['datePublished'])->toBe($post->published_at->toIso8601String())
         ->and($article['author']['name'])->toBe(config('app.name'))
-        ->and($article['publisher']['logo']['url'])->toBe(asset('images/brand/emblem-512.png'))
+        ->and($article['publisher']['logo']['url'])->toBe(Brand::logo())
         ->and($article['articleSection'])->toBe('Recipes');
 
     expect($response->getContent())->toContain('property="og:type" content="article"')

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 use App\Models\Branch;
 use App\Models\User;
-use Database\Seeders\ArmansKitchenDataSeeder;
+use Database\Seeders\ProductionDataSeeder;
 use Database\Seeders\ChartOfAccountsSeeder;
 use Database\Seeders\RoleSeeder;
 
 beforeEach(function (): void {
-    $this->seed([ChartOfAccountsSeeder::class, RoleSeeder::class, ArmansKitchenDataSeeder::class]);
+    $this->seed([ChartOfAccountsSeeder::class, RoleSeeder::class, ProductionDataSeeder::class]);
 });
 
 /**
@@ -59,7 +59,7 @@ it('describes the restaurant with its logo, founding year, cuisines and photos',
     $organization = $graph->firstWhere('@type', 'Organization');
     $restaurant = $graph->firstWhere('@type', 'Restaurant');
 
-    expect($organization['logo'])->toEndWith('/images/brand/emblem-512.png')
+    expect($organization['logo'])->toEndWith('/images/production/brand/emblem-512.png')
         ->and($organization['foundingDate'])->toBe('2013')
         ->and($restaurant['servesCuisine'])->toContain('Arabian', 'Street Food')
         ->and($restaurant['image'])->toHaveCount(4)

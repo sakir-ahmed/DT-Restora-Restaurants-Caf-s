@@ -7,11 +7,13 @@ namespace App\Providers;
 use App\Models\Branch;
 use App\Models\MenuItem;
 use App\Models\User;
+use App\Support\Brand;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Translation\FileLoader;
 use Inertia\Inertia;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Demo mode shows neutral wording on top of the production text (lang/demo).
+        if (Brand::isDemo() && $this->app['translation.loader'] instanceof FileLoader) {
+            $this->app['translation.loader']->addPath(Brand::languageOverridePath());
+        }
+
         // Short names in the media table instead of class names.
         Relation::morphMap(['branch' => Branch::class, 'menu_item' => MenuItem::class]);
 

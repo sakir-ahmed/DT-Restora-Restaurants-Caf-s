@@ -8,6 +8,7 @@ use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\RestaurantTable;
 use App\Services\SeoBuilder;
+use App\Support\Brand;
 use Database\Seeders\ChartOfAccountsSeeder;
 use Database\Seeders\RoleSeeder;
 
@@ -90,7 +91,7 @@ it('gives each page its own title and canonical URL', function (): void {
 
     $this->get('/about')
         ->assertSee('<link data-inertia="canonical" rel="canonical" href="'.route('web.about').'">', false)
-        ->assertSee('<meta data-inertia="og:image" property="og:image" content="'.asset('images/og-default.png').'">', false)
+        ->assertSee('<meta data-inertia="og:image" property="og:image" content="'.Brand::ogImage().'">', false)
         ->assertSee('name="twitter:card"', false)
         ->assertSee('content="index,follow,max-image-preview:large"', false);
 });

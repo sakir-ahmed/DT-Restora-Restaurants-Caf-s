@@ -7,11 +7,11 @@
     $robots = $seo && ! ($seo['noindex'] ?? false) ? 'index,follow,max-image-preview:large' : 'noindex,nofollow';
 @endphp
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-brand="{{ \App\Support\Brand::mode() }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#17120b">
+    <meta name="theme-color" content="{{ \App\Support\Brand::themeColor() }}">
     <meta name="application-name" content="{{ $brand }}">
     <meta name="format-detection" content="telephone=yes">
     <link rel="manifest" href="/manifest.webmanifest">
@@ -43,9 +43,9 @@
         @endif
     @endif
 
-    <link rel="icon" href="/favicon.ico" sizes="32x32">
-    <link rel="icon" href="/favicon.png" type="image/png" sizes="96x96">
-    <link rel="apple-touch-icon" href="/images/brand/apple-touch-icon.png">
+    @foreach (\App\Support\Brand::iconLinks() as $icon)
+        <link @foreach ($icon as $attribute => $value) {{ $attribute }}="{{ $value }}" @endforeach>
+    @endforeach
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <script>

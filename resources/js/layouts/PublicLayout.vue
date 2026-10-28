@@ -18,7 +18,7 @@ import { currentLocale } from '@/lib/i18n';
 const page = usePage();
 
 const mounted = ref(false);
-const wordmark = '/images/brand/wordmark-gold.png';
+const wordmark = computed(() => page.props.brand?.wordmark ?? null);
 const scrolled = ref(false);
 const drawerOpen = ref(false);
 
@@ -243,7 +243,11 @@ onBeforeUnmount(() => {
             <div class="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-12">
                 <div class="sm:col-span-2 lg:col-span-4">
                     <Link href="/" class="inline-block" :aria-label="page.props.appName">
-                        <img :src="wordmark" :alt="page.props.appName" width="962" height="353" loading="lazy" decoding="async" class="h-16 w-auto">
+                        <img v-if="wordmark" :src="wordmark" :alt="page.props.appName" width="962" height="353" loading="lazy" decoding="async" class="h-16 w-auto">
+                        <span v-else class="flex items-center gap-2.5">
+                            <BrandMark :size="40" />
+                            <BrandName class="text-2xl font-bold text-[#f6efe0]" :name="page.props.appName" />
+                        </span>
                     </Link>
                     <p class="mt-4 max-w-sm text-sm leading-relaxed">{{ t('site.footer_text') }}</p>
 

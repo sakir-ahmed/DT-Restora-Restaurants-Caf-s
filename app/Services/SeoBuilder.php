@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\Branch;
 use App\Models\Media;
+use App\Support\Brand;
 use Illuminate\Support\Str;
 
 /**
@@ -46,7 +47,7 @@ class SeoBuilder
             'title' => $title,
             'description' => Str::limit(trim(strip_tags($description)), 160, ''),
             'canonical' => $canonical,
-            'image' => $image ?? asset('images/og-default.png'),
+            'image' => $image ?? Brand::ogImage(),
             'image_alt' => (string) config('app.name'),
             'type' => 'website',
             'locale' => app()->getLocale() === 'bn' ? 'bn_BD' : 'en_US',
@@ -97,8 +98,8 @@ class SeoBuilder
             '@id' => url('/').'#organization',
             'name' => (string) config('app.name'),
             'url' => url('/'),
-            'logo' => asset('images/brand/emblem-512.png'),
-            'image' => asset('images/og-default.png'),
+            'logo' => Brand::logo(),
+            'image' => Brand::ogImage(),
             'description' => __('site.seo_home_description'),
             'foundingDate' => (string) config('app.established_year'),
         ];

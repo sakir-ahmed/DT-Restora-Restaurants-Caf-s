@@ -4,7 +4,9 @@
  * faded, on a soft neutral tile. It carries no food illustration, so it never
  * suggests a dish that is not on the plate.
  */
-const emblem = '/images/brand/emblem-192.png';
+import { usePage } from '@inertiajs/vue3';
+
+const page = usePage();
 
 defineProps({
     kind: { type: String, default: '' },
@@ -16,7 +18,7 @@ defineProps({
 <template>
     <div class="flex h-full w-full items-center justify-center rounded-xl bg-gradient-to-br from-border/40 to-border/10" role="img" aria-hidden="true">
         <img
-            :src="emblem"
+            :src="page.props.brand?.emblem"
             alt=""
             width="96"
             height="96"
