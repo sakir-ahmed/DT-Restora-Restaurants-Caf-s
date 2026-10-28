@@ -2,7 +2,7 @@
 import { Link } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
-import DishArt from '@/components/site/DishArt.vue';
+import DishPlaceholder from '@/components/site/DishPlaceholder.vue';
 import DishCard from '@/components/site/DishCard.vue';
 import MediaViewer from '@/components/site/MediaViewer.vue';
 import PageHero from '@/components/site/PageHero.vue';
@@ -71,7 +71,7 @@ function add() {
                     <MediaViewer v-if="gallery.length" :items="gallery" :name="name" />
                     <div v-else class="relative aspect-square overflow-hidden rounded-xl border border-border bg-surface">
                         <div class="flex h-full w-full items-center justify-center p-12">
-                            <div class="h-full w-full"><DishArt :kind="dishKind(category)" :seed="item.id" /></div>
+                            <div class="h-full w-full"><DishPlaceholder :kind="dishKind(category)" :seed="item.id" /></div>
                         </div>
                     </div>
                     <span v-if="item.is_vegetarian" class="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-lg bg-success px-2.5 py-1 text-xs font-semibold text-white">

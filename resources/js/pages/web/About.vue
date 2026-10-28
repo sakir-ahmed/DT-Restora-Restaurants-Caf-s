@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
 import CountUp from '@/components/site/CountUp.vue';
 import CtaBanner from '@/components/site/CtaBanner.vue';
-import DishArt from '@/components/site/DishArt.vue';
+import DishPlaceholder from '@/components/site/DishPlaceholder.vue';
 import PageHero from '@/components/site/PageHero.vue';
 import Reveal from '@/components/site/Reveal.vue';
 import SectionHeading from '@/components/site/SectionHeading.vue';
@@ -65,7 +65,7 @@ const tiles = computed(() => [
                     <figcaption v-if="photo.title" class="px-4 py-3 text-sm text-muted">{{ photo.title }}</figcaption>
                 </figure>
                 <div v-else class="rounded-xl border border-border bg-surface p-8">
-                    <div class="mx-auto aspect-square w-full max-w-sm"><DishArt kind="bowl" :seed="5" /></div>
+                    <div class="mx-auto aspect-square w-full max-w-sm"><DishPlaceholder kind="bowl" :seed="5" /></div>
                 </div>
             </Reveal>
         </section>

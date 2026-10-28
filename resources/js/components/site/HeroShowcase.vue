@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
-import DishArt from './DishArt.vue';
+import DishPlaceholder from './DishPlaceholder.vue';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/format';
 import { dishKind, localized, photoSrc } from '@/lib/site';
@@ -103,7 +103,7 @@ onBeforeUnmount(stop);
                     decoding="async"
                     class="hero-photo h-full w-full object-contain p-5"
                 >
-                <div v-else class="hero-art h-3/5 w-3/5 max-w-72"><DishArt :kind="slide.kind" :seed="slide.seed" /></div>
+                <div v-else class="hero-art h-3/5 w-3/5 max-w-72"><DishPlaceholder :kind="slide.kind" :seed="slide.seed" /></div>
             </div>
 
             <span class="hero-chip hero-chip-a" aria-hidden="true"><AppIcon name="fire" size="12" />{{ t('site.hero_badge_fresh') }}</span>

@@ -2,7 +2,7 @@
 import { Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
-import DishArt from './DishArt.vue';
+import DishPlaceholder from './DishPlaceholder.vue';
 import TiltCard from './TiltCard.vue';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/format';
@@ -43,8 +43,8 @@ const lowestPrice = computed(() => {
                 decoding="async"
                 :class="imageFit === 'contain' ? 'h-full w-full object-contain p-3' : 'h-full w-full object-cover'"
             >
-            <div v-else class="flex h-full w-full items-center justify-center p-6">
-                <div class="h-full max-h-44 w-full max-w-44 drop-"><DishArt :kind="kind" :seed="item.id" /></div>
+            <div v-else class="h-full w-full p-3">
+                <DishPlaceholder :kind="kind" :seed="item.id" />
             </div>
 
             <span v-if="item.is_vegetarian" class="absolute left-3 top-3 inline-flex items-center gap-1 rounded-lg bg-success px-2.5 py-1 text-[11px] font-semibold text-white">

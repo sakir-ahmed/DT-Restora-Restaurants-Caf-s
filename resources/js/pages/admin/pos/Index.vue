@@ -2,7 +2,7 @@
 import { useForm, router, usePage } from '@inertiajs/vue3';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
-import DishArt from '@/components/site/DishArt.vue';
+import DishPlaceholder from '@/components/site/DishPlaceholder.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
 import MobileInput from '@/components/ui-kit/MobileInput.vue';
 import PosTableTile from '@/components/admin/PosTableTile.vue';
@@ -2566,7 +2566,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                             @error="markPhotoFailed(variantPicker.id)"
                         >
                         <div v-else class="flex h-full min-h-36 items-center justify-center">
-                            <DishArt
+                            <DishPlaceholder
                                 :kind="dishKind(itemCategoryName(variantPicker))"
                                 :seed="variantPicker.id"
                                 class="h-32 w-32"
@@ -2652,7 +2652,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                             @error="markPhotoFailed(optionsDialog.item.id)"
                         >
                         <div v-else class="flex h-full min-h-24 items-center justify-center">
-                            <DishArt
+                            <DishPlaceholder
                                 :kind="dishKind(itemCategoryName(optionsDialog.item))"
                                 :seed="optionsDialog.item.id"
                                 class="h-24 w-24 sm:h-32 sm:w-32"
