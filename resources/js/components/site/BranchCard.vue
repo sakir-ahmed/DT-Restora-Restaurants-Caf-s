@@ -5,7 +5,7 @@ import AppIcon from '@/components/AppIcon.vue';
 import TiltCard from './TiltCard.vue';
 import { t } from '@/lib/i18n';
 import { localDigits } from '@/lib/format';
-import { localized, locationUrl, menuUrl } from '@/lib/site';
+import { branchAddress, localized, locationUrl, menuUrl } from '@/lib/site';
 
 const props = defineProps({
     branch: { type: Object, required: true },
@@ -27,7 +27,7 @@ const zoneNames = computed(() => (props.branch.zones ?? []).map((zone) => zone.n
                 </h3>
                 <p class="mt-1 flex items-start gap-1.5 text-sm text-muted">
                     <AppIcon name="location-dot" size="12" class="mt-1 shrink-0" />
-                    <span>{{ [branch.address, branch.city].filter(Boolean).join(', ') }}</span>
+                    <span>{{ branchAddress(branch) }}</span>
                 </p>
                 <p v-if="branch.phone" class="mt-1 flex items-center gap-1.5 text-sm text-muted">
                     <AppIcon name="phone" size="12" class="shrink-0" />

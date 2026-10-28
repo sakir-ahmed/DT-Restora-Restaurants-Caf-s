@@ -18,7 +18,7 @@ class Branch extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'name_bn', 'code', 'phone', 'address', 'city',
+        'name', 'name_bn', 'code', 'phone', 'address', 'address_bn', 'city', 'city_bn',
         'latitude', 'longitude', 'vat_percent', 'vat_inclusive',
         'service_charge_percent', 'allow_negative_stock',
         'online_ordering_enabled', 'opening_hours', 'receipt_footer',

@@ -46,7 +46,7 @@ const rows = computed(() => props.branches.map((branch) => ({
 })));
 
 const emptyForm = {
-    name: '', name_bn: '', code: '', phone: '', address: '', city: '',
+    name: '', name_bn: '', code: '', phone: '', address: '', address_bn: '', city: '', city_bn: '',
     latitude: '', longitude: '', vat_percent: '15.00', vat_inclusive: false,
     service_charge_percent: '0.00', allow_negative_stock: false,
     online_ordering_enabled: false, receipt_footer: '', is_active: true,
@@ -80,7 +80,9 @@ function openEdit(branch) {
         code: branch.code,
         phone: branch.phone ?? '',
         address: branch.address ?? '',
+        address_bn: branch.address_bn ?? '',
         city: branch.city ?? '',
+        city_bn: branch.city_bn ?? '',
         latitude: branch.latitude ?? '',
         longitude: branch.longitude ?? '',
         vat_percent: branch.vat_percent,
@@ -283,11 +285,35 @@ async function remove(branch) {
                         </FormField>
                     </div>
 
+                    <div class="col-span-2">
+                        <FormField :label="t('branches.address_bn')" :error="form.errors.address_bn">
+                            <template #default="{ id }">
+                                <input
+                                    :id="id"
+                                    v-model="form.address_bn"
+                                    type="text"
+                                    class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40"
+                                >
+                            </template>
+                        </FormField>
+                    </div>
+
                     <FormField :label="t('branches.city')" :error="form.errors.city">
                         <template #default="{ id }">
                             <input
                                 :id="id"
                                 v-model="form.city"
+                                type="text"
+                                class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40"
+                            >
+                        </template>
+                    </FormField>
+
+                    <FormField :label="t('branches.city_bn')" :error="form.errors.city_bn">
+                        <template #default="{ id }">
+                            <input
+                                :id="id"
+                                v-model="form.city_bn"
                                 type="text"
                                 class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40"
                             >

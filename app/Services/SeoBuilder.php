@@ -121,7 +121,7 @@ class SeoBuilder
             'hasMenu' => route('web.menu', ['branchCode' => strtolower($branch->code)]),
             'address' => array_filter([
                 '@type' => 'PostalAddress',
-                'streetAddress' => $branch->address,
+                'streetAddress' => app()->getLocale() === 'bn' && $branch->address_bn ? $branch->address_bn : $branch->address,
                 'addressLocality' => $branch->city,
                 'addressCountry' => 'BD',
             ]),

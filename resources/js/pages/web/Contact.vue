@@ -11,7 +11,7 @@ import SectionHeading from '@/components/site/SectionHeading.vue';
 import TiltCard from '@/components/site/TiltCard.vue';
 import { t } from '@/lib/i18n';
 import { localDigits } from '@/lib/format';
-import { directionsUrl, localized, locationUrl, menuUrl } from '@/lib/site';
+import { branchAddress, directionsUrl, localized, locationUrl, menuUrl } from '@/lib/site';
 
 defineProps({
     branches: { type: Array, required: true },
@@ -39,7 +39,7 @@ const crumbs = computed(() => [
                         <address class="mt-5 space-y-3 text-base not-italic">
                             <p class="flex items-start gap-3">
                                 <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-primary"><AppIcon name="location-dot" size="14" /></span>
-                                <span><span class="block text-xs font-semibold uppercase tracking-widest text-muted">{{ t('site.contact_visit') }}</span>{{ [branch.address, branch.city].filter(Boolean).join(', ') }}</span>
+                                <span><span class="block text-xs font-semibold uppercase tracking-widest text-muted">{{ t('site.contact_visit') }}</span>{{ branchAddress(branch) }}</span>
                             </p>
                             <p v-if="branch.phone" class="flex items-start gap-3">
                                 <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-primary"><AppIcon name="phone" size="14" /></span>

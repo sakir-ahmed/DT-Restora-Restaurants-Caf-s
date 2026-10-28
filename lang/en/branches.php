@@ -13,6 +13,8 @@ return [
     'code_helper' => 'Short code used in invoice numbers, for example BR01.',
     'phone' => 'Phone',
     'address' => 'Address',
+    'address_bn' => 'Address (Bangla)',
+    'city_bn' => 'City (Bangla)',
     'city' => 'City',
     'receipt_footer' => 'Receipt footer',
     'settings_group' => 'Branch settings',

@@ -11,7 +11,7 @@ import Reveal from '@/components/site/Reveal.vue';
 import SectionHeading from '@/components/site/SectionHeading.vue';
 import { t } from '@/lib/i18n';
 import { formatMoney, localDigits } from '@/lib/format';
-import { directionsUrl, localized, menuUrl } from '@/lib/site';
+import { branchAddress, directionsUrl, localized, menuUrl } from '@/lib/site';
 
 const props = defineProps({
     branch: { type: Object, required: true },
@@ -30,7 +30,7 @@ const crumbs = computed(() => [
 
 <template>
     <div>
-        <PageHero :eyebrow="t('site.locations_eyebrow')" :title="name" :text="[branch.address, branch.city].filter(Boolean).join(', ')" :breadcrumbs="crumbs">
+        <PageHero :eyebrow="t('site.locations_eyebrow')" :title="name" :text="branchAddress(branch)" :breadcrumbs="crumbs">
             <div class="mt-7 flex flex-wrap gap-3">
                 <Link v-if="branch.online_ordering_enabled" :href="menuUrl(branch.code)" class="inline-flex h-10 items-center gap-2 rounded-lg bg-accent px-6 text-base font-semibold text-accent-foreground ">
                     <AppIcon name="bag-shopping" size="15" />
@@ -54,7 +54,7 @@ const crumbs = computed(() => [
                     <dl class="mt-5 space-y-5">
                         <div>
                             <dt class="text-xs font-semibold uppercase tracking-widest text-muted">{{ t('site.location_address') }}</dt>
-                            <dd class="mt-1">{{ [branch.address, branch.city].filter(Boolean).join(', ') }}</dd>
+                            <dd class="mt-1">{{ branchAddress(branch) }}</dd>
                         </div>
                         <div v-if="branch.phone">
                             <dt class="text-xs font-semibold uppercase tracking-widest text-muted">{{ t('site.location_phone') }}</dt>

@@ -85,6 +85,13 @@ export function formatDay(iso) {
 }
 
 /**
+ * Street address and city in the visitor's language, one line.
+ */
+export function branchAddress(branch) {
+    return [localized(branch, 'address'), localized(branch, 'city')].filter(Boolean).join(', ');
+}
+
+/**
  * Journal category in the visitor's language. Categories are free text set in
  * the admin panel; the common ones have a Bangla label, others show as typed.
  */

@@ -52,7 +52,7 @@ class MenuController extends Controller
             ->get();
 
         return [
-            'branch' => $branch->only(['id', 'name', 'name_bn', 'code', 'address', 'phone', 'opening_hours']) + ['slug' => $branch->publicSlug()],
+            'branch' => $branch->only(['id', 'name', 'name_bn', 'code', 'address', 'address_bn', 'phone', 'opening_hours']) + ['slug' => $branch->publicSlug()],
             'categories' => $categories->toArray(),
             'seo' => $this->seoData($branch, $categories, false),
         ];
