@@ -6,6 +6,7 @@ import PageHero from '@/components/site/PageHero.vue';
 import PostCard from '@/components/site/PostCard.vue';
 import Reveal from '@/components/site/Reveal.vue';
 import { t } from '@/lib/i18n';
+import { categoryLabel } from '@/lib/site';
 
 defineProps({
     posts: { type: Array, required: true },
@@ -35,7 +36,7 @@ const chip = (active) => ['inline-flex h-9 items-center rounded-lg border px-3 t
         <section class="mx-auto max-w-6xl px-4 py-8">
             <nav v-if="categories.length" class="flex flex-wrap gap-2" :aria-label="t('site.nav_blog')">
                 <Link href="/blog" :class="chip(! activeCategory)" :aria-current="! activeCategory ? 'page' : undefined">{{ t('site.blog_all') }}</Link>
-                <Link v-for="category in categories" :key="category" :href="`/blog?category=${encodeURIComponent(category)}`" :class="chip(activeCategory === category)" :aria-current="activeCategory === category ? 'page' : undefined">{{ category }}</Link>
+                <Link v-for="category in categories" :key="category" :href="`/blog?category=${encodeURIComponent(category)}`" :class="chip(activeCategory === category)" :aria-current="activeCategory === category ? 'page' : undefined">{{ categoryLabel(category) }}</Link>
             </nav>
 
             <p v-if="posts.length === 0" class="mt-8 rounded-xl border border-dashed border-border p-10 text-center text-muted">{{ t('site.blog_empty') }}</p>

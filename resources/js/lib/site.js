@@ -1,4 +1,4 @@
-import { currentLocale } from './i18n';
+import { currentLocale, t } from './i18n';
 
 /**
  * Pick the Bangla value of a bilingual field when the page is in Bangla.
@@ -82,4 +82,15 @@ export function formatDay(iso) {
         year: 'numeric',
         timeZone: 'Asia/Dhaka',
     }).format(new Date(iso));
+}
+
+/**
+ * Journal category in the visitor's language. Categories are free text set in
+ * the admin panel; the common ones have a Bangla label, others show as typed.
+ */
+export function categoryLabel(name) {
+    const key = `site.blog_cat_${String(name).toLowerCase()}`;
+    const label = t(key);
+
+    return label === key ? name : label;
 }

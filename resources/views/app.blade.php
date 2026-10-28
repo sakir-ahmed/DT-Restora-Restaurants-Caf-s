@@ -3,7 +3,7 @@
     $ssrResponse = app(\Inertia\Ssr\SsrState::class)->setPage($page)->dispatch();
     $seo = $page['props']['seo'] ?? null;
     $brand = config('app.name', "Arman's Kitchen");
-    $title = $seo ? (collect([$brand, __('site.brand_name')])->contains(fn ($name) => str_contains($seo['title'], $name)) ? $seo['title'] : $seo['title'].' - '.$brand) : $brand;
+    $title = $seo ? (collect([$brand, __('site.brand_name')])->contains(fn ($name) => str_contains($seo['title'], $name)) ? $seo['title'] : $seo['title'].' - '.__('site.brand_name')) : $brand;
     $robots = $seo && ! ($seo['noindex'] ?? false) ? 'index,follow,max-image-preview:large' : 'noindex,nofollow';
 @endphp
 <!DOCTYPE html>

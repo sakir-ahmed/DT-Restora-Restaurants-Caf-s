@@ -107,8 +107,8 @@ onBeforeUnmount(stop);
             </div>
 
             <span class="hero-chip hero-chip-a" aria-hidden="true"><AppIcon name="fire" size="12" />{{ t('site.hero_badge_fresh') }}</span>
-            <span class="hero-chip hero-chip-b" aria-hidden="true"><AppIcon name="truck-fast" size="12" />{{ t('site.hero_badge_tracking') }}</span>
-            <span class="hero-chip hero-chip-c" aria-hidden="true"><AppIcon name="qrcode" size="12" />{{ t('site.hero_badge_qr') }}</span>
+            <span class="hero-chip hero-chip-b" aria-hidden="true"><AppIcon name="utensils" size="12" />{{ t('site.hero_badge_modes') }}</span>
+            <span class="hero-chip hero-chip-c" aria-hidden="true"><AppIcon name="clock" size="12" />{{ t('site.hero_badge_hours') }}</span>
 
             <div class="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-gradient-to-t from-black/70 via-black/30 to-transparent px-4 pb-4 pt-12 text-white">
                 <div class="min-w-0">

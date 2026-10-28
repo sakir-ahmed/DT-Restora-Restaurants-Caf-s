@@ -10,7 +10,7 @@ import ThemeToggle from '@/components/ui-kit/ThemeToggle.vue';
 import { track } from '@/lib/demoTracker';
 import { t } from '@/lib/i18n';
 import { cartCount, cartSubtotal } from '@/lib/cart';
-import { formatMoney } from '@/lib/format';
+import { formatMoney, localDigits } from '@/lib/format';
 import { locationUrl } from '@/lib/site';
 import { currentLocale } from '@/lib/i18n';
 
@@ -115,12 +115,12 @@ onBeforeUnmount(() => {
             class="bg-surface border border-border sticky top-(--demo-banner-h) z-40 border-x-0 border-t-0 transition-shadow duration-300"
             :class="scrolled ? 'shadow-sm' : ''"
         >
-            <div class="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
-                <Link href="/" class="group flex items-center gap-2.5" :aria-label="page.props.appName">
-                    <span class="flex h-10 w-10 items-center justify-center duration-300 group-hover:rotate-[-8deg]">
-                        <BrandMark :size="40" />
+            <div class="mx-auto flex h-16 max-w-6xl items-center gap-2 px-3 sm:gap-3 sm:px-4">
+                <Link href="/" class="group flex min-w-0 items-center gap-2 sm:gap-2.5" :aria-label="page.props.appName">
+                    <span class="flex h-9 w-9 shrink-0 items-center justify-center duration-300 group-hover:rotate-[-8deg] sm:h-10 sm:w-10">
+                        <BrandMark :size="40" class="h-full w-full" />
                     </span>
-                    <BrandName class="text-lg font-bold" :name="page.props.appName" />
+                    <BrandName class="truncate text-[15px] font-bold sm:text-lg" :name="page.props.appName" />
                 </Link>
 
                 <nav class="ml-6 hidden items-center lg:flex" aria-label="Main">
@@ -135,7 +135,7 @@ onBeforeUnmount(() => {
                     </Link>
                 </nav>
 
-                <div class="ml-auto flex items-center gap-2">
+                <div class="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
                     <Link
                         v-if="showAdminDemo"
                         href="/login"
@@ -152,7 +152,7 @@ onBeforeUnmount(() => {
                     </Link>
 
                     <LanguageSwitch />
-                    <ThemeToggle />
+                    <div class="hidden sm:block"><ThemeToggle /></div>
 
                     <Link
                         href="/checkout"
@@ -219,6 +219,7 @@ onBeforeUnmount(() => {
                         <AppIcon v-if="accountLink.icon" :name="accountLink.icon" size="14" />
                         {{ accountLink.label }}
                     </Link>
+                    <div class="flex justify-center sm:hidden"><ThemeToggle /></div>
                 </div>
             </div>
         </Transition>
@@ -252,7 +253,7 @@ onBeforeUnmount(() => {
                         <li v-for="branch in branches" :key="branch.code">
                             <Link :href="locationUrl(branch.slug)" class="font-medium text-foreground transition-colors hover:text-foreground">{{ branchName(branch) }}</Link>
                             <p v-if="branch.phone" class="text-muted">
-                                <a :href="`tel:${branch.phone}`" class="hover:text-foreground">{{ branch.phone }}</a>
+                                <a :href="`tel:${branch.phone}`" class="hover:text-foreground">{{ localDigits(branch.phone) }}</a>
                             </p>
                         </li>
                     </ul>

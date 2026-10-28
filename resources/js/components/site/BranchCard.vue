@@ -4,6 +4,7 @@ import { computed } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
 import TiltCard from './TiltCard.vue';
 import { t } from '@/lib/i18n';
+import { localDigits } from '@/lib/format';
 import { localized, locationUrl, menuUrl } from '@/lib/site';
 
 const props = defineProps({
@@ -30,7 +31,7 @@ const zoneNames = computed(() => (props.branch.zones ?? []).map((zone) => zone.n
                 </p>
                 <p v-if="branch.phone" class="mt-1 flex items-center gap-1.5 text-sm text-muted">
                     <AppIcon name="phone" size="12" class="shrink-0" />
-                    <a :href="`tel:${branch.phone}`" class="hover:text-foreground">{{ branch.phone }}</a>
+                    <a :href="`tel:${branch.phone}`" class="hover:text-foreground">{{ localDigits(branch.phone) }}</a>
                 </p>
             </div>
         </div>

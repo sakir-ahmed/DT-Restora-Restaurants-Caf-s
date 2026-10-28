@@ -6,6 +6,13 @@ export function toBnDigits(text) {
     return String(text).replace(/\d/g, (digit) => BN_DIGITS[Number(digit)]);
 }
 
+/**
+ * Digits in the visitor's language: Bangla digits in bn, unchanged otherwise.
+ */
+export function localDigits(text) {
+    return localize(text);
+}
+
 function localize(text) {
     return currentLocale() === 'bn' ? toBnDigits(text) : String(text);
 }

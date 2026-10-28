@@ -8,7 +8,8 @@ import PostCard from '@/components/site/PostCard.vue';
 import Reveal from '@/components/site/Reveal.vue';
 import SectionHeading from '@/components/site/SectionHeading.vue';
 import { t } from '@/lib/i18n';
-import { formatDay } from '@/lib/site';
+import { categoryLabel, formatDay } from '@/lib/site';
+import { formatNumber } from '@/lib/format';
 
 const props = defineProps({
     post: { type: Object, required: true },
@@ -36,7 +37,7 @@ const wasUpdated = computed(() => props.post.updated_at && props.post.published_
                     <p v-if="post.category" class="mb-2">
                         <Link :href="`/blog?category=${encodeURIComponent(post.category)}`" class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted hover:text-foreground">
                             <AppIcon name="tag" size="10" />
-                            {{ post.category }}
+                            {{ categoryLabel(post.category) }}
                         </Link>
                     </p>
                     <h1 class="text-3xl font-bold leading-tight sm:text-4xl">{{ post.title }}</h1>
@@ -45,7 +46,7 @@ const wasUpdated = computed(() => props.post.updated_at && props.post.published_
                     <p class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
                         <time :datetime="post.published_at">{{ t('site.blog_published', { date: formatDay(post.published_at) }) }}</time>
                         <span v-if="wasUpdated"><time :datetime="post.updated_at">{{ t('site.blog_updated', { date: formatDay(post.updated_at) }) }}</time></span>
-                        <span class="inline-flex items-center gap-1.5"><AppIcon name="clock" size="11" />{{ t('site.blog_read_time', { minutes: post.reading_minutes }) }}</span>
+                        <span class="inline-flex items-center gap-1.5"><AppIcon name="clock" size="11" />{{ t('site.blog_read_time', { minutes: formatNumber(post.reading_minutes) }) }}</span>
                     </p>
                 </div>
             </header>

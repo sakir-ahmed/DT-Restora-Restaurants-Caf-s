@@ -10,6 +10,7 @@ import Reveal from '@/components/site/Reveal.vue';
 import SectionHeading from '@/components/site/SectionHeading.vue';
 import TiltCard from '@/components/site/TiltCard.vue';
 import { t } from '@/lib/i18n';
+import { localDigits } from '@/lib/format';
 import { directionsUrl, localized, locationUrl, menuUrl } from '@/lib/site';
 
 defineProps({
@@ -42,7 +43,7 @@ const crumbs = computed(() => [
                             </p>
                             <p v-if="branch.phone" class="flex items-start gap-3">
                                 <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-primary"><AppIcon name="phone" size="14" /></span>
-                                <span><span class="block text-xs font-semibold uppercase tracking-widest text-muted">{{ t('site.contact_call') }}</span><a :href="`tel:${branch.phone}`" class="font-semibold hover:underline">{{ branch.phone }}</a></span>
+                                <span><span class="block text-xs font-semibold uppercase tracking-widest text-muted">{{ t('site.contact_call') }}</span><a :href="`tel:${branch.phone}`" class="font-semibold hover:underline">{{ localDigits(branch.phone) }}</a></span>
                             </p>
                             <div class="flex items-start gap-3">
                                 <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-primary"><AppIcon name="clock" size="14" /></span>

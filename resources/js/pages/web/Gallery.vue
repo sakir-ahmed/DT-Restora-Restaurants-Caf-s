@@ -6,6 +6,7 @@ import MediaLightbox from '@/components/site/MediaLightbox.vue';
 import PageHero from '@/components/site/PageHero.vue';
 import Reveal from '@/components/site/Reveal.vue';
 import { t } from '@/lib/i18n';
+import { formatNumber } from '@/lib/format';
 
 const props = defineProps({
     entries: { type: Array, required: true },
@@ -67,7 +68,7 @@ function open(position) {
                         @click="filter = entry.key"
                     >
                         {{ entry.label }}
-                        <span class="text-xs tabular-nums opacity-70">{{ entry.count }}</span>
+                        <span class="text-xs tabular-nums opacity-70">{{ formatNumber(entry.count) }}</span>
                     </button>
                 </div>
 

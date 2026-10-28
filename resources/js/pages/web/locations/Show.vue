@@ -10,7 +10,7 @@ import PageHero from '@/components/site/PageHero.vue';
 import Reveal from '@/components/site/Reveal.vue';
 import SectionHeading from '@/components/site/SectionHeading.vue';
 import { t } from '@/lib/i18n';
-import { formatMoney } from '@/lib/format';
+import { formatMoney, localDigits } from '@/lib/format';
 import { directionsUrl, localized, menuUrl } from '@/lib/site';
 
 const props = defineProps({
@@ -42,7 +42,7 @@ const crumbs = computed(() => [
                 </a>
                 <a v-if="branch.phone" :href="`tel:${branch.phone}`" class="bg-surface border border-border inline-flex h-10 items-center gap-2 rounded-lg px-6 text-base font-semibold">
                     <AppIcon name="phone" size="14" />
-                    {{ branch.phone }}
+                    {{ localDigits(branch.phone) }}
                 </a>
             </div>
         </PageHero>
@@ -58,7 +58,7 @@ const crumbs = computed(() => [
                         </div>
                         <div v-if="branch.phone">
                             <dt class="text-xs font-semibold uppercase tracking-widest text-muted">{{ t('site.location_phone') }}</dt>
-                            <dd class="mt-1"><a :href="`tel:${branch.phone}`" class="font-semibold hover:underline">{{ branch.phone }}</a></dd>
+                            <dd class="mt-1"><a :href="`tel:${branch.phone}`" class="font-semibold hover:underline">{{ localDigits(branch.phone) }}</a></dd>
                         </div>
                         <div>
                             <dt class="mb-2 text-xs font-semibold uppercase tracking-widest text-muted">{{ t('site.location_hours_title') }}</dt>
