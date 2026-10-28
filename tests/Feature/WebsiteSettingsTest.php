@@ -46,9 +46,6 @@ function settingsPayload(array $overrides = []): array
         'delivery_otp_enabled' => true,
         'website_enabled' => true,
         'online_delivery_enabled' => true,
-        'delivery_mode' => 'zones',
-        'delivery_flat_fee' => '0',
-        'delivery_min_order' => '0',
         ...$overrides,
     ];
 }
@@ -67,32 +64,22 @@ it('closes the public website when it is switched off, but not for staff or orde
     $this->actingAs(User::factory()->role('owner')->create(), 'staff')->get('/')->assertOk();
 });
 
-it('lets the owner switch the website and delivery options from Settings', function (): void {
+it('lets the owner switch the website and delivery on or off from Settings', function (): void {
     $owner = User::factory()->role('owner')->create();
 
     $this->actingAs($owner, 'staff')
-        ->put(route('admin.settings.update'), settingsPayload([
-            'website_enabled' => false,
-            'online_delivery_enabled' => true,
-            'delivery_mode' => 'address_only',
-            'delivery_flat_fee' => '80',
-            'delivery_min_order' => '300',
-            'delivery_eta_minutes' => 45,
-            'established_year' => 2013,
-        ]))
+        ->put(route('admin.settings.update'), settingsPayload(['website_enabled' => false, 'online_delivery_enabled' => false, 'established_year' => 2013]))
         ->assertSessionHasNoErrors();
 
     $settings = Setting::current();
 
     expect($settings->website_enabled)->toBeFalse()
-        ->and($settings->delivery_mode)->toBe('address_only')
-        ->and((float) $settings->delivery_flat_fee)->toBe(80.0)
-        ->and($settings->delivery_eta_minutes)->toBe(45)
+        ->and($settings->online_delivery_enabled)->toBeFalse()
         ->and($settings->established_year)->toBe(2013);
 
     $this->actingAs($owner, 'staff')
-        ->put(route('admin.settings.update'), settingsPayload(['delivery_mode' => 'nonsense', 'established_year' => 1500, 'delivery_flat_fee' => '-1']))
-        ->assertSessionHasErrors(['delivery_mode', 'established_year', 'delivery_flat_fee']);
+        ->put(route('admin.settings.update'), settingsPayload(['established_year' => 1500]))
+        ->assertSessionHasErrors('established_year');
 });
 
 it('offers only pickup on the website when delivery is switched off', function (): void {
@@ -124,43 +111,119 @@ it('offers only pickup on the website when delivery is switched off', function (
         ->and(Order::query()->first()->order_type->value)->toBe('takeaway');
 });
 
-it('takes a delivery address without an area when the mode is address only', function (): void {
-    Setting::current()->update(['delivery_mode' => 'address_only', 'delivery_flat_fee' => '80', 'delivery_min_order' => '300', 'delivery_eta_minutes' => 45]);
-
+it('only delivers inside the listed areas, with the exact location typed after choosing one', function (): void {
     Event::fake();
     Queue::fake();
 
     $this->actingAs($this->customer, 'customer')->post('/checkout', [
         'order_type' => 'delivery',
-        'delivery_address' => 'House 5, Road 10, Mohammadpur',
+        'delivery_address' => 'House 5, Road 10',
         'payment_method' => 'cod',
-        'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
-    ])->assertSessionHasErrors('delivery_address');
+        'items' => [['menu_item_id' => $this->item->id, 'quantity' => 2]],
+    ])->assertSessionHasErrors(['delivery_zone_id' => __('web.err_zone')]);
 
-    // The order that missed the minimum is voided, never kept.
-    expect(Order::query()->where('status', '!=', 'void')->count())->toBe(0);
+    // An area of another branch, or an inactive one, cannot be chosen.
+    $inactive = DeliveryZone::query()->create(['branch_id' => $this->branch->id, 'name' => 'Far away', 'fee' => '10', 'min_order' => '0', 'is_active' => false]);
 
     $this->actingAs($this->customer, 'customer')->post('/checkout', [
         'order_type' => 'delivery',
-        'delivery_address' => 'House 5, Road 10, Mohammadpur',
+        'delivery_zone_id' => $inactive->id,
+        'delivery_address' => 'House 5, Road 10',
+        'payment_method' => 'cod',
+        'items' => [['menu_item_id' => $this->item->id, 'quantity' => 2]],
+    ])->assertNotFound();
+
+    $this->actingAs($this->customer, 'customer')->post('/checkout', [
+        'order_type' => 'delivery',
+        'delivery_zone_id' => $this->zone->id,
+        'delivery_address' => 'House 5, Road 10',
         'payment_method' => 'cod',
         'items' => [['menu_item_id' => $this->item->id, 'quantity' => 2]],
     ])->assertSessionHasNoErrors();
 
     $order = Order::query()->where('status', '!=', 'void')->firstOrFail();
 
-    expect((float) $order->delivery_fee)->toBe(80.0)
-        ->and($order->delivery_zone_id)->toBeNull()
-        ->and($order->delivery_address)->toBe('House 5, Road 10, Mohammadpur');
+    expect((float) $order->delivery_fee)->toBe(60.0)
+        ->and($order->delivery_zone_id)->toBe($this->zone->id)
+        ->and($order->delivery_address)->toBe('House 5, Road 10, Gulshan');
 });
 
-it('still requires an area when the mode is delivery areas', function (): void {
+it('marks a flexible area so the restaurant confirms the fee by phone', function (): void {
+    Event::fake();
+    Queue::fake();
+
+    $flexible = DeliveryZone::query()->create(['branch_id' => $this->branch->id, 'name' => 'Other nearby area', 'fee' => '100', 'fee_type' => 'flexible', 'min_order' => '0', 'is_active' => true]);
+
+    $this->actingAs($this->customer, 'customer')->get('/checkout')
+        ->assertInertia(fn ($page) => $page
+            ->has('zones', 2)
+            ->where('zones.1.fee_type', 'flexible'));
+
     $this->actingAs($this->customer, 'customer')->post('/checkout', [
         'order_type' => 'delivery',
-        'delivery_address' => 'House 5, Gulshan',
+        'delivery_zone_id' => $flexible->id,
+        'delivery_address' => 'Behind the school, near the mosque',
+        'payment_method' => 'cod',
+        'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+    ])->assertSessionHasNoErrors();
+
+    $order = Order::query()->firstOrFail();
+
+    expect($order->delivery_address)->toContain('Behind the school, near the mosque, Other nearby area')
+        ->and($order->delivery_address)->toContain(__('web.fee_confirm_note'))
+        ->and((float) $order->delivery_fee)->toBe(100.0);
+});
+
+it('keeps website delivery off until at least one area is active', function (): void {
+    DeliveryZone::query()->update(['is_active' => false]);
+
+    $this->actingAs($this->customer, 'customer')->get('/checkout')
+        ->assertInertia(fn ($page) => $page->where('delivery.enabled', false)->has('zones', 0));
+
+    $this->actingAs($this->customer, 'customer')->post('/checkout', [
+        'order_type' => 'delivery',
+        'delivery_zone_id' => $this->zone->id,
+        'delivery_address' => 'House 5',
         'payment_method' => 'cod',
         'items' => [['menu_item_id' => $this->item->id, 'quantity' => 2]],
-    ])->assertSessionHasErrors(['delivery_zone_id' => __('web.err_zone')]);
+    ])->assertSessionHasErrors('order_type');
+});
+
+it('lets the owner manage the delivery areas of the branch from Settings', function (): void {
+    $owner = User::factory()->role('owner', $this->branch->id)->create();
+
+    $this->actingAs($owner, 'staff')->post(route('admin.settings.delivery-zones.store'), [
+        'name' => 'Mohammadpur', 'name_bn' => 'মোহাম্মদপুর', 'fee' => '50', 'fee_type' => 'fixed', 'min_order' => '200', 'eta_minutes' => 40, 'is_active' => true,
+    ])->assertSessionHasNoErrors();
+
+    $zone = DeliveryZone::query()->where('name', 'Mohammadpur')->firstOrFail();
+
+    expect($zone->branch_id)->toBe($this->branch->id)->and($zone->name_bn)->toBe('মোহাম্মদপুর');
+
+    $this->actingAs($owner, 'staff')->put(route('admin.settings.delivery-zones.update', $zone), [
+        'name' => 'Mohammadpur', 'fee' => '70', 'fee_type' => 'flexible', 'min_order' => '200', 'is_active' => false,
+    ])->assertSessionHasNoErrors();
+
+    expect((float) $zone->fresh()->fee)->toBe(70.0)->and($zone->fresh()->fee_type)->toBe('flexible')->and($zone->fresh()->is_active)->toBeFalse();
+
+    $this->actingAs($owner, 'staff')->post(route('admin.settings.delivery-zones.store'), [
+        'name' => '', 'fee' => '-5', 'fee_type' => 'anywhere', 'min_order' => '0', 'is_active' => true,
+    ])->assertSessionHasErrors(['name', 'fee', 'fee_type']);
+
+    $this->actingAs($owner, 'staff')->get(route('admin.settings.index'))
+        ->assertInertia(fn ($page) => $page->has('deliveryZones', 2));
+
+    $this->actingAs($owner, 'staff')->delete(route('admin.settings.delivery-zones.destroy', $zone))->assertSessionHasNoErrors();
+
+    expect(DeliveryZone::query()->whereKey($zone->id)->exists())->toBeFalse();
+});
+
+it('does not let the owner change an area of another branch', function (): void {
+    $other = Branch::factory()->create(['code' => 'BR02']);
+    $foreign = DeliveryZone::query()->create(['branch_id' => $other->id, 'name' => 'Elsewhere', 'fee' => '10', 'min_order' => '0']);
+    $owner = User::factory()->role('owner', $this->branch->id)->create();
+
+    $this->actingAs($owner, 'staff')->delete(route('admin.settings.delivery-zones.destroy', $foreign))->assertNotFound();
 });
 
 it('shows years of service only when the opening year is set', function (): void {
