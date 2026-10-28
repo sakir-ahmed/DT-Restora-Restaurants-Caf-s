@@ -57,6 +57,8 @@ All project documentation lives in `docs/`. AI coding agents read `CLAUDE.md` fi
 | `docs/docker.md`       | Docker services, commands and the logging standard               |
 | `docs/roadmap.md`      | Build phases with acceptance criteria                             |
 | `docs/ui-preview.html` | Static visual mockup of the intended UI (open in a browser)       |
+| `docs/production/`     | Production site: deployment guide and the source photos and brand files |
+| `docs/demo/`           | Demo site: marketing material, screenshots and social posts       |
 
 ---
 
@@ -87,7 +89,7 @@ docker compose exec app npm run dev
 
 The service names above (`app`) follow the Docker Compose file created in Phase 0 of the roadmap. Adjust them if yours differ.
 
-Open the app at `http://localhost`. The admin panel is at `/admin`. The seeder creates the root administrator (username `admin`) with a random strong password and prints it once at the end of `php artisan migrate:fresh --seed`. If it is lost, run `php artisan admin:reset-password`. Sample branches, menu and staff are seeded only when `IS_DEMO=true`.
+Open the app at `http://localhost`. The admin panel is at `/admin`. The seeder creates the root administrator (username `admin`) with a random strong password and prints it once at the end of `php artisan migrate:fresh --seed`. If it is lost, run `php artisan admin:reset-password`. With `IS_DEMO=false` the seeder loads the production data (`ProductionDataSeeder`: the real outlet, menu and gallery, on a fresh install only). With `IS_DEMO=true` it loads the demo data (sample branches, menu, staff and orders) instead.
 
 
 ### Docker

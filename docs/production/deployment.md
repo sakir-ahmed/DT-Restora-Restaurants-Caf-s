@@ -41,7 +41,7 @@ php artisan storage:link
 Seeding again is safe: `php artisan db:seed --force` never resets the admin password and does not touch the branch or menu once a branch exists, so edits made in the admin panel are kept. To re-sync the outlet and menu from the catalog on purpose (this overwrites names, prices and photos of the seeded dishes), run:
 
 ```bash
-php artisan db:seed --class=ArmansKitchenDataSeeder --force
+php artisan db:seed --class=ProductionDataSeeder --force
 ```
 
 ## Updating the server later
