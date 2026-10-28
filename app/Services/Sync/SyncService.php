@@ -10,9 +10,11 @@ use App\Actions\Sales\CloseShiftAction;
 use App\Actions\Sales\CreateOrderAction;
 use App\Actions\Sales\OpenShiftAction;
 use App\Actions\Sales\PayOrderAction;
+use App\Enums\OrderStatus;
 use App\Enums\OrderType;
 use App\Exceptions\InsufficientStockException;
 use App\Models\Branch;
+use App\Models\Customer;
 use App\Models\DataVersion;
 use App\Models\Ingredient;
 use App\Models\IngredientStock;
@@ -138,6 +140,14 @@ class SyncService
                     $invoice = ['invoice_no' => $order->invoice_no, 'invoice_changed' => $sent !== null && $sent !== $order->invoice_no];
                     break;
 
+                case 'order_edit':
+                    $this->applyOrderEdit($user, $payload);
+                    break;
+
+                case 'order_status':
+                    $this->applyOrderStatus($payload);
+                    break;
+
                 case 'payment':
                     $this->applyPayment($user, $payload);
                     break;
@@ -187,6 +197,10 @@ class SyncService
             type: OrderType::from((string) ($payload['order_type'] ?? 'takeaway')),
             lines: $this->snapshotLines((array) ($payload['items'] ?? [])),
             cashier: $user,
+            tableId: $this->tableIdFrom($payload),
+            customer: $this->customerFrom($payload),
+            discount: $this->discountFrom($payload),
+            note: isset($payload['note']) ? (string) $payload['note'] : null,
             clientId: $clientId,
             terminalCode: (string) ($payload['terminal'] ?? 'T01'),
             invoiceNo: isset($payload['invoice_no']) ? (string) $payload['invoice_no'] : null,
@@ -197,6 +211,89 @@ class SyncService
         }
 
         return $order;
+    }
+
+    /**
+     * A queued revision of an order: the same rules as editing it on the web.
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    private function applyOrderEdit(User $user, array $payload): void
+    {
+        $order = $this->orderForPayment($payload);
+
+        if ($order->payments()->where('is_advance', true)->exists()) {
+            throw ValidationException::withMessages(['order' => __('orders.advance_locked')]);
+        }
+
+        $this->orders->execute(
+            branch: Branch::query()->findOrFail($order->branch_id),
+            type: OrderType::from((string) ($payload['order_type'] ?? $order->order_type->value)),
+            lines: $this->snapshotLines((array) ($payload['items'] ?? [])),
+            cashier: $user,
+            tableId: $this->tableIdFrom($payload),
+            customer: $this->customerFrom($payload),
+            discount: $this->discountFrom($payload),
+            note: isset($payload['note']) ? (string) $payload['note'] : null,
+            revising: $order,
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function applyOrderStatus(array $payload): void
+    {
+        $order = $this->orderForPayment($payload);
+        $next = OrderStatus::tryFrom((string) ($payload['status'] ?? ''));
+
+        if ($next === null || ($next !== OrderStatus::Paid && ! $order->status->canTransitionTo($next))) {
+            throw ValidationException::withMessages(['status' => __('orders.invalid_status')]);
+        }
+
+        $order->update(['status' => $next->value]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function tableIdFrom(array $payload): ?int
+    {
+        $id = (int) ($payload['restaurant_table_id'] ?? 0);
+
+        return $id > 0 ? $id : null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function customerFrom(array $payload): ?Customer
+    {
+        $mobile = trim((string) ($payload['customer_mobile'] ?? ''));
+
+        if ($mobile === '') {
+            return null;
+        }
+
+        return Customer::query()->firstOrCreate(
+            ['mobile' => normalize_bd_mobile($mobile)],
+            ['name' => __('orders.walk_in_customer')],
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array{type: string, value: float}|null
+     */
+    private function discountFrom(array $payload): ?array
+    {
+        $discount = $payload['discount'] ?? null;
+
+        if (! is_array($discount) || ! isset($discount['type'], $discount['value'])) {
+            return null;
+        }
+
+        return ['type' => (string) $discount['type'], 'value' => (float) $discount['value']];
     }
 
     /**

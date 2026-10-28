@@ -10,6 +10,7 @@ use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\Order;
 use App\Models\Recipe;
+use App\Models\RestaurantTable;
 use App\Models\Shift;
 use App\Models\StockCount;
 use App\Models\SyncItem;
@@ -458,4 +459,81 @@ it('pays an already synced offline order from the device client id', function ()
 
     expect(Order::query()->count())->toBe(1)
         ->and(Order::query()->first()->status->value)->toBe('paid');
+});
+
+it('keeps the table, customer, discount and note of an offline order', function (): void {
+    $table = RestaurantTable::factory()->create(['branch_id' => $this->branch->id]);
+
+    [$response] = pushItem($this, [
+        'payload' => [
+            'branch_id' => $this->branch->id,
+            'order_type' => 'dine_in',
+            'terminal' => 'T02',
+            'restaurant_table_id' => $table->id,
+            'customer_mobile' => '01712345678',
+            'discount' => ['type' => 'fixed', 'value' => 20],
+            'note' => 'No onion',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        ],
+    ]);
+
+    $response->assertOk()->assertJsonPath('data.results.0.status', SyncItem::STATUS_ACCEPTED);
+
+    $order = Order::query()->first();
+
+    expect($order->restaurant_table_id)->toBe($table->id)
+        ->and($order->note)->toBe('No onion')
+        ->and((float) $order->discount_amount)->toBe(20.0)
+        ->and($order->customer?->mobile)->toBe(normalize_bd_mobile('01712345678'));
+});
+
+it('revises a synced order and moves its status from queued offline edits', function (): void {
+    pushItem($this, ['client_id' => '01H-EDIT-ORDER', 'payload' => [
+        'branch_id' => $this->branch->id,
+        'order_type' => 'takeaway',
+        'terminal' => 'T02',
+        'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+    ]]);
+
+    $token = $this->cashier->createToken('pos', ['staff'])->plainTextToken;
+
+    $this->withToken($token)->postJson('/api/v1/sync/push', ['items' => [[
+        'client_id' => '01H-EDIT-1',
+        'type' => 'order_edit',
+        'payload' => [
+            'order_client_id' => '01H-EDIT-ORDER',
+            'order_type' => 'takeaway',
+            'note' => 'Extra spicy',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 3]],
+        ],
+    ]]])->assertOk()->assertJsonPath('data.results.0.status', SyncItem::STATUS_ACCEPTED);
+
+    $order = Order::query()->where('client_id', '01H-EDIT-ORDER')->first();
+
+    expect($order->items()->sum('quantity'))->toBe(3)
+        ->and($order->note)->toBe('Extra spicy');
+
+    $this->withToken($token)->postJson('/api/v1/sync/push', ['items' => [[
+        'client_id' => '01H-EDIT-2',
+        'type' => 'order_status',
+        'payload' => ['order_client_id' => '01H-EDIT-ORDER', 'status' => 'preparing'],
+    ]]])->assertOk()->assertJsonPath('data.results.0.status', SyncItem::STATUS_ACCEPTED);
+
+    expect($order->refresh()->status->value)->toBe('preparing');
+});
+
+it('reports a conflict for an invalid queued status change', function (): void {
+    pushItem($this, ['client_id' => '01H-BAD-STATUS', 'payload' => [
+        'branch_id' => $this->branch->id,
+        'order_type' => 'takeaway',
+        'terminal' => 'T02',
+        'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+    ]]);
+
+    $this->withToken($this->cashier->createToken('pos', ['staff'])->plainTextToken)
+        ->postJson('/api/v1/sync/push', ['items' => [[
+            'client_id' => '01H-BAD-STATUS-1',
+            'type' => 'order_status',
+            'payload' => ['order_client_id' => '01H-BAD-STATUS', 'status' => 'nonsense'],
+        ]]])->assertOk()->assertJsonPath('data.results.0.status', SyncItem::STATUS_CONFLICT);
 });

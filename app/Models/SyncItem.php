@@ -15,7 +15,7 @@ class SyncItem extends Model
 
     public const STATUS_CONFLICT = 'conflict';
 
-    public const TYPES = ['order', 'payment', 'shift', 'wastage', 'stock_count'];
+    public const TYPES = ['order', 'order_edit', 'order_status', 'payment', 'shift', 'wastage', 'stock_count'];
 
     protected $fillable = [
         'client_id', 'type', 'payload', 'data_version', 'status',

@@ -91,7 +91,7 @@ trait InteractsWithApi
      */
     protected function orderPayload(Order $order): array
     {
-        $order->loadMissing(['items', 'payments', 'table', 'cashier', 'voidRequest']);
+        $order->loadMissing(['items', 'payments', 'table', 'cashier', 'voidRequest', 'customer']);
 
         return [
             'id' => $order->id,
@@ -108,10 +108,14 @@ trait InteractsWithApi
             'delivery_fee' => (string) $order->delivery_fee,
             'rounding' => (string) $order->rounding,
             'table' => $order->table?->name,
+            'table_id' => $order->restaurant_table_id,
+            'customer_mobile' => $order->customer?->mobile,
             'cashier' => $order->cashier?->name,
             'note' => $order->note,
             'void_status' => $order->voidRequest?->status,
             'items' => $order->items->map(fn ($item) => [
+                'menu_item_id' => $item->menu_item_id,
+                'variant_id' => $item->variant_id,
                 'name' => $item->name,
                 'name_bn' => $item->name_bn,
                 'quantity' => $item->quantity,
