@@ -45,7 +45,9 @@ const features = [
 ];
 
 const statTiles = computed(() => [
-    { value: props.stats.years, label: t('site.stat_years'), icon: 'award' },
+    props.stats.years
+        ? { value: props.stats.years, label: t('site.stat_years'), icon: 'award' }
+        : { value: props.stats.branches, label: t('site.stat_branches'), icon: 'store' },
     { value: props.stats.dishes, label: t('site.stat_dishes'), icon: 'bowl-food' },
     { value: props.stats.categories, label: t('site.stat_categories'), icon: 'layer-group' },
 ]);

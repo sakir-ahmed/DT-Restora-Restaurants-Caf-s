@@ -11,6 +11,7 @@ use App\Models\DeliveryZone;
 use App\Models\Media;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
+use App\Models\Setting;
 use App\Services\PublicCache;
 use App\Services\SeoBuilder;
 use Illuminate\Http\Request;
@@ -91,7 +92,7 @@ class HomeController extends Controller
                 'reading_minutes' => $post->readingMinutes(app()->getLocale()),
             ])->values()->all(),
             'stats' => [
-                'years' => max(1, now()->year - (int) config('app.established_year')),
+                'years' => ($year = Setting::current()->established_year) ? max(1, now()->year - $year) : null,
                 'categories' => $categories->count(),
                 'branches' => $branches->count(),
                 'dishes' => MenuItem::query()->available()->whereIn('branch_id', $branches->pluck('id'))->count(),

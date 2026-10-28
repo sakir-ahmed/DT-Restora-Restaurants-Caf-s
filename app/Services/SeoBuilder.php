@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\Branch;
 use App\Models\Media;
+use App\Models\Setting;
 use App\Support\Brand;
 use Illuminate\Support\Str;
 
@@ -93,7 +94,7 @@ class SeoBuilder
      */
     public function organization(): array
     {
-        return [
+        $node = [
             '@type' => 'Organization',
             '@id' => url('/').'#organization',
             'name' => (string) config('app.name'),
@@ -101,8 +102,13 @@ class SeoBuilder
             'logo' => Brand::logo(),
             'image' => Brand::ogImage(),
             'description' => __('site.seo_home_description'),
-            'foundingDate' => (string) config('app.established_year'),
         ];
+
+        if ($year = Setting::current()->established_year) {
+            $node['foundingDate'] = (string) $year;
+        }
+
+        return $node;
     }
 
     /**

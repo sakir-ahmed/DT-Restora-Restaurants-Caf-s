@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Media;
 use App\Models\MenuItem;
+use App\Models\Setting;
 use App\Services\SeoBuilder;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -23,7 +24,7 @@ class AboutController extends Controller
         return Inertia::render('web/About', [
             'photo' => $this->photo(),
             'stats' => [
-                'years' => max(1, now()->year - (int) config('app.established_year')),
+                'years' => ($year = Setting::current()->established_year) ? max(1, now()->year - $year) : null,
                 'branches' => $branchIds->count(),
                 'dishes' => MenuItem::query()->available()->whereIn('branch_id', $branchIds)->count(),
             ],

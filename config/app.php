@@ -29,11 +29,6 @@ return [
     'env' => env('APP_ENV', 'production'),
 
     /*
-    | The year the restaurant opened. Shown as "years of service" on the website.
-    */
-    'established_year' => (int) env('BRAND_ESTABLISHED_YEAR', 2013),
-
-    /*
     | Cuisines listed in the restaurant's structured data for search engines.
     */
     'cuisines' => ['Bangladeshi', 'Arabian', 'Fast Food', 'Street Food'],

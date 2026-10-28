@@ -35,7 +35,9 @@ const process = [
 ];
 
 const tiles = computed(() => [
-    { value: props.stats.years, label: t('site.stat_years') },
+    props.stats.years
+        ? { value: props.stats.years, label: t('site.stat_years') }
+        : { value: props.stats.branches, label: t('site.stat_branches') },
     { value: props.stats.dishes, label: t('site.stat_dishes') },
 ]);
 </script>

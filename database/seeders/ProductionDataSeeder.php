@@ -11,6 +11,7 @@ use App\Models\Media;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\MenuItemVariant;
+use App\Models\Setting;
 use App\Models\User;
 use Database\Seeders\Support\ProductionCatalog;
 use Illuminate\Database\Seeder;
@@ -36,6 +37,8 @@ class ProductionDataSeeder extends Seeder
 {
     private const BRANCH_CODE = 'AK01';
 
+    private const ESTABLISHED_YEAR = 2013;
+
     private const ASSETS = 'database/seeders/assets/production';
 
     public function run(): void
@@ -43,6 +46,7 @@ class ProductionDataSeeder extends Seeder
         DB::transaction(function (): void {
             $branch = $this->branch();
 
+            $this->settings();
             $this->menu($branch);
             $this->gallery($branch);
             $this->posts();
@@ -50,6 +54,19 @@ class ProductionDataSeeder extends Seeder
         });
 
         $this->command?->info("Arman's Kitchen branch, menu and gallery are seeded.");
+    }
+
+    /**
+     * The opening year shown on the website. Set once, so an owner's change in
+     * Settings is never overwritten.
+     */
+    private function settings(): void
+    {
+        $settings = Setting::current();
+
+        if ($settings->established_year === null) {
+            $settings->update(['established_year' => self::ESTABLISHED_YEAR]);
+        }
     }
 
     private function branch(): Branch
