@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Branch;
+use App\Models\Media;
 use Illuminate\Support\Str;
 
 /**
@@ -46,6 +47,7 @@ class SeoBuilder
             'description' => Str::limit(trim(strip_tags($description)), 160, ''),
             'canonical' => $canonical,
             'image' => $image ?? asset('images/og-default.png'),
+            'image_alt' => (string) config('app.name'),
             'type' => 'website',
             'locale' => app()->getLocale() === 'bn' ? 'bn_BD' : 'en_US',
             'noindex' => false,
@@ -95,7 +97,10 @@ class SeoBuilder
             '@id' => url('/').'#organization',
             'name' => (string) config('app.name'),
             'url' => url('/'),
-            'logo' => asset('images/og-default.png'),
+            'logo' => asset('images/brand/emblem-512.png'),
+            'image' => asset('images/og-default.png'),
+            'description' => __('site.seo_home_description'),
+            'foundingDate' => (string) config('app.established_year'),
         ];
     }
 
@@ -110,8 +115,9 @@ class SeoBuilder
             '@id' => $this->branchUrl($branch).'#restaurant',
             'name' => $branch->name,
             'url' => $this->branchUrl($branch),
-            'servesCuisine' => 'Bangladeshi',
-            'priceRange' => 'BDT',
+            'servesCuisine' => config('app.cuisines'),
+            'priceRange' => 'BDT 70 - BDT 4000',
+            'parentOrganization' => ['@id' => url('/').'#organization'],
             'hasMenu' => route('web.menu', ['branchCode' => strtolower($branch->code)]),
             'address' => array_filter([
                 '@type' => 'PostalAddress',
@@ -125,6 +131,8 @@ class SeoBuilder
                 'deliveryMethod' => ['http://purl.org/goodrelations/v1#DeliveryModeOwnFleet', 'http://purl.org/goodrelations/v1#DeliveryModePickUp'],
             ],
         ];
+
+        $images = $images !== [] ? $images : $this->outletImages($branch);
 
         if ($images !== []) {
             $node['image'] = $images;
@@ -213,6 +221,25 @@ class SeoBuilder
             'opens' => $entry['opens'],
             'closes' => $entry['closes'],
         ])->all();
+    }
+
+    /**
+     * Up to four outlet photos for the Restaurant node, used when the caller has none.
+     *
+     * @return list<string>
+     */
+    private function outletImages(Branch $branch): array
+    {
+        return $branch->media()
+            ->where('is_active', true)
+            ->where('kind', Media::KIND_IMAGE)
+            ->whereNotNull('path')
+            ->limit(4)
+            ->get()
+            ->map(fn (Media $media): ?string => $media->absoluteSrc())
+            ->filter()
+            ->values()
+            ->all();
     }
 
     private function branchUrl(Branch $branch): string

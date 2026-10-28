@@ -16,10 +16,11 @@ import UpdatePrompt from './components/ui-kit/UpdatePrompt.vue';
 import { Workbox } from 'workbox-window';
 import { t } from './lib/i18n';
 import { notify } from './lib/notify';
+import { pageTitle } from './lib/title';
 import { Ziggy } from './ziggy';
 
 createInertiaApp({
-    title: (title) => (title ? `${title} - ${import.meta.env.VITE_APP_NAME ?? "Arman's Kitchen"}` : import.meta.env.VITE_APP_NAME ?? "Arman's Kitchen"),
+    title: pageTitle,
 
     resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob('./pages/**/*.vue')),
 

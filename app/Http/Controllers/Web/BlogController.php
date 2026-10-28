@@ -105,7 +105,7 @@ class BlogController extends Controller
                 'articleSection' => $post->category,
                 'mainEntityOfPage' => ['@type' => 'WebPage', '@id' => $post->url()],
                 'author' => ['@type' => 'Organization', 'name' => (string) config('app.name'), 'url' => url('/')],
-                'publisher' => ['@type' => 'Organization', 'name' => (string) config('app.name'), 'logo' => ['@type' => 'ImageObject', 'url' => asset('images/og-default.png')]],
+                'publisher' => ['@type' => 'Organization', 'name' => (string) config('app.name'), 'logo' => ['@type' => 'ImageObject', 'url' => asset('images/brand/emblem-512.png')]],
             ])],
             breadcrumbs: [
                 ['name' => __('site.nav_home'), 'url' => url('/')],

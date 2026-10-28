@@ -3,6 +3,7 @@ import createServer from '@inertiajs/vue3/server';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { renderToString } from 'vue/server-renderer';
 import { createSSRApp, h } from 'vue';
+import { pageTitle } from './lib/title';
 
 /**
  * Server-side rendering for the public website pages. Only pages the
@@ -12,7 +13,7 @@ import { createSSRApp, h } from 'vue';
 createServer((page) => createInertiaApp({
     page,
     render: renderToString,
-    title: (title) => (title ? `${title} - ${import.meta.env.VITE_APP_NAME ?? "Arman's Kitchen"}` : import.meta.env.VITE_APP_NAME ?? "Arman's Kitchen"),
+    title: pageTitle,
     resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob('./pages/**/*.vue')),
     setup: ({ App, props, plugin }) => createSSRApp({ render: () => h(App, props) }).use(plugin),
 }));

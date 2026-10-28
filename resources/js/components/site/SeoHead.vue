@@ -1,6 +1,7 @@
 <script setup>
 import { Head, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import { pageTitle } from '@/lib/title';
 
 /**
  * Keeps the document head in sync during client-side navigation. The first
@@ -12,7 +13,7 @@ const isBrowser = typeof window !== 'undefined';
 
 const seo = computed(() => page.props.seo ?? null);
 const brand = computed(() => page.props.appName ?? "Arman's Kitchen");
-const fullTitle = computed(() => (seo.value ? `${seo.value.title} - ${brand.value}` : brand.value));
+const fullTitle = computed(() => (seo.value ? pageTitle(seo.value.title) : brand.value));
 const robots = computed(() => (seo.value && ! seo.value.noindex ? 'index,follow,max-image-preview:large' : 'noindex,nofollow'));
 </script>
 
@@ -29,10 +30,12 @@ const robots = computed(() => (seo.value && ! seo.value.noindex ? 'index,follow,
         <meta head-key="og:description" property="og:description" :content="seo.description">
         <meta head-key="og:url" property="og:url" :content="seo.canonical">
         <meta head-key="og:image" property="og:image" :content="seo.image">
+        <meta head-key="og:image:alt" property="og:image:alt" :content="seo.image_alt ?? brand">
         <meta head-key="twitter:card" name="twitter:card" content="summary_large_image">
         <meta head-key="twitter:title" name="twitter:title" :content="fullTitle">
         <meta head-key="twitter:description" name="twitter:description" :content="seo.description">
         <meta head-key="twitter:image" name="twitter:image" :content="seo.image">
+        <meta head-key="twitter:image:alt" name="twitter:image:alt" :content="seo.image_alt ?? brand">
     </Head>
     <Head v-else-if="isBrowser">
         <meta head-key="robots" name="robots" content="noindex,nofollow">

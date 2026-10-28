@@ -3,7 +3,7 @@
     $ssrResponse = app(\Inertia\Ssr\SsrState::class)->setPage($page)->dispatch();
     $seo = $page['props']['seo'] ?? null;
     $brand = config('app.name', "Arman's Kitchen");
-    $title = $seo ? $seo['title'].' - '.$brand : $brand;
+    $title = $seo ? (collect([$brand, __('site.brand_name')])->contains(fn ($name) => str_contains($seo['title'], $name)) ? $seo['title'] : $seo['title'].' - '.$brand) : $brand;
     $robots = $seo && ! ($seo['noindex'] ?? false) ? 'index,follow,max-image-preview:large' : 'noindex,nofollow';
 @endphp
 <!DOCTYPE html>
@@ -12,6 +12,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#17120b">
+    <meta name="application-name" content="{{ $brand }}">
+    <meta name="format-detection" content="telephone=yes">
     <link rel="manifest" href="/manifest.webmanifest">
     <meta data-inertia="robots" name="robots" content="{{ $robots }}">
 
@@ -30,10 +32,12 @@
         <meta data-inertia="og:description" property="og:description" content="{{ $seo['description'] }}">
         <meta data-inertia="og:url" property="og:url" content="{{ $seo['canonical'] }}">
         <meta data-inertia="og:image" property="og:image" content="{{ $seo['image'] }}">
+        <meta data-inertia="og:image:alt" property="og:image:alt" content="{{ $seo['image_alt'] ?? $brand }}">
         <meta data-inertia="twitter:card" name="twitter:card" content="summary_large_image">
         <meta data-inertia="twitter:title" name="twitter:title" content="{{ $title }}">
         <meta data-inertia="twitter:description" name="twitter:description" content="{{ $seo['description'] }}">
         <meta data-inertia="twitter:image" name="twitter:image" content="{{ $seo['image'] }}">
+        <meta data-inertia="twitter:image:alt" name="twitter:image:alt" content="{{ $seo['image_alt'] ?? $brand }}">
         @if (! empty($seo['jsonLd']))
             <script type="application/ld+json">{!! json_encode(['@context' => 'https://schema.org', '@graph' => $seo['jsonLd']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) !!}</script>
         @endif
