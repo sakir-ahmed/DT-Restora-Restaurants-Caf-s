@@ -123,24 +123,31 @@ class HomeController extends Controller
     }
 
     /**
-     * A spread of outlet and dish photos for the home page strip: every fifth
-     * photo of the gallery, so rooms, entrance and food all show up.
+     * Six photos for the home page strip. Outlet photos are spread evenly
+     * through the gallery so rooms, entrance and food all show up; without
+     * outlet photos the most recent images are used.
      *
      * @return list<array<string, mixed>>
      */
     private function galleryPreview(): array
     {
-        return Media::query()
+        $images = Media::query()
             ->active()
             ->where('kind', Media::KIND_IMAGE)
-            ->whereNotNull('path')
+            ->whereNotNull('path');
+
+        $outlet = (clone $images)
             ->where('mediable_type', (new Branch)->getMorphClass())
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get()
-            ->values()
-            ->filter(fn (Media $media, int $position): bool => $position % 5 === 0)
-            ->take(6)
+            ->values();
+
+        $photos = $outlet->count() >= 6
+            ? $outlet->filter(fn (Media $media, int $position): bool => $position % intdiv($outlet->count(), 6) === 0)->take(6)
+            : $images->orderByDesc('id')->limit(6)->get();
+
+        return $photos
             ->map(fn (Media $media): array => $media->toDisplay(app()->getLocale()))
             ->values()
             ->all();

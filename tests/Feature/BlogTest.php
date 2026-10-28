@@ -86,7 +86,7 @@ it('publishes each article with article structured data and an article social pr
         ->and($article['image'])->toBe([url('/storage/blog/cover.jpg')])
         ->and($article['datePublished'])->toBe($post->published_at->toIso8601String())
         ->and($article['author']['name'])->toBe(config('app.name'))
-        ->and($article['publisher']['logo']['url'])->toBe(asset('images/og-default.png'))
+        ->and($article['publisher']['logo']['url'])->toBe(asset('images/brand/emblem-512.png'))
         ->and($article['articleSection'])->toBe('Recipes');
 
     expect($response->getContent())->toContain('property="og:type" content="article"')
