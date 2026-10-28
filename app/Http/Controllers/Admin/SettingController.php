@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Branch;
+use App\Models\DeliveryZone;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Setting;
 use App\Services\PublicCache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -21,7 +22,26 @@ class SettingController extends Controller
     {
         $this->authorize('settings.manage');
 
+        $branch = $this->currentBranch($request);
+
         return Inertia::render('admin/settings/Index', [
+            'branchName' => $branch?->name ?? '',
+            'deliveryZones' => DeliveryZone::query()
+                ->where('branch_id', $branch?->id)
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get()
+                ->map(fn (DeliveryZone $zone): array => [
+                    'id' => $zone->id,
+                    'name' => $zone->name,
+                    'name_bn' => $zone->name_bn,
+                    'fee' => (string) $zone->fee,
+                    'fee_type' => $zone->fee_type,
+                    'min_order' => (string) $zone->min_order,
+                    'eta_minutes' => $zone->eta_minutes,
+                    'is_active' => $zone->is_active,
+                    'sort_order' => $zone->sort_order,
+                ])->values(),
             'paymentMethods' => PaymentMethod::query()->orderBy('sort_order')->orderBy('id')->get()->map(fn (PaymentMethod $method): array => [
                 'id' => $method->id,
                 'code' => $method->code,
@@ -48,10 +68,6 @@ class SettingController extends Controller
                 'established_year',
                 'website_enabled',
                 'online_delivery_enabled',
-                'delivery_mode',
-                'delivery_flat_fee',
-                'delivery_min_order',
-                'delivery_eta_minutes',
             ]),
         ]);
     }
@@ -75,10 +91,6 @@ class SettingController extends Controller
             'established_year' => ['nullable', 'integer', 'min:1800', 'max:'.now()->year],
             'website_enabled' => ['sometimes', 'boolean'],
             'online_delivery_enabled' => ['sometimes', 'boolean'],
-            'delivery_mode' => ['sometimes', Rule::in([Setting::DELIVERY_ZONES, Setting::DELIVERY_ADDRESS_ONLY])],
-            'delivery_flat_fee' => ['sometimes', 'numeric', 'min:0', 'max:100000'],
-            'delivery_min_order' => ['sometimes', 'numeric', 'min:0', 'max:1000000'],
-            'delivery_eta_minutes' => ['nullable', 'integer', 'min:1', 'max:600'],
         ], [], [
             'discount_limit_percent' => __('settings.discount_limit'),
             'wastage_spike_multiplier' => __('settings.wastage_spike'),
@@ -94,10 +106,6 @@ class SettingController extends Controller
             'established_year' => __('settings.established_year'),
             'website_enabled' => __('settings.website_enabled'),
             'online_delivery_enabled' => __('settings.online_delivery_enabled'),
-            'delivery_mode' => __('settings.delivery_mode'),
-            'delivery_flat_fee' => __('settings.delivery_flat_fee'),
-            'delivery_min_order' => __('settings.delivery_min_order'),
-            'delivery_eta_minutes' => __('settings.delivery_eta_minutes'),
         ]);
 
         Setting::current()->update($validated);
@@ -109,5 +117,12 @@ class SettingController extends Controller
             ->log('settings.updated');
 
         return back()->with('success', __('settings.saved'));
+    }
+
+    private function currentBranch(Request $request): ?Branch
+    {
+        $user = $request->user('staff');
+
+        return Branch::query()->find($user->branch_id ?? (int) session('branch_id', 0)) ?? Branch::query()->orderBy('id')->first();
     }
 }

@@ -5,6 +5,7 @@ import AppIcon from '@/components/AppIcon.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
 import SwitchField from '@/components/ui-kit/SwitchField.vue';
 import PageHeader from '@/components/ui-kit/PageHeader.vue';
+import DeliveryZoneManager from '@/components/admin/DeliveryZoneManager.vue';
 import PaymentMethodManager from '@/components/admin/PaymentMethodManager.vue';
 import { t } from '@/lib/i18n';
 import { notify } from '@/lib/notify';
@@ -12,6 +13,8 @@ import { notify } from '@/lib/notify';
 const props = defineProps({
     settings: { type: Object, required: true },
     paymentMethods: { type: Array, default: () => [] },
+    deliveryZones: { type: Array, default: () => [] },
+    branchName: { type: String, default: '' },
 });
 
 const tab = ref('general');
@@ -31,10 +34,6 @@ const form = useForm({
     established_year: props.settings.established_year ?? '',
     website_enabled: Boolean(props.settings.website_enabled),
     online_delivery_enabled: Boolean(props.settings.online_delivery_enabled),
-    delivery_mode: props.settings.delivery_mode ?? 'zones',
-    delivery_flat_fee: props.settings.delivery_flat_fee ?? '0.00',
-    delivery_min_order: props.settings.delivery_min_order ?? '0.00',
-    delivery_eta_minutes: props.settings.delivery_eta_minutes ?? '',
 });
 
 function save() {
@@ -52,7 +51,7 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
 
         <div class="mb-3 flex gap-1" role="tablist">
             <button
-                v-for="entry in [{ key: 'general', label: t('settings.tab_general') }, { key: 'methods', label: t('settings.tab_methods') }]"
+                v-for="entry in [{ key: 'general', label: t('settings.tab_general') }, { key: 'methods', label: t('settings.tab_methods') }, { key: 'areas', label: t('settings.tab_areas') }]"
                 :key="entry.key"
                 type="button"
                 role="tab"
@@ -66,6 +65,8 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
         </div>
 
         <PaymentMethodManager v-show="tab === 'methods'" :methods="paymentMethods" />
+
+        <DeliveryZoneManager v-show="tab === 'areas'" :zones="deliveryZones" :branch-name="branchName" :delivery-enabled="Boolean(form.online_delivery_enabled)" />
 
         <form v-show="tab === 'general'" novalidate class="max-w-2xl rounded-lg border border-border bg-surface p-4" @submit.prevent="save">
             <h2 class="mb-2 text-[13px] font-semibold text-foreground">{{ t('settings.section_website') }}</h2>
@@ -89,36 +90,7 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
                     <p class="text-xs text-muted">{{ t('settings.online_delivery_enabled_helper') }}</p>
                 </div>
 
-                <template v-if="form.online_delivery_enabled">
-                    <FormField class="col-span-2" :label="t('settings.delivery_mode')" :helper="form.delivery_mode === 'zones' ? t('settings.delivery_mode_zones_helper') : t('settings.delivery_mode_address_helper')" :error="form.errors.delivery_mode">
-                        <template #default="{ id }">
-                            <select :id="id" v-model="form.delivery_mode" :class="inputClass">
-                                <option value="zones">{{ t('settings.delivery_mode_zones') }}</option>
-                                <option value="address_only">{{ t('settings.delivery_mode_address_only') }}</option>
-                            </select>
-                        </template>
-                    </FormField>
-
-                    <template v-if="form.delivery_mode === 'address_only'">
-                        <FormField :label="t('settings.delivery_flat_fee')" :error="form.errors.delivery_flat_fee">
-                            <template #default="{ id }">
-                                <input :id="id" v-model="form.delivery_flat_fee" type="number" min="0" step="0.01" :class="[inputClass, 'text-right tabular-nums']">
-                            </template>
-                        </FormField>
-
-                        <FormField :label="t('settings.delivery_min_order')" :error="form.errors.delivery_min_order">
-                            <template #default="{ id }">
-                                <input :id="id" v-model="form.delivery_min_order" type="number" min="0" step="0.01" :class="[inputClass, 'text-right tabular-nums']">
-                            </template>
-                        </FormField>
-
-                        <FormField :label="t('settings.delivery_eta_minutes')" :error="form.errors.delivery_eta_minutes">
-                            <template #default="{ id }">
-                                <input :id="id" v-model="form.delivery_eta_minutes" type="number" min="1" max="600" step="1" :class="[inputClass, 'text-right tabular-nums']">
-                            </template>
-                        </FormField>
-                    </template>
-                </template>
+                <p v-if="form.online_delivery_enabled" class="col-span-2 text-xs text-muted">{{ t('settings.delivery_areas_hint') }}</p>
             </div>
 
             <h2 class="mb-2 border-t border-border pt-3 text-[13px] font-semibold text-foreground">{{ t('settings.section_business') }}</h2>

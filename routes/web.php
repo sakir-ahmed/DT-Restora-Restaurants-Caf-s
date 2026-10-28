@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DeliveryController;
+use App\Http\Controllers\Admin\DeliveryZoneController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\IngredientController;
@@ -345,6 +346,9 @@ Route::prefix('admin')
         Route::post('settings/payment-methods', [PaymentMethodController::class, 'store'])->name('settings.payment-methods.store')->middleware('permission:settings.manage');
         Route::put('settings/payment-methods/{method}', [PaymentMethodController::class, 'update'])->name('settings.payment-methods.update')->middleware('permission:settings.manage');
         Route::delete('settings/payment-methods/{method}', [PaymentMethodController::class, 'destroy'])->name('settings.payment-methods.destroy')->middleware('permission:settings.manage');
+        Route::post('settings/delivery-zones', [DeliveryZoneController::class, 'store'])->name('settings.delivery-zones.store')->middleware('permission:settings.manage');
+        Route::put('settings/delivery-zones/{zone}', [DeliveryZoneController::class, 'update'])->name('settings.delivery-zones.update')->middleware('permission:settings.manage');
+        Route::delete('settings/delivery-zones/{zone}', [DeliveryZoneController::class, 'destroy'])->name('settings.delivery-zones.destroy')->middleware('permission:settings.manage');
 
         Route::get('activity-log', [ActivityLogController::class, 'index'])->name('activity.index')->middleware('permission:activity.view');
 

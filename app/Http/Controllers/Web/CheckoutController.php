@@ -23,7 +23,6 @@ use App\Services\TurnstileService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -44,11 +43,13 @@ class CheckoutController extends Controller
 
         return Inertia::render('web/Checkout', [
             'branch' => $branch->only(['id', 'name', 'code', 'vat_percent', 'vat_inclusive', 'service_charge_percent']),
-            'delivery' => $this->deliveryOptions(),
-            'zones' => $branch->zones->map(fn (DeliveryZone $zone) => [
+            'delivery' => ['enabled' => $this->deliveryEnabled($branch)],
+            'zones' => $branch->zones->sortBy(['sort_order', 'name'])->map(fn (DeliveryZone $zone) => [
                 'id' => $zone->id,
                 'name' => $zone->name,
+                'name_bn' => $zone->name_bn,
                 'fee' => (string) $zone->fee,
+                'fee_type' => $zone->fee_type,
                 'min_order' => (string) $zone->min_order,
                 'eta_minutes' => $zone->eta_minutes,
             ])->values(),
@@ -96,15 +97,15 @@ class CheckoutController extends Controller
 
     public function place(Request $request, CreateOrderAction $action, TurnstileService $turnstile): RedirectResponse
     {
-        $delivery = $this->deliveryOptions();
+        $branch = Branch::query()->findOrFail((int) session('web_branch_id', Branch::query()->orderBy('id')->value('id')));
 
-        if ($request->input('order_type') === 'delivery' && ! $delivery['enabled']) {
+        if ($request->input('order_type') === 'delivery' && ! $this->deliveryEnabled($branch)) {
             throw ValidationException::withMessages(['order_type' => __('web.err_delivery_off')]);
         }
 
         $validated = $request->validate([
             'order_type' => ['required', 'in:delivery,pickup'],
-            'delivery_zone_id' => [Rule::requiredIf($request->input('order_type') === 'delivery' && $delivery['mode'] === Setting::DELIVERY_ZONES), 'nullable', 'integer', 'exists:delivery_zones,id'],
+            'delivery_zone_id' => ['required_if:order_type,delivery', 'nullable', 'integer', 'exists:delivery_zones,id'],
             'delivery_address' => ['required_if:order_type,delivery', 'nullable', 'string', 'max:500'],
             'customer_name' => ['nullable', 'string', 'max:150'],
             'customer_mobile' => ['nullable', 'string', 'max:20'],
@@ -121,7 +122,7 @@ class CheckoutController extends Controller
             'items.*.add_ons.*.id' => ['required', 'integer', 'exists:menu_item_addons,id'],
             'items.*.add_ons.*.qty' => ['nullable', 'integer', 'min:1'],
         ], [
-            'delivery_zone_id.required' => __('web.err_zone'),
+            'delivery_zone_id.required_if' => __('web.err_zone'),
             'delivery_address.required_if' => __('web.err_address'),
             'items.required' => __('web.cart_empty'),
             'items.min' => __('web.cart_empty'),
@@ -175,31 +176,22 @@ class CheckoutController extends Controller
             );
         }
 
-        $branch = Branch::query()->findOrFail((int) session('web_branch_id', Branch::query()->orderBy('id')->value('id')));
-
         // The website calls takeaway "pickup"; the order type enum calls it takeaway.
         $type = $validated['order_type'] === 'pickup' ? OrderType::Takeaway : OrderType::Delivery;
 
         $zone = null;
         $deliveryFee = null;
+        $deliveryAddress = null;
 
-        $minOrder = 0.0;
-        $etaMinutes = null;
-
-        if ($type === OrderType::Delivery && $delivery['mode'] === Setting::DELIVERY_ZONES) {
+        if ($type === OrderType::Delivery) {
+            // Delivery is only offered inside the areas the owner lists.
             $zone = DeliveryZone::query()
                 ->where('is_active', true)
                 ->where('branch_id', $branch->id)
                 ->findOrFail((int) $validated['delivery_zone_id']);
 
             $deliveryFee = (float) $zone->fee;
-            $minOrder = (float) $zone->min_order;
-            $etaMinutes = $zone->eta_minutes;
-        } elseif ($type === OrderType::Delivery) {
-            // Address-only delivery: one flat fee, minimum order and time for every address.
-            $deliveryFee = (float) $delivery['fee'];
-            $minOrder = (float) $delivery['min_order'];
-            $etaMinutes = $delivery['eta_minutes'];
+            $deliveryAddress = $this->deliveryAddress($zone, (string) $validated['delivery_address']);
         }
 
         $order = $action->execute(
@@ -211,17 +203,17 @@ class CheckoutController extends Controller
             terminalCode: 'WEB',
             deliveryFee: $deliveryFee,
             deliveryZoneId: $zone?->id,
-            deliveryAddress: $validated['delivery_address'] ?? null,
+            deliveryAddress: $deliveryAddress,
             scheduledFor: isset($validated['scheduled_for']) ? new \DateTimeImmutable((string) $validated['scheduled_for']) : null,
             couponCode: $validated['coupon_code'] ?? null,
         );
 
         // Minimum order check against the real server-side subtotal.
-        if ($type === OrderType::Delivery && (float) $order->subtotal < $minOrder) {
+        if ($zone !== null && (float) $order->subtotal < (float) $zone->min_order) {
             $order->forceFill(['status' => 'void'])->save();
 
             throw ValidationException::withMessages([
-                $zone !== null ? 'delivery_zone_id' : 'delivery_address' => __('web.min_order_not_met', ['min' => $minOrder]),
+                'delivery_zone_id' => __('web.min_order_not_met', ['min' => $zone->min_order]),
             ]);
         }
 
@@ -251,26 +243,32 @@ class CheckoutController extends Controller
                 'total' => (string) $order->total,
                 'order_type' => $type->value,
                 'payment_method' => $validated['payment_method'],
-                'eta_minutes' => $etaMinutes,
+                'eta_minutes' => $zone?->eta_minutes,
                 'branch' => $branch->name,
             ]);
     }
 
     /**
-     * Online delivery options the owner set in Settings.
-     *
-     * @return array{enabled: bool, mode: string, fee: string, min_order: string, eta_minutes: int|null}
+     * Delivery is offered when the owner switched it on and listed at least one active area.
      */
-    private function deliveryOptions(): array
+    private function deliveryEnabled(Branch $branch): bool
     {
-        $settings = Setting::current();
+        return Setting::current()->online_delivery_enabled
+            && DeliveryZone::query()->where('branch_id', $branch->id)->where('is_active', true)->exists();
+    }
 
-        return [
-            'enabled' => $settings->online_delivery_enabled,
-            'mode' => $settings->delivery_mode,
-            'fee' => (string) $settings->delivery_flat_fee,
-            'min_order' => (string) $settings->delivery_min_order,
-            'eta_minutes' => $settings->delivery_eta_minutes,
-        ];
+    /**
+     * What the rider and the kitchen see: the exact location the customer typed,
+     * the chosen area, and a note when the fee still has to be confirmed by phone.
+     */
+    private function deliveryAddress(DeliveryZone $zone, string $location): string
+    {
+        $address = trim($location).', '.$zone->name;
+
+        if ($zone->fee_type === DeliveryZone::FEE_FLEXIBLE) {
+            $address .= ' ('.__('web.fee_confirm_note').')';
+        }
+
+        return $address;
     }
 }

@@ -69,7 +69,7 @@ These live in the database, so no deploy or `.env` change is needed:
 
 - **Website is open**: switch the public website off to show a maintenance page. Signed-in staff, order tracking, payment pages and table QR ordering keep working.
 - **Opening year**: shows "years of service" on the home and about pages. Empty hides it. A fresh install sets it to 2013.
-- **Online delivery**: switch delivery on or off for website orders. Choose whether the customer picks a delivery area (areas, fees and minimum orders are managed under Delivery) or types the full address with one flat fee, minimum order and time.
+- **Online delivery**: switch delivery on or off for website orders. Delivery only goes to the areas listed in the **Delivery areas** tab (per branch). Each area has a fee, minimum order and time, and is either *fixed* (one fee) or *flexible* (a starting fee; the customer is told the final charge is confirmed by phone, and the order notes it). The customer picks an area, then types the exact location. Delivery stays off until at least one area is active. A fresh install lists the areas around Mohammadpur as inactive, ready to price.
 - **Social media**: links shown as icons in the footer; an empty link shows an inactive icon.
 - **Branch form**: Bangla address and city, shown when the site is in Bangla.
 

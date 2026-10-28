@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use App\Models\AggregatorChannel;
 use App\Models\BlogPost;
 use App\Models\Branch;
+use App\Models\DeliveryZone;
 use App\Models\Media;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
@@ -50,6 +51,7 @@ class ProductionDataSeeder extends Seeder
             $this->menu($branch);
             $this->gallery($branch);
             $this->posts();
+            $this->deliveryAreas($branch);
             $this->deliveryChannels();
         });
 
@@ -194,6 +196,33 @@ class ProductionDataSeeder extends Seeder
             AggregatorChannel::query()->firstOrCreate(
                 ['key' => $key],
                 ['name' => $name, 'commission_percent' => '0.00', 'is_active' => false],
+            );
+        }
+    }
+
+    /**
+     * Places around the restaurant, ready to price. They start inactive with no
+     * fee, so website delivery stays off until the owner sets a fee and
+     * activates the areas in Settings, Delivery areas. Created once and never
+     * touched again.
+     */
+    private function deliveryAreas(Branch $branch): void
+    {
+        $areas = [
+            ['Mohammadia Housing Society', 'মোহাম্মদিয়া হাউজিং সোসাইটি', DeliveryZone::FEE_FIXED],
+            ['Mohammadpur', 'মোহাম্মদপুর', DeliveryZone::FEE_FIXED],
+            ['Adabor', 'আদাবর', DeliveryZone::FEE_FIXED],
+            ['Shyamoli', 'শ্যামলী', DeliveryZone::FEE_FIXED],
+            ['Lalmatia', 'লালমাটিয়া', DeliveryZone::FEE_FIXED],
+            ['Asad Gate', 'আসাদ গেট', DeliveryZone::FEE_FIXED],
+            ['Dhanmondi', 'ধানমন্ডি', DeliveryZone::FEE_FLEXIBLE],
+            ['Other nearby area', 'কাছাকাছি অন্য এলাকা', DeliveryZone::FEE_FLEXIBLE],
+        ];
+
+        foreach ($areas as $order => [$name, $nameBn, $feeType]) {
+            DeliveryZone::query()->firstOrCreate(
+                ['branch_id' => $branch->id, 'name' => $name],
+                ['name_bn' => $nameBn, 'fee' => '0.00', 'fee_type' => $feeType, 'min_order' => '0.00', 'is_active' => false, 'sort_order' => $order + 1],
             );
         }
     }
