@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
+use App\Models\Media;
 use App\Models\MenuItem;
 use App\Services\SeoBuilder;
 use Inertia\Inertia;
@@ -20,7 +21,9 @@ class AboutController extends Controller
         $branchIds = Branch::query()->where('is_active', true)->pluck('id');
 
         return Inertia::render('web/About', [
+            'photo' => $this->photo(),
             'stats' => [
+                'years' => max(1, now()->year - (int) config('app.established_year')),
                 'branches' => $branchIds->count(),
                 'dishes' => MenuItem::query()->available()->whereIn('branch_id', $branchIds)->count(),
             ],
@@ -40,5 +43,27 @@ class AboutController extends Controller
                 ],
             ),
         ]);
+    }
+
+    /**
+     * The outlet photo shown beside the story: the dining lounge when it is in
+     * the gallery, otherwise the first outlet photo.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function photo(): ?array
+    {
+        $photos = Media::query()
+            ->active()
+            ->where('kind', Media::KIND_IMAGE)
+            ->whereNotNull('path')
+            ->where('mediable_type', (new Branch)->getMorphClass())
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+
+        $photo = $photos->first(fn (Media $media): bool => str_contains((string) $media->title, 'Dining lounge')) ?? $photos->first();
+
+        return $photo?->toDisplay(app()->getLocale());
     }
 }

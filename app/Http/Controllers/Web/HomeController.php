@@ -43,24 +43,25 @@ class HomeController extends Controller
             ->each(fn (Branch $branch) => $branch->setAttribute('slug', $branch->publicSlug()));
 
         $featuredNames = [
-            'Kacchi Biryani',
-            'Chicken Biryani',
-            'Beef Tehari',
-            'Morog Polao',
-            'Beef Bhuna',
-            'Kala Bhuna',
-            'Fuchka',
-            'Chingri Malai Curry',
+            'Al Faham Wajba',
+            'Kabsa',
+            'Cheesy Jumbo Burger',
+            'Shahi Chotpoti (AK Special)',
+            'Doi Fuchka (AK Special)',
+            'BBQ Chicken Wings (6pcs)',
+            'Dajaj Mandi',
+            'Green Lemonade',
         ];
         $featuredOrder = array_flip($featuredNames);
         $featured = MenuItem::query()
             ->where('branch_id', $branches->first()?->id)
-            ->whereIn('name', $featuredNames)
+            ->whereNotNull('photo_path')
             ->available()
             ->whereHas('category', fn ($query) => $query->where('is_active', true))
             ->with(['category:id,name,name_bn', 'variants', 'media'])
             ->get()
-            ->sortBy(fn (MenuItem $item): int => $featuredOrder[$item->name])
+            ->sortBy(fn (MenuItem $item): int => $featuredOrder[$item->name] ?? count($featuredNames) + $item->sort_order)
+            ->take(count($featuredNames))
             ->values();
 
         $categories = MenuCategory::query()
@@ -90,6 +91,8 @@ class HomeController extends Controller
                 'reading_minutes' => $post->readingMinutes(app()->getLocale()),
             ])->values()->all(),
             'stats' => [
+                'years' => max(1, now()->year - (int) config('app.established_year')),
+                'categories' => $categories->count(),
                 'branches' => $branches->count(),
                 'dishes' => MenuItem::query()->available()->whereIn('branch_id', $branches->pluck('id'))->count(),
                 'areas' => DeliveryZone::query()->where('is_active', true)->whereIn('branch_id', $branches->pluck('id'))->count(),
@@ -120,7 +123,8 @@ class HomeController extends Controller
     }
 
     /**
-     * A few recent photos for the home page strip.
+     * A spread of outlet and dish photos for the home page strip: every fifth
+     * photo of the gallery, so rooms, entrance and food all show up.
      *
      * @return list<array<string, mixed>>
      */
@@ -130,10 +134,15 @@ class HomeController extends Controller
             ->active()
             ->where('kind', Media::KIND_IMAGE)
             ->whereNotNull('path')
-            ->orderByDesc('id')
-            ->limit(6)
+            ->where('mediable_type', (new Branch)->getMorphClass())
+            ->orderBy('sort_order')
+            ->orderBy('id')
             ->get()
+            ->values()
+            ->filter(fn (Media $media, int $position): bool => $position % 5 === 0)
+            ->take(6)
             ->map(fn (Media $media): array => $media->toDisplay(app()->getLocale()))
+            ->values()
             ->all();
     }
 }

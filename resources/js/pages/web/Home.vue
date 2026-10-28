@@ -30,24 +30,24 @@ const menuHref = computed(() => (firstBranch.value ? menuUrl(firstBranch.value.c
 const categoryNames = computed(() => props.categories.map((category) => (currentLocale() === 'bn' && category.name_bn ? category.name_bn : category.name)));
 
 const steps = [
-    { icon: 'store', title: 'site.how_1_title', text: 'site.how_1_text' },
-    { icon: 'qrcode', title: 'site.how_2_title', text: 'site.how_2_text' },
-    { icon: 'truck-fast', title: 'site.how_3_title', text: 'site.how_3_text' },
+    { icon: 'utensils', title: 'site.how_1_title', text: 'site.how_1_text' },
+    { icon: 'bag-shopping', title: 'site.how_2_title', text: 'site.how_2_text' },
+    { icon: 'heart', title: 'site.how_3_title', text: 'site.how_3_text' },
 ];
 
 const features = [
     { icon: 'fire', key: 'fresh' },
-    { icon: 'truck-fast', key: 'tracking' },
-    { icon: 'qrcode', key: 'qr' },
-    { icon: 'wallet', key: 'pay' },
-    { icon: 'gift', key: 'loyalty' },
-    { icon: 'map-location-dot', key: 'delivery' },
+    { icon: 'drumstick-bite', key: 'mandi' },
+    { icon: 'pepper-hot', key: 'street' },
+    { icon: 'mug-hot', key: 'breakfast' },
+    { icon: 'truck-fast', key: 'delivery' },
+    { icon: 'users', key: 'family' },
 ];
 
 const statTiles = computed(() => [
-    { value: props.stats.branches, label: t('site.stat_branches'), icon: 'store' },
+    { value: props.stats.years, label: t('site.stat_years'), icon: 'award' },
     { value: props.stats.dishes, label: t('site.stat_dishes'), icon: 'bowl-food' },
-    { value: props.stats.areas, label: t('site.stat_areas'), icon: 'map-location-dot' },
+    { value: props.stats.categories, label: t('site.stat_categories'), icon: 'layer-group' },
 ]);
 </script>
 
@@ -78,8 +78,8 @@ const statTiles = computed(() => [
 
                     <ul class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted">
                         <li class="flex items-center gap-2"><AppIcon name="fire" size="13" />{{ t('site.hero_badge_fresh') }}</li>
-                        <li class="flex items-center gap-2"><AppIcon name="truck-fast" size="13" />{{ t('site.hero_badge_tracking') }}</li>
-                        <li class="flex items-center gap-2"><AppIcon name="qrcode" size="13" />{{ t('site.hero_badge_qr') }}</li>
+                        <li class="flex items-center gap-2"><AppIcon name="utensils" size="13" />{{ t('site.hero_badge_modes') }}</li>
+                        <li class="flex items-center gap-2"><AppIcon name="clock" size="13" />{{ t('site.hero_badge_hours') }}</li>
                     </ul>
                 </div>
 

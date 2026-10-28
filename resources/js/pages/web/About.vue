@@ -10,6 +10,7 @@ import SectionHeading from '@/components/site/SectionHeading.vue';
 import { t } from '@/lib/i18n';
 
 const props = defineProps({
+    photo: { type: Object, default: null },
     stats: { type: Object, required: true },
     seo: { type: Object, default: null },
 });
@@ -34,7 +35,7 @@ const process = [
 ];
 
 const tiles = computed(() => [
-    { value: props.stats.branches, label: t('site.stat_branches') },
+    { value: props.stats.years, label: t('site.stat_years') },
     { value: props.stats.dishes, label: t('site.stat_dishes') },
 ]);
 </script>
@@ -59,7 +60,11 @@ const tiles = computed(() => [
             </Reveal>
 
             <Reveal :delay="100">
-                <div class="rounded-xl border border-border bg-surface p-8">
+                <figure v-if="photo" class="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
+                    <img :src="photo.src" :alt="photo.title || ''" width="960" height="720" loading="lazy" decoding="async" class="aspect-[4/3] w-full object-cover">
+                    <figcaption v-if="photo.title" class="px-4 py-3 text-sm text-muted">{{ photo.title }}</figcaption>
+                </figure>
+                <div v-else class="rounded-xl border border-border bg-surface p-8">
                     <div class="mx-auto aspect-square w-full max-w-sm"><DishArt kind="bowl" :seed="5" /></div>
                 </div>
             </Reveal>
