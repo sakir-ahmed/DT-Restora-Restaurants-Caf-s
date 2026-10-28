@@ -14,13 +14,15 @@ const page = usePage();
 const props = defineProps({
     branch: { type: Object, required: true },
     zones: { type: Array, required: true },
+    delivery: { type: Object, default: () => ({ enabled: true, mode: 'zones', fee: '0', min_order: '0', eta_minutes: null }) },
     customer: { type: Object, default: null },
     addresses: { type: Array, default: () => [] },
     table: { type: Object, default: null },
     turnstileSiteKey: { type: String, default: null },
 });
 
-const orderType = ref(props.table ? 'dine_in' : 'delivery');
+const deliveryByZone = computed(() => props.delivery.mode === 'zones');
+const orderType = ref(props.table ? 'dine_in' : (props.delivery.enabled ? 'delivery' : 'pickup'));
 const zoneId = ref(null);
 const address = ref('');
 const name = ref(props.customer?.name ?? '');
@@ -94,7 +96,16 @@ const vatAmount = computed(() => props.branch.vat_inclusive
     ? vatBase.value - (vatBase.value * 100 / (100 + Number(props.branch.vat_percent)))
     : vatBase.value * Number(props.branch.vat_percent) / 100);
 
-const deliveryFee = computed(() => (orderType.value === 'delivery' && selectedZone.value ? Number(selectedZone.value.fee) : 0));
+const deliveryFee = computed(() => {
+    if (orderType.value !== 'delivery') {
+        return 0;
+    }
+
+    return deliveryByZone.value ? Number(selectedZone.value?.fee ?? 0) : Number(props.delivery.fee);
+});
+
+const deliveryMinOrder = computed(() => (deliveryByZone.value ? Number(selectedZone.value?.min_order ?? 0) : Number(props.delivery.min_order)));
+const deliveryEta = computed(() => (deliveryByZone.value ? selectedZone.value?.eta_minutes : props.delivery.eta_minutes));
 
 const total = computed(() => Math.round((props.branch.vat_inclusive ? vatBase.value : vatBase.value + vatAmount.value) + deliveryFee.value));
 
@@ -118,10 +129,10 @@ function validate() {
     }
 
     if (orderType.value === 'delivery') {
-        if (! zoneId.value) {
+        if (deliveryByZone.value && ! zoneId.value) {
             found.delivery_zone_id = t('web.err_zone');
-        } else if (selectedZone.value && cartSubtotal() < Number(selectedZone.value.min_order)) {
-            found.delivery_zone_id = t('web.min_order_not_met', { min: selectedZone.value.min_order });
+        } else if (cartSubtotal() < deliveryMinOrder.value) {
+            found[deliveryByZone.value ? 'delivery_zone_id' : 'delivery_address'] = t('web.min_order_not_met', { min: deliveryMinOrder.value });
         }
 
         if (! address.value.trim()) {
@@ -201,7 +212,7 @@ function submit() {
 
     router.post(route('web.checkout.place'), {
         order_type: orderType.value,
-        delivery_zone_id: orderType.value === 'delivery' ? zoneId.value : null,
+        delivery_zone_id: orderType.value === 'delivery' && deliveryByZone.value ? zoneId.value : null,
         delivery_address: orderType.value === 'delivery' ? address.value : null,
         customer_name: name.value || null,
         customer_mobile: props.customer ? undefined : mobile.value,
@@ -254,7 +265,7 @@ function submit() {
                     <RadioCards
                         v-model="orderType"
                         :options="[
-                            { value: 'delivery', label: t('orders.type.delivery'), hint: selectedZone ? selectedZone.eta_minutes + ' min' : null },
+                            ...(delivery.enabled ? [{ value: 'delivery', label: t('orders.type.delivery'), hint: deliveryEta ? deliveryEta + ' min' : null }] : []),
                             { value: 'pickup', label: t('orders.type.takeaway') },
                             ...(table ? [{ value: 'dine_in', label: t('web.at_table', { table: table.name }) }] : []),
                         ]"
@@ -266,7 +277,7 @@ function submit() {
             <section v-if="orderType === 'delivery'" class="space-y-3 rounded-xl border border-border bg-surface p-4">
                 <h2 class="text-sm font-semibold">{{ t('web.delivery_details') }}</h2>
 
-                <FormField :label="t('web.zone')" required for="field-delivery_zone_id" :error="errors.delivery_zone_id">
+                <FormField v-if="deliveryByZone" :label="t('web.zone')" required for="field-delivery_zone_id" :error="errors.delivery_zone_id">
                     <template #default>
                         <select id="field-delivery_zone_id" v-model="zoneId" :aria-invalid="!! errors.delivery_zone_id" class="h-9 w-full rounded-md border bg-surface px-2 text-sm" :class="errors.delivery_zone_id ? 'border-danger' : 'border-border'">
                             <option :value="null" disabled>{{ t('common.select') }}</option>
@@ -295,9 +306,13 @@ function submit() {
                     </template>
                 </FormField>
 
-                <p v-if="selectedZone" class="flex items-center gap-1.5 text-xs text-muted">
+                <p v-if="! deliveryByZone" class="text-xs text-muted">
+                    {{ t('web.flat_delivery_info', { fee: formatMoney(delivery.fee, { decimals: 0, symbol: true }), min: formatMoney(delivery.min_order, { decimals: 0, symbol: true }) }) }}
+                </p>
+
+                <p v-if="deliveryEta" class="flex items-center gap-1.5 text-xs text-muted">
                     <AppIcon name="motorcycle" size="12" />
-                    {{ t('web.eta', { minutes: selectedZone.eta_minutes }) }}
+                    {{ t('web.eta', { minutes: deliveryEta }) }}
                 </p>
             </section>
 
@@ -418,8 +433,8 @@ function submit() {
 
             <p v-if="couponFeedback" role="status" class="text-xs" :class="couponFeedback.ok ? 'text-success' : 'text-danger'">{{ couponFeedback.text }}</p>
 
-            <p v-if="selectedZone && cartSubtotal() < Number(selectedZone.min_order)" class="text-center text-xs text-danger">
-                {{ t('web.min_order_not_met', { min: selectedZone.min_order }) }}
+            <p v-if="orderType === 'delivery' && deliveryMinOrder > 0 && cartSubtotal() < deliveryMinOrder && (selectedZone || ! deliveryByZone)" class="text-center text-xs text-danger">
+                {{ t('web.min_order_not_met', { min: deliveryMinOrder }) }}
             </p>
         </aside>
     </div>
