@@ -8,6 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
 {
+    /** Customers pick a delivery area with its own fee (areas are managed under Delivery). */
+    public const DELIVERY_ZONES = 'zones';
+
+    /** Customers type their full address and one flat fee applies. */
+    public const DELIVERY_ADDRESS_ONLY = 'address_only';
+
     protected $fillable = [
         'discount_limit_percent',
         'wastage_spike_multiplier',
@@ -20,6 +26,13 @@ class Setting extends Model
         'social_youtube',
         'social_tiktok',
         'social_whatsapp',
+        'established_year',
+        'website_enabled',
+        'online_delivery_enabled',
+        'delivery_mode',
+        'delivery_flat_fee',
+        'delivery_min_order',
+        'delivery_eta_minutes',
     ];
 
     protected $casts = [
@@ -28,6 +41,12 @@ class Setting extends Model
         'pos_pin_minutes' => 'integer',
         'pos_lock_enabled' => 'boolean',
         'delivery_otp_enabled' => 'boolean',
+        'established_year' => 'integer',
+        'website_enabled' => 'boolean',
+        'online_delivery_enabled' => 'boolean',
+        'delivery_flat_fee' => 'decimal:2',
+        'delivery_min_order' => 'decimal:2',
+        'delivery_eta_minutes' => 'integer',
     ];
 
     /**

@@ -28,6 +28,13 @@ const form = useForm({
     social_youtube: props.settings.social_youtube ?? '',
     social_tiktok: props.settings.social_tiktok ?? '',
     social_whatsapp: props.settings.social_whatsapp ?? '',
+    established_year: props.settings.established_year ?? '',
+    website_enabled: Boolean(props.settings.website_enabled),
+    online_delivery_enabled: Boolean(props.settings.online_delivery_enabled),
+    delivery_mode: props.settings.delivery_mode ?? 'zones',
+    delivery_flat_fee: props.settings.delivery_flat_fee ?? '0.00',
+    delivery_min_order: props.settings.delivery_min_order ?? '0.00',
+    delivery_eta_minutes: props.settings.delivery_eta_minutes ?? '',
 });
 
 function save() {
@@ -61,7 +68,60 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
         <PaymentMethodManager v-show="tab === 'methods'" :methods="paymentMethods" />
 
         <form v-show="tab === 'general'" novalidate class="max-w-2xl rounded-lg border border-border bg-surface p-4" @submit.prevent="save">
-            <h2 class="mb-2 text-[13px] font-semibold text-foreground">{{ t('settings.section_business') }}</h2>
+            <h2 class="mb-2 text-[13px] font-semibold text-foreground">{{ t('settings.section_website') }}</h2>
+            <div class="mb-3 grid grid-cols-2 gap-x-4 gap-y-3">
+                <div class="col-span-2 flex flex-col gap-0.5">
+                    <SwitchField v-model="form.website_enabled" :label="t('settings.website_enabled')" />
+                    <p class="text-xs text-muted">{{ t('settings.website_enabled_helper') }}</p>
+                </div>
+
+                <FormField :label="t('settings.established_year')" :helper="t('settings.established_year_helper')" :error="form.errors.established_year">
+                    <template #default="{ id }">
+                        <input :id="id" v-model="form.established_year" type="number" min="1800" :max="new Date().getFullYear()" step="1" :class="[inputClass, 'text-right tabular-nums']">
+                    </template>
+                </FormField>
+            </div>
+
+            <h2 class="mb-2 border-t border-border pt-3 text-[13px] font-semibold text-foreground">{{ t('settings.section_online_delivery') }}</h2>
+            <div class="mb-3 grid grid-cols-2 gap-x-4 gap-y-3">
+                <div class="col-span-2 flex flex-col gap-0.5">
+                    <SwitchField v-model="form.online_delivery_enabled" :label="t('settings.online_delivery_enabled')" />
+                    <p class="text-xs text-muted">{{ t('settings.online_delivery_enabled_helper') }}</p>
+                </div>
+
+                <template v-if="form.online_delivery_enabled">
+                    <FormField class="col-span-2" :label="t('settings.delivery_mode')" :helper="form.delivery_mode === 'zones' ? t('settings.delivery_mode_zones_helper') : t('settings.delivery_mode_address_helper')" :error="form.errors.delivery_mode">
+                        <template #default="{ id }">
+                            <select :id="id" v-model="form.delivery_mode" :class="inputClass">
+                                <option value="zones">{{ t('settings.delivery_mode_zones') }}</option>
+                                <option value="address_only">{{ t('settings.delivery_mode_address_only') }}</option>
+                            </select>
+                        </template>
+                    </FormField>
+
+                    <template v-if="form.delivery_mode === 'address_only'">
+                        <FormField :label="t('settings.delivery_flat_fee')" :error="form.errors.delivery_flat_fee">
+                            <template #default="{ id }">
+                                <input :id="id" v-model="form.delivery_flat_fee" type="number" min="0" step="0.01" :class="[inputClass, 'text-right tabular-nums']">
+                            </template>
+                        </FormField>
+
+                        <FormField :label="t('settings.delivery_min_order')" :error="form.errors.delivery_min_order">
+                            <template #default="{ id }">
+                                <input :id="id" v-model="form.delivery_min_order" type="number" min="0" step="0.01" :class="[inputClass, 'text-right tabular-nums']">
+                            </template>
+                        </FormField>
+
+                        <FormField :label="t('settings.delivery_eta_minutes')" :error="form.errors.delivery_eta_minutes">
+                            <template #default="{ id }">
+                                <input :id="id" v-model="form.delivery_eta_minutes" type="number" min="1" max="600" step="1" :class="[inputClass, 'text-right tabular-nums']">
+                            </template>
+                        </FormField>
+                    </template>
+                </template>
+            </div>
+
+            <h2 class="mb-2 border-t border-border pt-3 text-[13px] font-semibold text-foreground">{{ t('settings.section_business') }}</h2>
             <div class="mb-3 grid grid-cols-2 gap-x-4 gap-y-3">
                 <FormField :label="t('settings.tax_registration_no')" :helper="t('settings.tax_registration_no_helper')" :error="form.errors.tax_registration_no">
                     <template #default="{ id }">

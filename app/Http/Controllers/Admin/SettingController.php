@@ -11,6 +11,7 @@ use App\Models\Setting;
 use App\Services\PublicCache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -44,6 +45,13 @@ class SettingController extends Controller
                 'social_youtube',
                 'social_tiktok',
                 'social_whatsapp',
+                'established_year',
+                'website_enabled',
+                'online_delivery_enabled',
+                'delivery_mode',
+                'delivery_flat_fee',
+                'delivery_min_order',
+                'delivery_eta_minutes',
             ]),
         ]);
     }
@@ -64,6 +72,13 @@ class SettingController extends Controller
             'social_youtube' => ['nullable', 'url:http,https', 'max:255'],
             'social_tiktok' => ['nullable', 'url:http,https', 'max:255'],
             'social_whatsapp' => ['nullable', 'url:http,https', 'max:255'],
+            'established_year' => ['nullable', 'integer', 'min:1800', 'max:'.now()->year],
+            'website_enabled' => ['sometimes', 'boolean'],
+            'online_delivery_enabled' => ['sometimes', 'boolean'],
+            'delivery_mode' => ['sometimes', Rule::in([Setting::DELIVERY_ZONES, Setting::DELIVERY_ADDRESS_ONLY])],
+            'delivery_flat_fee' => ['sometimes', 'numeric', 'min:0', 'max:100000'],
+            'delivery_min_order' => ['sometimes', 'numeric', 'min:0', 'max:1000000'],
+            'delivery_eta_minutes' => ['nullable', 'integer', 'min:1', 'max:600'],
         ], [], [
             'discount_limit_percent' => __('settings.discount_limit'),
             'wastage_spike_multiplier' => __('settings.wastage_spike'),
@@ -76,6 +91,13 @@ class SettingController extends Controller
             'social_youtube' => __('settings.social_youtube'),
             'social_tiktok' => __('settings.social_tiktok'),
             'social_whatsapp' => __('settings.social_whatsapp'),
+            'established_year' => __('settings.established_year'),
+            'website_enabled' => __('settings.website_enabled'),
+            'online_delivery_enabled' => __('settings.online_delivery_enabled'),
+            'delivery_mode' => __('settings.delivery_mode'),
+            'delivery_flat_fee' => __('settings.delivery_flat_fee'),
+            'delivery_min_order' => __('settings.delivery_min_order'),
+            'delivery_eta_minutes' => __('settings.delivery_eta_minutes'),
         ]);
 
         Setting::current()->update($validated);
