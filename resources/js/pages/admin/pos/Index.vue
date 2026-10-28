@@ -11,7 +11,7 @@ import { useConfirm, useConfirmState } from '@/components/ui-kit/useConfirm.js';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/format';
 import { dishKind, localized } from '@/lib/site';
-import { cacheBootstrap, findOutbox, getCachedMenu, getDataVersion, getLocalShift, nextLocalInvoice, queueOutbox, rememberInvoiceCursor, rememberLocalShift, updateOutboxPayload } from '@/lib/offline';
+import { cacheBootstrap, findOutbox, getCachedMenu, getDataVersion, getDeviceId, getLocalShift, nextLocalInvoice, queueOutbox, rememberInvoiceCursor, rememberLocalShift, updateOutboxPayload } from '@/lib/offline';
 import { useIncomingOrders } from '@/lib/incomingOrders';
 import { notify } from '@/lib/notify';
 import { parseInvoiceSequence } from '@/lib/invoice';
@@ -1249,6 +1249,7 @@ async function submitOrder(mode = 'send_to_kitchen') {
             ...payload,
             branch_id: branch.value.id,
             invoice_no: invoiceNo,
+            device_id: await getDeviceId(),
         });
 
         latestOrder.value = {
@@ -1834,11 +1835,25 @@ onMounted(() => {
     window.addEventListener('keydown', onKeydown);
     window.addEventListener('pointerdown', onActivity);
     window.addEventListener('keydown', onActivity);
+    window.addEventListener('invoice-renumbered', onInvoiceRenumbered);
     armIdleLock();
     refreshOfflineCache();
 });
 
+// After a sync the server may have issued another number because a sale from another
+// terminal already had the one this device printed. Show the number that now counts.
+function onInvoiceRenumbered(event) {
+    const { client_id: clientId, invoice_no: invoiceNo } = event.detail ?? {};
+
+    if (latestOrder.value?.client_id === clientId) {
+        latestOrder.value = { ...latestOrder.value, invoice_no: invoiceNo };
+    }
+
+    notify.info(t('sync.invoice_renumbered', { invoice: invoiceNo }));
+}
+
 onBeforeUnmount(() => {
+    window.removeEventListener('invoice-renumbered', onInvoiceRenumbered);
     window.removeEventListener('keydown', onKeydown);
     window.removeEventListener('pointerdown', onActivity);
     window.removeEventListener('keydown', onActivity);

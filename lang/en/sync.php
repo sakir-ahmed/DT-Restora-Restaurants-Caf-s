@@ -12,6 +12,7 @@ return [
     'forbidden' => 'You cannot sync this type of change.',
     'branch_mismatch' => 'This change belongs to another branch.',
     'invoice_taken' => 'That invoice number was already used.',
+    'invoice_renumbered' => 'Invoice number updated to :invoice because another terminal already used the one printed. Reprint the receipt if the customer needs it.',
     'order_missing' => 'The order for this payment is not on the server yet.',
     'update_available' => 'An update is ready.',
     'update_now' => 'Update now',

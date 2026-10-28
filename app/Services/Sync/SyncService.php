@@ -28,6 +28,7 @@ use App\Models\SyncItem;
 use App\Models\Unit;
 use App\Models\User;
 use App\Services\PosSettings;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -63,7 +64,7 @@ class SyncService
             }
 
             try {
-                $results[$clientId] = $this->process($user, $clientId, $item);
+                $results[$clientId] = $this->processWithRetry($user, $clientId, $item);
             } catch (\Throwable $exception) {
                 report($exception);
 
@@ -89,7 +90,23 @@ class SyncService
     }
 
     /**
-     * @return array{id: string, status: string, reason: ?string}
+     * Two terminals syncing at the same moment can both pick the same invoice
+     * number; the database refuses the second. Try once more, which issues a
+     * fresh number, rather than leaving the sale in conflict.
+     *
+     * @return array<string, mixed>
+     */
+    private function processWithRetry(User $user, string $clientId, array $item): array
+    {
+        try {
+            return $this->process($user, $clientId, $item);
+        } catch (UniqueConstraintViolationException) {
+            return $this->process($user, $clientId, $item);
+        }
+    }
+
+    /**
+     * @return array{id: string, status: string, reason: ?string, invoice_no?: string, invoice_changed?: bool}
      */
     private function process(User $user, string $clientId, array $item): array
     {
@@ -98,19 +115,27 @@ class SyncService
             $existing = SyncItem::query()->where('client_id', $clientId)->lockForUpdate()->first();
 
             if ($existing !== null) {
+                $invoiceNo = $existing->type === 'order' ? Order::query()->where('client_id', $clientId)->value('invoice_no') : null;
+
                 return [
                     'id' => $clientId,
                     'status' => $existing->status === SyncItem::STATUS_ACCEPTED ? SyncItem::STATUS_DUPLICATE : $existing->status,
                     'reason' => $existing->conflict_reason,
-                ];
+                ] + ($invoiceNo !== null ? ['invoice_no' => $invoiceNo, 'invoice_changed' => $invoiceNo !== ($existing->payload['invoice_no'] ?? $invoiceNo)] : []);
             }
 
             $type = (string) ($item['type'] ?? '');
             $payload = (array) ($item['payload'] ?? []);
 
+            $invoice = [];
+
             switch ($type) {
                 case 'order':
-                    $this->applyOrder($user, $clientId, $payload, (int) ($item['data_version'] ?? 0));
+                    $order = $this->applyOrder($user, $clientId, $payload, (int) ($item['data_version'] ?? 0));
+                    $sent = isset($payload['invoice_no']) ? (string) $payload['invoice_no'] : null;
+
+                    // The device printed its own number; tell it when the server had to issue another.
+                    $invoice = ['invoice_no' => $order->invoice_no, 'invoice_changed' => $sent !== null && $sent !== $order->invoice_no];
                     break;
 
                 case 'payment':
@@ -143,7 +168,7 @@ class SyncService
                 'accepted_at' => now(),
             ]);
 
-            return ['id' => $clientId, 'status' => SyncItem::STATUS_ACCEPTED, 'reason' => null];
+            return ['id' => $clientId, 'status' => SyncItem::STATUS_ACCEPTED, 'reason' => null] + $invoice;
         });
     }
 
@@ -153,7 +178,7 @@ class SyncService
      *
      * @param  array<string, mixed>  $payload
      */
-    private function applyOrder(User $user, string $clientId, array $payload, int $dataVersion): void
+    private function applyOrder(User $user, string $clientId, array $payload, int $dataVersion): Order
     {
         $branch = Branch::query()->findOrFail((int) ($payload['branch_id'] ?? 0));
 
@@ -170,6 +195,8 @@ class SyncService
         if (! empty($payload['tendered'])) {
             $this->payments->executeCash($order, (float) $payload['tendered'], $user);
         }
+
+        return $order;
     }
 
     /**

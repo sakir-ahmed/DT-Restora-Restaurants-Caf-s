@@ -4,7 +4,7 @@ import AppIcon from '@/components/AppIcon.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
 import SwitchField from '@/components/ui-kit/SwitchField.vue';
 import { localized } from '@/lib/site';
-import { formatInvoice } from '@/lib/invoice';
+import { formatInvoice, patternUsesSequence, randomInvoiceCode } from '@/lib/invoice';
 import { t } from '@/lib/i18n';
 import { playSound } from '@/lib/sounds';
 
@@ -49,6 +49,8 @@ const invoicePreview = computed(() => formatInvoice(props.pos, {
     branchCode: props.branchCode || 'BR01',
     terminal: 'T01',
     day: new Date().toISOString().slice(0, 10).replaceAll('-', ''),
+    time: new Date().toTimeString().slice(0, 8).replaceAll(':', ''),
+    random: randomInvoiceCode(),
     number: 1,
 }));
 
@@ -170,12 +172,12 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
             <FormField :label="t('settings.invoice_pattern')" :helper="t('settings.invoice_pattern_helper')" :error="errors['pos.invoice_pattern']" required>
                 <template #default="{ id }">
                     <div class="flex gap-1">
-                        <input :id="id" v-model="pos.invoice_pattern" type="text" maxlength="40" :class="[inputClass, 'font-mono']">
+                        <input :id="id" v-model="pos.invoice_pattern" type="text" maxlength="60" :class="[inputClass, 'font-mono']">
                         <button type="button" class="h-7 shrink-0 rounded-md border border-border px-2 text-xs text-foreground hover:border-accent" @click="pos.invoice_pattern = defaultPattern">{{ t('settings.reset_pattern') }}</button>
                     </div>
                 </template>
             </FormField>
-            <FormField :label="t('settings.invoice_digits')" :error="errors['pos.invoice_seq_digits']" required>
+            <FormField v-if="patternUsesSequence(pos)" :label="t('settings.invoice_digits')" :error="errors['pos.invoice_seq_digits']" required>
                 <template #default="{ id }">
                     <input :id="id" v-model.number="pos.invoice_seq_digits" type="number" min="1" max="8" :class="[inputClass, 'text-right tabular-nums']">
                 </template>

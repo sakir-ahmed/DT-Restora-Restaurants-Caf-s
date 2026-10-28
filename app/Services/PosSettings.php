@@ -22,7 +22,7 @@ final class PosSettings
 
     public const FLAGS = ['enabled', 'exact_amount', 'print_invoice', 'print_kitchen'];
 
-    public const TOKENS = ['BRANCH', 'TERMINAL', 'YYYY', 'YY', 'MM', 'DD', 'SEQ'];
+    public const TOKENS = ['BRANCH', 'TERMINAL', 'YYYY', 'YY', 'MM', 'DD', 'TIME', 'RAND', 'SEQ'];
 
     /**
      * Sound effects an admin can switch on or off, with the default for each.
@@ -46,7 +46,11 @@ final class PosSettings
 
     public const DEFAULT_CASH_SUGGESTIONS = [1000, 500, 200, 100];
 
-    public const DEFAULT_PATTERN = '{BRANCH}-{TERMINAL}-{YYYY}{MM}{DD}-{SEQ}';
+    /**
+     * Time of day plus a random code: any terminal, online or offline, can make
+     * a number alone, with no counter to share, and two terminals cannot clash.
+     */
+    public const DEFAULT_PATTERN = '{BRANCH}-{TERMINAL}-{YYYY}{MM}{DD}-{TIME}-{RAND}';
 
     /**
      * @return array{
@@ -193,12 +197,17 @@ final class PosSettings
     }
 
     /**
-     * An invoice number pattern is valid when it keeps the sequence token once,
-     * carries branch, terminal and date, and only uses known tokens and safe separators.
+     * An invoice number pattern is valid when it only uses known tokens and safe
+     * separators and can never repeat. There are two ways to stay unique:
+     *
+     * - Random: the branch, a full date, the time and one {RAND} code. Offline
+     *   terminals need no shared counter, so this is the default.
+     * - Sequence: the branch, terminal, a full date and one {SEQ}. The counter
+     *   restarts per branch, terminal and day, so all of those must show.
      */
     public static function patternIsValid(string $pattern): bool
     {
-        if (preg_match('/^[A-Za-z0-9\-_\/.{}]{1,40}$/', $pattern) !== 1) {
+        if (preg_match('/^[A-Za-z0-9\-_\/.{}]{1,60}$/', $pattern) !== 1) {
             return false;
         }
 
@@ -215,16 +224,28 @@ final class PosSettings
         }
 
         $tokens = $matches[1];
+        $count = fn (string $token): int => count(array_keys($tokens, $token, true));
 
-        // Sequences restart per branch, terminal and day, so all of those must show in the number to keep it unique.
         $hasDate = (in_array('YYYY', $tokens, true) || in_array('YY', $tokens, true))
             && in_array('MM', $tokens, true)
             && in_array('DD', $tokens, true);
 
-        return count(array_keys($tokens, 'SEQ', true)) === 1
-            && in_array('BRANCH', $tokens, true)
-            && in_array('TERMINAL', $tokens, true)
-            && $hasDate;
+        if (! $hasDate || ! in_array('BRANCH', $tokens, true)) {
+            return false;
+        }
+
+        $random = $count('RAND') === 1 && $count('SEQ') === 0 && in_array('TIME', $tokens, true);
+        $sequence = $count('SEQ') === 1 && $count('RAND') === 0 && in_array('TERMINAL', $tokens, true);
+
+        return $random || $sequence;
+    }
+
+    /**
+     * True when the pattern numbers invoices with a counter, which needs the server's sequence.
+     */
+    public static function usesSequence(string $pattern): bool
+    {
+        return str_contains($pattern, '{SEQ}');
     }
 
     /**
@@ -242,7 +263,7 @@ final class PosSettings
             'pos.actions.*.print_invoice' => ['required', 'boolean'],
             'pos.actions.*.print_kitchen' => ['required', 'boolean'],
             'pos.invoice_layout' => ['required_with:pos', Rule::in(self::LAYOUTS)],
-            'pos.invoice_pattern' => ['required_with:pos', 'string', 'max:40', function (string $attribute, mixed $value, Closure $fail): void {
+            'pos.invoice_pattern' => ['required_with:pos', 'string', 'max:60', function (string $attribute, mixed $value, Closure $fail): void {
                 if (! is_string($value) || ! self::patternIsValid($value)) {
                     $fail(__('settings.invoice_pattern_invalid'));
                 }
