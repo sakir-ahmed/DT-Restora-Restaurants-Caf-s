@@ -2,7 +2,7 @@
 
 > Same for every product. Copy unchanged. Product-specific screens are listed in `prd.md`.
 
-**Brand:** DT Restora is a product of **Datatech BD Ltd** (datatechbd.com) — _Software that runs business._ Brand colors: Datatech Blue `#0B63CE` (primary), Midnight Navy `#0A1428`, Bright Sky `#38A8FF` (accent), Slate `#4A5568`, Soft Grey `#AFC0D6`, Cloud `#F5F7FA`. Fonts: Poppins (headlines), Inter (body), Hind Siliguri (Bangla). Logo assets live in `public/images/brand/` (`logo-mark.svg`, `logo-primary.png`, `logo-primary-reversed.png`, `logo-512.png`); `public/favicon.svg` is the same product mark.
+**Brand:** DT Restora is a product of **Datatech BD Ltd** (datatechbd.com) — _Software that runs business._ Brand colors: Datatech Blue `#0B63CE` (primary), Midnight Navy `#0A1428`, Bright Sky `#38A8FF` (accent), Slate `#4A5568`, Soft Grey `#AFC0D6`, Cloud `#F5F7FA`. Fonts: Poppins (headlines), Inter (body), Noto Sans Bengali (Bangla). Logo assets live in `public/images/brand/` (`logo-mark.svg`, `logo-primary.png`, `logo-primary-reversed.png`, `logo-512.png`); `public/favicon.svg` is the same product mark.
 
 ---
 
@@ -28,8 +28,8 @@ Define tokens once in `resources/css/app.css`. Components use token classes (`bg
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --font-sans: "Inter", "Hind Siliguri", ui-sans-serif, system-ui, sans-serif;
-    --font-display: "Poppins", "Hind Siliguri", ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "Inter", "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Poppins", "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
 
     /* Datatech BD Ltd. brand kit: Cloud, Midnight Navy, Datatech Blue, Bright Sky, Slate */
     --color-background: #f5f7fa;
@@ -72,7 +72,7 @@ Adjust token values to taste, but keep the names stable.
 
 ## 3. Typography
 
-- **Fonts (Datatech brand kit):** `Poppins` (SemiBold, Bold) for headlines and the wordmark, `Inter` for body text and controls, **`Hind Siliguri`** for Bangla (Inter has no Bangla glyphs). Self-host fonts (files in `resources/css/fonts/`); don't depend on a CDN.
+- **Fonts (Datatech brand kit):** `Poppins` (SemiBold, Bold) for headlines and the wordmark, `Inter` for body text and controls, **`Noto Sans Bengali`** for Bangla (Inter has no Bangla glyphs; its digits stay clear at small sizes, and the smallest text sizes grow by about a pixel in Bangla). Self-host fonts (Poppins files in `resources/css/fonts/`, Inter and Noto Sans Bengali from `@fontsource`); don't depend on a CDN.
 - **Brand mark:** the DT Restora mark and wordmark ("DT" in the text colour, "Restora" in Datatech Blue) come from the Datatech brand kit, rendered by `BrandMark.vue` and `BrandName.vue`.
 - Bangla text needs slightly more line height: use `leading-relaxed` when the locale is `bn`.
 
