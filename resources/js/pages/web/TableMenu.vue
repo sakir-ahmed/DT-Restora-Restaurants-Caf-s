@@ -489,7 +489,7 @@ watch(currentChapter, () => nextTick(() => document.querySelector('[data-chapter
 
         <!-- A dish -->
         <Teleport to="body">
-            <div v-if="selected" class="tm-overlay" @click.self="selected = null">
+            <div v-if="selected" class="tm-overlay tm-overlay-center" @click.self="selected = null">
                 <section class="tm-sheet tm-sheet-paper" role="dialog" aria-modal="true" :aria-label="localized(selected, 'name')">
                     <div v-if="itemPhoto(selected)" class="tm-hero"><img :src="itemPhoto(selected)" :alt="localized(selected, 'name')"></div>
                     <header class="tm-sheet-head">
@@ -554,7 +554,7 @@ watch(currentChapter, () => nextTick(() => document.querySelector('[data-chapter
 
         <!-- The order -->
         <Teleport to="body">
-            <div v-if="cartOpen" class="tm-overlay" @click.self="cartOpen = false">
+            <div v-if="cartOpen" class="tm-overlay tm-overlay-center" @click.self="cartOpen = false">
                 <section class="tm-sheet tm-sheet-paper" role="dialog" aria-modal="true" :aria-label="t('tablemenu.your_order')">
                     <header class="tm-sheet-head">
                         <div>
@@ -1245,6 +1245,8 @@ h3 {
 }
 
 .tm-overlay-center .tm-sheet {
+    max-height: calc(100vh - 2rem);
+    max-height: calc(100dvh - 2rem);
     border-radius: 1.1rem;
 }
 
