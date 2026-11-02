@@ -56,6 +56,7 @@ class HandleInertiaRequests extends Middleware
                     'email' => $user->email,
                     'username' => $user->username,
                     'mobile' => $user->mobile,
+                    'avatar_url' => $user->avatar_url,
                     'locale' => $user->locale,
                     'branch_id' => $user->branch_id,
                     'roles' => $user->getRoleNames()->all(),
