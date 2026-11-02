@@ -2733,10 +2733,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                                     :disabled="!!latestOrder"
                                     @click="selectVariant(variant)"
                                 >
-                                    <span class="flex items-center gap-1.5 text-sm font-semibold text-foreground">
-                                        <AppIcon v-if="variantQuantity(variant) > 0" name="circle-check" size="12" class="text-success" />
-                                        {{ localized(variant, 'name') }}
-                                    </span>
+                                    <span class="text-sm font-semibold text-foreground">{{ localized(variant, 'name') }}</span>
                                     <span class="text-sm font-semibold tabular-nums text-foreground">{{ formatMoney(variant.price) }}</span>
                                 </button>
                                 <ModalStepper
