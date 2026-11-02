@@ -278,3 +278,34 @@ function jobGraphFromHtml(string $html): array
 
     return json_decode($matches[1] ?? '{}', true)['@graph'] ?? [];
 }
+
+it('shows a freshly uploaded dish photo on the POS menu', function (): void {
+    $this->item->update(['photo_path' => 'legacy/old.jpg']);
+
+    $this->actingAs($this->owner, 'staff')->post('/admin/media', [
+        'owner' => 'item:'.$this->item->id,
+        'images' => [UploadedFile::fake()->image('new.jpg', 800, 600)],
+    ])->assertSessionHasNoErrors();
+
+    $photo = Media::query()->where('mediable_id', $this->item->id)->firstOrFail();
+
+    $this->actingAs($this->owner, 'staff')->get('/admin/pos')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('categories.0.items.0.cover_url', $photo->src()));
+});
+
+it('keeps the uploaded photo on the POS menu after the dish is edited', function (): void {
+    $photo = Media::factory()->create(['mediable_type' => 'menu_item', 'mediable_id' => $this->item->id, 'sort_order' => 1]);
+
+    $this->actingAs($this->owner, 'staff')->put("/admin/menu/items/{$this->item->id}", [
+        'menu_category_id' => $this->item->menu_category_id,
+        'name' => 'Kacchi Biryani Special',
+        'base_price' => 450,
+    ])->assertSessionHasNoErrors();
+
+    $this->actingAs($this->owner, 'staff')->get('/admin/pos')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('categories.0.items.0.name', 'Kacchi Biryani Special')
+            ->where('categories.0.items.0.cover_url', $photo->src()));
+});

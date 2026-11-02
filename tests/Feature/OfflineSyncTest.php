@@ -6,6 +6,7 @@ use App\Models\Branch;
 use App\Models\DataVersion;
 use App\Models\Ingredient;
 use App\Models\IngredientStock;
+use App\Models\Media;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\Order;
@@ -155,6 +156,15 @@ it('serves the bootstrap and delta endpoints', function (): void {
     $changed = $this->withToken($token)->getJson("/api/v1/sync/changes?since={$version}");
     $changed->assertOk()
         ->assertJsonPath('data.changed', true);
+});
+
+it('includes uploaded dish photos in the bootstrap menu used by the offline POS cache', function (): void {
+    $photo = Media::factory()->create(['mediable_type' => 'menu_item', 'mediable_id' => $this->item->id, 'sort_order' => 1]);
+    $token = $this->cashier->createToken('pos', ['staff'])->plainTextToken;
+
+    $this->withToken($token)->getJson('/api/v1/sync/bootstrap')
+        ->assertOk()
+        ->assertJsonPath('data.categories.0.items.0.cover_url', $photo->src());
 });
 
 it('keeps the invoice series per offline terminal without collisions', function (): void {
