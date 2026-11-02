@@ -55,6 +55,7 @@ final class PosSettings
     /**
      * @return array{
      *     actions: array<string, array<string, bool>>,
+     *     review_before_save: bool,
      *     invoice_layout: string,
      *     invoice_pattern: string,
      *     invoice_seq_digits: int,
@@ -71,6 +72,7 @@ final class PosSettings
                 'confirm_payment' => ['enabled' => true, 'exact_amount' => false, 'print_invoice' => false, 'print_kitchen' => false],
                 'quick_save' => ['enabled' => false, 'exact_amount' => true, 'print_invoice' => true, 'print_kitchen' => false],
             ],
+            'review_before_save' => false,
             'invoice_layout' => 'classic',
             'invoice_pattern' => self::DEFAULT_PATTERN,
             'invoice_seq_digits' => 4,
@@ -111,6 +113,7 @@ final class PosSettings
     /**
      * @return array{
      *     actions: array<string, array<string, bool>>,
+     *     review_before_save: bool,
      *     invoice_layout: string,
      *     invoice_pattern: string,
      *     invoice_seq_digits: int,
@@ -129,6 +132,7 @@ final class PosSettings
 
         $settings = array_replace_recursive(self::defaults(), $stored);
         $settings['payment_methods'] = $methods;
+        $settings['review_before_save'] = (bool) $settings['review_before_save'];
         $settings['sounds'] = self::soundsFor($branch);
         $settings['cash_suggestions'] = is_array($suggestions)
             ? array_values(array_map('intval', $suggestions))
@@ -262,6 +266,7 @@ final class PosSettings
             'pos.actions.*.exact_amount' => ['required', 'boolean'],
             'pos.actions.*.print_invoice' => ['required', 'boolean'],
             'pos.actions.*.print_kitchen' => ['required', 'boolean'],
+            'pos.review_before_save' => ['sometimes', 'boolean'],
             'pos.invoice_layout' => ['required_with:pos', Rule::in(self::LAYOUTS)],
             'pos.invoice_pattern' => ['required_with:pos', 'string', 'max:60', function (string $attribute, mixed $value, Closure $fail): void {
                 if (! is_string($value) || ! self::patternIsValid($value)) {
@@ -307,6 +312,7 @@ final class PosSettings
 
         return [
             'actions' => $actions,
+            'review_before_save' => (bool) ($pos['review_before_save'] ?? false),
             'invoice_layout' => $pos['invoice_layout'],
             'invoice_pattern' => $pos['invoice_pattern'],
             'invoice_seq_digits' => (int) $pos['invoice_seq_digits'],
