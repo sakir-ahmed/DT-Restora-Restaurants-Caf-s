@@ -805,19 +805,46 @@ function openOptions(item, line = null) {
         return;
     }
 
+    // An item without sizes that is already on the ticket opens as that line, so its quantity shows.
+    if (! line && ! itemHasVariants(item)) {
+        const own = cart.value.filter((entry) => entry.item.id === item.id);
+
+        line = own.length === 1 ? own[0] : null;
+    }
+
     const variants = sortedVariants(item);
     const chosen = line?.variant ?? variants.find((variant) => variant.is_default) ?? variants[0] ?? null;
 
-    optionsDialog.value = {
+    const dialog = {
         item,
         line,
         variantId: chosen?.id ?? null,
         variantQuantities: {},
         variantAddOns: {},
+        managedLines: {},
         activeVariantId: null,
         quantity: line?.quantity ?? 1,
         addOns: Object.fromEntries((line?.addOns ?? []).map((addOn) => [addOn.id, addOn.qty])),
     };
+
+    // Sizes already on the ticket start with their current quantity and add-ons, so the dialog edits them.
+    // A size with several lines (different add-ons) is left alone and stays additive.
+    if (! line && variants.length > 0) {
+        variants.forEach((variant) => {
+            const lines = cart.value.filter((entry) => entry.item.id === item.id && entry.variant?.id === variant.id);
+
+            if (lines.length !== 1) {
+                return;
+            }
+
+            dialog.managedLines[variant.id] = lines[0];
+            dialog.variantQuantities[variant.id] = lines[0].quantity;
+            dialog.variantAddOns[variant.id] = Object.fromEntries(lines[0].addOns.map((addOn) => [addOn.id, addOn.qty]));
+            dialog.activeVariantId ??= variant.id;
+        });
+    }
+
+    optionsDialog.value = dialog;
 }
 
 const optionsVariant = computed(() => {
@@ -854,6 +881,10 @@ function optionsPicksVariants() {
     const dialog = optionsDialog.value;
 
     return !! dialog && ! dialog.line && itemHasVariants(dialog.item);
+}
+
+function optionsHasManagedLines() {
+    return Object.keys(optionsDialog.value?.managedLines ?? {}).length > 0;
 }
 
 function optionVariantQuantity(variant) {
@@ -979,11 +1010,42 @@ function confirmOptions() {
     const addOns = optionsAddOnsList.value;
 
     if (optionsPicksVariants()) {
-        if (optionsPickedVariants.value.length === 0) {
+        const picked = optionsPickedVariants.value;
+        const managed = dialog.managedLines ?? {};
+
+        if (picked.length === 0 && ! optionsHasManagedLines()) {
             return;
         }
 
-        optionsPickedVariants.value.forEach((entry) => pushLine(dialog.item, entry.variant, entry.addOns, entry.quantity));
+        // A size that was on the ticket and is now at zero is taken off.
+        const pickedIds = new Set(picked.map((entry) => entry.variant.id));
+        const removed = Object.entries(managed).filter(([id]) => ! pickedIds.has(Number(id))).map(([, managedLine]) => managedLine);
+
+        cart.value = cart.value.filter((entry) => ! removed.includes(entry));
+
+        picked.forEach((entry) => {
+            const managedLine = managed[entry.variant.id];
+
+            if (! managedLine) {
+                pushLine(dialog.item, entry.variant, entry.addOns, entry.quantity);
+
+                return;
+            }
+
+            const duplicate = cart.value.find((other) => other !== managedLine
+                && other.item.id === dialog.item.id
+                && other.variant?.id === entry.variant.id
+                && addOnSignature(other.addOns) === addOnSignature(entry.addOns));
+
+            if (duplicate) {
+                duplicate.quantity = Math.min(999, duplicate.quantity + entry.quantity);
+                cart.value = cart.value.filter((other) => other !== managedLine);
+            } else {
+                managedLine.addOns = entry.addOns;
+                managedLine.quantity = entry.quantity;
+            }
+        });
+
         optionsDialog.value = null;
 
         return;
@@ -2786,13 +2848,13 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                                             </span>
                                             <span class="shrink-0 text-xs tabular-nums text-muted">+ {{ formatMoney(addOn.price) }}</span>
                                         </button>
-                                        <div v-if="optionAddOnQty(addOn.id) > 0" class="flex shrink-0 items-center overflow-hidden rounded-md border border-border bg-surface">
-                                            <button type="button" class="flex h-8 w-8 items-center justify-center text-foreground" :aria-label="t('common.decrease')" @click="setOptionAddOn(addOn.id, optionAddOnQty(addOn.id) - 1)">
-                                                <AppIcon name="minus" size="11" />
+                                        <div class="flex shrink-0 items-center overflow-hidden rounded-md border border-border bg-surface">
+                                            <button type="button" class="flex h-9 w-9 items-center justify-center text-foreground disabled:opacity-40" :disabled="optionAddOnQty(addOn.id) === 0" :aria-label="t('common.decrease')" @click="setOptionAddOn(addOn.id, optionAddOnQty(addOn.id) - 1)">
+                                                <AppIcon name="minus" size="12" />
                                             </button>
-                                            <span class="w-5 text-center text-sm font-semibold tabular-nums">{{ optionAddOnQty(addOn.id) }}</span>
-                                            <button type="button" class="flex h-8 w-8 items-center justify-center bg-accent text-accent-foreground disabled:opacity-40" :disabled="optionAddOnQty(addOn.id) >= 9" :aria-label="t('common.increase')" @click="setOptionAddOn(addOn.id, optionAddOnQty(addOn.id) + 1)">
-                                                <AppIcon name="plus" size="11" />
+                                            <span class="w-6 text-center text-sm font-semibold tabular-nums text-foreground">{{ optionAddOnQty(addOn.id) }}</span>
+                                            <button type="button" class="flex h-9 w-9 items-center justify-center bg-accent text-accent-foreground disabled:opacity-40" :disabled="optionAddOnQty(addOn.id) >= 9" :aria-label="t('common.increase')" @click="setOptionAddOn(addOn.id, optionAddOnQty(addOn.id) + 1)">
+                                                <AppIcon name="plus" size="12" />
                                             </button>
                                         </div>
                                     </div>
@@ -2810,8 +2872,8 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                                     <AppIcon name="plus" size="12" />
                                 </button>
                             </div>
-                            <button type="button" class="flex h-9 min-w-0 flex-1 items-center justify-between gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground hover:opacity-90 disabled:opacity-50" :disabled="optionsPicksVariants() && optionsPickedVariants.length === 0" @click="confirmOptions">
-                                <span>{{ optionsDialog.line ? t('orders.update_item') : t('orders.add_to_order') }}</span>
+                            <button type="button" class="flex h-9 min-w-0 flex-1 items-center justify-between gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground hover:opacity-90 disabled:opacity-50" :disabled="optionsPicksVariants() && optionsPickedVariants.length === 0 && ! optionsHasManagedLines()" @click="confirmOptions">
+                                <span>{{ optionsDialog.line || optionsHasManagedLines() ? t('orders.update_item') : t('orders.add_to_order') }}</span>
                                 <span class="tabular-nums">{{ formatMoney(optionsTotal) }}</span>
                             </button>
                         </div>
