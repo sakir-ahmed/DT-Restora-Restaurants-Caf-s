@@ -33,6 +33,7 @@ return [
     'settings' => 'সেটিংস',
     'activity_log' => 'কার্যক্রম লগ',
     'logout' => 'সাইন আউট',
+    'profile' => 'আমার প্রোফাইল',
     'branch' => 'শাখা',
     'notifications' => 'বিজ্ঞপ্তি',
     'no_notifications' => 'নতুন কোনো বিজ্ঞপ্তি নেই।',

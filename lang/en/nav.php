@@ -33,6 +33,7 @@ return [
     'settings' => 'Settings',
     'activity_log' => 'Activity log',
     'logout' => 'Sign out',
+    'profile' => 'My profile',
     'branch' => 'Branch',
     'notifications' => 'Notifications',
     'no_notifications' => 'No new notifications.',

@@ -27,6 +27,7 @@ use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\PayrollController;
 use App\Http\Controllers\Admin\PosController;
+use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\ReceiptController;
 use App\Http\Controllers\Admin\RecipeController;
@@ -161,6 +162,10 @@ Route::prefix('admin')
     ->group(function (): void {
         Route::get('/', DashboardController::class)->name('dashboard');
         Route::get('ui-kit', UiKitController::class)->name('ui-kit');
+
+        Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
+        Route::post('profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 
         Route::post('branch-switch', BranchSwitchController::class)->name('branch-switch');
 

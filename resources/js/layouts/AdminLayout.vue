@@ -270,8 +270,9 @@ function openCommandPalette() {
                             :aria-label="t('nav.account')"
                             @click="userMenuOpen = !userMenuOpen"
                         >
-                            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                                {{ (user?.name ?? '?').slice(0, 2).toUpperCase() }}
+                            <span class="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                                <img v-if="user?.avatar_url" :src="user.avatar_url" :alt="user?.name" class="h-full w-full object-cover">
+                                <template v-else>{{ (user?.name ?? '?').slice(0, 2).toUpperCase() }}</template>
                             </span>
                             <AppIcon name="chevron-down" size="10" class="text-muted" />
                         </button>
@@ -286,6 +287,14 @@ function openCommandPalette() {
                                 <p class="truncate text-xs text-muted">{{ user?.email ?? user?.username }}</p>
                                 <p class="mt-0.5 text-[11px] text-muted">{{ (user?.roles ?? []).join(', ') }}</p>
                             </div>
+
+                            <Link
+                                :href="route('admin.profile.show')"
+                                class="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-[13px] text-foreground hover:bg-background"
+                            >
+                                <AppIcon name="user" size="12" />
+                                {{ t('nav.profile') }}
+                            </Link>
 
                             <button
                                 type="button"

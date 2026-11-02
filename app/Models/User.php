@@ -7,6 +7,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,7 +18,7 @@ use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'username', 'mobile', 'google_id', 'password', 'pin', 'branch_id', 'locale', 'is_active'])]
+#[Fillable(['name', 'email', 'username', 'mobile', 'avatar_path', 'google_id', 'password', 'pin', 'branch_id', 'locale', 'is_active'])]
 #[Hidden(['password', 'pin', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -33,6 +34,14 @@ class User extends Authenticatable
         'password' => 'hashed',
         'pin' => 'hashed',
     ];
+
+    /**
+     * @return Attribute<string|null, never>
+     */
+    protected function avatarUrl(): Attribute
+    {
+        return Attribute::get(fn (): ?string => $this->avatar_path ? '/storage/'.ltrim($this->avatar_path, '/') : null);
+    }
 
     public function branch(): BelongsTo
     {
