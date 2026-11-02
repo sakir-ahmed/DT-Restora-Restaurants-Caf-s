@@ -27,13 +27,16 @@ export function newClientId() {
     return time + rand;
 }
 
+// `db.tables` is Dexie's own list of stores, so the store of that name is read through `table()`.
+const tablesStore = () => db.table('tables');
+
 export async function cacheBootstrap(data) {
-    await db.transaction('rw', db.categories, db.tables, db.meta, async () => {
+    await db.transaction('rw', db.categories, tablesStore(), db.meta, async () => {
         await db.categories.clear();
         await db.categories.bulkPut(data.categories ?? []);
 
-        await db.tables.clear();
-        await db.tables.bulkPut(data.tables ?? []);
+        await tablesStore().clear();
+        await tablesStore().bulkPut(data.tables ?? []);
 
         await db.meta.put({ key: 'bootstrap', value: { branch: data.branch, at: Date.now() } });
         await db.meta.put({ key: 'data_version', value: data.data_version });
@@ -48,7 +51,7 @@ export async function getDataVersion() {
 
 export async function getCachedMenu() {
     const categories = await db.categories.toArray();
-    const tables = await db.tables.toArray();
+    const tables = await tablesStore().toArray();
     const meta = await db.meta.get('bootstrap');
 
     return { categories, tables, branch: meta?.value?.branch };

@@ -1,6 +1,6 @@
 <script setup>
 import { useForm, router, usePage } from '@inertiajs/vue3';
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
 import DishPlaceholder from '@/components/site/DishPlaceholder.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
@@ -1814,10 +1814,11 @@ async function refreshOfflineCache() {
             localShift.value = await getLocalShift();
         }
 
+        // IndexedDB cannot store Vue reactive proxies, so hand it plain copies.
         await cacheBootstrap({
-            categories: categories.value,
-            tables: tables.value,
-            branch: branch.value,
+            categories: JSON.parse(JSON.stringify(toRaw(categories.value))),
+            tables: JSON.parse(JSON.stringify(toRaw(tables.value))),
+            branch: JSON.parse(JSON.stringify(toRaw(branch.value))),
             data_version: await getDataVersion(),
         });
     } catch {
