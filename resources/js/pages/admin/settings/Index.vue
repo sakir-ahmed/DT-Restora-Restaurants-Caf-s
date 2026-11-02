@@ -139,7 +139,7 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
                         <input
                             :id="id"
                             v-model="form.discount_limit_percent"
-                            type="number"
+                            type="text" inputmode="decimal" v-numeric
                             min="0"
                             max="100"
                             step="0.01"
@@ -154,7 +154,7 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
                         <input
                             :id="id"
                             v-model="form.wastage_spike_multiplier"
-                            type="number"
+                            type="text" inputmode="decimal" v-numeric
                             min="1"
                             max="10"
                             step="0.1"
@@ -174,7 +174,7 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
                         <input
                             :id="id"
                             v-model="form.pos_pin_minutes"
-                            type="number"
+                            type="text" inputmode="decimal" v-numeric
                             min="1"
                             max="60"
                             :disabled="! form.pos_lock_enabled"

@@ -196,7 +196,7 @@ function receive(transfer) {
 
                         <FormField :error="form.errors['items.' + index + '.qty']">
                             <template #default="{ id }">
-                                <input :id="id" v-model="line.qty" type="number" step="0.001" min="0" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
+                                <input :id="id" v-model="line.qty" type="text" inputmode="decimal" v-numeric step="0.001" min="0" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
                             </template>
                         </FormField>
 

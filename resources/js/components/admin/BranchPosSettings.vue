@@ -184,7 +184,7 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
             </FormField>
             <FormField v-if="patternUsesSequence(pos)" :label="t('settings.invoice_digits')" :error="errors['pos.invoice_seq_digits']" required>
                 <template #default="{ id }">
-                    <input :id="id" v-model.number="pos.invoice_seq_digits" type="number" min="1" max="8" :class="[inputClass, 'text-right tabular-nums']">
+                    <input :id="id" v-model.number="pos.invoice_seq_digits" type="text" inputmode="decimal" v-numeric min="1" max="8" :class="[inputClass, 'text-right tabular-nums']">
                 </template>
             </FormField>
         </div>

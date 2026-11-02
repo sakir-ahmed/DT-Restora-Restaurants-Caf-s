@@ -3,6 +3,7 @@ import createServer from '@inertiajs/vue3/server';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { renderToString } from 'vue/server-renderer';
 import { createSSRApp, h } from 'vue';
+import { vNumeric } from './lib/numericInput';
 import { pageTitle } from './lib/title';
 
 /**
@@ -15,5 +16,5 @@ createServer((page) => createInertiaApp({
     render: renderToString,
     title: pageTitle,
     resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob('./pages/**/*.vue')),
-    setup: ({ App, props, plugin }) => createSSRApp({ render: () => h(App, props) }).use(plugin),
+    setup: ({ App, props, plugin }) => createSSRApp({ render: () => h(App, props) }).use(plugin).directive('numeric', vNumeric),
 }));

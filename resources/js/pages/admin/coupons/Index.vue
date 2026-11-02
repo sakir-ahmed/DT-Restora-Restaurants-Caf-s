@@ -169,13 +169,13 @@ function save() {
 
                             <FormField :label="t('coupons.limit_total')">
                                 <template #default="{ id }">
-                                    <input :id="id" v-model="form.usage_limit_total" type="number" min="1" :placeholder="t('coupons.no_limit')" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-right text-[13px] tabular-nums">
+                                    <input :id="id" v-model="form.usage_limit_total" type="text" inputmode="decimal" v-numeric min="1" :placeholder="t('coupons.no_limit')" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-right text-[13px] tabular-nums">
                                 </template>
                             </FormField>
 
                             <FormField :label="t('coupons.limit_per_customer')">
                                 <template #default="{ id }">
-                                    <input :id="id" v-model="form.usage_limit_per_customer" type="number" min="1" :placeholder="t('coupons.no_limit')" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-right text-[13px] tabular-nums">
+                                    <input :id="id" v-model="form.usage_limit_per_customer" type="text" inputmode="decimal" v-numeric min="1" :placeholder="t('coupons.no_limit')" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-right text-[13px] tabular-nums">
                                 </template>
                             </FormField>
 

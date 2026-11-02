@@ -528,7 +528,7 @@ function saveAdvance() {
                                     <template #default="{ id }">
                                         <span class="flex h-7 items-center overflow-hidden rounded-md border border-border bg-surface">
                                             <button type="button" class="flex h-7 w-7 items-center justify-center text-foreground hover:bg-background disabled:opacity-40" :disabled="form.party_size <= 1" :aria-label="t('common.decrease')" @click="stepParty(-1)"><AppIcon name="minus" size="10" /></button>
-                                            <input :id="id" v-model.number="form.party_size" type="number" min="1" max="200" class="w-10 border-0 bg-transparent text-center text-[13px] font-semibold tabular-nums text-foreground outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none">
+                                            <input :id="id" v-model.number="form.party_size" type="text" inputmode="decimal" v-numeric min="1" max="200" class="w-10 border-0 bg-transparent text-center text-[13px] font-semibold tabular-nums text-foreground outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none">
                                             <button type="button" class="flex h-7 w-7 items-center justify-center text-foreground hover:bg-background" :aria-label="t('common.increase')" @click="stepParty(1)"><AppIcon name="plus" size="10" /></button>
                                         </span>
                                     </template>
@@ -615,7 +615,7 @@ function saveAdvance() {
                             <div v-if="wantsAdvance" class="grid grid-cols-[6rem_minmax(0,1fr)] gap-2 border-t border-border p-2.5">
                                 <FormField :label="t('reservations.deposit_amount')" :error="form.errors.deposit_amount">
                                     <template #default="{ id }">
-                                        <input :id="id" v-model="form.deposit_amount" type="number" min="0" step="1" :class="[inputClass, 'text-right tabular-nums']">
+                                        <input :id="id" v-model="form.deposit_amount" type="text" inputmode="decimal" v-numeric min="0" step="1" :class="[inputClass, 'text-right tabular-nums']">
                                     </template>
                                 </FormField>
                                 <FormField :label="t('reservations.deposit_method')" :error="form.errors.deposit_method">
@@ -726,7 +726,7 @@ function saveAdvance() {
                 <p class="text-xs text-muted">{{ t('reservations.deposit_hint') }}</p>
                 <FormField :label="t('reservations.deposit_amount')" :error="advanceForm.errors.deposit_amount" required>
                     <template #default="{ id }">
-                        <input :id="id" v-model="advanceForm.deposit_amount" type="number" min="1" step="1" :class="[inputClass, 'text-right tabular-nums']">
+                        <input :id="id" v-model="advanceForm.deposit_amount" type="text" inputmode="decimal" v-numeric min="1" step="1" :class="[inputClass, 'text-right tabular-nums']">
                     </template>
                 </FormField>
                 <FormField :label="t('reservations.deposit_method')" :error="advanceForm.errors.deposit_method" required>

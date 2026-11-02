@@ -418,7 +418,7 @@ function exportStatement(statement) {
                 </FormField>
                 <FormField :label="t('reports.amount')" required>
                     <template #default="{ id }">
-                        <input :id="id" v-model="statementForm.amount" type="number" step="0.01" class="h-8 w-full rounded-md border border-border bg-background px-2 text-[13px] tabular-nums">
+                        <input :id="id" v-model="statementForm.amount" type="text" inputmode="decimal" v-numeric step="0.01" class="h-8 w-full rounded-md border border-border bg-background px-2 text-[13px] tabular-nums">
                     </template>
                 </FormField>
                 <FormField :label="t('common.note')">

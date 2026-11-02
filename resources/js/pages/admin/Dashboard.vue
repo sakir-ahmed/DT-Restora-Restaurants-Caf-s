@@ -157,11 +157,11 @@ const profitLines = computed(() => ([
 
         <!-- KPI row -->
         <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
-            <KpiCard :label="t('dashboard.gross_sales')" :value="formatMoney(summary.gross_sales, { compact: true, symbol: true })" :change="change('gross_sales')" :sparkline="salesByDay.map((row) => Number(row.total))" />
-            <KpiCard :label="t('dashboard.net_sales')" :value="formatMoney(summary.net_sales, { compact: true, symbol: true })" :change="change('net_sales')" />
+            <KpiCard :label="t('dashboard.gross_sales')" :value="formatMoney(summary.gross_sales, { symbol: true })" :change="change('gross_sales')" :sparkline="salesByDay.map((row) => Number(row.total))" />
+            <KpiCard :label="t('dashboard.net_sales')" :value="formatMoney(summary.net_sales, { symbol: true })" :change="change('net_sales')" />
             <KpiCard :label="t('dashboard.food_cost')" :value="foodCostPercent + '%'" :state="Number(foodCostPercent) > 40 ? 'danger' : 'success'" />
-            <KpiCard :label="t('dashboard.wastage')" :value="formatMoney(summary.wastage_cost, { compact: true, symbol: true })" :change="change('wastage_cost')" />
-            <KpiCard :label="t('dashboard.net_profit')" :value="formatMoney(summary.net_profit, { compact: true, symbol: true })" :change="change('net_profit')" :state="Number(summary.net_profit) < 0 ? 'danger' : null" />
+            <KpiCard :label="t('dashboard.wastage')" :value="formatMoney(summary.wastage_cost, { symbol: true })" :change="change('wastage_cost')" />
+            <KpiCard :label="t('dashboard.net_profit')" :value="formatMoney(summary.net_profit, { symbol: true })" :change="change('net_profit')" :state="Number(summary.net_profit) < 0 ? 'danger' : null" />
             <KpiCard :label="t('dashboard.orders')" :value="formatNumber(summary.orders)" :change="change('orders')" />
         </div>
 

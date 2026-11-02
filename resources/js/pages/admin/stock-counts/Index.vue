@@ -144,7 +144,7 @@ function varianceOf(item) {
                             <td class="px-3 py-1.5 text-right">
                                 <input
                                     v-model="counted[item.id]"
-                                    type="number"
+                                    type="text" inputmode="decimal" v-numeric
                                     step="0.001"
                                     :placeholder="item.counted_qty !== null ? String(Number(item.counted_qty)) : ''"
                                     class="h-6 w-24 rounded border border-border bg-background px-1.5 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent"
