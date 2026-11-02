@@ -26,7 +26,7 @@ const ACTION_ROWS = [
 
 const SOUND_GROUPS = [
     { key: 'general', events: ['notification', 'success', 'error'] },
-    { key: 'pos', events: ['item_added', 'order_created', 'order_paid', 'order_held', 'order_cancelled', 'online_order'] },
+    { key: 'pos', events: ['item_added', 'order_created', 'order_paid', 'order_held', 'order_cancelled', 'online_order', 'qr_order'] },
     { key: 'kds', events: ['kds_new', 'kds_preparing', 'kds_ready', 'kds_served'] },
 ];
 

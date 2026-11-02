@@ -101,6 +101,7 @@ return [
     'sound_order_held' => 'Order held',
     'sound_order_cancelled' => 'Order cleared or cancelled',
     'sound_online_order' => 'Online order arrived',
+    'sound_qr_order' => 'Table QR order arrived',
     'sound_kds_new' => 'New ticket',
     'sound_kds_preparing' => 'Started preparing',
     'sound_kds_ready' => 'Ready to serve',
