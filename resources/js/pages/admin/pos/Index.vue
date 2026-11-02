@@ -2227,6 +2227,13 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                     @click="addItem(item)"
                 >
                     <span class="pointer-events-none absolute left-0.5 top-0.5 z-10 flex h-4 min-w-4 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--color-primary)_65%,black)] px-1 text-[9px] font-semibold leading-none tabular-nums text-white">{{ item.menu_no }}</span>
+                    <span
+                        v-if="selectedQuantity[item.id]"
+                        class="pointer-events-none absolute bottom-1 left-1 z-10 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold leading-none tabular-nums text-accent-foreground ring-2 ring-surface"
+                        :title="t('orders.in_order')"
+                    >
+                        <span class="sr-only">{{ t('orders.in_order') }}: </span>{{ selectedQuantity[item.id] }}
+                    </span>
                     <span class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-background">
                         <img
                             v-if="itemPhotoSrc(item)"
