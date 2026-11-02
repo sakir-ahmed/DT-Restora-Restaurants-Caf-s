@@ -458,3 +458,16 @@ it('prints the tax registration number from global settings on the receipt data'
     $this->actingAs($this->cashier, 'staff')->get('/admin/pos')->assertInertia(fn ($page) => $page
         ->where('branch.tax_registration_no', 'BIN-123456'));
 });
+
+it('keeps the bill review off by default and saves it per branch', function (): void {
+    expect(PosSettings::for($this->branch)['review_before_save'])->toBeFalse();
+
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
+        'pos' => ['review_before_save' => true],
+    ]))->assertRedirect();
+
+    expect(PosSettings::for($this->branch->fresh())['review_before_save'])->toBeTrue();
+
+    $this->actingAs($this->cashier, 'staff')->get('/admin/pos')->assertInertia(fn ($page) => $page
+        ->where('branch.pos_settings.review_before_save', true));
+});

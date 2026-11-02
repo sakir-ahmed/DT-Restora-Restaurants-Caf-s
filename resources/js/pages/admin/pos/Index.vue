@@ -564,6 +564,16 @@ const posActions = computed(() => {
 
     return Object.fromEntries(Object.entries(DEFAULT_ACTIONS).map(([key, defaults]) => [key, { ...defaults, ...(configured[key] ?? {}) }]));
 });
+const reviewBeforeSave = computed(() => Boolean(branch.value.pos_settings?.review_before_save));
+// Bill review: the modal shows the cart and amounts before a new invoice is saved
+const billReview = ref(null);
+const reviewAmounts = computed(() => {
+    const mode = billReview.value?.mode;
+    const due = total.value;
+    const received = mode === 'quick_save' ? due : Number(tendered.value || 0);
+
+    return { due, received, change: Math.max(0, received - due) };
+});
 const invoiceLayout = computed(() => branch.value.pos_settings?.invoice_layout ?? 'classic');
 const primarySpanClass = computed(() => {
     const visible = Object.values(posActions.value).filter((action) => action.enabled).length;
@@ -1173,7 +1183,14 @@ function startNewOrder() {
     sessionStorage.removeItem(TICKET_KEY);
 }
 
-async function submitOrder(mode = 'send_to_kitchen') {
+function confirmBillReview() {
+    const mode = billReview.value?.mode ?? 'send_to_kitchen';
+
+    billReview.value = null;
+    submitOrder(mode, true);
+}
+
+async function submitOrder(mode = 'send_to_kitchen', reviewed = false) {
     if (latestOrder.value || discountBlocked.value) {
         if (discountBlocked.value) {
             notify.error(t('orders.discount_limit_exceeded'));
@@ -1231,6 +1248,12 @@ async function submitOrder(mode = 'send_to_kitchen') {
     if (! openShift.value) {
         openShiftDialog();
         notify.info(t('orders.shift_needed'));
+
+        return;
+    }
+
+    if (reviewBeforeSave.value && ! reviewed && ! editingOrder.value && cart.value.length > 0) {
+        billReview.value = { mode };
 
         return;
     }
@@ -2979,6 +3002,71 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                                 </PosTableTile>
                             </div>
                         </section>
+                    </div>
+                </div>
+            </div>
+        </Teleport>
+
+        <!-- Bill review before a new invoice is saved -->
+        <Teleport to="body">
+            <div v-if="billReview" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true" :aria-label="t('orders.review_title')" @keydown.esc="billReview = null">
+                <div class="flex max-h-[92vh] w-full max-w-4xl flex-col rounded-xl border border-border bg-surface">
+                    <div class="border-b border-border px-5 py-3">
+                        <h2 class="text-lg font-semibold text-foreground">{{ t('orders.review_title') }}</h2>
+                        <p class="text-[13px] text-muted">{{ t('orders.review_hint') }}</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-3 px-5 py-4 sm:grid-cols-3">
+                        <div class="rounded-lg border border-border bg-background px-4 py-3">
+                            <p class="text-sm font-medium text-muted">{{ t('orders.review_total') }}</p>
+                            <p class="text-4xl font-bold tabular-nums text-foreground">{{ formatMoney(reviewAmounts.due) }}</p>
+                        </div>
+                        <div class="rounded-lg border border-accent bg-accent/10 px-4 py-3">
+                            <p class="text-sm font-medium text-muted">{{ t('orders.review_received') }}</p>
+                            <p class="text-4xl font-bold tabular-nums text-foreground">{{ formatMoney(reviewAmounts.received) }}</p>
+                        </div>
+                        <div class="rounded-lg border border-primary bg-primary/10 px-4 py-3">
+                            <p class="text-sm font-medium text-muted">{{ t('orders.review_return') }}</p>
+                            <p class="text-4xl font-bold tabular-nums text-primary">{{ formatMoney(reviewAmounts.change) }}</p>
+                        </div>
+                    </div>
+
+                    <div class="min-h-0 flex-1 overflow-y-auto px-5">
+                        <table class="w-full text-[13px]">
+                            <thead class="sticky top-0 bg-surface text-xs text-muted">
+                                <tr>
+                                    <th class="py-1.5 text-left font-medium">{{ t('orders.review_item') }}</th>
+                                    <th class="w-24 py-1.5 text-right font-medium">{{ t('orders.review_price') }}</th>
+                                    <th class="w-16 py-1.5 text-right font-medium">{{ t('orders.review_qty') }}</th>
+                                    <th class="w-28 py-1.5 text-right font-medium">{{ t('orders.review_amount') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="line in cart" :key="lineKey(line)" class="border-t border-border align-top">
+                                    <td class="py-1.5 pr-2">
+                                        <p class="font-medium text-foreground">{{ localized(line.item, 'name') }}</p>
+                                        <p v-if="line.variant" class="text-xs text-muted">{{ localized(line.variant, 'name') }}</p>
+                                        <p v-if="(line.addOns ?? []).length" class="text-xs text-muted">{{ line.addOns.map((addOn) => (addOn.qty > 1 ? `${addOn.qty}x ` : '+ ') + addOn.name).join(', ') }}</p>
+                                    </td>
+                                    <td class="py-1.5 text-right tabular-nums">{{ formatMoney(lineUnitPrice(line)) }}</td>
+                                    <td class="py-1.5 text-right tabular-nums">{{ line.quantity }}</td>
+                                    <td class="py-1.5 text-right font-semibold tabular-nums">{{ formatMoney(lineNet(line)) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <dl class="ml-auto mt-2 w-full max-w-xs space-y-0.5 border-t border-border py-2 text-[13px]">
+                            <div class="flex justify-between"><dt class="text-muted">{{ t('receipt.subtotal') }}</dt><dd class="tabular-nums">{{ formatMoney(subtotal) }}</dd></div>
+                            <div v-if="discountAllTotal > 0" class="flex justify-between"><dt class="text-muted">{{ t('orders.discount') }}</dt><dd class="tabular-nums text-danger">-{{ formatMoney(discountAllTotal) }}</dd></div>
+                            <div v-if="serviceCharge > 0" class="flex justify-between"><dt class="text-muted">{{ t('receipt.service_charge') }}</dt><dd class="tabular-nums">{{ formatMoney(serviceCharge) }}</dd></div>
+                            <div v-if="vatAmount > 0" class="flex justify-between"><dt class="text-muted">{{ t('receipt.vat') }}</dt><dd class="tabular-nums">{{ formatMoney(vatAmount) }}</dd></div>
+                            <div class="flex justify-between border-t border-border pt-1 font-semibold"><dt>{{ t('orders.review_total') }}</dt><dd class="tabular-nums">{{ formatMoney(total) }}</dd></div>
+                        </dl>
+                    </div>
+
+                    <div class="flex justify-end gap-2 border-t border-border px-5 py-3">
+                        <button type="button" class="h-10 rounded-md border border-border px-4 text-sm text-foreground hover:bg-background" @click="billReview = null">{{ t('common.cancel') }}</button>
+                        <button type="button" class="h-10 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground hover:opacity-90" @click="confirmBillReview">{{ t('orders.review_confirm') }}</button>
                     </div>
                 </div>
             </div>

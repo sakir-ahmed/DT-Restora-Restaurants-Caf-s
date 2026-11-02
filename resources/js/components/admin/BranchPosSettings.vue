@@ -59,6 +59,11 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
 <template>
     <div class="space-y-4">
     <section>
+        <SwitchField v-model="pos.review_before_save" :label="t('settings.review_before_save')" />
+        <p class="mt-1 text-xs text-muted">{{ t('settings.review_before_save_helper') }}</p>
+    </section>
+
+    <section>
         <h2 class="text-[13px] font-semibold text-foreground">{{ t('settings.section_buttons') }}</h2>
         <p class="mb-2 text-xs text-muted">{{ t('settings.section_buttons_helper') }}</p>
         <div class="overflow-x-auto rounded-md border border-border">

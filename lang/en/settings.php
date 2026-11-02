@@ -25,6 +25,8 @@ return [
     'vat_inclusive' => 'Prices include VAT',
     'service_charge' => 'Service charge (%)',
     'receipt_footer' => 'Invoice footer text',
+    'review_before_save' => 'Review the bill before saving a new invoice',
+    'review_before_save_helper' => 'Off by default. When on, every new POS invoice, quick save included, first opens a large bill review showing the items, total, received and return amounts. The order is saved only after Confirm.',
     'section_buttons' => 'POS buttons',
     'section_buttons_helper' => 'Turn each button on or off and choose what prints after it.',
     'col_button' => 'Button',
