@@ -2837,10 +2837,10 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                                     :class="optionsDialog.quantity > 0 ? 'border-accent bg-accent/10' : 'border-border bg-background'"
                                 >
                                     <span :class="menuNoBadge">{{ optionsDialog.item.menu_no }}</span>
-                                    <span class="flex min-h-11 min-w-0 flex-1 flex-col items-start justify-center text-left">
+                                    <button type="button" class="flex min-h-11 min-w-0 flex-1 flex-col items-start justify-center text-left" @click="optionsDialog.quantity = Math.min(999, optionsDialog.quantity + 1)">
                                         <span class="truncate text-sm font-semibold text-foreground">{{ localized(optionsDialog.item, 'name') }}</span>
                                         <span class="text-sm font-semibold tabular-nums text-foreground">{{ formatMoney(optionsVariant?.price ?? optionsDialog.item.base_price) }}</span>
-                                    </span>
+                                    </button>
                                     <ModalStepper
                                         :value="optionsDialog.quantity"
                                         :can-decrease="optionsDialog.quantity > 0"
