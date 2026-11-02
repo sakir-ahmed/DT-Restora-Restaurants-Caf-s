@@ -46,14 +46,15 @@ class MenuItem extends Model
     }
 
     /**
-     * Public URL of the dish picture: the first uploaded photo, else the
+     * Public URL of the dish picture: the featured photo, else the first uploaded photo, else the
      * legacy photo path. Eager load `media` to avoid extra queries.
      */
     protected function coverUrl(): Attribute
     {
         return Attribute::get(function (): ?string {
             if ($this->relationLoaded('media')) {
-                $image = $this->media->first(fn (Media $media): bool => $media->kind === Media::KIND_IMAGE && $media->is_active && $media->path !== null);
+                $images = $this->media->filter(fn (Media $media): bool => $media->kind === Media::KIND_IMAGE && $media->is_active && $media->path !== null);
+                $image = $images->first(fn (Media $media): bool => $media->is_featured) ?? $images->first();
 
                 if ($image !== null) {
                     return $image->src();

@@ -6,11 +6,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
+use App\Models\DataVersion;
 use App\Models\Media;
 use App\Models\MenuItem;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -125,6 +127,55 @@ class MediaController extends Controller
         return back()->with('success', __('media.saved'));
     }
 
+    /**
+     * Swap the picture file of a photo, keeping its place, caption and featured flag.
+     */
+    public function replace(Request $request, Media $media): RedirectResponse
+    {
+        $this->authorizeEntry($request, $media);
+
+        abort_unless($media->kind === Media::KIND_IMAGE, 422);
+
+        $validated = $request->validate([
+            'image' => ['required', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
+        ]);
+
+        $oldPath = $media->path;
+
+        $media->update(['path' => $validated['image']->store('media', 'public')]);
+
+        if ($oldPath !== null) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        return back()->with('success', __('media.replaced'));
+    }
+
+    /**
+     * Make this photo the one shown on the menu and POS. Only one per owner.
+     */
+    public function feature(Request $request, Media $media): RedirectResponse
+    {
+        $this->authorizeEntry($request, $media);
+
+        abort_unless($media->kind === Media::KIND_IMAGE && $media->mediable_type === 'menu_item', 422);
+
+        DB::transaction(function () use ($media): void {
+            Media::query()
+                ->where('mediable_type', $media->mediable_type)
+                ->where('mediable_id', $media->mediable_id)
+                ->where('is_featured', true)
+                ->get()
+                ->each(fn (Media $entry) => $entry->update(['is_featured' => false]));
+
+            $media->update(['is_featured' => true, 'is_active' => true]);
+        });
+
+        DataVersion::bump();
+
+        return back()->with('success', __('media.featured_set'));
+    }
+
     public function move(Request $request, Media $media): RedirectResponse
     {
         $this->authorizeEntry($request, $media);
@@ -134,6 +185,7 @@ class MediaController extends Controller
         $siblings = Media::query()
             ->where('mediable_type', $media->mediable_type)
             ->where('mediable_id', $media->mediable_id)
+            ->where('kind', $media->kind)
             ->ordered()
             ->get()
             ->values();

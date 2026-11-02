@@ -47,4 +47,8 @@ return [
     'item_delete' => 'Delete item',
     'empty' => 'No menu yet',
     'empty_hint' => 'Create a category and add your first items.',
+    'section_details' => 'Details',
+    'section_pricing' => 'Price and availability',
+    'required_note' => '* required',
+    'media_note' => 'Photos and videos save as soon as you add or change them. The Save button below applies to the dish details.',
 ];

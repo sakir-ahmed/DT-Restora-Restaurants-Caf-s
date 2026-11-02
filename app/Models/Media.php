@@ -27,12 +27,13 @@ class Media extends Model
 
     protected $fillable = [
         'mediable_type', 'mediable_id', 'kind', 'path', 'video_url',
-        'title', 'title_bn', 'sort_order', 'is_active',
+        'title', 'title_bn', 'sort_order', 'is_active', 'is_featured',
     ];
 
     protected $casts = [
         'sort_order' => 'integer',
         'is_active' => 'boolean',
+        'is_featured' => 'boolean',
     ];
 
     /** @return MorphTo<Model, $this> */
@@ -160,6 +161,7 @@ class Media extends Model
             'embed_url' => $video['embed_url'] ?? null,
             'thumbnail' => $video['thumbnail'] ?? null,
             'is_active' => $this->is_active,
+            'is_featured' => $this->is_featured,
             'sort_order' => $this->sort_order,
         ];
     }

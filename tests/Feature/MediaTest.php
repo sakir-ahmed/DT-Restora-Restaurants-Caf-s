@@ -321,3 +321,68 @@ it('accepts photos up to 10 MB and rejects larger ones', function (): void {
         'images' => [UploadedFile::fake()->image('huge.jpg', 800, 600)->size(10241)],
     ])->assertSessionHasErrors('images.0');
 });
+
+it('shows the featured photo as the dish cover and moves the flag between photos', function (): void {
+    $this->actingAs($this->owner, 'staff')->post('/admin/media', [
+        'owner' => 'item:'.$this->item->id,
+        'images' => [UploadedFile::fake()->image('a.jpg', 800, 600), UploadedFile::fake()->image('b.jpg', 800, 600)],
+    ])->assertSessionHasNoErrors();
+
+    [$first, $second] = Media::query()->where('mediable_id', $this->item->id)->ordered()->get()->all();
+
+    expect($this->item->fresh()->load('media')->cover_url)->toBe($first->src());
+
+    $this->actingAs($this->owner, 'staff')->post("/admin/media/{$second->id}/feature")->assertSessionHas('success');
+
+    expect($this->item->fresh()->load('media')->cover_url)->toBe($second->src());
+
+    $this->actingAs($this->owner, 'staff')->post("/admin/media/{$first->id}/feature")->assertSessionHas('success');
+
+    expect($first->fresh()->is_featured)->toBeTrue()
+        ->and($second->fresh()->is_featured)->toBeFalse()
+        ->and($this->item->fresh()->load('media')->cover_url)->toBe($first->src());
+});
+
+it('replaces a photo file but keeps its place, caption and featured flag', function (): void {
+    $this->actingAs($this->owner, 'staff')->post('/admin/media', [
+        'owner' => 'item:'.$this->item->id,
+        'images' => [UploadedFile::fake()->image('a.jpg', 800, 600)],
+        'title' => 'Plated',
+    ]);
+
+    $entry = Media::query()->where('mediable_id', $this->item->id)->firstOrFail();
+    $entry->update(['is_featured' => true]);
+    $oldPath = $entry->path;
+
+    $this->actingAs($this->owner, 'staff')
+        ->post("/admin/media/{$entry->id}/replace", ['image' => UploadedFile::fake()->image('new.png', 800, 600)])
+        ->assertSessionHasNoErrors()->assertSessionHas('success');
+
+    $entry->refresh();
+
+    expect($entry->path)->not->toBe($oldPath)
+        ->and($entry->title)->toBe('Plated')
+        ->and($entry->is_featured)->toBeTrue();
+
+    Storage::disk('public')->assertMissing($oldPath);
+    Storage::disk('public')->assertExists($entry->path);
+});
+
+it('does not let staff feature or replace photos of another outlet', function (): void {
+    $manager = User::factory()->role('branch-manager')->create(['branch_id' => $this->branch->id]);
+    $foreign = Media::factory()->create(['mediable_type' => 'menu_item', 'mediable_id' => $this->otherItem->id, 'kind' => 'image', 'path' => 'media/x.jpg']);
+
+    $this->actingAs($manager, 'staff')->post("/admin/media/{$foreign->id}/feature")->assertForbidden();
+    $this->actingAs($manager, 'staff')->post("/admin/media/{$foreign->id}/replace", ['image' => UploadedFile::fake()->image('n.jpg')])->assertForbidden();
+});
+
+it('moves a photo only among photos, ignoring video links between them', function (): void {
+    $owner = ['mediable_type' => 'menu_item', 'mediable_id' => $this->item->id];
+    $a = Media::factory()->create([...$owner, 'kind' => 'image', 'path' => 'media/a.jpg', 'sort_order' => 1]);
+    Media::factory()->create([...$owner, 'kind' => 'video', 'video_url' => 'https://youtu.be/dQw4w9WgXcQ', 'path' => null, 'sort_order' => 2]);
+    $b = Media::factory()->create([...$owner, 'kind' => 'image', 'path' => 'media/b.jpg', 'sort_order' => 3]);
+
+    $this->actingAs($this->owner, 'staff')->post("/admin/media/{$b->id}/move", ['direction' => 'up'])->assertSessionHasNoErrors();
+
+    expect($b->fresh()->sort_order)->toBeLessThan($a->fresh()->sort_order);
+});

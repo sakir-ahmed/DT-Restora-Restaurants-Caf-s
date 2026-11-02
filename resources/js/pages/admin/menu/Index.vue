@@ -365,7 +365,8 @@ function reload() {
 
         <!-- Item dialog -->
         <SlideOver :open="itemOpen" :title="editingItemId === null ? t('menu.add_item') : t('menu.edit_item')" wide @close="itemOpen = false">
-            <form novalidate class="space-y-3" @submit.prevent="saveItem">
+            <form novalidate class="space-y-3" @submit.prevent="saveItem" @keydown.ctrl.enter.prevent="saveItem" @keydown.meta.enter.prevent="saveItem">
+                <h3 class="text-xs font-semibold uppercase tracking-wider text-muted" :class="$page.props.locale === 'bn' ? 'normal-case tracking-normal' : ''">{{ t('menu.section_details') }}</h3>
                 <div class="grid grid-cols-2 gap-x-4 gap-y-3">
                     <FormField :label="t('menu.category')" required :error="itemForm.errors.menu_category_id">
                         <template #default="{ id }">
@@ -402,6 +403,12 @@ function reload() {
                         </FormField>
                     </div>
 
+                </div>
+
+                <div class="border-t border-border pt-3">
+                    <h3 class="text-xs font-semibold uppercase tracking-wider text-muted" :class="$page.props.locale === 'bn' ? 'normal-case tracking-normal' : ''">{{ t('menu.section_pricing') }}</h3>
+                </div>
+                <div class="grid grid-cols-2 gap-x-4 gap-y-3">
                     <FormField :label="t('menu.price')" required :error="itemForm.errors.base_price">
                         <MoneyInput v-model="itemForm.base_price" />
                     </FormField>
@@ -496,12 +503,13 @@ function reload() {
             <!-- Photos and videos sit outside the dish form so their own forms are not nested inside it -->
             <div v-if="canViewMedia" class="mt-3 border-t border-border pt-3">
                 <h3 class="text-xs font-semibold uppercase tracking-wider text-muted" :class="$page.props.locale === 'bn' ? 'normal-case tracking-normal' : ''">{{ t('media.section') }}</h3>
-                <p class="mb-2 mt-0.5 text-[13px] text-muted">{{ editingItemId === null ? t('media.save_first') : t('media.section_hint') }}</p>
+                <p class="mb-2 mt-0.5 text-xs text-muted">{{ editingItemId === null ? t('media.save_first') : t('menu.media_note') }}</p>
 
-                <MediaManager v-if="editingItemId !== null" :owner="`item:${editingItemId}`" :media="editingItemMedia" :can-manage="canManageMedia" compact />
+                <MediaManager v-if="editingItemId !== null" :key="editingItemId" :owner="`item:${editingItemId}`" :media="editingItemMedia" :can-manage="canManageMedia" compact />
             </div>
 
             <template #footer>
+                <span class="mr-auto text-xs text-muted">{{ t('menu.required_note') }}</span>
                 <button type="button" class="h-7 rounded-md border border-border bg-surface px-2.5 text-[13px] text-foreground hover:bg-background" @click="itemOpen = false">{{ t('common.cancel') }}</button>
                 <button type="button" :disabled="itemForm.processing" class="inline-flex h-7 items-center gap-1.5 rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60" @click="saveItem">
                     <AppIcon v-if="itemForm.processing" name="spinner" spin />

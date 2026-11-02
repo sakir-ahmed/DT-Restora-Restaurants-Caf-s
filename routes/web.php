@@ -194,6 +194,8 @@ Route::prefix('admin')
         Route::get('media', [AdminMediaController::class, 'index'])->name('media.index')->middleware('permission:media.view');
         Route::post('media', [AdminMediaController::class, 'store'])->name('media.store')->middleware('permission:media.manage');
         Route::put('media/{media}', [AdminMediaController::class, 'update'])->name('media.update')->middleware('permission:media.manage');
+        Route::post('media/{media}/replace', [AdminMediaController::class, 'replace'])->name('media.replace')->middleware('permission:media.manage');
+        Route::post('media/{media}/feature', [AdminMediaController::class, 'feature'])->name('media.feature')->middleware('permission:media.manage');
         Route::post('media/{media}/move', [AdminMediaController::class, 'move'])->name('media.move')->middleware('permission:media.manage');
         Route::delete('media/{media}', [AdminMediaController::class, 'destroy'])->name('media.destroy')->middleware('permission:media.manage');
 
