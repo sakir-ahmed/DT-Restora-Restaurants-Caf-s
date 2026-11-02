@@ -1052,7 +1052,19 @@ function confirmOptions() {
         return;
     }
 
-    const quantity = Math.min(999, Math.max(1, Math.round(Number(dialog.quantity) || 1)));
+    const quantity = Math.min(999, Math.max(0, Math.round(Number(dialog.quantity) || 0)));
+
+    // Taking the quantity to zero takes the item off the ticket; a new item with zero adds nothing.
+    if (quantity === 0) {
+        if (dialog.line) {
+            const line = dialog.line;
+
+            cart.value = cart.value.filter((entry) => entry !== line);
+            optionsDialog.value = null;
+        }
+
+        return;
+    }
 
     if (dialog.line) {
         const line = dialog.line;
@@ -2826,9 +2838,9 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                                     </span>
                                     <ModalStepper
                                         :value="optionsDialog.quantity"
-                                        :can-decrease="optionsDialog.quantity > 1"
+                                        :can-decrease="optionsDialog.quantity > 0"
                                         :can-increase="optionsDialog.quantity < 999"
-                                        @decrease="optionsDialog.quantity = Math.max(1, optionsDialog.quantity - 1)"
+                                        @decrease="optionsDialog.quantity = Math.max(0, optionsDialog.quantity - 1)"
                                         @increase="optionsDialog.quantity = Math.min(999, optionsDialog.quantity + 1)"
                                     />
                                 </div>
@@ -2865,8 +2877,8 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                         </div>
 
                         <div class="flex items-center gap-2 border-t border-border px-3 py-2">
-                            <button type="button" class="flex h-9 min-w-0 flex-1 items-center justify-between gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground hover:opacity-90 disabled:opacity-50" :disabled="optionsPicksVariants() && optionsPickedVariants.length === 0 && ! optionsHasManagedLines()" @click="confirmOptions">
-                                <span>{{ optionsDialog.line || optionsHasManagedLines() ? t('orders.update_item') : t('orders.add_to_order') }}</span>
+                            <button type="button" class="flex h-9 min-w-0 flex-1 items-center justify-between gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground hover:opacity-90 disabled:opacity-50" :disabled="(optionsPicksVariants() && optionsPickedVariants.length === 0 && ! optionsHasManagedLines()) || (! optionsPicksVariants() && optionsDialog.quantity === 0 && ! optionsDialog.line)" @click="confirmOptions">
+                                <span>{{ ! optionsPicksVariants() && optionsDialog.quantity === 0 && optionsDialog.line ? t('common.remove') : (optionsDialog.line || optionsHasManagedLines() ? t('orders.update_item') : t('orders.add_to_order')) }}</span>
                                 <span class="tabular-nums">{{ formatMoney(optionsTotal) }}</span>
                             </button>
                         </div>
