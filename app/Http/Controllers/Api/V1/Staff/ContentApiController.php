@@ -307,7 +307,7 @@ class ContentApiController extends Controller
         $validated = $request->validate([
             'owner' => ['required', 'string', 'max:30'],
             'images' => ['required', 'array', 'max:10'],
-            'images.*' => ['file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'images.*' => ['file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
             'title' => ['nullable', 'string', 'max:150'],
             'title_bn' => ['nullable', 'string', 'max:150'],
         ]);

@@ -65,7 +65,7 @@ class MediaController extends Controller
         $validated = $request->validate([
             'owner' => ['required', 'string', 'max:30'],
             'images' => ['nullable', 'array', 'max:10'],
-            'images.*' => ['file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'images.*' => ['file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
             'video_url' => ['nullable', 'url:https', 'max:500', function (string $attribute, mixed $value, \Closure $fail): void {
                 if (Media::parseVideo((string) $value) === null) {
                     $fail(__('media.video_unsupported'));

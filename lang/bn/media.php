@@ -13,7 +13,7 @@ return [
     'choose_dish' => 'খাবার বেছে নিন',
     'upload_title' => 'ছবি আপলোড করুন',
     'images' => 'ছবি',
-    'images_hint' => 'JPG, PNG বা WebP, প্রতিটি সর্বোচ্চ ৪ MB, একবারে ১০টি।',
+    'images_hint' => 'JPG, PNG বা WebP, প্রতিটি সর্বোচ্চ ১০ MB, একবারে ১০টি।',
     'video_title' => 'ভিডিও লিংক যোগ করুন',
     'video_url' => 'ভিডিও লিংক',
     'video_hint' => 'YouTube, Vimeo বা Facebook ভিডিও লিংক, অথবা সরাসরি .mp4 বা .webm ফাইলের লিংক।',

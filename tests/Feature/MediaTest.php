@@ -309,3 +309,15 @@ it('keeps the uploaded photo on the POS menu after the dish is edited', function
             ->where('categories.0.items.0.name', 'Kacchi Biryani Special')
             ->where('categories.0.items.0.cover_url', $photo->src()));
 });
+
+it('accepts photos up to 10 MB and rejects larger ones', function (): void {
+    $this->actingAs($this->owner, 'staff')->post('/admin/media', [
+        'owner' => 'item:'.$this->item->id,
+        'images' => [UploadedFile::fake()->image('big.jpg', 800, 600)->size(10000)],
+    ])->assertSessionHasNoErrors();
+
+    $this->actingAs($this->owner, 'staff')->post('/admin/media', [
+        'owner' => 'item:'.$this->item->id,
+        'images' => [UploadedFile::fake()->image('huge.jpg', 800, 600)->size(10241)],
+    ])->assertSessionHasErrors('images.0');
+});

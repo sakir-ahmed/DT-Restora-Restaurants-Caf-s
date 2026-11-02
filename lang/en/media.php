@@ -13,7 +13,7 @@ return [
     'choose_dish' => 'Choose a dish',
     'upload_title' => 'Upload photos',
     'images' => 'Photos',
-    'images_hint' => 'JPG, PNG or WebP, up to 4 MB each, 10 at a time.',
+    'images_hint' => 'JPG, PNG or WebP, up to 10 MB each, 10 at a time.',
     'video_title' => 'Add a video link',
     'video_url' => 'Video link',
     'video_hint' => 'A YouTube, Vimeo or Facebook video link, or a direct .mp4 or .webm file link.',
