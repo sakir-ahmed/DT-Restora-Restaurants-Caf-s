@@ -2813,6 +2813,27 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                                 </div>
                             </section>
 
+                            <section v-if="! optionsPicksVariants()">
+                                <h3 class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">{{ t('orders.custom_quantity') }}</h3>
+                                <div
+                                    class="flex items-center gap-2 rounded-lg border px-2 py-1 transition-colors"
+                                    :class="optionsDialog.quantity > 0 ? 'border-accent bg-accent/10' : 'border-border bg-background'"
+                                >
+                                    <span :class="menuNoBadge">{{ optionsDialog.item.menu_no }}</span>
+                                    <span class="flex min-h-11 min-w-0 flex-1 flex-col items-start justify-center text-left">
+                                        <span class="truncate text-sm font-semibold text-foreground">{{ localized(optionsDialog.item, 'name') }}</span>
+                                        <span class="text-sm font-semibold tabular-nums text-foreground">{{ formatMoney(optionsVariant?.price ?? optionsDialog.item.base_price) }}</span>
+                                    </span>
+                                    <ModalStepper
+                                        :value="optionsDialog.quantity"
+                                        :can-decrease="optionsDialog.quantity > 1"
+                                        :can-increase="optionsDialog.quantity < 999"
+                                        @decrease="optionsDialog.quantity = Math.max(1, optionsDialog.quantity - 1)"
+                                        @increase="optionsDialog.quantity = Math.min(999, optionsDialog.quantity + 1)"
+                                    />
+                                </div>
+                            </section>
+
                             <section>
                                 <h3 class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">
                                     {{ optionsPicksVariants() && optionsActiveVariant ? t('orders.add_ons_for', { name: localized(optionsActiveVariant, 'name') }) : t('orders.add_ons') }}
@@ -2847,14 +2868,6 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                         </div>
 
                         <div class="flex items-center gap-2 border-t border-border px-3 py-2">
-                            <ModalStepper
-                                v-if="! optionsPicksVariants()"
-                                :value="optionsDialog.quantity"
-                                :can-decrease="optionsDialog.quantity > 1"
-                                :can-increase="optionsDialog.quantity < 999"
-                                @decrease="optionsDialog.quantity = Math.max(1, optionsDialog.quantity - 1)"
-                                @increase="optionsDialog.quantity = Math.min(999, optionsDialog.quantity + 1)"
-                            />
                             <button type="button" class="flex h-9 min-w-0 flex-1 items-center justify-between gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground hover:opacity-90 disabled:opacity-50" :disabled="optionsPicksVariants() && optionsPickedVariants.length === 0 && ! optionsHasManagedLines()" @click="confirmOptions">
                                 <span>{{ optionsDialog.line || optionsHasManagedLines() ? t('orders.update_item') : t('orders.add_to_order') }}</span>
                                 <span class="tabular-nums">{{ formatMoney(optionsTotal) }}</span>
