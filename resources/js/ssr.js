@@ -3,6 +3,7 @@ import createServer from '@inertiajs/vue3/server';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { renderToString } from 'vue/server-renderer';
 import { createSSRApp, h } from 'vue';
+import { vNumeric } from './lib/numericInput';
 
 /**
  * Server-side rendering for the public website pages. Only pages the
@@ -14,5 +15,5 @@ createServer((page) => createInertiaApp({
     render: renderToString,
     title: (title) => (title ? `${title} - ${import.meta.env.VITE_APP_NAME ?? 'DT Restora'}` : import.meta.env.VITE_APP_NAME ?? 'DT Restora'),
     resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob('./pages/**/*.vue')),
-    setup: ({ App, props, plugin }) => createSSRApp({ render: () => h(App, props) }).use(plugin),
+    setup: ({ App, props, plugin }) => createSSRApp({ render: () => h(App, props) }).use(plugin).directive('numeric', vNumeric),
 }));

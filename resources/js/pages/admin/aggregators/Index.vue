@@ -468,7 +468,7 @@ function decide(order, decision) {
                             <option value="" disabled>{{ t('common.select') }}</option>
                             <option v-for="item in items" :key="item.id" :value="item.id">{{ item.name }}</option>
                         </select>
-                        <input v-model.number="line.quantity" type="number" min="1" class="h-7 rounded-md border border-border bg-surface px-1.5 text-right text-[13px] tabular-nums">
+                        <input v-model.number="line.quantity" type="text" inputmode="decimal" v-numeric min="1" class="h-7 rounded-md border border-border bg-surface px-1.5 text-right text-[13px] tabular-nums">
                         <button type="button" class="flex h-6 w-6 items-center justify-center rounded text-muted hover:text-danger" @click="orderForm.items.splice(index, 1)">
                             <AppIcon name="xmark" size="12" />
                         </button>

@@ -16,6 +16,7 @@ import UpdatePrompt from './components/ui-kit/UpdatePrompt.vue';
 import { Workbox } from 'workbox-window';
 import { t } from './lib/i18n';
 import { notify } from './lib/notify';
+import { vNumeric } from './lib/numericInput';
 import { Ziggy } from './ziggy';
 
 createInertiaApp({
@@ -89,6 +90,7 @@ createInertiaApp({
 
         app.use(plugin);
         app.use(ZiggyVue);
+        app.directive('numeric', vNumeric);
 
         app.mount(el);
     },

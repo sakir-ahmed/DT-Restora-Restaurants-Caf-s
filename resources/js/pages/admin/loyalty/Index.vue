@@ -80,7 +80,7 @@ function saveSettings() {
                                 <input
                                     :id="id"
                                     v-model="form.earn_rate"
-                                    type="number"
+                                    type="text" inputmode="decimal" v-numeric
                                     min="0"
                                     max="100"
                                     class="h-7 w-full rounded-md border bg-surface px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:ring-2 focus:ring-accent/40"
@@ -98,7 +98,7 @@ function saveSettings() {
                                 <input
                                     :id="id"
                                     v-model="form.expiry_days"
-                                    type="number"
+                                    type="text" inputmode="decimal" v-numeric
                                     min="1"
                                     max="3650"
                                     class="h-7 w-full rounded-md border bg-surface px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:ring-2 focus:ring-accent/40"
@@ -153,7 +153,7 @@ function saveSettings() {
                         <div class="grid grid-cols-[100px_1fr] items-end gap-2">
                             <FormField :label="t('loyalty.points')">
                                 <template #default="{ id }">
-                                    <input :id="id" v-model.number="adjustForm.points" type="number" :step="1" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-right text-[13px] tabular-nums">
+                                    <input :id="id" v-model.number="adjustForm.points" type="text" inputmode="decimal" v-numeric :step="1" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-right text-[13px] tabular-nums">
                                 </template>
                             </FormField>
                             <FormField :label="t('common.reason')" required>

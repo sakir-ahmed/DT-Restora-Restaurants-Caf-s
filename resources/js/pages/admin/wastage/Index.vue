@@ -130,7 +130,7 @@ function save() {
 
                     <FormField :label="t('inventory.qty')" required :error="form.errors.qty">
                         <template #default="{ id }">
-                            <input :id="id" v-model="form.qty" type="number" step="0.001" min="0" class="h-7 w-full rounded-md border bg-surface px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:ring-2 focus:ring-accent/40" :class="form.errors.qty ? 'border-danger' : 'border-border focus:border-accent'">
+                            <input :id="id" v-model="form.qty" type="text" inputmode="decimal" v-numeric step="0.001" min="0" class="h-7 w-full rounded-md border bg-surface px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:ring-2 focus:ring-accent/40" :class="form.errors.qty ? 'border-danger' : 'border-border focus:border-accent'">
                         </template>
                     </FormField>
                 </div>

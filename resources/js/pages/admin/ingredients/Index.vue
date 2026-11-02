@@ -172,7 +172,7 @@ function save() {
 
                     <FormField :label="t('inventory.reorder_level')" :helper="t('inventory.reorder_helper')" :error="form.errors.reorder_level">
                         <template #default="{ id }">
-                            <input :id="id" v-model="form.reorder_level" type="number" step="0.001" min="0" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
+                            <input :id="id" v-model="form.reorder_level" type="text" inputmode="decimal" v-numeric step="0.001" min="0" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
                         </template>
                     </FormField>
                 </div>

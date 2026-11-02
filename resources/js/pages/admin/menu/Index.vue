@@ -347,7 +347,7 @@ function reload() {
 
                 <FormField :label="t('menu.sort_order')" :error="categoryForm.errors.sort_order">
                     <template #default="{ id }">
-                        <input :id="id" v-model="categoryForm.sort_order" type="number" min="0" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
+                        <input :id="id" v-model="categoryForm.sort_order" type="text" inputmode="decimal" v-numeric min="0" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
                     </template>
                 </FormField>
 
@@ -408,7 +408,7 @@ function reload() {
 
                     <FormField :label="t('menu.sort_order')" :error="itemForm.errors.sort_order">
                         <template #default="{ id }">
-                            <input :id="id" v-model="itemForm.sort_order" type="number" min="0" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
+                            <input :id="id" v-model="itemForm.sort_order" type="text" inputmode="decimal" v-numeric min="0" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
                         </template>
                     </FormField>
                 </div>

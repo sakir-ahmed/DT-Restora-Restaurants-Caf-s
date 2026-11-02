@@ -203,7 +203,7 @@ function save() {
                         <FormField :error="form.errors['lines.' + index + '.qty']">
                             <template #default="{ id }">
                                 <div class="relative">
-                                    <input :id="id" v-model="line.qty" type="number" step="0.000001" min="0" class="h-7 w-full rounded-md border border-border bg-surface py-0 pl-1.5 pr-7 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
+                                    <input :id="id" v-model="line.qty" type="text" inputmode="decimal" v-numeric step="0.000001" min="0" class="h-7 w-full rounded-md border border-border bg-surface py-0 pl-1.5 pr-7 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
                                     <span class="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-[11px] text-muted">{{ ingredientUnit(line.ingredient_id) }}</span>
                                 </div>
                             </template>

@@ -2324,9 +2324,8 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                         <input
                             v-model="menuNumberInput"
                             data-pos-menu-number
-                            type="number"
+                            type="text" inputmode="numeric" v-numeric
                             min="1"
-                            inputmode="numeric"
                             :placeholder="t('orders.menu_no_placeholder')"
                             :aria-label="t('orders.menu_no_placeholder')"
                             :disabled="!!latestOrder"
@@ -2408,7 +2407,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                     <span class="shrink-0 text-[13px] font-medium text-foreground">{{ t('orders.bill_discount') }}</span>
                     <button type="button" class="h-6 w-7 rounded-md border text-[13px] font-medium disabled:opacity-50" :disabled="!! latestOrder" :class="discount.type !== 'fixed' ? 'border-accent bg-accent/15 text-foreground' : 'border-border text-muted'" @click="discount.type = 'percent'">%</button>
                     <button type="button" class="h-6 w-7 rounded-md border text-[13px] font-medium disabled:opacity-50" :disabled="!! latestOrder" :class="discount.type === 'fixed' ? 'border-accent bg-accent/15 text-foreground' : 'border-border text-muted'" @click="discount.type = 'fixed'">৳</button>
-                    <input v-model.number="discount.value" :disabled="!! latestOrder" type="number" min="0" :aria-label="t('orders.bill_discount')" class="h-6 w-16 rounded-md border bg-surface px-1.5 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent disabled:opacity-60" :class="discountBlocked ? 'border-danger' : 'border-border'">
+                    <input v-model.number="discount.value" :disabled="!! latestOrder" type="text" inputmode="decimal" v-numeric min="0" :aria-label="t('orders.bill_discount')" class="h-6 w-16 rounded-md border bg-surface px-1.5 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent disabled:opacity-60" :class="discountBlocked ? 'border-danger' : 'border-border'">
                     <span class="ml-auto min-w-0 truncate text-xs font-medium tabular-nums" :class="discountBlocked || billDiscountAmount > 0 ? 'text-danger' : 'text-muted'" :title="discountBlocked ? t('orders.discount_limit_hint') : undefined">
                         {{ discountBlocked ? t('orders.discount_limit_short') : `-${formatMoney(billDiscountAmount)}` }}
                     </span>
@@ -2464,7 +2463,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                         </select>
                         <input
                             v-model="line.amount"
-                            type="number"
+                            type="text" inputmode="decimal" v-numeric
                             min="0"
                             :step="payLines.length > 1 ? '0.01' : '1'"
                             :disabled="laneLocked"
@@ -2845,7 +2844,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
 
                         <label class="grid grid-cols-[minmax(0,1fr)_4.5rem] items-center gap-2">
                             <span class="text-[13px] text-foreground">{{ t('orders.custom_quantity') }}</span>
-                            <input v-model.number="itemEditor.quantity" type="number" min="1" max="999" class="h-7 w-full rounded-md border border-border bg-background px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
+                            <input v-model.number="itemEditor.quantity" type="text" inputmode="decimal" v-numeric min="1" max="999" class="h-7 w-full rounded-md border border-border bg-background px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
                         </label>
 
                         <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
@@ -2853,19 +2852,19 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                             <div class="flex items-center gap-1">
                                 <button type="button" class="h-7 w-7 rounded-md border text-[13px] font-medium" :class="itemEditor.discountType !== 'fixed' ? 'border-accent bg-accent/15 text-foreground' : 'border-border text-muted'" @click="itemEditor.discountType = 'percent'">%</button>
                                 <button type="button" class="h-7 w-7 rounded-md border text-[13px] font-medium" :class="itemEditor.discountType === 'fixed' ? 'border-accent bg-accent/15 text-foreground' : 'border-border text-muted'" @click="itemEditor.discountType = 'fixed'">৳</button>
-                                <input v-model.number="itemEditor.discountValue" type="number" min="0" :aria-label="t('orders.item_discount')" class="h-7 w-14 rounded-md border border-border bg-background px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
+                                <input v-model.number="itemEditor.discountValue" type="text" inputmode="decimal" v-numeric min="0" :aria-label="t('orders.item_discount')" class="h-7 w-14 rounded-md border border-border bg-background px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
                             </div>
                         </div>
 
                         <label class="grid grid-cols-[minmax(0,1fr)_4.5rem] items-center gap-2">
                             <span class="text-[13px] text-foreground">{{ t('orders.custom_vat') }}</span>
-                            <input v-model="itemEditor.vatPercent" type="number" min="0" max="100" step="0.01" :placeholder="String(Number(branch.vat_percent))" :aria-label="t('orders.custom_vat')" class="h-7 w-full rounded-md border border-border bg-background px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
+                            <input v-model="itemEditor.vatPercent" type="text" inputmode="decimal" v-numeric min="0" max="100" step="0.01" :placeholder="String(Number(branch.vat_percent))" :aria-label="t('orders.custom_vat')" class="h-7 w-full rounded-md border border-border bg-background px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
                         </label>
                         <p class="text-xs text-muted">{{ t('orders.custom_vat_hint') }}</p>
 
                         <label class="grid grid-cols-[minmax(0,1fr)_4.5rem] items-center gap-2">
                             <span class="text-[13px] text-foreground">{{ t('orders.other_charge') }}</span>
-                            <input v-model.number="itemEditor.extraCharge" type="number" min="0" step="0.01" :aria-label="t('orders.other_charge')" class="h-7 w-full rounded-md border border-border bg-background px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
+                            <input v-model.number="itemEditor.extraCharge" type="text" inputmode="decimal" v-numeric min="0" step="0.01" :aria-label="t('orders.other_charge')" class="h-7 w-full rounded-md border border-border bg-background px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
                         </label>
 
                         <div class="flex justify-end gap-2">

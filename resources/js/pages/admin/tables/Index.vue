@@ -387,12 +387,12 @@ async function copyQr(url) {
                         </div>
                         <FormField :label="t('tables.from')" required :error="form.errors.from">
                             <template #default="{ id }">
-                                <input :id="id" v-model.number="form.from" type="number" min="1" max="500" :class="[inputClass, form.errors.from ? 'border-danger' : 'border-border focus:border-accent']">
+                                <input :id="id" v-model.number="form.from" type="text" inputmode="decimal" v-numeric min="1" max="500" :class="[inputClass, form.errors.from ? 'border-danger' : 'border-border focus:border-accent']">
                             </template>
                         </FormField>
                         <FormField :label="t('tables.to')" required :error="form.errors.to">
                             <template #default="{ id }">
-                                <input :id="id" v-model.number="form.to" type="number" min="1" max="500" :class="[inputClass, form.errors.to ? 'border-danger' : 'border-border focus:border-accent']">
+                                <input :id="id" v-model.number="form.to" type="text" inputmode="decimal" v-numeric min="1" max="500" :class="[inputClass, form.errors.to ? 'border-danger' : 'border-border focus:border-accent']">
                             </template>
                         </FormField>
                     </template>
@@ -405,7 +405,7 @@ async function copyQr(url) {
 
                     <FormField :label="t('tables.seats')" required :error="form.errors.seats">
                         <template #default="{ id }">
-                            <input :id="id" v-model.number="form.seats" type="number" min="1" max="30" :class="[inputClass, form.errors.seats ? 'border-danger' : 'border-border focus:border-accent']">
+                            <input :id="id" v-model.number="form.seats" type="text" inputmode="decimal" v-numeric min="1" max="30" :class="[inputClass, form.errors.seats ? 'border-danger' : 'border-border focus:border-accent']">
                         </template>
                     </FormField>
 
