@@ -148,3 +148,18 @@ it('does not let a manager create an item in another branch category', function 
 
     $response->assertNotFound();
 });
+
+it('sends each dish with its variants and add-ons so the edit form can load them', function (): void {
+    $item = MenuItem::factory()->create([
+        'branch_id' => $this->branch->id,
+        'menu_category_id' => $this->category->id,
+    ]);
+    $item->variants()->create(['name' => 'Large', 'price' => '360.00', 'is_default' => true]);
+    $item->addOns()->create(['name' => 'Extra cheese', 'price' => '40.00', 'is_active' => true]);
+
+    $this->actingAs($this->manager, 'staff')->get('/admin/menu')
+        ->assertInertia(fn ($page) => $page
+            ->where('categories.0.items.0.variants.0.name', 'Large')
+            ->where('categories.0.items.0.add_ons.0.name', 'Extra cheese')
+            ->has('categories.0.items.0.media_gallery'));
+});

@@ -567,10 +567,21 @@ const posActions = computed(() => {
 const reviewBeforeSave = computed(() => Boolean(branch.value.pos_settings?.review_before_save));
 // Bill review: the modal shows the cart and amounts before a new invoice is saved
 const billReview = ref(null);
-const reviewAmounts = computed(() => {
-    const mode = billReview.value?.mode;
+// Same numbers the payment lane shows: what the cashier typed as received, and the change from it.
+// Quick save takes the typed cash when it covers the bill, otherwise the exact total.
+function receivedFor(mode) {
     const due = total.value;
-    const received = mode === 'quick_save' ? due : Number(tendered.value || 0);
+    const typed = payMode.value === 'cash' ? Number(tendered.value || 0) : payLinesTotal();
+
+    if (mode === 'quick_save') {
+        return payMode.value === 'cash' && typed >= due ? typed : due;
+    }
+
+    return typed;
+}
+const reviewAmounts = computed(() => {
+    const due = total.value;
+    const received = receivedFor(billReview.value?.mode);
 
     return { due, received, change: Math.max(0, received - due) };
 });
@@ -1349,7 +1360,10 @@ async function submitOrder(mode = 'send_to_kitchen', reviewed = false) {
 // After the order is saved: quick save takes the exact amount at once, the kitchen button prints its slips.
 function finishSave(mode, order) {
     if (mode === 'quick_save') {
-        payLines.value = [{ method: 'cash', amount: Number(order.balance ?? order.total ?? total.value).toFixed(2), reference: '' }];
+        const due = Number(order.balance ?? order.total ?? total.value);
+        const typed = payMode.value === 'cash' ? Number(tendered.value || 0) : 0;
+
+        payLines.value = [{ method: 'cash', amount: (typed >= due ? typed : due).toFixed(2), reference: '' }];
         payNow('quick_save');
 
         return;
