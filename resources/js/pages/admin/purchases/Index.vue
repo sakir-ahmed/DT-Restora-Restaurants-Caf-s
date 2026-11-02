@@ -18,6 +18,7 @@ const props = defineProps({
     purchases: { type: Array, required: true },
     suppliers: { type: Array, default: () => [] },
     ingredients: { type: Array, default: () => [] },
+    categories: { type: Array, default: () => [] },
     units: { type: Array, default: () => [] },
     canManage: { type: Boolean, default: false },
 });
@@ -68,6 +69,7 @@ function openCreate() {
 
 function addLine() {
     form.items.push({
+        category_id: '',
         ingredient_id: '',
         unit_id: '',
         qty: '1',
@@ -77,11 +79,31 @@ function addLine() {
 
 const total = computed(() => form.items.reduce((sum, line) => sum + Number(line.qty || 0) * Number(line.unit_cost || 0), 0));
 
-function ingredientsOptions() {
-    return props.ingredients.map((ingredient) => ({
-        value: ingredient.id,
-        label: `${ingredient.name} (${ingredient.unit?.symbol ?? ''})`,
-    }));
+// A line's category narrows its ingredient list: '' shows all, 'none' the uncategorised ones.
+function ingredientsOptions(line) {
+    return props.ingredients
+        .filter((ingredient) => {
+            if (! line.category_id) {
+                return true;
+            }
+
+            if (line.category_id === 'none') {
+                return ingredient.ingredient_category_id === null;
+            }
+
+            return ingredient.ingredient_category_id === Number(line.category_id);
+        })
+        .map((ingredient) => ({
+            value: ingredient.id,
+            label: `${ingredient.name} (${ingredient.unit?.symbol ?? ''})`,
+        }));
+}
+
+function onCategoryChange(line) {
+    if (line.ingredient_id && ! ingredientsOptions(line).some((option) => option.value === Number(line.ingredient_id))) {
+        line.ingredient_id = '';
+        line.unit_id = '';
+    }
 }
 
 function unitsFor(line) {
@@ -203,12 +225,22 @@ function toggleExpand(row) {
                         </button>
                     </div>
 
-                    <div v-for="(line, index) in form.items" :key="index" class="mb-2 grid grid-cols-[1.4fr_0.8fr_0.7fr_0.9fr_28px] items-start gap-2">
+                    <div v-for="(line, index) in form.items" :key="index" class="mb-2 grid grid-cols-[1.25fr_1.6fr_0.6fr_0.65fr_0.95fr_28px] items-start gap-2">
+                        <FormField>
+                            <template #default="{ id }">
+                                <select :id="id" v-model="line.category_id" :aria-label="t('inventory.choose_category')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent" @change="onCategoryChange(line)">
+                                    <option value="">{{ t('inventory.all_categories') }}</option>
+                                    <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
+                                    <option value="none">{{ t('inventory.category_none') }}</option>
+                                </select>
+                            </template>
+                        </FormField>
+
                         <FormField :error="form.errors['items.' + index + '.ingredient_id']">
                             <template #default="{ id }">
                                 <select :id="id" v-model="line.ingredient_id" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent">
                                     <option value="" disabled>{{ t('common.select') }}</option>
-                                    <option v-for="option in ingredientsOptions()" :key="option.value" :value="option.value">{{ option.label }}</option>
+                                    <option v-for="option in ingredientsOptions(line)" :key="option.value" :value="option.value">{{ option.label }}</option>
                                 </select>
                             </template>
                         </FormField>

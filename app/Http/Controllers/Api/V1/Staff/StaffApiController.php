@@ -667,6 +667,7 @@ class StaffApiController extends Controller
             'name' => ['required', 'string', 'max:150'],
             'name_bn' => ['nullable', 'string', 'max:150'],
             'unit_id' => ['required', 'integer', 'exists:units,id'],
+            'ingredient_category_id' => ['nullable', 'integer', 'exists:ingredient_categories,id'],
             'reorder_level' => ['nullable', 'numeric', 'min:0'],
             'is_active' => ['boolean'],
         ]);
@@ -936,6 +937,7 @@ class StaffApiController extends Controller
                     'name' => $ingredient->name,
                     'name_bn' => $ingredient->name_bn,
                     'unit_id' => $ingredient->unit_id,
+                    'ingredient_category_id' => $ingredient->ingredient_category_id,
                     'unit_symbol' => $ingredient->unit?->symbol,
                     'reorder_level' => (string) $ingredient->reorder_level,
                 ])

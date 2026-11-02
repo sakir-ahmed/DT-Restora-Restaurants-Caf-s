@@ -22,6 +22,7 @@ class IngredientRequest extends FormRequest
             'name' => ['required', 'string', 'max:150'],
             'name_bn' => ['nullable', 'string', 'max:150'],
             'unit_id' => ['required', 'integer', 'exists:units,id'],
+            'ingredient_category_id' => ['nullable', 'integer', 'exists:ingredient_categories,id'],
             'reorder_level' => ['nullable', 'numeric', 'min:0'],
             'is_active' => ['boolean'],
         ];

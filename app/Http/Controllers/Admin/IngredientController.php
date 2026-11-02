@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\IngredientRequest;
 use App\Models\Branch;
 use App\Models\Ingredient;
+use App\Models\IngredientCategory;
 use App\Models\Unit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,7 +24,7 @@ class IngredientController extends Controller
         $branch = $this->currentBranch($request);
 
         $ingredients = Ingredient::query()
-            ->with('unit')
+            ->with(['unit', 'category:id,name,name_bn'])
             ->withStockFor($branch->id)
             ->search($request->string('search')->toString())
             ->orderBy('name')
@@ -31,6 +32,7 @@ class IngredientController extends Controller
 
         return Inertia::render('admin/ingredients/Index', [
             'ingredients' => $ingredients,
+            'categories' => IngredientCategory::query()->active()->ordered()->get(['id', 'name', 'name_bn']),
             'units' => Unit::query()->orderBy('type')->orderBy('name')->get(['id', 'name', 'symbol', 'type']),
             'canManage' => $request->user('staff')?->can('inventory.manage'),
         ]);

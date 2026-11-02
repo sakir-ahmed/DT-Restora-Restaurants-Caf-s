@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\DeliveryController;
 use App\Http\Controllers\Admin\DeliveryZoneController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\ExpenseController;
+use App\Http\Controllers\Admin\IngredientCategoryController;
 use App\Http\Controllers\Admin\IngredientController;
 use App\Http\Controllers\Admin\KdsController;
 use App\Http\Controllers\Admin\LetterheadController;
@@ -251,6 +252,10 @@ Route::prefix('admin')
         Route::put('ingredients/{ingredient}', [IngredientController::class, 'update'])->name('ingredients.update')->middleware('permission:inventory.manage');
         Route::delete('ingredients/{ingredient}', [IngredientController::class, 'destroy'])->name('ingredients.destroy')->middleware('permission:inventory.manage');
 
+        Route::get('ingredient-categories', [IngredientCategoryController::class, 'index'])->name('ingredient-categories.index')->middleware('permission:inventory.view');
+        Route::post('ingredient-categories', [IngredientCategoryController::class, 'store'])->name('ingredient-categories.store')->middleware('permission:inventory.manage');
+        Route::put('ingredient-categories/{category}', [IngredientCategoryController::class, 'update'])->name('ingredient-categories.update')->middleware('permission:inventory.manage');
+        Route::delete('ingredient-categories/{category}', [IngredientCategoryController::class, 'destroy'])->name('ingredient-categories.destroy')->middleware('permission:inventory.manage');
         Route::get('suppliers', [SupplierController::class, 'index'])->name('suppliers.index')->middleware('permission:inventory.view');
         Route::post('suppliers', [SupplierController::class, 'store'])->name('suppliers.store')->middleware('permission:inventory.manage');
         Route::put('suppliers/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update')->middleware('permission:inventory.manage');

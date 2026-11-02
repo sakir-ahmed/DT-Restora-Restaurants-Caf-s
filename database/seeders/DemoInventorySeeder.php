@@ -12,6 +12,7 @@ use App\Actions\Inventory\ReceiveStockTransferAction;
 use App\Actions\Inventory\SaveRecipeAction;
 use App\Models\Branch;
 use App\Models\Ingredient;
+use App\Models\IngredientCategory;
 use App\Models\IngredientStock;
 use App\Models\MenuItem;
 use App\Models\Purchase;
@@ -86,6 +87,18 @@ class DemoInventorySeeder extends Seeder
             ['Lemon', 'লেবু', 'kg', 3, 120],
         ];
 
+        $categories = collect([
+            ['Food', 'খাবার', 1],
+            ['Beverages', 'পানীয়', 2],
+            ['Packaging', 'প্যাকেজিং', 3],
+        ])->mapWithKeys(fn (array $row): array => [
+            $row[0] => IngredientCategory::query()->updateOrCreate(
+                ['name' => $row[0]],
+                ['name_bn' => $row[1], 'sort_order' => $row[2], 'is_active' => true],
+            ),
+        ]);
+        $beverageNames = ['Coffee Beans', 'Tea Leaf'];
+
         $ingredients = [];
 
         foreach ($catalog as [$name, $nameBn, $symbol, $reorder, $cost]) {
@@ -100,6 +113,7 @@ class DemoInventorySeeder extends Seeder
                 [
                     'name_bn' => $nameBn,
                     'unit_id' => $unit->id,
+                    'ingredient_category_id' => $categories[in_array($name, $beverageNames, true) ? 'Beverages' : 'Food']->id,
                     'reorder_level' => $reorder,
                     'is_active' => true,
                 ],

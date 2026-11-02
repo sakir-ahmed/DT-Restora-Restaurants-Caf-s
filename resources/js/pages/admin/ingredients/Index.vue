@@ -14,6 +14,7 @@ import { notify } from '@/lib/notify';
 const props = defineProps({
     ingredients: { type: Array, required: true },
     units: { type: Array, required: true },
+    categories: { type: Array, default: () => [] },
     canManage: { type: Boolean, default: false },
 });
 
@@ -22,6 +23,7 @@ const editingId = ref(null);
 
 const columns = computed(() => [
     { key: 'name', label: t('inventory.ingredient'), align: 'left', sortable: true },
+    { key: 'category_name', label: t('inventory.category'), align: 'left', sortable: true, minWidth: '120px' },
     { key: 'unit_symbol', label: t('inventory.unit'), align: 'left', minWidth: '80px' },
     { key: 'stock_display', label: t('inventory.stock'), type: 'number', sortable: true, minWidth: '96px' },
     { key: 'avg_cost_display', label: t('inventory.avg_cost'), type: 'money', sortable: true, minWidth: '96px' },
@@ -30,7 +32,22 @@ const columns = computed(() => [
     { key: 'is_active', label: t('common.status'), minWidth: '104px' },
 ]);
 
-const rows = computed(() => props.ingredients.map((ingredient) => {
+// '' shows every ingredient, 'none' the uncategorised ones, otherwise a category id
+const categoryFilter = ref('');
+
+const visibleIngredients = computed(() => props.ingredients.filter((ingredient) => {
+    if (categoryFilter.value === '') {
+        return true;
+    }
+
+    if (categoryFilter.value === 'none') {
+        return ingredient.ingredient_category_id === null;
+    }
+
+    return ingredient.ingredient_category_id === Number(categoryFilter.value);
+}));
+
+const rows = computed(() => visibleIngredients.value.map((ingredient) => {
     const stock = ingredient.stocks?.[0];
     const factor = Number(ingredient.unit?.factor ?? 1);
 
@@ -39,6 +56,7 @@ const rows = computed(() => props.ingredients.map((ingredient) => {
     return {
         ...ingredient,
         unit_symbol: ingredient.unit?.symbol,
+        category_name: ingredient.category?.name ?? '',
         stock_display: `${Number(displayQty.toFixed(3)).toString()}`,
         sort_stock: Number(stock?.stock_qty ?? 0),
         low_stock: Number(stock?.stock_qty ?? 0) <= Number(ingredient.reorder_level) && Number(ingredient.reorder_level) > 0,
@@ -54,12 +72,12 @@ const totalValue = computed(() => rows.value.reduce((sum, row) => sum + row.sort
 const lowStockCount = computed(() => rows.value.filter((row) => row.low_stock).length);
 
 const form = useForm({
-    name: '', name_bn: '', unit_id: '', reorder_level: '0', is_active: true,
+    name: '', name_bn: '', unit_id: '', ingredient_category_id: '', reorder_level: '0', is_active: true,
 });
 
 function openCreate() {
     editingId.value = null;
-    form.defaults({ name: '', name_bn: '', unit_id: '', reorder_level: '0', is_active: true }).reset();
+    form.defaults({ name: '', name_bn: '', unit_id: '', ingredient_category_id: '', reorder_level: '0', is_active: true }).reset();
     slideOverOpen.value = true;
 }
 
@@ -69,6 +87,7 @@ function openEdit(ingredient) {
         name: ingredient.name,
         name_bn: ingredient.name_bn ?? '',
         unit_id: ingredient.unit_id,
+        ingredient_category_id: ingredient.ingredient_category_id ?? '',
         reorder_level: ingredient.reorder_level,
         is_active: ingredient.is_active,
     }).reset();
@@ -99,6 +118,13 @@ function save() {
         <PageHeader :title="t('inventory.title')" :description="t('inventory.subtitle')">
             <template #actions>
                 <a
+                    href="/admin/ingredient-categories"
+                    class="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 text-[13px] font-medium text-foreground hover:bg-background"
+                >
+                    <AppIcon name="layer-group" size="12" />
+                    {{ t('inventory.categories') }}
+                </a>
+                <a
                     href="/admin/suppliers"
                     class="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 text-[13px] font-medium text-foreground hover:bg-background"
                 >
@@ -120,6 +146,15 @@ function save() {
         <div v-if="lowStockCount > 0" class="mb-3 flex items-center gap-2 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-[13px] text-foreground">
             <AppIcon name="triangle-exclamation" size="14" class="text-warning" />
             {{ t('dashboard.alerts.low_stock_count', { count: lowStockCount }) }}
+        </div>
+
+        <div v-if="categories.length > 0" class="mb-2 flex items-center gap-2">
+            <label for="ingredient-category-filter" class="text-xs font-medium text-muted">{{ t('inventory.category') }}</label>
+            <select id="ingredient-category-filter" v-model="categoryFilter" class="h-7 rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
+                <option value="">{{ t('inventory.all_categories') }}</option>
+                <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
+                <option value="none">{{ t('inventory.category_none') }}</option>
+            </select>
         </div>
 
         <DataTable
@@ -166,6 +201,15 @@ function save() {
                             <select :id="id" v-model="form.unit_id" class="h-7 w-full rounded-md border bg-surface px-2 text-[13px] text-foreground outline-none focus:ring-2 focus:ring-accent/40" :class="form.errors.unit_id ? 'border-danger' : 'border-border focus:border-accent'">
                                 <option value="" disabled>{{ t('common.select') }}</option>
                                 <option v-for="unit in units" :key="unit.id" :value="unit.id">{{ unit.name }} ({{ unit.symbol }})</option>
+                            </select>
+                        </template>
+                    </FormField>
+
+                    <FormField :label="t('inventory.category')" :helper="t('inventory.category_helper')" :error="form.errors.ingredient_category_id">
+                        <template #default="{ id }">
+                            <select :id="id" v-model="form.ingredient_category_id" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
+                                <option value="">{{ t('inventory.category_none') }}</option>
+                                <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
                             </select>
                         </template>
                     </FormField>

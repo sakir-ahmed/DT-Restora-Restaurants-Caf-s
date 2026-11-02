@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PurchaseRequest;
 use App\Models\Branch;
 use App\Models\Ingredient;
+use App\Models\IngredientCategory;
 use App\Models\Purchase;
 use App\Models\Supplier;
 use App\Models\Unit;
@@ -36,7 +37,8 @@ class PurchaseController extends Controller
         return Inertia::render('admin/purchases/Index', [
             'purchases' => $purchases,
             'suppliers' => Supplier::query()->where('is_active', true)->orderBy('name')->get(['id', 'name']),
-            'ingredients' => Ingredient::query()->active()->with('unit:id,symbol,type')->orderBy('name')->get(['id', 'name', 'unit_id']),
+            'ingredients' => Ingredient::query()->active()->with('unit:id,symbol,type')->orderBy('name')->get(['id', 'name', 'unit_id', 'ingredient_category_id']),
+            'categories' => IngredientCategory::query()->active()->ordered()->get(['id', 'name', 'name_bn']),
             'units' => Unit::query()->orderBy('type')->orderBy('name')->get(['id', 'name', 'symbol', 'type']),
             'canManage' => $request->user('staff')?->can('purchases.manage'),
         ]);

@@ -15,7 +15,7 @@ class Ingredient extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'name_bn', 'unit_id', 'reorder_level', 'is_active',
+        'name', 'name_bn', 'unit_id', 'ingredient_category_id', 'reorder_level', 'is_active',
     ];
 
     protected $casts = [
@@ -27,6 +27,12 @@ class Ingredient extends Model
     public function unit(): BelongsTo
     {
         return $this->belongsTo(Unit::class);
+    }
+
+    /** @return BelongsTo<IngredientCategory, $this> */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(IngredientCategory::class, 'ingredient_category_id');
     }
 
     /** @return HasMany<IngredientStock, $this> */
