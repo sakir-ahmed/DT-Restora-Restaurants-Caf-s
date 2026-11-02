@@ -2848,9 +2848,6 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                                         <span :class="menuNoBadge">{{ addOn.menu_no }}</span>
                                         <button type="button" class="flex min-h-10 min-w-0 flex-1 items-center justify-between gap-2 text-left" @click="setOptionAddOn(addOn.id, optionAddOnQty(addOn.id) + 1)">
                                             <span class="flex min-w-0 items-center gap-1.5 text-sm font-medium text-foreground">
-                                                <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded border" :class="optionAddOnQty(addOn.id) > 0 ? 'border-accent bg-accent text-accent-foreground' : 'border-border'">
-                                                    <AppIcon v-if="optionAddOnQty(addOn.id) > 0" name="check" size="9" />
-                                                </span>
                                                 <span class="truncate">{{ localized(addOn, 'name') }}</span>
                                             </span>
                                             <span class="shrink-0 text-xs tabular-nums text-muted">+ {{ formatMoney(addOn.price) }}</span>
