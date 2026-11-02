@@ -394,6 +394,7 @@ it('has sensible sound defaults for every sound event', function (): void {
         ->and($sounds['volume'])->toBe(70)
         ->and(array_keys($sounds['events']))->toBe(array_keys(PosSettings::SOUND_EVENTS))
         ->and($sounds['events']['order_created'])->toBeTrue()
+        ->and($sounds['events']['qr_order'])->toBeTrue()
         ->and($sounds['events']['kds_ready'])->toBeTrue()
         ->and($sounds['events']['item_added'])->toBeFalse();
 });

@@ -5,10 +5,10 @@ import { notify } from '@/lib/notify';
 import { playSound } from '@/lib/sounds';
 
 /**
- * Chime for an order that came from the website or a delivery platform.
+ * Chime for an order that came from the website, a delivery platform or a table QR code.
  */
-export function playOrderChime() {
-    playSound('online_order');
+export function playOrderChime(order = null) {
+    playSound(order?.channel === 'qr' ? 'qr_order' : 'online_order');
 }
 
 /**
@@ -30,7 +30,7 @@ export function useIncomingOrders(branchId, { pollMs = 15000 } = {}) {
         }
 
         seen.add(key);
-        playOrderChime();
+        playOrderChime(order);
         notify.info(t('orders.incoming_order', {
             source: order.aggregator ?? order.aggregator_channel?.name ?? (order.channel === 'qr'
                 ? `${t('orders.channel_qr')}${(order.table?.name ?? order.table) ? ` ${order.table?.name ?? order.table}` : ''}`

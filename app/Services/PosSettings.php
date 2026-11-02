@@ -38,6 +38,7 @@ final class PosSettings
         'order_held' => true,
         'order_cancelled' => true,
         'online_order' => true,
+        'qr_order' => true,
         'kds_new' => true,
         'kds_preparing' => true,
         'kds_ready' => true,

@@ -140,6 +140,7 @@ return [
     'sound_order_held' => 'অর্ডার হোল্ড',
     'sound_order_cancelled' => 'অর্ডার মোছা বা বাতিল',
     'sound_online_order' => 'অনলাইন অর্ডার এসেছে',
+    'sound_qr_order' => 'টেবিল QR অর্ডার এসেছে',
     'sound_kds_new' => 'নতুন টিকিট',
     'sound_kds_preparing' => 'তৈরি শুরু',
     'sound_kds_ready' => 'পরিবেশনের জন্য প্রস্তুত',
