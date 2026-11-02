@@ -824,7 +824,7 @@ function openOptions(item, line = null) {
         variantAddOns: {},
         managedLines: {},
         activeVariantId: null,
-        quantity: line?.quantity ?? 1,
+        quantity: line?.quantity ?? 0,
         addOns: Object.fromEntries((line?.addOns ?? []).map((addOn) => [addOn.id, addOn.qty])),
     };
 
@@ -983,6 +983,11 @@ function setOptionAddOn(id, qty) {
 
     if (! optionsPicksVariants()) {
         dialog.addOns = { ...dialog.addOns, [id]: clamped };
+
+        // Picking an add-on for a dish that is not on the ticket yet adds one of the dish.
+        if (clamped > 0 && dialog.quantity === 0) {
+            dialog.quantity = 1;
+        }
 
         return;
     }
