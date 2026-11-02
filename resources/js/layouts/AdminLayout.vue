@@ -195,7 +195,7 @@ function openCommandPalette() {
                                 :href="item.href"
                                 class="flex h-8 items-center gap-2 rounded-md px-2 text-[13px] transition-colors"
                                 :class="isActive(item)
-                                    ? 'bg-primary font-semibold text-primary-foreground shadow-sm'
+                                    ? 'bg-accent font-semibold text-accent-foreground shadow-sm'
                                     : 'text-muted hover:bg-background hover:text-foreground'"
                                 :title="sidebarCollapsed ? item.label : undefined"
                                 @click="sidebarOpen = false"

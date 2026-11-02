@@ -63,6 +63,9 @@
     </script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @if (($brandCss = \App\Support\Brand::paletteCss()) !== '')
+        <style id="brand-palette">{!! $brandCss !!}</style>
+    @endif
     @inertiaHead
 </head>
 <body>

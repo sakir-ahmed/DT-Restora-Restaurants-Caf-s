@@ -100,7 +100,49 @@ final class Brand
 
     public static function themeColor(): string
     {
-        return self::profile()['themeColor'];
+        return self::hexOrNull(self::isDemo() ? null : config('brand.theme_color')) ?? self::profile()['themeColor'];
+    }
+
+    public static function backgroundColor(): string
+    {
+        return self::hexOrNull(self::isDemo() ? null : config('brand.background_color')) ?? self::profile()['backgroundColor'];
+    }
+
+    /**
+     * CSS that overrides the production palette with the colours set in .env
+     * (config/brand.php). Empty when nothing is set or in demo mode. Only valid
+     * hex colours are printed, so a bad value can never inject CSS.
+     */
+    public static function paletteCss(): string
+    {
+        if (self::isDemo()) {
+            return '';
+        }
+
+        $blocks = [];
+
+        foreach (['light' => 'html:root', 'dark' => 'html.dark:root'] as $scheme => $selector) {
+            $rules = [];
+
+            foreach ((array) config('brand.'.$scheme, []) as $token => $value) {
+                $hex = self::hexOrNull($value);
+
+                if ($hex !== null) {
+                    $rules[] = '--color-'.$token.':'.$hex;
+                }
+            }
+
+            if ($rules !== []) {
+                $blocks[] = $selector.'{'.implode(';', $rules).'}';
+            }
+        }
+
+        return implode('', $blocks);
+    }
+
+    private static function hexOrNull(mixed $value): ?string
+    {
+        return is_string($value) && preg_match('/^#[0-9a-fA-F]{3,8}$/', $value) === 1 ? $value : null;
     }
 
     /**
@@ -147,8 +189,8 @@ final class Brand
             'start_url' => '/admin/pos',
             'scope' => '/',
             'display' => 'standalone',
-            'theme_color' => $profile['themeColor'],
-            'background_color' => $profile['backgroundColor'],
+            'theme_color' => self::themeColor(),
+            'background_color' => self::backgroundColor(),
             'icons' => array_map(fn (array $icon): array => [
                 'src' => '/images/'.self::mode().'/brand/'.$icon['file'],
                 'sizes' => $icon['sizes'],
