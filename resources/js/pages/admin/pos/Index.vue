@@ -2,6 +2,7 @@
 import { useForm, router, usePage } from '@inertiajs/vue3';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
+import ModalStepper from '@/components/ui-kit/ModalStepper.vue';
 import DishPlaceholder from '@/components/site/DishPlaceholder.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
 import MobileInput from '@/components/ui-kit/MobileInput.vue';
@@ -2721,27 +2722,13 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                                     </span>
                                     <span class="text-sm font-semibold tabular-nums text-foreground">{{ formatMoney(variant.price) }}</span>
                                 </button>
-                                <div class="flex shrink-0 items-center overflow-hidden rounded-md border border-border bg-surface">
-                                    <button
-                                        type="button"
-                                        class="flex h-9 w-9 items-center justify-center text-foreground disabled:opacity-40"
-                                        :disabled="!!latestOrder || variantQuantity(variant) === 0"
-                                        :aria-label="t('common.decrease')"
-                                        @click="decreaseVariant(variant)"
-                                    >
-                                        <AppIcon name="minus" size="12" />
-                                    </button>
-                                    <span class="w-6 text-center text-sm font-semibold tabular-nums text-foreground">{{ variantQuantity(variant) }}</span>
-                                    <button
-                                        type="button"
-                                        class="flex h-9 w-9 items-center justify-center bg-accent text-accent-foreground disabled:opacity-40"
-                                        :disabled="!!latestOrder"
-                                        :aria-label="t('common.increase')"
-                                        @click="selectVariant(variant)"
-                                    >
-                                        <AppIcon name="plus" size="12" />
-                                    </button>
-                                </div>
+                                <ModalStepper
+                                    :value="variantQuantity(variant)"
+                                    :can-decrease="! latestOrder && variantQuantity(variant) > 0"
+                                    :can-increase="! latestOrder"
+                                    @decrease="decreaseVariant(variant)"
+                                    @increase="selectVariant(variant)"
+                                />
                             </div>
                         </div>
 
@@ -2814,15 +2801,14 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                                             <span class="text-sm font-semibold text-foreground">{{ localized(variant, 'name') }}</span>
                                             <span class="text-sm font-semibold tabular-nums text-foreground">{{ formatMoney(variant.price) }}</span>
                                         </button>
-                                        <div v-if="optionsPicksVariants()" class="flex shrink-0 items-center overflow-hidden rounded-md border border-border bg-surface">
-                                            <button type="button" class="flex h-9 w-9 items-center justify-center text-foreground disabled:opacity-40" :disabled="optionVariantQuantity(variant) === 0" :aria-label="t('common.decrease')" @click="setOptionVariant(variant, optionVariantQuantity(variant) - 1)">
-                                                <AppIcon name="minus" size="12" />
-                                            </button>
-                                            <span class="w-6 text-center text-sm font-semibold tabular-nums text-foreground">{{ optionVariantQuantity(variant) }}</span>
-                                            <button type="button" class="flex h-9 w-9 items-center justify-center bg-accent text-accent-foreground disabled:opacity-40" :disabled="optionVariantQuantity(variant) >= 999" :aria-label="t('common.increase')" @click="setOptionVariant(variant, optionVariantQuantity(variant) + 1)">
-                                                <AppIcon name="plus" size="12" />
-                                            </button>
-                                        </div>
+                                        <ModalStepper
+                                            v-if="optionsPicksVariants()"
+                                            :value="optionVariantQuantity(variant)"
+                                            :can-decrease="optionVariantQuantity(variant) > 0"
+                                            :can-increase="optionVariantQuantity(variant) < 999"
+                                            @decrease="setOptionVariant(variant, optionVariantQuantity(variant) - 1)"
+                                            @increase="setOptionVariant(variant, optionVariantQuantity(variant) + 1)"
+                                        />
                                     </div>
                                 </div>
                             </section>
@@ -2848,30 +2834,27 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                                             </span>
                                             <span class="shrink-0 text-xs tabular-nums text-muted">+ {{ formatMoney(addOn.price) }}</span>
                                         </button>
-                                        <div class="flex shrink-0 items-center overflow-hidden rounded-md border border-border bg-surface">
-                                            <button type="button" class="flex h-9 w-9 items-center justify-center text-foreground disabled:opacity-40" :disabled="optionAddOnQty(addOn.id) === 0" :aria-label="t('common.decrease')" @click="setOptionAddOn(addOn.id, optionAddOnQty(addOn.id) - 1)">
-                                                <AppIcon name="minus" size="12" />
-                                            </button>
-                                            <span class="w-6 text-center text-sm font-semibold tabular-nums text-foreground">{{ optionAddOnQty(addOn.id) }}</span>
-                                            <button type="button" class="flex h-9 w-9 items-center justify-center bg-accent text-accent-foreground disabled:opacity-40" :disabled="optionAddOnQty(addOn.id) >= 9" :aria-label="t('common.increase')" @click="setOptionAddOn(addOn.id, optionAddOnQty(addOn.id) + 1)">
-                                                <AppIcon name="plus" size="12" />
-                                            </button>
-                                        </div>
+                                        <ModalStepper
+                                            :value="optionAddOnQty(addOn.id)"
+                                            :can-decrease="optionAddOnQty(addOn.id) > 0"
+                                            :can-increase="optionAddOnQty(addOn.id) < 9"
+                                            @decrease="setOptionAddOn(addOn.id, optionAddOnQty(addOn.id) - 1)"
+                                            @increase="setOptionAddOn(addOn.id, optionAddOnQty(addOn.id) + 1)"
+                                        />
                                     </div>
                                 </div>
                             </section>
                         </div>
 
                         <div class="flex items-center gap-2 border-t border-border px-3 py-2">
-                            <div v-if="! optionsPicksVariants()" class="flex shrink-0 items-center overflow-hidden rounded-md border border-border bg-background">
-                                <button type="button" class="flex h-9 w-9 items-center justify-center text-foreground disabled:opacity-40" :disabled="optionsDialog.quantity <= 1" :aria-label="t('common.decrease')" @click="optionsDialog.quantity = Math.max(1, optionsDialog.quantity - 1)">
-                                    <AppIcon name="minus" size="12" />
-                                </button>
-                                <span class="w-8 text-center text-sm font-semibold tabular-nums">{{ optionsDialog.quantity }}</span>
-                                <button type="button" class="flex h-9 w-9 items-center justify-center text-foreground" :aria-label="t('common.increase')" @click="optionsDialog.quantity = Math.min(999, optionsDialog.quantity + 1)">
-                                    <AppIcon name="plus" size="12" />
-                                </button>
-                            </div>
+                            <ModalStepper
+                                v-if="! optionsPicksVariants()"
+                                :value="optionsDialog.quantity"
+                                :can-decrease="optionsDialog.quantity > 1"
+                                :can-increase="optionsDialog.quantity < 999"
+                                @decrease="optionsDialog.quantity = Math.max(1, optionsDialog.quantity - 1)"
+                                @increase="optionsDialog.quantity = Math.min(999, optionsDialog.quantity + 1)"
+                            />
                             <button type="button" class="flex h-9 min-w-0 flex-1 items-center justify-between gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground hover:opacity-90 disabled:opacity-50" :disabled="optionsPicksVariants() && optionsPickedVariants.length === 0 && ! optionsHasManagedLines()" @click="confirmOptions">
                                 <span>{{ optionsDialog.line || optionsHasManagedLines() ? t('orders.update_item') : t('orders.add_to_order') }}</span>
                                 <span class="tabular-nums">{{ formatMoney(optionsTotal) }}</span>
