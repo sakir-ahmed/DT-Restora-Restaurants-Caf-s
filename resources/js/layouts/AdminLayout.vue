@@ -70,6 +70,7 @@ const nav = computed(() => {
                 { label: t('nav.menu'), href: '/admin/menu', icon: 'book-open', permission: 'menu.view' },
                 { label: t('nav.media'), href: '/admin/media', icon: 'images', permission: 'media.view' },
                 { label: t('nav.ingredients'), href: '/admin/ingredients', icon: 'boxes-stacked', permission: 'inventory.view' },
+                { label: t('inventory.suppliers'), href: '/admin/suppliers', icon: 'store', permission: 'inventory.view' },
                 { label: t('nav.recipes'), href: '/admin/recipes', icon: 'list-check', permission: 'recipes.manage' },
                 { label: t('nav.purchases'), href: '/admin/purchases', icon: 'truck-fast', permission: 'purchases.manage' },
                 { label: t('nav.wastage'), href: '/admin/wastage', icon: 'trash', permission: 'inventory.view' },
