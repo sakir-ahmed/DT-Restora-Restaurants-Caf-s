@@ -120,8 +120,20 @@ if [ "$APP_DEBUG_VALUE" = "true" ]; then
     warn "APP_DEBUG is true. Set it to false on a live server."
 fi
 
-if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
-    git status --short --untracked-files=no >&2
+dirty_files() { git status --porcelain --untracked-files=no; }
+
+# npm install (instead of npm ci) rewrites the lockfile. It is generated and the repository copy is
+# the source of truth, so restore it instead of stopping.
+LOCKFILE_ONLY=false
+
+if [ "$(dirty_files)" = " M package-lock.json" ]; then
+    warn "package-lock.json was changed on this server (usually by npm install). Restoring the committed version."
+    run git checkout -- package-lock.json
+    LOCKFILE_ONLY=true
+fi
+
+if [ "$LOCKFILE_ONLY" = false ] && [ -n "$(dirty_files)" ]; then
+    dirty_files >&2
 
     if [ "$DRY_RUN" = true ]; then
         warn "There are local changes to tracked files. A real deploy would stop here."
