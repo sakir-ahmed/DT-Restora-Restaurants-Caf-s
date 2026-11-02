@@ -1,6 +1,6 @@
 <script setup>
 import { router, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { onBeforeUnmount, ref } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
 import EmptyState from '@/components/ui-kit/EmptyState.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
@@ -27,11 +27,22 @@ const photoForm = useForm({ owner: props.owner, images: [], title: '', title_bn:
 const videoForm = useForm({ owner: props.owner, video_url: '', title: '', title_bn: '' });
 const fileInput = ref(null);
 const chosen = ref(0);
+// Thumbnails of the files picked but not uploaded yet
+const previews = ref([]);
+
+function clearPreviews() {
+    previews.value.forEach((preview) => URL.revokeObjectURL(preview.url));
+    previews.value = [];
+}
 
 function onFiles(event) {
+    clearPreviews();
     photoForm.images = Array.from(event.target.files ?? []);
     chosen.value = photoForm.images.length;
+    previews.value = photoForm.images.map((file) => ({ name: file.name, url: URL.createObjectURL(file) }));
 }
+
+onBeforeUnmount(clearPreviews);
 
 function uploadPhotos() {
     photoForm.owner = props.owner;
@@ -43,6 +54,7 @@ function uploadPhotos() {
             notify.success(t('media.added'));
             photoForm.reset('images', 'title', 'title_bn');
             chosen.value = 0;
+            clearPreviews();
 
             if (fileInput.value) {
                 fileInput.value.value = '';
@@ -105,6 +117,12 @@ async function remove(entry) {
                 <FormField :label="t('media.images')" :for="`media-images-${owner}`" :helper="t('media.images_hint')" :error="photoForm.errors.images || photoForm.errors['images.0']">
                     <input :id="`media-images-${owner}`" ref="fileInput" type="file" multiple accept="image/jpeg,image/png,image/webp" class="block w-full text-[13px] file:mr-3 file:h-8 file:rounded-md file:border file:border-border file:bg-background file:px-3 file:text-[13px]" @change="onFiles">
                 </FormField>
+
+                <ul v-if="previews.length" class="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                    <li v-for="preview in previews" :key="preview.url" class="aspect-square overflow-hidden rounded-md border border-border bg-background">
+                        <img :src="preview.url" :alt="preview.name" class="h-full w-full object-cover">
+                    </li>
+                </ul>
 
                 <div class="grid gap-3 sm:grid-cols-2">
                     <FormField :label="t('media.caption')" :for="`media-photo-title-${owner}`">

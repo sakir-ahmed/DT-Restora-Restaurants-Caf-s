@@ -28,7 +28,7 @@ class MenuController extends Controller
         $categories = MenuCategory::query()
             ->where('branch_id', $branch->id)
             ->ordered()
-            ->with(['items' => fn ($query) => $query->orderBy('sort_order')->orderBy('name')->with('media')])
+            ->with(['items' => fn ($query) => $query->orderBy('sort_order')->orderBy('name')->with(['media', 'variants', 'addOns'])])
             ->get();
 
         // MenuItem hides its media relation, so hand each dish's photos and videos over explicitly.
