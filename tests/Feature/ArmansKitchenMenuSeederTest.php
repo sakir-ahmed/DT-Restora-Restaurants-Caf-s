@@ -9,9 +9,11 @@ use App\Models\MenuItemVariant;
 use App\Models\Order;
 use App\Models\User;
 use App\Services\CostingService;
+use Database\Seeders\ProductionData\ArmansKitchen\ArmansKitchenFreshStartSeeder;
 use Database\Seeders\ProductionData\ArmansKitchen\ArmansKitchenMenuSeeder;
 use Database\Seeders\ProductionData\ArmansKitchen\ArmansKitchenResetSeeder;
 use Database\Seeders\UnitSeeder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Menu item => [selling price, cost stated by the owner].
@@ -106,4 +108,51 @@ it('can be run again without duplicating anything', function (): void {
 
     expect(MenuItem::query()->withoutGlobalScopes()->count())->toBe(36)
         ->and(Branch::query()->count())->toBe(1);
+});
+
+it('stops the reset when orders use the current menu', function (): void {
+    $this->seed(UnitSeeder::class);
+    $branch = Branch::factory()->create(['code' => 'BR01']);
+    $category = MenuCategory::factory()->create(['branch_id' => $branch->id]);
+    $old = MenuItem::factory()->create(['branch_id' => $branch->id, 'menu_category_id' => $category->id]);
+    $orderId = DB::table('orders')->insertGetId([
+        'branch_id' => $branch->id, 'invoice_no' => 'INV-1', 'order_type' => 'takeaway', 'created_at' => now(), 'updated_at' => now(),
+    ]);
+    DB::table('order_items')->insert([
+        'order_id' => $orderId, 'menu_item_id' => $old->id, 'name' => 'Old', 'unit_price' => 10,
+        'quantity' => 1, 'line_total' => 10, 'created_at' => now(), 'updated_at' => now(),
+    ]);
+
+    expect(fn () => $this->seed(ArmansKitchenResetSeeder::class))->toThrow(RuntimeException::class);
+
+    expect(Order::query()->count())->toBe(1);
+});
+
+it('deletes old orders and their books on a fresh start, then loads the menu', function (): void {
+    $this->seed(UnitSeeder::class);
+    $branch = Branch::factory()->create(['code' => 'BR01']);
+    $category = MenuCategory::factory()->create(['branch_id' => $branch->id]);
+    $old = MenuItem::factory()->create(['branch_id' => $branch->id, 'menu_category_id' => $category->id]);
+    $orderId = DB::table('orders')->insertGetId([
+        'branch_id' => $branch->id, 'invoice_no' => 'INV-1', 'order_type' => 'takeaway', 'created_at' => now(), 'updated_at' => now(),
+    ]);
+    DB::table('order_items')->insert([
+        'order_id' => $orderId, 'menu_item_id' => $old->id, 'name' => 'Old', 'unit_price' => 10,
+        'quantity' => 1, 'line_total' => 10, 'created_at' => now(), 'updated_at' => now(),
+    ]);
+    DB::table('payments')->insert(['order_id' => $orderId, 'method' => 'cash', 'amount' => 10, 'created_at' => now(), 'updated_at' => now()]);
+    DB::table('journals')->insert([
+        'entry_date' => now()->toDateString(), 'source_type' => (new Order)->getMorphClass(), 'source_id' => $orderId,
+        'created_at' => now(), 'updated_at' => now(),
+    ]);
+    $user = User::factory()->create();
+
+    $this->seed(ArmansKitchenFreshStartSeeder::class);
+
+    expect(Order::query()->count())->toBe(0)
+        ->and(DB::table('order_items')->count())->toBe(0)
+        ->and(DB::table('payments')->count())->toBe(0)
+        ->and(DB::table('journals')->count())->toBe(0)
+        ->and(MenuItem::query()->withoutGlobalScopes()->count())->toBe(36)
+        ->and($user->fresh())->not->toBeNull();
 });
