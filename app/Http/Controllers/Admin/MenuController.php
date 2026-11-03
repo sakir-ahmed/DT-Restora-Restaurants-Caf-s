@@ -11,6 +11,7 @@ use App\Models\Branch;
 use App\Models\DataVersion;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
+use App\Support\DeletionGuard;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -69,8 +70,10 @@ class MenuController extends Controller
     {
         $this->authorize('menu.manage');
 
-        if ($category->items()->exists()) {
-            return back()->with('error', __('menu.category_delete_not_empty'));
+        $blockers = DeletionGuard::blockers([__('menu.related_items') => $category->items()]);
+
+        if ($blockers !== []) {
+            return back()->with('error', DeletionGuard::message($category->name, $blockers));
         }
 
         $category->delete();

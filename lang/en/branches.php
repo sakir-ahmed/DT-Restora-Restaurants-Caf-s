@@ -36,4 +36,6 @@ return [
     'delete_confirm' => 'Delete branch',
     'empty' => 'No branches yet',
     'empty_hint' => 'Add your first branch to start configuring the menu and staff.',
+    'related_menu_items' => 'menu items',
+    'related_staff' => 'staff',
 ];

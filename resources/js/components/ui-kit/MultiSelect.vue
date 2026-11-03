@@ -15,7 +15,10 @@ const selectedLabels = computed(() => props.options
     .filter((option) => props.modelValue.includes(option.value))
     .map((option) => option.label));
 
-function toggle(value) {
+// A native select reports its value as a string: map it back to the option's own value (numeric ids).
+function toggle(raw) {
+    const value = props.options.find((option) => String(option.value) === String(raw))?.value ?? raw;
+
     const next = props.modelValue.includes(value)
         ? props.modelValue.filter((item) => item !== value)
         : [...props.modelValue, value];

@@ -36,4 +36,6 @@ return [
     'delete_confirm' => 'শাখা মুছে ফেলুন',
     'empty' => 'এখনো কোনো শাখা নেই',
     'empty_hint' => 'মেনু ও স্টাফ সেট করতে প্রথম শাখা যোগ করুন।',
+    'related_menu_items' => 'টি খাবার',
+    'related_staff' => 'জন স্টাফ',
 ];

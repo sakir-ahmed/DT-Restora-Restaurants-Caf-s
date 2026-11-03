@@ -143,6 +143,16 @@ return [
     'ingredients_count' => 'Ingredients',
     'category_delete_title' => 'Delete category ":name"?',
     'category_delete_message' => 'The category will be removed. A category with ingredients cannot be deleted.',
+    'related_purchases' => 'purchases',
+    'related_ingredients' => 'ingredients',
+    'line_supplier_required' => 'Choose a supplier for each line.',
+    'ingredient_suppliers' => 'Ingredients supplied',
+    'ingredient_suppliers_hint' => 'Pick the ingredients this supplier provides. The purchase form then offers this supplier for them.',
+    'no_ingredients_linked' => 'None linked',
+    'supplier_any' => 'Any supplier',
+    'choose_supplier' => 'Choose supplier',
+    'purchase_split_note' => 'Lines from different suppliers are saved as separate purchases.',
+    'ingredients_count' => ':count ingredients',
 ];
 
 // extra keys used by the dashboard alert

@@ -1,10 +1,11 @@
 <script setup>
-import { useForm } from '@inertiajs/vue3';
+import { router, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
 import DataTable from '@/components/ui-kit/DataTable.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
 import MobileInput from '@/components/ui-kit/MobileInput.vue';
+import MultiSelect from '@/components/ui-kit/MultiSelect.vue';
 import PageHeader from '@/components/ui-kit/PageHeader.vue';
 import SlideOver from '@/components/ui-kit/SlideOver.vue';
 import StatusBadge from '@/components/ui-kit/StatusBadge.vue';
@@ -14,6 +15,7 @@ import { notify } from '@/lib/notify';
 
 const props = defineProps({
     suppliers: { type: Array, required: true },
+    ingredients: { type: Array, default: () => [] },
     canManage: { type: Boolean, default: false },
 });
 
@@ -26,16 +28,36 @@ const columns = computed(() => [
     { key: 'mobile', label: t('staff.mobile'), align: 'left' },
     { key: 'email', label: t('staff.email'), align: 'left' },
     { key: 'address', label: t('branches.address'), align: 'left', truncate: true },
+    { key: 'ingredients_count', label: t('inventory.ingredient_suppliers'), align: 'left' },
     { key: 'is_active', label: t('common.status'), minWidth: '104px' },
+    ...(props.canManage ? [{ key: 'actions', label: '', align: 'right', type: 'component', width: '72px' }] : []),
 ]);
 
+const ingredientOptions = computed(() => props.ingredients.map((ingredient) => ({
+    value: ingredient.id,
+    label: `${ingredient.name} (${ingredient.unit?.symbol ?? ''})`,
+})));
+
+const rows = computed(() => props.suppliers.map((supplier) => ({
+    ...supplier,
+    ingredients_count: supplier.ingredient_ids?.length ?? 0,
+})));
+
+function linkedNames(supplier) {
+    const names = props.ingredients
+        .filter((ingredient) => supplier.ingredient_ids?.includes(ingredient.id))
+        .map((ingredient) => ingredient.name);
+
+    return names.length > 3 ? `${names.slice(0, 3).join(', ')} +${names.length - 3}` : names.join(', ');
+}
+
 const form = useForm({
-    name: '', name_bn: '', mobile: '', email: '', address: '', is_active: true,
+    name: '', name_bn: '', mobile: '', email: '', address: '', is_active: true, ingredient_ids: [],
 });
 
 function openCreate() {
     editingId.value = null;
-    form.defaults({ name: '', name_bn: '', mobile: '', email: '', address: '', is_active: true }).reset();
+    form.defaults({ name: '', name_bn: '', mobile: '', email: '', address: '', is_active: true, ingredient_ids: [] }).reset();
     slideOverOpen.value = true;
 }
 
@@ -48,6 +70,7 @@ function openEdit(supplier) {
         email: supplier.email ?? '',
         address: supplier.address ?? '',
         is_active: supplier.is_active,
+        ingredient_ids: [...(supplier.ingredient_ids ?? [])],
     }).reset();
     slideOverOpen.value = true;
 }
@@ -83,9 +106,19 @@ async function remove(supplier) {
         return;
     }
 
-    form.delete(route('admin.suppliers.destroy', supplier.id), {
-        onSuccess: () => notify.success(t('inventory.supplier_deleted')),
-        onError: () => notify.error(t('inventory.supplier_delete_not_empty')),
+    router.delete(route('admin.suppliers.destroy', supplier.id), {
+        preserveScroll: true,
+        onSuccess: (page) => {
+            const flash = page.props.flash ?? {};
+
+            if (flash.error) {
+                notify.error(String(flash.error));
+
+                return;
+            }
+
+            notify.success(String(flash.success ?? t('inventory.supplier_deleted')));
+        },
     });
 }
 </script>
@@ -108,7 +141,7 @@ async function remove(supplier) {
 
         <DataTable
             :columns="columns"
-            :rows="suppliers"
+            :rows="rows"
             searchable
             :clickable="canManage"
             :empty-title="t('inventory.no_suppliers')"
@@ -120,6 +153,20 @@ async function remove(supplier) {
             <template #cell(name)="{ row }">
                 <span class="block truncate font-medium">{{ row.name }}</span>
                 <span v-if="row.name_bn" class="block truncate text-xs text-muted">{{ row.name_bn }}</span>
+            </template>
+            <template #cell(ingredients_count)="{ row }">
+                <span v-if="row.ingredients_count" class="block truncate text-xs">{{ linkedNames(row) }}</span>
+                <span v-else class="text-xs text-muted">{{ t('inventory.no_ingredients_linked') }}</span>
+            </template>
+            <template #cell(actions)="{ row }">
+                <div class="flex justify-end gap-1 px-2">
+                    <button type="button" class="flex h-6 w-6 items-center justify-center rounded text-muted hover:bg-background hover:text-foreground" :aria-label="t('common.edit')" :title="t('common.edit')" @click.stop="openEdit(row)">
+                        <AppIcon name="pen-to-square" size="12" />
+                    </button>
+                    <button type="button" class="flex h-6 w-6 items-center justify-center rounded text-muted hover:bg-danger/10 hover:text-danger" :aria-label="t('common.delete')" :title="t('common.delete')" @click.stop="remove(row)">
+                        <AppIcon name="trash" size="12" />
+                    </button>
+                </div>
             </template>
             <template #cell(is_active)="{ value }">
                 <StatusBadge :status="value ? 'active' : 'inactive'" />
@@ -156,6 +203,13 @@ async function remove(supplier) {
                             <template #default="{ id }">
                                 <input :id="id" v-model="form.address" type="text" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
                             </template>
+                        </FormField>
+                    </div>
+
+                    <div class="col-span-2">
+                        <FormField :label="t('inventory.ingredient_suppliers')" :error="form.errors.ingredient_ids">
+                            <MultiSelect v-model="form.ingredient_ids" :options="ingredientOptions" :placeholder="t('common.select')" />
+                            <p class="mt-1 text-xs text-muted">{{ t('inventory.ingredient_suppliers_hint') }}</p>
                         </FormField>
                     </div>
                 </div>

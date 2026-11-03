@@ -51,4 +51,5 @@ return [
     'section_pricing' => 'Price and availability',
     'required_note' => '* required',
     'media_note' => 'Photos and videos save as soon as you add or change them. The Save button below applies to the dish details.',
+    'related_items' => 'menu items',
 ];

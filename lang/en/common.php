@@ -14,6 +14,7 @@ return [
     'retry' => 'Retry',
     'remove' => 'Remove',
     'edit' => 'Edit',
+    'delete_blocked' => ':name cannot be deleted because it still has related data: :related. Delete or move those records first, then try again.',
     'delete' => 'Delete',
     'view' => 'View',
     'create' => 'Create',

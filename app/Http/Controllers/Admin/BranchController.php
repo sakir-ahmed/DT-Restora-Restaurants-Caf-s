@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BranchRequest;
 use App\Models\Branch;
 use App\Services\PosSettings;
+use App\Support\DeletionGuard;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -58,8 +59,13 @@ class BranchController extends Controller
     {
         $this->authorizeBranchAccess($request, $branch);
 
-        if ($branch->menuItems()->exists() || $branch->users()->exists()) {
-            return back()->with('error', __('branches.delete_not_empty'));
+        $blockers = DeletionGuard::blockers([
+            __('branches.related_menu_items') => $branch->menuItems(),
+            __('branches.related_staff') => $branch->users(),
+        ]);
+
+        if ($blockers !== []) {
+            return back()->with('error', DeletionGuard::message($branch->name, $blockers));
         }
 
         activity()->performedOn($branch)->causedBy($request->user('staff'))->log('branch.deleted');

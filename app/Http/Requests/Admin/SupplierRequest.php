@@ -25,6 +25,8 @@ class SupplierRequest extends FormRequest
             'email' => ['nullable', 'email', 'max:150'],
             'address' => ['nullable', 'string', 'max:255'],
             'is_active' => ['boolean'],
+            'ingredient_ids' => ['nullable', 'array'],
+            'ingredient_ids.*' => ['integer', 'exists:ingredients,id'],
         ];
     }
 }

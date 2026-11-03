@@ -15,6 +15,7 @@ use App\Models\Supplier;
 use App\Models\Unit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -36,7 +37,8 @@ class PurchaseController extends Controller
 
         return Inertia::render('admin/purchases/Index', [
             'purchases' => $purchases,
-            'suppliers' => Supplier::query()->where('is_active', true)->orderBy('name')->get(['id', 'name']),
+            'suppliers' => Supplier::query()->where('is_active', true)->with('ingredients:id')->orderBy('name')->get(['id', 'name'])
+                ->map(fn (Supplier $supplier): array => ['id' => $supplier->id, 'name' => $supplier->name, 'ingredient_ids' => $supplier->ingredients->pluck('id')->all()]),
             'ingredients' => Ingredient::query()->active()->with('unit:id,symbol,type')->orderBy('name')->get(['id', 'name', 'unit_id', 'ingredient_category_id']),
             'categories' => IngredientCategory::query()->active()->ordered()->get(['id', 'name', 'name_bn']),
             'units' => Unit::query()->orderBy('type')->orderBy('name')->get(['id', 'name', 'symbol', 'type']),
@@ -48,32 +50,41 @@ class PurchaseController extends Controller
     {
         $branch = $this->currentBranch($request);
 
-        $purchase = DB::transaction(function () use ($request, $branch): Purchase {
-            $purchase = Purchase::query()->create([
-                'branch_id' => $branch->id,
-                'supplier_id' => (int) $request->validated('supplier_id'),
-                'invoice_no' => $request->validated('invoice_no'),
-                'purchased_at' => $request->validated('purchased_at'),
-                'note' => $request->validated('note'),
-                'status' => Purchase::STATUS_DRAFT,
-                'user_id' => $request->user('staff')?->id,
-            ]);
+        $defaultSupplierId = $request->validated('supplier_id');
 
-            foreach ($request->validated('items') as $line) {
-                $purchase->items()->create([
-                    'ingredient_id' => (int) $line['ingredient_id'],
-                    'unit_id' => (int) $line['unit_id'],
-                    'qty' => $line['qty'],
-                    'unit_cost' => $line['unit_cost'],
-                    'line_total' => round((float) $line['qty'] * (float) $line['unit_cost'], 2),
-                ]);
-            }
+        $purchases = DB::transaction(function () use ($request, $branch, $defaultSupplierId): Collection {
+            return collect($request->validated('items'))
+                ->groupBy(fn (array $line): int => (int) ($line['supplier_id'] ?? $defaultSupplierId))
+                ->map(function (Collection $lines, int $supplierId) use ($request, $branch): Purchase {
+                    $purchase = Purchase::query()->create([
+                        'branch_id' => $branch->id,
+                        'supplier_id' => $supplierId,
+                        'invoice_no' => $request->validated('invoice_no'),
+                        'purchased_at' => $request->validated('purchased_at'),
+                        'note' => $request->validated('note'),
+                        'status' => Purchase::STATUS_DRAFT,
+                        'user_id' => $request->user('staff')?->id,
+                    ]);
 
-            return $purchase->load('items.unit');
+                    foreach ($lines as $line) {
+                        $purchase->items()->create([
+                            'ingredient_id' => (int) $line['ingredient_id'],
+                            'unit_id' => (int) $line['unit_id'],
+                            'qty' => $line['qty'],
+                            'unit_cost' => $line['unit_cost'],
+                            'line_total' => round((float) $line['qty'] * (float) $line['unit_cost'], 2),
+                        ]);
+                    }
+
+                    return $purchase->load('items.unit');
+                })
+                ->values();
         });
 
         if ($request->boolean('receive')) {
-            $receiveAction->execute($purchase, $request->user('staff'));
+            foreach ($purchases as $purchase) {
+                $receiveAction->execute($purchase, $request->user('staff'));
+            }
         }
 
         return back()->with('success', __('inventory.purchase_created'));

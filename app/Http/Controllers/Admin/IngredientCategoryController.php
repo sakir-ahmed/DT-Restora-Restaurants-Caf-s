@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\IngredientCategoryRequest;
 use App\Models\IngredientCategory;
+use App\Support\DeletionGuard;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -42,8 +43,10 @@ class IngredientCategoryController extends Controller
     {
         $this->authorize('inventory.manage');
 
-        if ($category->ingredients()->exists()) {
-            return back()->with('error', __('inventory.category_delete_not_empty'));
+        $blockers = DeletionGuard::blockers([__('inventory.related_ingredients') => $category->ingredients()]);
+
+        if ($blockers !== []) {
+            return back()->with('error', DeletionGuard::message($category->name, $blockers));
         }
 
         $category->delete();

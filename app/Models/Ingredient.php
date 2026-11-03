@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Ingredient extends Model
@@ -33,6 +34,12 @@ class Ingredient extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(IngredientCategory::class, 'ingredient_category_id');
+    }
+
+    /** @return BelongsToMany<Supplier, $this> */
+    public function suppliers(): BelongsToMany
+    {
+        return $this->belongsToMany(Supplier::class)->withTimestamps();
     }
 
     /** @return HasMany<IngredientStock, $this> */

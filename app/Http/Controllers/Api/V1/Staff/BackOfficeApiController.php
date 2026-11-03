@@ -15,6 +15,7 @@ use App\Models\Supplier;
 use App\Models\User;
 use App\Services\Accounting\AccountingService;
 use App\Services\LoyaltyService;
+use App\Support\DeletionGuard;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -119,8 +120,10 @@ class BackOfficeApiController extends Controller
         $user = $this->staffUser($request);
         $this->permit($user, 'inventory.manage');
 
-        if ($supplier->purchases()->exists()) {
-            return $this->error('SUPPLIER_IN_USE', __('inventory.supplier_delete_not_empty'), 409);
+        $blockers = DeletionGuard::blockers([__('inventory.related_purchases') => $supplier->purchases()]);
+
+        if ($blockers !== []) {
+            return $this->error('SUPPLIER_IN_USE', DeletionGuard::message($supplier->name, $blockers), 409);
         }
 
         $supplier->delete();

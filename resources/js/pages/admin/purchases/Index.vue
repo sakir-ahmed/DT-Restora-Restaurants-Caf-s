@@ -46,7 +46,6 @@ const rows = computed(() => props.purchases.map((purchase) => ({
 const today = new Date().toISOString().slice(0, 10);
 
 const form = useForm({
-    supplier_id: '',
     invoice_no: '',
     purchased_at: today,
     note: '',
@@ -56,7 +55,6 @@ const form = useForm({
 
 function openCreate() {
     form.defaults({
-        supplier_id: props.suppliers[0]?.id ?? '',
         invoice_no: '',
         purchased_at: today,
         note: '',
@@ -71,6 +69,7 @@ function addLine() {
     form.items.push({
         category_id: '',
         ingredient_id: '',
+        supplier_id: '',
         unit_id: '',
         qty: '1',
         unit_cost: '0.00',
@@ -104,6 +103,27 @@ function onCategoryChange(line) {
         line.ingredient_id = '';
         line.unit_id = '';
     }
+}
+
+// Suppliers linked to the line's ingredient come first choice; with no link recorded, any supplier can be picked.
+function suppliersFor(line) {
+    if (! line.ingredient_id) {
+        return [];
+    }
+
+    const linked = props.suppliers.filter((supplier) => supplier.ingredient_ids.includes(Number(line.ingredient_id)));
+
+    return linked.length ? linked : props.suppliers;
+}
+
+function onIngredientChange(line) {
+    const ingredient = props.ingredients.find((i) => i.id === Number(line.ingredient_id));
+
+    line.unit_id = ingredient?.unit_id ?? '';
+
+    const options = suppliersFor(line);
+
+    line.supplier_id = options.length === 1 ? options[0].id : '';
 }
 
 function unitsFor(line) {
@@ -190,15 +210,6 @@ function toggleExpand(row) {
         <SlideOver :open="slideOverOpen" :title="t('inventory.add_purchase')" wide @close="slideOverOpen = false">
             <form novalidate class="space-y-3" @submit.prevent="save">
                 <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-                    <FormField :label="t('inventory.supplier')" required :error="form.errors.supplier_id">
-                        <template #default="{ id }">
-                            <select :id="id" v-model="form.supplier_id" class="h-7 w-full rounded-md border bg-surface px-2 text-[13px] text-foreground outline-none focus:ring-2 focus:ring-accent/40" :class="form.errors.supplier_id ? 'border-danger' : 'border-border focus:border-accent'">
-                                <option value="" disabled>{{ t('common.select') }}</option>
-                                <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">{{ supplier.name }}</option>
-                            </select>
-                        </template>
-                    </FormField>
-
                     <FormField :label="t('inventory.invoice_no')" :error="form.errors.invoice_no">
                         <template #default="{ id }">
                             <input :id="id" v-model="form.invoice_no" type="text" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
@@ -225,7 +236,7 @@ function toggleExpand(row) {
                         </button>
                     </div>
 
-                    <div v-for="(line, index) in form.items" :key="index" class="mb-2 grid grid-cols-[1.25fr_1.6fr_0.6fr_0.65fr_0.95fr_28px] items-start gap-2">
+                    <div v-for="(line, index) in form.items" :key="index" class="mb-2 grid grid-cols-[1fr_1.4fr_1.2fr_0.55fr_0.65fr_0.9fr_28px] items-start gap-2">
                         <FormField>
                             <template #default="{ id }">
                                 <select :id="id" v-model="line.category_id" :aria-label="t('inventory.choose_category')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent" @change="onCategoryChange(line)">
@@ -238,9 +249,18 @@ function toggleExpand(row) {
 
                         <FormField :error="form.errors['items.' + index + '.ingredient_id']">
                             <template #default="{ id }">
-                                <select :id="id" v-model="line.ingredient_id" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent">
+                                <select :id="id" v-model="line.ingredient_id" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent" @change="onIngredientChange(line)">
                                     <option value="" disabled>{{ t('common.select') }}</option>
                                     <option v-for="option in ingredientsOptions(line)" :key="option.value" :value="option.value">{{ option.label }}</option>
+                                </select>
+                            </template>
+                        </FormField>
+
+                        <FormField :error="form.errors['items.' + index + '.supplier_id']">
+                            <template #default="{ id }">
+                                <select :id="id" v-model="line.supplier_id" :disabled="! line.ingredient_id" class="h-7 w-full rounded-md border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent disabled:opacity-60" :class="form.errors['items.' + index + '.supplier_id'] ? 'border-danger' : 'border-border'">
+                                    <option value="" disabled>{{ t('inventory.choose_supplier') }}</option>
+                                    <option v-for="supplier in suppliersFor(line)" :key="supplier.id" :value="supplier.id">{{ supplier.name }}</option>
                                 </select>
                             </template>
                         </FormField>
@@ -270,6 +290,8 @@ function toggleExpand(row) {
                             </button>
                         </div>
                     </div>
+
+                    <p class="mb-2 text-xs text-muted">{{ t('inventory.purchase_split_note') }}</p>
 
                     <div class="flex justify-end border-t border-border pt-2 text-[13px] font-semibold text-foreground">
                         {{ t('common.total') }}: {{ formatMoney(total) }}
