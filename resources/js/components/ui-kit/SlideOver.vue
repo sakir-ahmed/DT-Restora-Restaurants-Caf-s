@@ -8,6 +8,7 @@ const props = defineProps({
     title: { type: String, required: true },
     subtitle: { type: String, default: '' },
     wide: { type: Boolean, default: false },
+    extraWide: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['close']);
@@ -58,7 +59,7 @@ function onKeydown(event) {
                 aria-modal="true"
                 :aria-label="title"
                 class="fixed inset-y-0 right-0 z-50 flex w-full flex-col border-l border-border bg-surface shadow-xl outline-none sm:w-[40%] sm:min-w-[420px]"
-                :class="wide ? 'sm:w-[56%]' : ''"
+                :class="extraWide ? 'sm:w-[80%]' : wide ? 'sm:w-[56%]' : ''"
                 tabindex="-1"
                 @keydown="onKeydown"
             >

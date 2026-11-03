@@ -148,3 +148,53 @@ it('lets many suppliers provide the same ingredient and one supplier provide man
     expect($rice->suppliers()->pluck('suppliers.id')->all())->toEqualCanonicalizing([$first->id, $second->id])
         ->and($first->ingredients()->count())->toBe(2);
 });
+
+it('keeps an optional invoice number per line and splits purchases by supplier and invoice', function (): void {
+    $rice = Ingredient::factory()->create(['unit_id' => $this->unit->id]);
+    $first = Supplier::factory()->create();
+    $second = Supplier::factory()->create();
+
+    $line = fn (Supplier $supplier, ?string $invoice): array => [
+        'ingredient_id' => $rice->id,
+        'supplier_id' => $supplier->id,
+        'invoice_no' => $invoice,
+        'unit_id' => $this->unit->id,
+        'qty' => '1',
+        'unit_cost' => '10',
+    ];
+
+    $this->actingAs($this->owner, 'staff')
+        ->post('/admin/purchases', [
+            'purchased_at' => now()->toDateString(),
+            'items' => [$line($first, 'INV-1'), $line($first, 'INV-1'), $line($first, 'INV-2'), $line($second, null)],
+        ])
+        ->assertSessionHasNoErrors();
+
+    expect(Purchase::query()->count())->toBe(3)
+        ->and(Purchase::query()->where('invoice_no', 'INV-1')->firstOrFail()->items()->count())->toBe(2)
+        ->and(Purchase::query()->where('supplier_id', $second->id)->firstOrFail()->invoice_no)->toBeNull();
+});
+
+it('saves one note on every purchase created from the form', function (): void {
+    $rice = Ingredient::factory()->create(['unit_id' => $this->unit->id]);
+    $first = Supplier::factory()->create();
+    $second = Supplier::factory()->create();
+
+    $line = fn (Supplier $supplier): array => [
+        'ingredient_id' => $rice->id,
+        'supplier_id' => $supplier->id,
+        'unit_id' => $this->unit->id,
+        'qty' => '1',
+        'unit_cost' => '10',
+    ];
+
+    $this->actingAs($this->owner, 'staff')
+        ->post('/admin/purchases', [
+            'purchased_at' => now()->toDateString(),
+            'note' => 'Weekly market run',
+            'items' => [$line($first), $line($second)],
+        ])
+        ->assertSessionHasNoErrors();
+
+    expect(Purchase::query()->pluck('note')->all())->toBe(['Weekly market run', 'Weekly market run']);
+});

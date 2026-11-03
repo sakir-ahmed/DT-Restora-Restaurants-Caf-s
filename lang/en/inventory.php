@@ -153,6 +153,7 @@ return [
     'choose_supplier' => 'Choose supplier',
     'purchase_split_note' => 'Lines from different suppliers are saved as separate purchases.',
     'ingredients_count' => ':count ingredients',
+    'note_all_items' => 'Note for all items',
 ];
 
 // extra keys used by the dashboard alert

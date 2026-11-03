@@ -26,6 +26,7 @@ class PurchaseRequest extends FormRequest
             'receive' => ['boolean'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.supplier_id' => ['required_without:supplier_id', 'nullable', 'integer', 'exists:suppliers,id'],
+            'items.*.invoice_no' => ['nullable', 'string', 'max:100'],
             'items.*.ingredient_id' => ['required', 'integer', 'exists:ingredients,id'],
             'items.*.unit_id' => ['required', 'integer', 'exists:units,id'],
             'items.*.qty' => ['required', 'numeric', 'gt:0'],
@@ -57,6 +58,7 @@ class PurchaseRequest extends FormRequest
     {
         return [
             'items.*.supplier_id' => __('inventory.supplier'),
+            'items.*.invoice_no' => __('inventory.invoice_no'),
             'items.*.ingredient_id' => __('inventory.ingredient'),
             'items.*.unit_id' => __('inventory.unit'),
             'items.*.qty' => __('inventory.qty'),

@@ -153,4 +153,5 @@ return [
     'choose_supplier' => 'সরবরাহকারী বাছুন',
     'purchase_split_note' => 'ভিন্ন সরবরাহকারীর লাইনগুলো আলাদা ক্রয় হিসেবে সংরক্ষিত হবে।',
     'ingredients_count' => ':count টি উপকরণ',
+    'note_all_items' => 'সব আইটেমের জন্য নোট',
 ];

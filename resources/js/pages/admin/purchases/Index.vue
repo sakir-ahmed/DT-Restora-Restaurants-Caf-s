@@ -46,7 +46,6 @@ const rows = computed(() => props.purchases.map((purchase) => ({
 const today = new Date().toISOString().slice(0, 10);
 
 const form = useForm({
-    invoice_no: '',
     purchased_at: today,
     note: '',
     receive: true,
@@ -55,7 +54,6 @@ const form = useForm({
 
 function openCreate() {
     form.defaults({
-        invoice_no: '',
         purchased_at: today,
         note: '',
         receive: true,
@@ -70,6 +68,7 @@ function addLine() {
         category_id: '',
         ingredient_id: '',
         supplier_id: '',
+        invoice_no: '',
         unit_id: '',
         qty: '1',
         unit_cost: '0.00',
@@ -207,15 +206,9 @@ function toggleExpand(row) {
             </template>
         </DataTable>
 
-        <SlideOver :open="slideOverOpen" :title="t('inventory.add_purchase')" wide @close="slideOverOpen = false">
+        <SlideOver :open="slideOverOpen" :title="t('inventory.add_purchase')" extra-wide @close="slideOverOpen = false">
             <form novalidate class="space-y-3" @submit.prevent="save">
                 <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-                    <FormField :label="t('inventory.invoice_no')" :error="form.errors.invoice_no">
-                        <template #default="{ id }">
-                            <input :id="id" v-model="form.invoice_no" type="text" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
-                        </template>
-                    </FormField>
-
                     <FormField :label="t('inventory.purchased_at')" required :error="form.errors.purchased_at">
                         <template #default="{ id }">
                             <input :id="id" v-model="form.purchased_at" type="date" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
@@ -224,6 +217,14 @@ function toggleExpand(row) {
 
                     <div class="flex items-end pb-1">
                         <SwitchField v-model="form.receive" :label="t('inventory.receive')" />
+                    </div>
+
+                    <div class="col-span-2">
+                        <FormField :label="t('inventory.note_all_items')" :error="form.errors.note">
+                            <template #default="{ id }">
+                                <textarea :id="id" v-model="form.note" rows="2" maxlength="1000" class="w-full resize-y rounded-md border border-border bg-surface px-2 py-1.5 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40" />
+                            </template>
+                        </FormField>
                     </div>
                 </div>
 
@@ -236,59 +237,71 @@ function toggleExpand(row) {
                         </button>
                     </div>
 
-                    <div v-for="(line, index) in form.items" :key="index" class="mb-2 grid grid-cols-[1fr_1.4fr_1.2fr_0.55fr_0.65fr_0.9fr_28px] items-start gap-2">
-                        <FormField>
-                            <template #default="{ id }">
-                                <select :id="id" v-model="line.category_id" :aria-label="t('inventory.choose_category')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent" @change="onCategoryChange(line)">
-                                    <option value="">{{ t('inventory.all_categories') }}</option>
-                                    <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
-                                    <option value="none">{{ t('inventory.category_none') }}</option>
-                                </select>
-                            </template>
-                        </FormField>
-
-                        <FormField :error="form.errors['items.' + index + '.ingredient_id']">
-                            <template #default="{ id }">
-                                <select :id="id" v-model="line.ingredient_id" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent" @change="onIngredientChange(line)">
-                                    <option value="" disabled>{{ t('common.select') }}</option>
-                                    <option v-for="option in ingredientsOptions(line)" :key="option.value" :value="option.value">{{ option.label }}</option>
-                                </select>
-                            </template>
-                        </FormField>
-
-                        <FormField :error="form.errors['items.' + index + '.supplier_id']">
-                            <template #default="{ id }">
-                                <select :id="id" v-model="line.supplier_id" :disabled="! line.ingredient_id" class="h-7 w-full rounded-md border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent disabled:opacity-60" :class="form.errors['items.' + index + '.supplier_id'] ? 'border-danger' : 'border-border'">
-                                    <option value="" disabled>{{ t('inventory.choose_supplier') }}</option>
-                                    <option v-for="supplier in suppliersFor(line)" :key="supplier.id" :value="supplier.id">{{ supplier.name }}</option>
-                                </select>
-                            </template>
-                        </FormField>
-
-                        <FormField :error="form.errors['items.' + index + '.unit_id']">
-                            <template #default="{ id }">
-                                <select :id="id" v-model="line.unit_id" class="h-7 w-full rounded-md border border-border bg-surface px-1 text-[12px] text-foreground outline-none focus:border-accent">
-                                    <option value="" disabled>---</option>
-                                    <option v-for="unit in unitsFor(line)" :key="unit.id" :value="unit.id">{{ unit.symbol }}</option>
-                                </select>
-                            </template>
-                        </FormField>
-
-                        <FormField :error="form.errors['items.' + index + '.qty']">
-                            <template #default="{ id }">
-                                <input :id="id" v-model="line.qty" type="text" inputmode="decimal" v-numeric step="0.001" min="0" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
-                            </template>
-                        </FormField>
-
-                        <FormField :error="form.errors['items.' + index + '.unit_cost']">
-                            <MoneyInput v-model="line.unit_cost" />
-                        </FormField>
-
-                        <div class="flex h-7 items-center">
-                            <button type="button" class="flex h-6 w-6 items-center justify-center rounded text-muted hover:text-danger" :aria-label="t('common.remove')" @click="form.items.splice(index, 1)">
-                                <AppIcon name="xmark" size="12" />
-                            </button>
-                        </div>
+                    <div class="mb-2 overflow-x-auto rounded-md border border-border">
+                        <table class="w-full min-w-[900px] text-[13px]">
+                            <thead>
+                                <tr class="border-b border-border bg-background text-xs font-semibold text-muted">
+                                    <th class="px-2 py-1.5 text-left">{{ t('inventory.category') }}</th>
+                                    <th class="px-2 py-1.5 text-left">{{ t('inventory.ingredient') }}</th>
+                                    <th class="px-2 py-1.5 text-left">{{ t('inventory.supplier') }}</th>
+                                    <th class="px-2 py-1.5 text-left">{{ t('inventory.invoice_no') }}</th>
+                                    <th class="px-2 py-1.5 text-left">{{ t('inventory.unit') }}</th>
+                                    <th class="px-2 py-1.5 text-right">{{ t('inventory.qty') }}</th>
+                                    <th class="px-2 py-1.5 text-right">{{ t('inventory.unit_cost') }}</th>
+                                    <th class="px-2 py-1.5 text-right">{{ t('inventory.line_total') }}</th>
+                                    <th class="w-8 px-1 py-1.5" />
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(line, index) in form.items" :key="index" class="border-b border-border last:border-0">
+                                <td class="px-1 py-1 align-top">
+                                    <select v-model="line.category_id" :aria-label="t('inventory.choose_category')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent" @change="onCategoryChange(line)">
+                                        <option value="">{{ t('inventory.all_categories') }}</option>
+                                        <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
+                                        <option value="none">{{ t('inventory.category_none') }}</option>
+                                    </select>
+                                </td>
+                                <td class="px-1 py-1 align-top">
+                                    <select v-model="line.ingredient_id" :aria-label="t('inventory.ingredient')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent" :class="form.errors['items.' + index + '.ingredient_id'] ? 'border-danger' : ''" @change="onIngredientChange(line)">
+                                        <option value="" disabled>{{ t('common.select') }}</option>
+                                        <option v-for="option in ingredientsOptions(line)" :key="option.value" :value="option.value">{{ option.label }}</option>
+                                    </select>
+                                    <p v-if="form.errors['items.' + index + '.ingredient_id']" class="mt-0.5 text-xs text-danger">{{ form.errors['items.' + index + '.ingredient_id'] }}</p>
+                                </td>
+                                <td class="px-1 py-1 align-top">
+                                    <select v-model="line.supplier_id" :disabled="! line.ingredient_id" :aria-label="t('inventory.supplier')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent disabled:opacity-60" :class="form.errors['items.' + index + '.supplier_id'] ? 'border-danger' : ''">
+                                        <option value="" disabled>{{ t('inventory.choose_supplier') }}</option>
+                                        <option v-for="supplier in suppliersFor(line)" :key="supplier.id" :value="supplier.id">{{ supplier.name }}</option>
+                                    </select>
+                                    <p v-if="form.errors['items.' + index + '.supplier_id']" class="mt-0.5 text-xs text-danger">{{ form.errors['items.' + index + '.supplier_id'] }}</p>
+                                </td>
+                                <td class="px-1 py-1 align-top">
+                                    <input v-model="line.invoice_no" type="text" maxlength="100" :aria-label="t('inventory.invoice_no')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent">
+                                </td>
+                                <td class="px-1 py-1 align-top w-20">
+                                    <select v-model="line.unit_id" :aria-label="t('inventory.unit')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent" :class="form.errors['items.' + index + '.unit_id'] ? 'border-danger' : ''">
+                                        <option value="" disabled>---</option>
+                                        <option v-for="unit in unitsFor(line)" :key="unit.id" :value="unit.id">{{ unit.symbol }}</option>
+                                    </select>
+                                </td>
+                                <td class="px-1 py-1 align-top w-24">
+                                    <input v-model="line.qty" type="text" inputmode="decimal" v-numeric step="0.001" min="0" :aria-label="t('inventory.qty')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent text-right tabular-nums" :class="form.errors['items.' + index + '.qty'] ? 'border-danger' : ''">
+                                </td>
+                                <td class="px-1 py-1 align-top w-32">
+                                    <MoneyInput v-model="line.unit_cost" />
+                                    <p v-if="form.errors['items.' + index + '.unit_cost']" class="mt-0.5 text-xs text-danger">{{ form.errors['items.' + index + '.unit_cost'] }}</p>
+                                </td>
+                                <td class="px-1 py-1 align-top w-28">
+                                    <span class="flex h-7 items-center justify-end tabular-nums">{{ formatMoney(Number(line.qty || 0) * Number(line.unit_cost || 0)) }}</span>
+                                </td>
+                                <td class="px-1 py-1 align-top w-8">
+                                    <button type="button" class="flex h-7 w-7 items-center justify-center rounded text-muted hover:text-danger" :aria-label="t('common.remove')" @click="form.items.splice(index, 1)">
+                                        <AppIcon name="xmark" size="12" />
+                                    </button>
+                                </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
 
                     <p class="mb-2 text-xs text-muted">{{ t('inventory.purchase_split_note') }}</p>

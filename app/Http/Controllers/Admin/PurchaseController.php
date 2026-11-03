@@ -54,12 +54,17 @@ class PurchaseController extends Controller
 
         $purchases = DB::transaction(function () use ($request, $branch, $defaultSupplierId): Collection {
             return collect($request->validated('items'))
-                ->groupBy(fn (array $line): int => (int) ($line['supplier_id'] ?? $defaultSupplierId))
-                ->map(function (Collection $lines, int $supplierId) use ($request, $branch): Purchase {
+                ->map(fn (array $line): array => [
+                    ...$line,
+                    'supplier_id' => (int) ($line['supplier_id'] ?? $defaultSupplierId),
+                    'invoice_no' => trim((string) ($line['invoice_no'] ?? $request->validated('invoice_no'))) ?: null,
+                ])
+                ->groupBy(fn (array $line): string => $line['supplier_id'].'|'.$line['invoice_no'])
+                ->map(function (Collection $lines) use ($request, $branch): Purchase {
                     $purchase = Purchase::query()->create([
                         'branch_id' => $branch->id,
-                        'supplier_id' => $supplierId,
-                        'invoice_no' => $request->validated('invoice_no'),
+                        'supplier_id' => $lines->first()['supplier_id'],
+                        'invoice_no' => $lines->first()['invoice_no'],
                         'purchased_at' => $request->validated('purchased_at'),
                         'note' => $request->validated('note'),
                         'status' => Purchase::STATUS_DRAFT,
