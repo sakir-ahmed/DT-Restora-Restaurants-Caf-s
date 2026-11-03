@@ -8,7 +8,6 @@ import PageHeader from '@/components/ui-kit/PageHeader.vue';
 import SlideOver from '@/components/ui-kit/SlideOver.vue';
 import StatusBadge from '@/components/ui-kit/StatusBadge.vue';
 import { t } from '@/lib/i18n';
-import { formatMoney } from '@/lib/format';
 import { notify } from '@/lib/notify';
 
 const props = defineProps({
@@ -26,8 +25,6 @@ const columns = computed(() => [
     { key: 'category_name', label: t('inventory.category'), align: 'left', sortable: true, minWidth: '120px' },
     { key: 'unit_symbol', label: t('inventory.unit'), align: 'left', minWidth: '80px' },
     { key: 'stock_display', label: t('inventory.stock'), type: 'number', sortable: true, minWidth: '96px' },
-    { key: 'avg_cost_display', label: t('inventory.avg_cost'), type: 'money', sortable: true, minWidth: '96px' },
-    { key: 'value_display', label: t('inventory.stock_value'), type: 'money', sortable: true, minWidth: '96px' },
     { key: 'reorder_display', label: t('inventory.reorder_level'), type: 'number', minWidth: '96px' },
     { key: 'is_active', label: t('common.status'), minWidth: '104px' },
 ]);
@@ -60,15 +57,10 @@ const rows = computed(() => visibleIngredients.value.map((ingredient) => {
         stock_display: `${Number(displayQty.toFixed(3)).toString()}`,
         sort_stock: Number(stock?.stock_qty ?? 0),
         low_stock: Number(stock?.stock_qty ?? 0) <= Number(ingredient.reorder_level) && Number(ingredient.reorder_level) > 0,
-        avg_cost_display: formatMoney(stock?.avg_cost ?? 0, { decimals: 2 }),
-        sort_avg: Number(stock?.avg_cost ?? 0),
-        value_display: formatMoney(Number(stock?.stock_qty ?? 0) * Number(stock?.avg_cost ?? 0)),
-        sort_value: Number(stock?.stock_qty ?? 0) * Number(stock?.avg_cost ?? 0),
         reorder_display: Number(ingredient.reorder_level).toString(),
     };
 }));
 
-const totalValue = computed(() => rows.value.reduce((sum, row) => sum + row.sort_value, 0));
 const lowStockCount = computed(() => rows.value.filter((row) => row.low_stock).length);
 
 const form = useForm({
@@ -165,7 +157,6 @@ function save() {
             :empty-title="t('inventory.no_ingredients')"
             :empty-description="t('inventory.no_ingredients_hint')"
             :empty-action="canManage ? t('inventory.add_ingredient') : ''"
-            :totals-row="{ label: t('common.total'), value_display: formatMoney(totalValue) }"
             @row-click="canManage && openEdit($event)"
             @empty-action="openCreate"
         >
