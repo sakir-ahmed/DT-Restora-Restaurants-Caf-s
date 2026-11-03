@@ -7,7 +7,6 @@ namespace App\Actions\Sales;
 use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\Payment;
-use App\Models\RestaurantTable;
 use App\Services\Accounting\AccountingService;
 use App\Services\LoyaltyService;
 use App\Services\Payments\BkashService;
@@ -53,11 +52,6 @@ class CompleteGatewayPaymentAction
                         'paid_via_payment_id' => $payment->id,
                     ]);
 
-                    if ($order->restaurant_table_id !== null) {
-                        RestaurantTable::query()
-                            ->whereKey($order->restaurant_table_id)
-                            ->update(['status' => 'free']);
-                    }
                 }
 
                 app(AccountingService::class)->postOrderPaid($order->fresh());

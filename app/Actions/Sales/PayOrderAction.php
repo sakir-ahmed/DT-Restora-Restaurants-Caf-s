@@ -9,7 +9,6 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Reservation;
-use App\Models\RestaurantTable;
 use App\Models\User;
 use App\Services\Accounting\AccountingService;
 use App\Services\LoyaltyService;
@@ -66,12 +65,6 @@ class PayOrderAction
                 'cashier_id' => $user->id ?? $order->cashier_id,
             ]);
 
-            if ($order->restaurant_table_id !== null) {
-                RestaurantTable::query()
-                    ->whereKey($order->restaurant_table_id)
-                    ->update(['status' => 'free']);
-            }
-
             app(AccountingService::class)->postOrderPaid($order->fresh(), $user);
             app(LoyaltyService::class)->earnForOrder($order);
 
@@ -127,12 +120,6 @@ class PayOrderAction
                 'paid_via_payment_id' => $payment->id,
                 'cashier_id' => $user->id ?? $order->cashier_id,
             ]);
-
-            if ($order->restaurant_table_id !== null) {
-                RestaurantTable::query()
-                    ->whereKey($order->restaurant_table_id)
-                    ->update(['status' => 'free']);
-            }
 
             app(AccountingService::class)->postOrderPaid($order->fresh(), $user);
             app(LoyaltyService::class)->earnForOrder($order);
@@ -210,14 +197,82 @@ class PayOrderAction
                     'paid_via_payment_id' => $payments[0]->id,
                 ]);
 
-                if ($order->restaurant_table_id !== null) {
-                    RestaurantTable::query()
-                        ->whereKey($order->restaurant_table_id)
-                        ->update(['status' => 'free']);
-                }
             }
 
             activity()->performedOn($order)->causedBy($user)->log('order.paid_split');
+
+            return $payments;
+        });
+    }
+
+    /**
+     * Complete the sale with money still to collect. Whatever was handed over is recorded as
+     * payments (it may be nothing); the rest stays as a due on the customer, collected later
+     * through CollectDueAction. A due needs a customer to collect from, and a bill that is
+     * already covered is paid the normal way.
+     *
+     * @param  array<int, array{method: string, amount: float|string, reference?: ?string}>  $lines
+     * @return array<int, Payment>
+     */
+    public function executeDue(Order $order, array $lines, ?User $user = null): array
+    {
+        return DB::transaction(function () use ($order, $lines, $user): array {
+            $order = Order::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
+
+            if ($order->isPaid()) {
+                throw ValidationException::withMessages(['order' => __('orders.already_paid')]);
+            }
+
+            if ($order->isVoid()) {
+                throw ValidationException::withMessages(['order' => __('orders.order_void')]);
+            }
+
+            if ($order->customer_id === null) {
+                throw ValidationException::withMessages(['due' => __('orders.due_needs_customer')]);
+            }
+
+            $received = round(array_sum(array_map(fn (array $line): float => (float) $line['amount'], $lines)), 2);
+
+            if ($received >= $order->balanceDue()) {
+                throw ValidationException::withMessages(['due' => __('orders.due_fully_paid')]);
+            }
+
+            $payments = [];
+
+            foreach ($lines as $line) {
+                $method = PaymentMethod::findByCode((string) $line['method']);
+
+                if ($method === null || $method->isWallet() || (float) $line['amount'] <= 0) {
+                    throw ValidationException::withMessages(['due' => __('payments.invalid_payment')]);
+                }
+
+                $payments[] = Payment::query()->create([
+                    'order_id' => $order->id,
+                    'method' => $method->code,
+                    'amount' => round((float) $line['amount'], 2),
+                    'tendered' => $method->isCash() ? round((float) $line['amount'], 2) : null,
+                    'change_due' => $method->isCash() ? 0 : null,
+                    'reference' => $line['reference'] ?? null,
+                    'status' => Payment::STATUS_COMPLETED,
+                    'user_id' => $user?->id,
+                ]);
+            }
+
+            $order->update([
+                'status' => OrderStatus::Paid->value,
+                'is_due' => true,
+                'paid_at' => now(),
+                'paid_via_payment_id' => $payments[0]->id ?? null,
+                'cashier_id' => $user->id ?? $order->cashier_id,
+            ]);
+
+            app(AccountingService::class)->postOrderPaid($order->fresh(), $user);
+
+            activity()
+                ->performedOn($order)
+                ->causedBy($user)
+                ->withProperties(['due' => $order->balanceDue()])
+                ->log('order.paid_due');
 
             return $payments;
         });
@@ -268,10 +323,6 @@ class PayOrderAction
                     'paid_at' => now(),
                     'paid_via_payment_id' => $payment->id,
                 ]);
-
-                if ($order->restaurant_table_id !== null) {
-                    RestaurantTable::query()->whereKey($order->restaurant_table_id)->update(['status' => 'free']);
-                }
 
                 app(AccountingService::class)->postOrderPaid($order->fresh(), $user);
                 app(LoyaltyService::class)->earnForOrder($order);
@@ -342,11 +393,6 @@ class PayOrderAction
                     'paid_via_payment_id' => $payment->id,
                 ]);
 
-                if ($order->restaurant_table_id !== null) {
-                    RestaurantTable::query()
-                        ->whereKey($order->restaurant_table_id)
-                        ->update(['status' => 'free']);
-                }
             }
 
             activity()->performedOn($payment)->causedBy($manager)->log('payment.manual_approved');

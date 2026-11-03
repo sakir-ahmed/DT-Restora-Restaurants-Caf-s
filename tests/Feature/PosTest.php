@@ -235,7 +235,10 @@ it('rejects an order when ingredient stock is insufficient', function (): void {
         ->where('ingredient_id', $this->ingredient->id)
         ->update(['stock_qty' => 50]); // only half a serving
 
-    expect(fn () => createPosOrder($this))->toThrow(ValidationException::class);
+    expect(fn () => createPosOrder($this))->toThrow(
+        ValidationException::class,
+        __('inventory.insufficient_stock', ['ingredient' => $this->ingredient->name]),
+    );
 
     expect(Order::count())->toBe(0);
 });
@@ -429,6 +432,35 @@ it('rejects POS access for roles without the permission', function (): void {
 
 it('releases a table with no running order without needing the void permission', function (): void {
     $table = RestaurantTable::factory()->create(['branch_id' => $this->branch->id, 'status' => 'occupied']);
+
+    $this->actingAs($this->cashier, 'staff')->post("/admin/pos/tables/{$table->id}/release")->assertRedirect();
+
+    expect($table->fresh()->status)->toBe('free');
+});
+
+it('keeps a table occupied after the bill is paid until staff clear it', function (): void {
+    $table = RestaurantTable::factory()->create(['branch_id' => $this->branch->id]);
+
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::DineIn,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        cashier: $this->cashier,
+        shift: $this->shift,
+        terminalCode: 'T01',
+        tableId: $table->id,
+    );
+
+    app(PayOrderAction::class)->executeCash($order, (float) $order->total, $this->cashier);
+
+    expect($order->fresh()->status)->toBe(OrderStatus::Paid)
+        ->and($table->fresh()->status)->toBe('occupied');
+
+    $this->actingAs($this->cashier, 'staff')->get('/admin/pos')->assertInertia(fn ($page) => $page
+        ->where('tables.0.last_order.status', 'paid')
+        ->where('tables.0.last_order.is_due', false)
+        ->where('tables.0.last_order.balance', 0)
+        ->where('tables.0.last_order.total', fn ($total) => (float) $total === (float) $order->total));
 
     $this->actingAs($this->cashier, 'staff')->post("/admin/pos/tables/{$table->id}/release")->assertRedirect();
 

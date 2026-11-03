@@ -17,6 +17,7 @@ const props = defineProps({
 });
 
 const cashText = defineModel('cashText', { type: String, default: '' });
+const allowNegativeStock = defineModel('allowNegativeStock', { type: Boolean, default: false });
 
 const ACTION_ROWS = [
     { key: 'send_to_kitchen', exact: false },
@@ -63,6 +64,11 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
     <section>
         <SwitchField v-model="pos.review_before_save" :label="t('settings.review_before_save')" />
         <p class="mt-1 text-xs text-muted">{{ t('settings.review_before_save_helper') }}</p>
+    </section>
+
+    <section>
+        <SwitchField v-model="allowNegativeStock" :label="t('settings.sell_without_stock')" />
+        <p class="mt-1 text-xs text-muted">{{ t('settings.sell_without_stock_helper') }}</p>
     </section>
 
     <section>

@@ -9,9 +9,13 @@ use App\Actions\Sales\RequestOrderVoidAction;
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
+use App\Models\Customer;
 use App\Models\DataVersion;
+use App\Models\Ingredient;
+use App\Models\IngredientStock;
 use App\Models\MenuCategory;
 use App\Models\Order;
+use App\Models\Recipe;
 use App\Models\Reservation;
 use App\Models\RestaurantTable;
 use App\Models\Setting;
@@ -54,6 +58,7 @@ class PosController extends Controller
         return Inertia::render('admin/pos/Index', [
             'categories' => $categories,
             'tables' => $this->tablesWithBookings($branch),
+            'stockBook' => $this->stockBook($branch, $categories),
             'openOrders' => Order::query()
                 ->where('branch_id', $branch->id)
                 ->whereIn('status', array_map(fn (OrderStatus $status): string => $status->value, array_filter(OrderStatus::cases(), fn (OrderStatus $status): bool => $status->isKitchenActive())))
@@ -83,6 +88,85 @@ class PosController extends Controller
     }
 
     /**
+     * Customers matching a mobile number or a name, for the POS auto-fill. Digits search the
+     * mobile; anything else searches the name.
+     */
+    public function customers(Request $request): JsonResponse
+    {
+        $this->authorize('pos.access');
+
+        $term = trim($request->string('q')->toString());
+
+        if (mb_strlen($term) < 2) {
+            return response()->json([]);
+        }
+
+        $digits = preg_replace('/\D+/', '', $term) ?? '';
+        $mobileSearch = $digits !== '' && $digits === preg_replace('/[\s+()-]+/', '', $term);
+
+        $customers = Customer::query()
+            ->whereNotNull('mobile')
+            ->when(
+                $mobileSearch,
+                fn (Builder $query) => $query->where('mobile', 'like', '%'.ltrim($digits, '+').'%'),
+                fn (Builder $query) => $query->where('name', 'like', '%'.$term.'%'),
+            )
+            ->orderBy('name')
+            ->limit(8)
+            ->get(['id', 'name', 'mobile']);
+
+        return response()->json($customers->map(fn (Customer $customer): array => [
+            'id' => $customer->id,
+            'name' => $customer->name === __('orders.walk_in_customer') ? '' : $customer->name,
+            'mobile' => preg_replace('/^88/', '', (string) $customer->mobile),
+        ])->values());
+    }
+
+    /**
+     * What each menu item uses and what the branch has, so the POS can warn while an item is
+     * being picked instead of after the order is sent. The server still checks on save.
+     *
+     * @param  Collection<int, MenuCategory>  $categories
+     * @return array{allow_negative: bool, recipes: array<int, array<int, array{ingredient_id: int, qty: float}>>, stock: array<int, array{name: string, name_bn: ?string, qty: float}>}
+     */
+    private function stockBook(Branch $branch, Collection $categories): array
+    {
+        $recipes = Recipe::query()
+            ->with('items')
+            ->whereIn('menu_item_id', $categories->flatMap(fn (MenuCategory $category) => $category->items->pluck('id')))
+            ->get();
+
+        $ingredientIds = $recipes->flatMap(fn (Recipe $recipe) => $recipe->items->pluck('ingredient_id'))->unique()->values();
+        $quantities = IngredientStock::query()
+            ->where('branch_id', $branch->id)
+            ->whereIn('ingredient_id', $ingredientIds)
+            ->pluck('stock_qty', 'ingredient_id');
+
+        return [
+            'allow_negative' => (bool) $branch->allow_negative_stock,
+            'recipes' => $recipes
+                ->mapWithKeys(fn (Recipe $recipe): array => [
+                    $recipe->menu_item_id => $recipe->items
+                        ->map(fn ($line): array => ['ingredient_id' => (int) $line->ingredient_id, 'qty' => (float) $line->qty])
+                        ->values()
+                        ->all(),
+                ])
+                ->all(),
+            'stock' => Ingredient::query()
+                ->whereKey($ingredientIds)
+                ->get(['id', 'name', 'name_bn'])
+                ->mapWithKeys(fn (Ingredient $ingredient): array => [
+                    $ingredient->id => [
+                        'name' => $ingredient->name,
+                        'name_bn' => $ingredient->name_bn,
+                        'qty' => (float) ($quantities[$ingredient->id] ?? 0),
+                    ],
+                ])
+                ->all(),
+        ];
+    }
+
+    /**
      * The branch tables, each with the next booking that is running or starts within three hours,
      * so the waiter sees a booked table before seating someone else there.
      *
@@ -109,17 +193,40 @@ class PosController extends Controller
                 }
             });
 
-        return RestaurantTable::query()
+        $tables = RestaurantTable::query()
             ->where('branch_id', $branch->id)
             ->where('is_active', true)
             ->orderBy('name')
-            ->get(['id', 'name', 'area', 'seats', 'status'])
-            ->map(fn (RestaurantTable $table): array => $table->toArray() + [
-                'booking' => $bookings->has($table->id) ? [
-                    'guest_name' => $bookings[$table->id]->guest_name,
-                    'starts_at' => $bookings[$table->id]->starts_at->toIso8601String(),
-                ] : null,
-            ]);
+            ->get(['id', 'name', 'area', 'seats', 'status']);
+
+        // What the last bill on an occupied table came to, so staff can see paid or due before clearing it.
+        $lastOrders = Order::query()
+            ->where('branch_id', $branch->id)
+            ->whereIn('restaurant_table_id', $tables->where('status', 'occupied')->pluck('id'))
+            ->where('status', '!=', OrderStatus::Void->value)
+            ->withSum(['payments as paid_amount' => fn (Builder $payments) => $payments->where('status', 'completed')], 'amount')
+            ->with('customer:id,name,mobile')
+            ->latest()
+            ->get()
+            ->unique('restaurant_table_id')
+            ->keyBy('restaurant_table_id');
+
+        return $tables->map(fn (RestaurantTable $table): array => $table->toArray() + [
+            'booking' => $bookings->has($table->id) ? [
+                'guest_name' => $bookings[$table->id]->guest_name,
+                'starts_at' => $bookings[$table->id]->starts_at->toIso8601String(),
+            ] : null,
+            'last_order' => $lastOrders->has($table->id) ? [
+                'invoice_no' => $lastOrders[$table->id]->invoice_no,
+                'status' => $lastOrders[$table->id]->status->value,
+                'is_due' => (bool) $lastOrders[$table->id]->is_due,
+                'total' => (float) $lastOrders[$table->id]->total,
+                'paid' => round((float) ($lastOrders[$table->id]->paid_amount ?? 0), 2),
+                'balance' => max(0.0, round((float) $lastOrders[$table->id]->total - (float) ($lastOrders[$table->id]->paid_amount ?? 0), 2)),
+                'at' => ($lastOrders[$table->id]->paid_at ?? $lastOrders[$table->id]->created_at)?->toIso8601String(),
+                'customer' => $lastOrders[$table->id]->customer?->name,
+            ] : null,
+        ]);
     }
 
     public function unlock(Request $request): JsonResponse

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'title' => 'Inventory',
+    'title' => 'Ingredients',
     'subtitle' => 'Ingredients, stock levels and costs.',
     'ingredient' => 'Ingredient',
     'add_ingredient' => 'Add ingredient',

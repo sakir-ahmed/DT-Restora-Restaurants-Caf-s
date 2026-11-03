@@ -216,6 +216,7 @@ async function remove(branch) {
             <BranchPosSettings
                 v-show="slideTab === 'pos'"
                 v-model:cash-text="form.cash_suggestions_text"
+                v-model:allow-negative-stock="form.allow_negative_stock"
                 :pos="form.pos"
                 :errors="form.errors"
                 :layouts="layouts"
@@ -349,7 +350,6 @@ async function remove(branch) {
 
                     <div class="mt-3 space-y-2">
                         <SwitchField v-model="form.vat_inclusive" :label="t('branches.vat_inclusive')" />
-                        <SwitchField v-model="form.allow_negative_stock" :label="t('branches.allow_negative_stock')" />
                         <SwitchField v-model="form.online_ordering_enabled" :label="t('branches.online_ordering_enabled')" />
                         <SwitchField v-model="form.is_active" :label="t('branches.is_active')" />
                     </div>

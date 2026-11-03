@@ -12,6 +12,7 @@ use App\Models\Employee;
 use App\Models\Expense;
 use App\Models\Journal;
 use App\Models\Order;
+use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Purchase;
 use App\Models\SalaryAdvance;
@@ -72,7 +73,7 @@ class AccountingService
      */
     public function postOrderPaid(Order $order, ?User $user = null): void
     {
-        if ($order->isVoid() || $order->payments()->where('status', 'completed')->doesntExist()) {
+        if ($order->isVoid() || ($order->payments()->where('status', 'completed')->doesntExist() && ! $order->is_due)) {
             return;
         }
 
@@ -124,12 +125,38 @@ class AccountingService
             $lines[] = $this->line($this->paymentAccount((string) $payment->method), debit: (float) $payment->amount);
         }
 
+        // A sale completed on due books the unpaid part as money owed to the restaurant.
+        if ($order->is_due && $order->balanceDue() > 0) {
+            $lines[] = $this->line('receivable', debit: $order->balanceDue());
+        }
+
         $this->poster->execute(
             entryDate: $order->created_at->toDateString(),
             lines: $this->balance($lines, (float) $order->total),
             reference: $order->invoice_no,
             note: __('accounting.order_note', ['invoice' => $order->invoice_no]),
             source: $order,
+            user: $user,
+        );
+    }
+
+    /**
+     * Money collected later on a due sale: it moves from receivables into the method's account.
+     */
+    public function postDueCollection(Payment $payment, ?User $user = null): void
+    {
+        $order = $payment->order;
+        $amount = round((float) $payment->amount, 2);
+
+        $this->poster->execute(
+            entryDate: now()->toDateString(),
+            lines: [
+                $this->line($this->paymentAccount((string) $payment->method), debit: $amount),
+                $this->line('receivable', credit: $amount),
+            ],
+            reference: $order->invoice_no,
+            note: __('accounting.due_collection_note', ['invoice' => $order->invoice_no]),
+            source: $payment,
             user: $user,
         );
     }

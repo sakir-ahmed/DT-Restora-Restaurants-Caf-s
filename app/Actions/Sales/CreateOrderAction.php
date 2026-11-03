@@ -10,6 +10,7 @@ use App\Enums\OrderType;
 use App\Exceptions\InsufficientStockException;
 use App\Models\Branch;
 use App\Models\Customer;
+use App\Models\Ingredient;
 use App\Models\IngredientStock;
 use App\Models\MenuItem;
 use App\Models\Order;
@@ -231,7 +232,10 @@ class CreateOrderAction
                 $this->deductStock($branch, $order);
             } catch (InsufficientStockException $exception) {
                 throw ValidationException::withMessages([
-                    'items' => __('inventory.insufficient_stock', ['ingredient' => $exception->ingredientId]),
+                    'items' => __('inventory.insufficient_stock', [
+                        'ingredient' => Ingredient::query()->find($exception->ingredientId)?->displayName(app()->getLocale())
+                            ?? $exception->ingredientId,
+                    ]),
                 ]);
             }
 

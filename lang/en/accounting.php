@@ -44,6 +44,7 @@ return [
     'credit' => 'Credit',
     'total_vat' => 'VAT collected',
     'order_note' => 'Sale :invoice',
+    'due_collection_note' => 'Due collected for :invoice',
     'purchase_note' => 'Purchase #:id',
     'wastage_note' => 'Wastage #:id',
     'salary_note' => 'Salary allocation :branch :date',

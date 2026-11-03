@@ -106,7 +106,7 @@ class OrderController extends Controller
         if ($mobile !== '') {
             $customer = Customer::query()->firstOrCreate(
                 ['mobile' => normalize_bd_mobile($mobile)],
-                ['name' => __('orders.walk_in_customer')],
+                ['name' => $request->string('customer_name')->trim()->toString() ?: __('orders.walk_in_customer')],
             );
         }
 
@@ -175,7 +175,7 @@ class OrderController extends Controller
         if ($mobile !== '') {
             $customer = Customer::query()->firstOrCreate(
                 ['mobile' => normalize_bd_mobile($mobile)],
-                ['name' => __('orders.walk_in_customer')],
+                ['name' => $request->string('customer_name')->trim()->toString() ?: __('orders.walk_in_customer')],
             );
         }
 
@@ -238,6 +238,55 @@ class OrderController extends Controller
             'order_id' => $order->id,
             'invoice_no' => $order->invoice_no,
             'change_due' => $payment->change_due,
+        ]);
+    }
+
+    /**
+     * Complete the sale with a due. The lines are whatever was received now, which may be nothing.
+     */
+    public function due(Request $request, Order $order, PayOrderAction $action): RedirectResponse
+    {
+        $this->authorize('orders.create');
+
+        $user = $request->user('staff');
+        abort_unless($user->canAccessBranch($order->branch_id), 404);
+
+        $validated = $request->validate([
+            'lines' => ['nullable', 'array'],
+            'lines.*.method' => ['required', 'string'],
+            'lines.*.amount' => ['required', 'numeric', 'gt:0'],
+            'lines.*.reference' => ['nullable', 'string', 'max:100'],
+            'customer_mobile' => ['nullable', 'string', 'max:20'],
+            'customer_name' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        // The customer may be typed after the order was sent; a due needs one to collect from.
+        if ($order->customer_id === null && filled($validated['customer_mobile'] ?? null)) {
+            $customer = Customer::query()->firstOrCreate(
+                ['mobile' => normalize_bd_mobile($validated['customer_mobile'])],
+                ['name' => trim((string) ($validated['customer_name'] ?? '')) ?: __('orders.walk_in_customer')],
+            );
+
+            $order->update(['customer_id' => $customer->id]);
+        }
+
+        $enabled = PosSettings::enabledMethods($order->branch);
+
+        foreach ($validated['lines'] ?? [] as $line) {
+            if (! in_array($line['method'], $enabled, true)) {
+                throw ValidationException::withMessages(['due' => __('payments.method_disabled')]);
+            }
+        }
+
+        $action->executeDue($order, $validated['lines'] ?? [], $user);
+
+        $order->refresh();
+
+        return back()->with('success', __('orders.due_recorded', ['due' => number_format($order->balanceDue(), 2)]))->with('payment', [
+            'order_id' => $order->id,
+            'invoice_no' => $order->invoice_no,
+            'change_due' => 0,
+            'due' => $order->balanceDue(),
         ]);
     }
 

@@ -21,7 +21,7 @@ class Order extends Model
     protected $fillable = [
         'branch_id', 'invoice_no', 'order_type', 'channel',
         'restaurant_table_id', 'waiter_id', 'cashier_id', 'customer_id', 'shift_id',
-        'status', 'subtotal', 'discount_type', 'discount_value', 'discount_amount',
+        'status', 'is_due', 'subtotal', 'discount_type', 'discount_value', 'discount_amount',
         'service_charge', 'extra_charge', 'vat_amount', 'delivery_fee', 'rounding', 'total',
         'food_cost', 'client_id', 'note', 'paid_at', 'paid_via_payment_id',
         'delivery_zone_id', 'delivery_address', 'scheduled_for', 'tracking_token',
@@ -31,6 +31,7 @@ class Order extends Model
 
     protected $casts = [
         'aggregator_meta' => 'array',
+        'is_due' => 'boolean',
         'order_type' => OrderType::class,
         'channel' => OrderChannel::class,
         'status' => OrderStatus::class,

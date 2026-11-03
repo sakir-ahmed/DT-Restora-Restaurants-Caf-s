@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'title' => 'ইনভেন্টরি',
+    'title' => 'উপকরণ',
     'subtitle' => 'উপকরণ, স্টকের পরিমাণ ও ব্যয়।',
     'ingredient' => 'উপকরণ',
     'add_ingredient' => 'উপকরণ যোগ করুন',

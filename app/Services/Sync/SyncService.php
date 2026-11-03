@@ -277,7 +277,7 @@ class SyncService
 
         return Customer::query()->firstOrCreate(
             ['mobile' => normalize_bd_mobile($mobile)],
-            ['name' => __('orders.walk_in_customer')],
+            ['name' => trim((string) ($payload['customer_name'] ?? '')) ?: __('orders.walk_in_customer')],
         );
     }
 

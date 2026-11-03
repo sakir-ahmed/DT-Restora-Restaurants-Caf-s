@@ -42,6 +42,8 @@ return [
     'receipt_footer' => 'Invoice footer text',
     'review_before_save' => 'Review the bill before saving a new invoice',
     'review_before_save_helper' => 'Off by default. When on, every new POS invoice, quick save included, first opens a large bill review showing the items, total, received and return amounts. The order is saved only after Confirm.',
+    'sell_without_stock' => 'Sell even when stock is empty',
+    'sell_without_stock_helper' => 'Off by default. When on, the POS stops warning about empty ingredient stock and orders go through, taking stock below zero. Turn it on if you do not keep stock counts up to date.',
     'section_buttons' => 'POS buttons',
     'section_buttons_helper' => 'Turn each button on or off and choose what prints after it.',
     'col_button' => 'Button',

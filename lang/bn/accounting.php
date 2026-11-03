@@ -44,6 +44,7 @@ return [
     'credit' => 'ক্রেডিট',
     'total_vat' => 'আদায়কৃত ভ্যাট',
     'order_note' => 'বিক্রয় :invoice',
+    'due_collection_note' => ':invoice এর বাকি আদায়',
     'purchase_note' => 'ক্রয় #:id',
     'wastage_note' => 'অপচয় #:id',
     'salary_note' => 'বেতন বরাদ্দ :branch :date',

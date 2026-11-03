@@ -9,6 +9,7 @@ return [
     'reservations' => 'Reservations',
     'tables' => 'Tables',
     'orders' => 'Orders',
+    'dues' => 'Dues',
     'kds' => 'Kitchen Display',
     'inventory' => 'Inventory',
     'menu' => 'Menu',
