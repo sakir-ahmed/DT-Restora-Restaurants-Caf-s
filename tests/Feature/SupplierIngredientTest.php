@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Branch;
 use App\Models\Ingredient;
 use App\Models\IngredientCategory;
+use App\Models\Journal;
 use App\Models\Purchase;
 use App\Models\Supplier;
 use App\Models\Unit;
@@ -112,17 +113,6 @@ it('still accepts a single header supplier for every line', function (): void {
     expect(Purchase::query()->where('supplier_id', $supplier->id)->count())->toBe(1);
 });
 
-it('requires a supplier on each line when no header supplier is given', function (): void {
-    $rice = Ingredient::factory()->create(['unit_id' => $this->unit->id]);
-
-    $this->actingAs($this->owner, 'staff')
-        ->post('/admin/purchases', [
-            'purchased_at' => now()->toDateString(),
-            'items' => [['ingredient_id' => $rice->id, 'unit_id' => $this->unit->id, 'qty' => '1', 'unit_cost' => '50']],
-        ])
-        ->assertSessionHasErrors('items.0.supplier_id');
-});
-
 it('explains why an ingredient category with ingredients cannot be deleted', function (): void {
     $category = IngredientCategory::query()->create(['name' => 'Food', 'sort_order' => 1, 'is_active' => true]);
     Ingredient::factory()->create(['unit_id' => $this->unit->id, 'ingredient_category_id' => $category->id]);
@@ -197,4 +187,43 @@ it('saves one note on every purchase created from the form', function (): void {
         ->assertSessionHasNoErrors();
 
     expect(Purchase::query()->pluck('note')->all())->toBe(['Weekly market run', 'Weekly market run']);
+});
+
+it('records a purchase line without a supplier and books it against cash', function (): void {
+    $ingredient = Ingredient::factory()->create(['unit_id' => $this->unit->id]);
+
+    $this->actingAs($this->owner, 'staff')->post('/admin/purchases', [
+        'purchased_at' => now()->toDateString(),
+        'receive' => true,
+        'items' => [[
+            'supplier_id' => null,
+            'ingredient_id' => $ingredient->id,
+            'unit_id' => $this->unit->id,
+            'qty' => 2,
+            'unit_cost' => 50,
+        ]],
+    ])->assertSessionHasNoErrors();
+
+    $purchase = Purchase::query()->latest('id')->firstOrFail();
+
+    expect($purchase->supplier_id)->toBeNull()
+        ->and($purchase->status)->toBe(Purchase::STATUS_RECEIVED);
+
+    $journal = Journal::query()->where('source_id', $purchase->id)->where('source_type', $purchase->getMorphClass())->firstOrFail();
+
+    expect($journal->lines()->with('account')->get()->pluck('account.subtype')->all())->not->toContain('payable');
+});
+
+it('creates a supplier from the purchase form for staff who manage purchases', function (): void {
+    $cashier = User::factory()->role('cashier', $this->branch->id)->create();
+
+    $this->actingAs($this->owner, 'staff')
+        ->postJson('/admin/purchases/suppliers', ['name' => 'Fresh Market', 'mobile' => '01711111111'])
+        ->assertCreated()
+        ->assertJsonPath('name', 'Fresh Market');
+
+    expect(Supplier::query()->where('name', 'Fresh Market')->exists())->toBeTrue();
+
+    $this->actingAs($this->owner, 'staff')->postJson('/admin/purchases/suppliers', ['name' => ''])->assertUnprocessable();
+    $this->actingAs($cashier, 'staff')->postJson('/admin/purchases/suppliers', ['name' => 'Nope'])->assertForbidden();
 });

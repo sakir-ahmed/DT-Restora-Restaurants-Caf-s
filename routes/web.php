@@ -264,6 +264,7 @@ Route::prefix('admin')
 
         Route::get('purchases', [PurchaseController::class, 'index'])->name('purchases.index')->middleware('permission:purchases.manage');
         Route::post('purchases', [PurchaseController::class, 'store'])->name('purchases.store')->middleware('permission:purchases.manage');
+        Route::post('purchases/suppliers', [PurchaseController::class, 'storeSupplier'])->name('purchases.suppliers.store')->middleware('permission:purchases.manage');
         Route::post('purchases/{purchase}/receive', [PurchaseController::class, 'receive'])->name('purchases.receive')->middleware('permission:purchases.manage');
 
         Route::get('recipes', [RecipeController::class, 'index'])->name('recipes.index')->middleware('permission:recipes.manage');

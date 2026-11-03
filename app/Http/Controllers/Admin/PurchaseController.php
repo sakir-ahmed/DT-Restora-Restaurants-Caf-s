@@ -13,6 +13,7 @@ use App\Models\IngredientCategory;
 use App\Models\Purchase;
 use App\Models\Supplier;
 use App\Models\Unit;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -56,7 +57,7 @@ class PurchaseController extends Controller
             return collect($request->validated('items'))
                 ->map(fn (array $line): array => [
                     ...$line,
-                    'supplier_id' => (int) ($line['supplier_id'] ?? $defaultSupplierId),
+                    'supplier_id' => ($line['supplier_id'] ?? $defaultSupplierId) !== null ? (int) ($line['supplier_id'] ?? $defaultSupplierId) : null,
                     'invoice_no' => trim((string) ($line['invoice_no'] ?? $request->validated('invoice_no'))) ?: null,
                 ])
                 ->groupBy(fn (array $line): string => $line['supplier_id'].'|'.$line['invoice_no'])
@@ -93,6 +94,25 @@ class PurchaseController extends Controller
         }
 
         return back()->with('success', __('inventory.purchase_created'));
+    }
+
+    /**
+     * Add a supplier from the purchase form without leaving it. Only the name is needed.
+     */
+    public function storeSupplier(Request $request): JsonResponse
+    {
+        $this->authorize('purchases.manage');
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:150'],
+            'mobile' => ['nullable', 'string', 'max:20'],
+        ]);
+
+        $supplier = Supplier::query()->create([...$validated, 'is_active' => true]);
+
+        activity()->performedOn($supplier)->causedBy($request->user('staff'))->log('supplier.created');
+
+        return response()->json(['id' => $supplier->id, 'name' => $supplier->name, 'ingredient_ids' => []], 201);
     }
 
     public function receive(Request $request, Purchase $purchase, ReceivePurchaseAction $action): RedirectResponse

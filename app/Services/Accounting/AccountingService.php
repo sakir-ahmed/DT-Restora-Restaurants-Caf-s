@@ -196,7 +196,8 @@ class AccountingService
             entryDate: $purchase->purchased_at->toDateString(),
             lines: [
                 $this->line('inventory', debit: $total),
-                $this->line('payable', credit: $total),
+                // A purchase with no supplier is a market buy paid on the spot, so no payable is owed.
+                $this->line($purchase->supplier_id === null ? 'cash' : 'payable', credit: $total),
             ],
             reference: $purchase->invoice_no ?? 'PUR-'.$purchase->id,
             note: __('accounting.purchase_note', ['id' => $purchase->id]),

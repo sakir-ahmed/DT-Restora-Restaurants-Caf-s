@@ -5,6 +5,7 @@ import AppIcon from '@/components/AppIcon.vue';
 import DataTable from '@/components/ui-kit/DataTable.vue';
 import DateText from '@/components/ui-kit/DateText.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
+import MobileInput from '@/components/ui-kit/MobileInput.vue';
 import MoneyInput from '@/components/ui-kit/MoneyInput.vue';
 import PageHeader from '@/components/ui-kit/PageHeader.vue';
 import SlideOver from '@/components/ui-kit/SlideOver.vue';
@@ -38,7 +39,7 @@ const columns = computed(() => [
 
 const rows = computed(() => props.purchases.map((purchase) => ({
     ...purchase,
-    supplier_name: purchase.supplier?.name,
+    supplier_name: purchase.supplier?.name ?? t('inventory.no_supplier_label'),
     items_count: purchase.items?.length ?? 0,
     created_by: purchase.user?.name,
 })));
@@ -112,7 +113,66 @@ function suppliersFor(line) {
 
     const linked = props.suppliers.filter((supplier) => supplier.ingredient_ids.includes(Number(line.ingredient_id)));
 
-    return linked.length ? linked : props.suppliers;
+    return [...(linked.length ? linked : props.suppliers), ...createdSuppliers.value];
+}
+
+// Suppliers made from this form show on every line straight away, before the page reloads.
+const createdSuppliers = ref([]);
+const supplierDialog = ref(null);
+
+function onSupplierChange(line) {
+    if (line.supplier_id === '__new') {
+        line.supplier_id = '';
+        supplierDialog.value = { line, name: '', mobile: '', error: '', busy: false };
+    }
+}
+
+function xsrfToken() {
+    const cookie = document.cookie.split('; ').find((entry) => entry.startsWith('XSRF-TOKEN='));
+
+    return cookie ? decodeURIComponent(cookie.split('=')[1]) : '';
+}
+
+async function createSupplier() {
+    const dialog = supplierDialog.value;
+
+    if (! dialog || dialog.busy) {
+        return;
+    }
+
+    if (! dialog.name.trim()) {
+        dialog.error = t('inventory.supplier_name_required');
+
+        return;
+    }
+
+    dialog.busy = true;
+    dialog.error = '';
+
+    try {
+        const response = await fetch(route('admin.purchases.suppliers.store'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-XSRF-TOKEN': xsrfToken() },
+            credentials: 'same-origin',
+            body: JSON.stringify({ name: dialog.name.trim(), mobile: dialog.mobile || null }),
+        });
+        const body = await response.json();
+
+        if (! response.ok) {
+            dialog.error = String(Object.values(body.errors ?? {})[0]?.[0] ?? body.message ?? t('common.error_occurred'));
+            dialog.busy = false;
+
+            return;
+        }
+
+        createdSuppliers.value.push(body);
+        dialog.line.supplier_id = body.id;
+        supplierDialog.value = null;
+        notify.success(t('inventory.supplier_created'));
+    } catch {
+        dialog.error = t('common.error_occurred');
+        dialog.busy = false;
+    }
 }
 
 function onIngredientChange(line) {
@@ -138,7 +198,20 @@ function unitsFor(line) {
 }
 
 function save() {
-    form.post(route('admin.purchases.store'), {
+    // Every line needs an answer: a supplier, or "without supplier".
+    const missing = form.items.findIndex((line) => line.supplier_id === '');
+
+    if (missing !== -1) {
+        form.clearErrors();
+        form.setError(`items.${missing}.supplier_id`, t('inventory.line_supplier_required'));
+
+        return;
+    }
+
+    form.transform((data) => ({
+        ...data,
+        items: data.items.map((line) => ({ ...line, supplier_id: line.supplier_id === 'none' ? null : line.supplier_id })),
+    })).post(route('admin.purchases.store'), {
         onSuccess: () => {
             slideOverOpen.value = false;
             notify.success(form.receive ? t('inventory.purchase_received') : t('inventory.purchase_created'));
@@ -269,9 +342,11 @@ function toggleExpand(row) {
                                     <p v-if="form.errors['items.' + index + '.ingredient_id']" class="mt-0.5 text-xs text-danger">{{ form.errors['items.' + index + '.ingredient_id'] }}</p>
                                 </td>
                                 <td class="px-1 py-1 align-top">
-                                    <select v-model="line.supplier_id" :disabled="! line.ingredient_id" :aria-label="t('inventory.supplier')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent disabled:opacity-60" :class="form.errors['items.' + index + '.supplier_id'] ? 'border-danger' : ''">
+                                    <select v-model="line.supplier_id" :disabled="! line.ingredient_id" :aria-label="t('inventory.supplier')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent disabled:opacity-60" :class="form.errors['items.' + index + '.supplier_id'] ? 'border-danger' : ''" @change="onSupplierChange(line)">
                                         <option value="" disabled>{{ t('inventory.choose_supplier') }}</option>
+                                        <option value="none">{{ t('inventory.without_supplier') }}</option>
                                         <option v-for="supplier in suppliersFor(line)" :key="supplier.id" :value="supplier.id">{{ supplier.name }}</option>
+                                        <option value="__new">{{ t('inventory.create_supplier_option') }}</option>
                                     </select>
                                     <p v-if="form.errors['items.' + index + '.supplier_id']" class="mt-0.5 text-xs text-danger">{{ form.errors['items.' + index + '.supplier_id'] }}</p>
                                 </td>
@@ -320,6 +395,35 @@ function toggleExpand(row) {
                 </button>
             </template>
         </SlideOver>
+
+        <Teleport to="body">
+            <div v-if="supplierDialog" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4" @click.self="supplierDialog = null" @keydown.esc="supplierDialog = null">
+                <form class="w-full max-w-sm space-y-3 rounded-xl border border-border bg-surface p-4" role="dialog" aria-modal="true" :aria-label="t('inventory.quick_supplier_title')" novalidate @submit.prevent="createSupplier">
+                    <div>
+                        <h2 class="text-base font-semibold text-foreground">{{ t('inventory.quick_supplier_title') }}</h2>
+                        <p class="text-xs text-muted">{{ t('inventory.quick_supplier_hint') }}</p>
+                    </div>
+
+                    <FormField :label="t('inventory.supplier')" required :error="supplierDialog.error">
+                        <template #default="{ id }">
+                            <input :id="id" v-model="supplierDialog.name" type="text" maxlength="150" autofocus class="h-7 w-full rounded-md border bg-surface px-2 text-[13px] text-foreground outline-none focus:ring-2 focus:ring-accent/40" :class="supplierDialog.error ? 'border-danger' : 'border-border focus:border-accent'">
+                        </template>
+                    </FormField>
+
+                    <FormField :label="t('staff.mobile')">
+                        <MobileInput v-model="supplierDialog.mobile" />
+                    </FormField>
+
+                    <div class="flex justify-end gap-2">
+                        <button type="button" class="h-7 rounded-md border border-border bg-surface px-2.5 text-[13px] text-foreground hover:bg-background" @click="supplierDialog = null">{{ t('common.cancel') }}</button>
+                        <button type="submit" :disabled="supplierDialog.busy" class="inline-flex h-7 items-center gap-1.5 rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60">
+                            <AppIcon v-if="supplierDialog.busy" name="spinner" spin />
+                            {{ t('common.save') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </Teleport>
     </div>
 </template>
 

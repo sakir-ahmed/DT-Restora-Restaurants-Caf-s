@@ -25,7 +25,7 @@ class PurchaseRequest extends FormRequest
             'note' => ['nullable', 'string', 'max:1000'],
             'receive' => ['boolean'],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.supplier_id' => ['required_without:supplier_id', 'nullable', 'integer', 'exists:suppliers,id'],
+            'items.*.supplier_id' => ['nullable', 'integer', 'exists:suppliers,id'],
             'items.*.invoice_no' => ['nullable', 'string', 'max:100'],
             'items.*.ingredient_id' => ['required', 'integer', 'exists:ingredients,id'],
             'items.*.unit_id' => ['required', 'integer', 'exists:units,id'],
@@ -40,7 +40,6 @@ class PurchaseRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'items.*.supplier_id.required_without' => __('inventory.line_supplier_required'),
             'items.*.ingredient_id.required' => __('inventory.line_ingredient_required'),
             'items.*.unit_id.required' => __('inventory.line_unit_required'),
             'items.*.qty.required' => __('inventory.line_qty_required'),
