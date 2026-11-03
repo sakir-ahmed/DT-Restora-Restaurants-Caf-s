@@ -10,7 +10,7 @@ use Illuminate\Database\Seeder;
 /**
  * Resets the menu data only: units (every ingredient needs one), then the
  * branch, menu, ingredients and recipes in ArmansKitchenMenuSeeder. Users, roles,
- * settings and orders are not touched. Run it through reset-menu-data.sh.
+ * settings and orders are not touched. Run it with db:seed.
  */
 class ArmansKitchenResetSeeder extends Seeder
 {
