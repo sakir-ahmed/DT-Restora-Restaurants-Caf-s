@@ -73,6 +73,11 @@ class HandleInertiaRequests extends Middleware
                     ])
                     ->all()
                 : [],
+            'confirmDelay' => fn (): array => PublicCache::remember('confirm-delay', function (): array {
+                $setting = Setting::current();
+
+                return ['enabled' => (bool) $setting->delete_confirm_delay_enabled, 'seconds' => (int) $setting->delete_confirm_delay_seconds];
+            }),
             'smsDemo' => SmsService::isDemo(),
             'demoSms' => fn () => app(DemoSmsInbox::class)->drain($request),
             'site' => fn () => $request->routeIs('web.*') ? PublicCache::remember('site', fn (): array => $this->siteData()) : null,

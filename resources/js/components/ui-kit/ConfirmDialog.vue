@@ -1,5 +1,6 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { t } from '@/lib/i18n';
 import AppIcon from '@/components/AppIcon.vue';
 
@@ -25,6 +26,34 @@ const pin = ref('');
 const typed = ref('');
 const root = ref(null);
 
+// Delete (and other destructive) confirmations can keep their button locked for a few seconds.
+// The wait comes from the global setting shared with every page.
+const page = usePage();
+const remaining = ref(0);
+let countdown = null;
+
+function startCountdown() {
+    clearInterval(countdown);
+
+    const delay = page.props?.confirmDelay;
+
+    remaining.value = props.variant === 'danger' && delay?.enabled ? Number(delay.seconds) || 0 : 0;
+
+    if (remaining.value <= 0) {
+        return;
+    }
+
+    countdown = setInterval(() => {
+        remaining.value -= 1;
+
+        if (remaining.value <= 0) {
+            clearInterval(countdown);
+        }
+    }, 1000);
+}
+
+onBeforeUnmount(() => clearInterval(countdown));
+
 const variantMeta = computed(() => ({
     danger: { icon: 'trash', classes: 'bg-danger/10 text-danger' },
     warning: { icon: 'triangle-exclamation', classes: 'bg-warning/10 text-warning' },
@@ -44,7 +73,7 @@ const resolvedConfirmText = computed(() => props.confirmText ?? t('common.confir
 const resolvedCancelText = computed(() => props.cancelText ?? t('common.cancel'));
 
 const canConfirm = computed(() => {
-    if (props.busy) {
+    if (props.busy || remaining.value > 0) {
         return false;
     }
 
@@ -65,8 +94,13 @@ const canConfirm = computed(() => {
 
 watch(() => props.open, (open) => {
     if (! open) {
+        clearInterval(countdown);
+        remaining.value = 0;
+
         return;
     }
+
+    startCountdown();
 
     reason.value = '';
     note.value = '';
@@ -221,6 +255,7 @@ function submit() {
                         >
                             <AppIcon v-if="busy" name="spinner" spin />
                             {{ resolvedConfirmText }}
+                            <span v-if="remaining > 0" class="tabular-nums" data-countdown>({{ remaining }})</span>
                         </button>
                     </div>
                 </div>

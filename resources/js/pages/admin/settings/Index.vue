@@ -24,6 +24,8 @@ const form = useForm({
     wastage_spike_multiplier: props.settings.wastage_spike_multiplier,
     pos_pin_minutes: props.settings.pos_pin_minutes,
     pos_lock_enabled: Boolean(props.settings.pos_lock_enabled),
+    delete_confirm_delay_enabled: Boolean(props.settings.delete_confirm_delay_enabled),
+    delete_confirm_delay_seconds: props.settings.delete_confirm_delay_seconds ?? 5,
     delivery_otp_enabled: Boolean(props.settings.delivery_otp_enabled),
     tax_registration_no: props.settings.tax_registration_no ?? '',
     social_facebook: props.settings.social_facebook ?? '',
@@ -180,6 +182,26 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
                             :disabled="! form.pos_lock_enabled"
                             class="h-7 w-full rounded-md border bg-surface px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:ring-2 focus:ring-accent/40"
                             :class="form.errors.pos_pin_minutes ? 'border-danger' : 'border-border focus:border-accent'"
+                        >
+                    </template>
+                </FormField>
+
+                <div class="col-span-2 flex flex-col gap-0.5">
+                    <SwitchField v-model="form.delete_confirm_delay_enabled" :label="t('settings.delete_confirm_delay_enabled')" />
+                    <p class="text-xs text-muted">{{ t('settings.delete_confirm_delay_helper') }}</p>
+                </div>
+
+                <FormField :label="t('settings.delete_confirm_delay_seconds')" :helper="t('settings.delete_confirm_delay_seconds_helper')" :error="form.errors.delete_confirm_delay_seconds" required>
+                    <template #default="{ id }">
+                        <input
+                            :id="id"
+                            v-model="form.delete_confirm_delay_seconds"
+                            type="text" inputmode="numeric" v-numeric
+                            min="1"
+                            max="60"
+                            :disabled="! form.delete_confirm_delay_enabled"
+                            class="h-7 w-full rounded-md border bg-surface px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:ring-2 focus:ring-accent/40"
+                            :class="form.errors.delete_confirm_delay_seconds ? 'border-danger' : 'border-border focus:border-accent'"
                         >
                     </template>
                 </FormField>

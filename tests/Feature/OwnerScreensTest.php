@@ -57,3 +57,24 @@ it('lists customers matching a mobile search', function (): void {
 
     expect($names->all())->toBe(['Mina']);
 });
+
+it('saves the delete confirmation delay and shares it with every page', function (): void {
+    $base = ['discount_limit_percent' => 10, 'wastage_spike_multiplier' => 1.5, 'pos_pin_minutes' => 5, 'delivery_otp_enabled' => true];
+
+    $this->actingAs($this->owner, 'staff')->put('/admin/settings', $base + ['delete_confirm_delay_enabled' => true, 'delete_confirm_delay_seconds' => 7])->assertRedirect();
+
+    expect(Setting::current()->delete_confirm_delay_enabled)->toBeTrue()
+        ->and(Setting::current()->delete_confirm_delay_seconds)->toBe(7);
+
+    $this->actingAs($this->owner, 'staff')->get('/admin/settings')->assertInertia(fn ($page) => $page
+        ->where('confirmDelay.enabled', true)
+        ->where('confirmDelay.seconds', 7));
+
+    $this->actingAs($this->owner, 'staff')
+        ->put('/admin/settings', $base + ['delete_confirm_delay_enabled' => true, 'delete_confirm_delay_seconds' => 0])
+        ->assertSessionHasErrors('delete_confirm_delay_seconds');
+
+    $this->actingAs($this->owner, 'staff')->put('/admin/settings', $base + ['delete_confirm_delay_enabled' => false, 'delete_confirm_delay_seconds' => 7])->assertRedirect();
+
+    $this->actingAs($this->owner, 'staff')->get('/admin/settings')->assertInertia(fn ($page) => $page->where('confirmDelay.enabled', false));
+});
