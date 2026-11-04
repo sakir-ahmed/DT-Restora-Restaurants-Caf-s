@@ -93,6 +93,48 @@ it('saves branch POS settings with VAT and sends them to the POS page', function
         ->where('branch.pos_settings.invoice_layout', 'bold'));
 });
 
+it('keeps the due button on by default and lets a branch switch it off and choose what it prints', function (): void {
+    expect(PosSettings::for($this->branch)['actions']['due_sale']['enabled'])->toBeTrue();
+
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
+        'pos' => ['actions' => ['due_sale' => ['enabled' => false, 'print_invoice' => true]]],
+    ]))->assertRedirect();
+
+    $due = PosSettings::for($this->branch->fresh())['actions']['due_sale'];
+
+    expect($due['enabled'])->toBeFalse()
+        ->and($due['print_invoice'])->toBeTrue()
+        ->and($due['exact_amount'])->toBeFalse();
+});
+
+it('gives every button instant print and clear options, with quick save printing and clearing by default', function (): void {
+    $actions = PosSettings::for($this->branch)['actions'];
+
+    expect($actions['quick_save']['instant_print'])->toBeTrue()
+        ->and($actions['quick_save']['clear'])->toBeTrue()
+        ->and($actions['confirm_payment']['instant_print'])->toBeFalse()
+        ->and($actions['confirm_payment']['clear'])->toBeFalse();
+
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
+        'pos' => ['actions' => ['confirm_payment' => ['instant_print' => true, 'print_invoice' => true, 'clear' => true]]],
+    ]))->assertRedirect();
+
+    $saved = PosSettings::for($this->branch->fresh())['actions']['confirm_payment'];
+
+    expect($saved['instant_print'])->toBeTrue()
+        ->and($saved['print_invoice'])->toBeTrue()
+        ->and($saved['clear'])->toBeTrue();
+});
+
+it('keeps printing for buttons saved before instant print existed', function (): void {
+    $this->branch->update(['pos_settings' => ['actions' => ['confirm_payment' => ['enabled' => true, 'print_invoice' => true]]]]);
+
+    $actions = PosSettings::for($this->branch->fresh())['actions'];
+
+    expect($actions['confirm_payment']['instant_print'])->toBeTrue()
+        ->and($actions['send_to_kitchen']['instant_print'])->toBeFalse();
+});
+
 it('keeps settings separate for each branch', function (): void {
     $other = Branch::factory()->create(['code' => 'BR02']);
 

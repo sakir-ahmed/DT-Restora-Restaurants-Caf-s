@@ -590,9 +590,10 @@ const menuNoBadge = 'flex h-5 min-w-5 shrink-0 items-center justify-center round
 
 // Branch-wise POS settings: which buttons show and what each one prints
 const DEFAULT_ACTIONS = {
-    send_to_kitchen: { enabled: true, exact_amount: false, print_invoice: false, print_kitchen: false },
-    confirm_payment: { enabled: true, exact_amount: false, print_invoice: false, print_kitchen: false },
-    quick_save: { enabled: false, exact_amount: true, print_invoice: true, print_kitchen: false },
+    send_to_kitchen: { enabled: true, exact_amount: false, print_invoice: false, print_kitchen: false, instant_print: false, clear: false },
+    confirm_payment: { enabled: true, exact_amount: false, print_invoice: false, print_kitchen: false, instant_print: false, clear: false },
+    quick_save: { enabled: false, exact_amount: true, print_invoice: true, print_kitchen: false, instant_print: true, clear: true },
+    due_sale: { enabled: true, exact_amount: false, print_invoice: false, print_kitchen: false, instant_print: false, clear: true },
 };
 const posActions = computed(() => {
     const configured = branch.value.pos_settings?.actions ?? {};
@@ -622,10 +623,12 @@ const reviewAmounts = computed(() => {
 });
 const invoiceLayout = computed(() => branch.value.pos_settings?.invoice_layout ?? 'classic');
 const primarySpanClass = computed(() => {
-    const visible = Object.values(posActions.value).filter((action) => action.enabled).length;
+    const visible = ['send_to_kitchen', 'confirm_payment', 'quick_save'].filter((key) => posActions.value[key].enabled).length;
 
     return { 1: 'col-span-6', 2: 'col-span-3', 3: 'col-span-2' }[visible] ?? 'col-span-6';
 });
+// Due, Print and New order share the second row; the Due button can be switched off per branch.
+const secondaryRowSpanClass = computed(() => (posActions.value.due_sale.enabled ? 'col-span-2' : 'col-span-3'));
 const mobileTab = ref('menu');
 
 function findByMenuNumber(number) {
@@ -1530,6 +1533,12 @@ async function submitOrder(mode = 'send_to_kitchen', reviewed = false) {
 
 // After the order is saved: quick save takes the exact amount at once, the kitchen button prints its slips.
 function finishSave(mode, order) {
+    if (mode === 'quick_due') {
+        postDue(order, dueLinesPending);
+
+        return;
+    }
+
     if (mode === 'quick_save') {
         const due = Number(order.balance ?? order.total ?? total.value);
         const typed = payMode.value === 'cash' ? Number(tendered.value || 0) : 0;
@@ -1571,29 +1580,27 @@ function localKitchenHtml(order) {
     });
 }
 
-// Print what the branch settings ask for after this button: customer invoice, kitchen token or both.
+// After a button finishes: print what the branch settings ask for (customer invoice, kitchen token or both)
+// when instant print is on, then clear the ticket when clear is on. Local receipts are built before the clear.
 function printAfter(action, order) {
     const flags = posActions.value[action];
     const orderId = order?.id ?? null;
     const documents = [];
 
-    if (flags.print_invoice) {
+    if (flags.instant_print && flags.print_invoice) {
         documents.push(orderId ? { url: route('admin.orders.receipt', orderId) } : { html: localInvoiceHtml(order) });
     }
 
-    if (flags.print_kitchen) {
+    if (flags.instant_print && flags.print_kitchen) {
         documents.push(orderId ? { url: route('admin.orders.kitchen-token', orderId) } : { html: localKitchenHtml(order) });
     }
 
-    printSequence(documents);
-}
-
-// Quick save is one tap from cart to printed bill, so the screen is ready for the next customer afterwards.
-function finishQuickSave(source) {
-    if (source === 'quick_save') {
+    if (flags.clear) {
         startNewOrder();
         mobileTab.value = 'menu';
     }
+
+    printSequence(documents);
 }
 
 async function payNow(source = 'confirm_payment') {
@@ -1625,7 +1632,6 @@ async function payNow(source = 'confirm_payment') {
         notify.info(t('sync.queued'));
         playSound('order_paid');
         printAfter(source, order);
-        finishQuickSave(source);
 
         return;
     }
@@ -1643,7 +1649,6 @@ async function payNow(source = 'confirm_payment') {
             notify.success(t('orders.paid_success'));
             playSound('order_paid');
         printAfter(source, order);
-            finishQuickSave(source);
         },
         onError: (errors) => {
             const first = Object.values(errors)[0];
@@ -2298,7 +2303,7 @@ function pickCustomer(match) {
 function searchCustomers(term) {
     clearTimeout(suggestTimer);
 
-    if (term.length < 2 || ! navigator.onLine || latestOrder.value) {
+    if (term.length < 2 || ! navigator.onLine || (latestOrder.value && ! dueDialog.value)) {
         customerSuggestions.value = [];
 
         return;
@@ -2342,44 +2347,85 @@ const canCompleteWithDue = computed(() => !! latestOrder.value
     && payLinesTotal() < orderDue() - 0.005
     && ! payLines.value.some((line) => methodType(line.method) === 'wallet'));
 
-async function completeWithDue() {
-    const order = latestOrder.value;
+// The due button works straight from the cart (quick save on due) or on an order already sent.
+const canQuickDue = computed(() => canCompleteWithDue.value || (canSendOrder() && ! lastPayment.value));
 
-    if (! order || ! canCompleteWithDue.value) {
+// The dialog asks for the customer when the ticket has none, then saves the sale on due.
+const dueDialog = ref(null);
+let dueLinesPending = [];
+
+// Money taken now on a fresh ticket: typed cash, or the payment rows, only while it stays below the bill.
+function dueReceivedLines() {
+    if (latestOrder.value) {
+        return dueLines();
+    }
+
+    if (payMode.value === 'cash') {
+        const typed = Number(tendered.value || 0);
+
+        return typed > 0 && typed < total.value ? [{ method: 'cash', amount: typed.toFixed(2), reference: null }] : [];
+    }
+
+    return payLinesTotal() < total.value - 0.005 && ! payLines.value.some((line) => methodType(line.method) === 'wallet') ? dueLines() : [];
+}
+
+const dueDialogAmounts = computed(() => {
+    const due = orderDue();
+    const received = dueReceivedLines().reduce((sum, line) => sum + Number(line.amount), 0);
+
+    return { due, received, balance: Math.max(0, due - received) };
+});
+
+function openDueDialog() {
+    if (! canQuickDue.value) {
         return;
     }
 
-    if (! navigator.onLine || order.local) {
+    if (! navigator.onLine || latestOrder.value?.local) {
         notify.error(t('sync.needs_internet'));
 
         return;
     }
 
+    if (! latestOrder.value && ! openShift.value) {
+        openShiftDialog();
+        notify.info(t('orders.shift_needed'));
+
+        return;
+    }
+
+    dueDialog.value = {};
+    suggestOpen.value = true;
+}
+
+function closeDueDialog() {
+    dueDialog.value = null;
+    suggestOpen.value = false;
+    customerSuggestions.value = [];
+}
+
+function confirmDue() {
     if (! customerMobile.value) {
         notify.error(t('orders.due_needs_customer'));
 
         return;
     }
 
-    const received = payLinesTotal();
-    const result = await confirm({
-        variant: 'warning',
-        level: 'simple',
-        title: t('orders.due_sale_title'),
-        message: t('orders.due_confirm_message'),
-        facts: [
-            { label: t('orders.due_received'), value: formatMoney(received) },
-            { label: t('orders.due_balance'), value: formatMoney(orderDue() - received) },
-        ],
-        confirmText: t('orders.due_sale'),
-    });
+    dueLinesPending = dueReceivedLines();
+    closeDueDialog();
 
-    if (! result.confirmed) {
+    if (latestOrder.value) {
+        postDue(latestOrder.value, dueLinesPending);
+
         return;
     }
 
+    submitOrder('quick_due', true);
+}
+
+function postDue(order, lines) {
     router.post(route('admin.orders.due', order.id), {
-        lines: dueLines(),
+        lines,
         customer_mobile: customerMobile.value || null,
         customer_name: customerName.value.trim() || null,
     }, {
@@ -2389,7 +2435,7 @@ async function completeWithDue() {
             lastPayment.value = page.props.flash?.payment ?? { order_id: order.id, change_due: 0 };
             notify.success(String(page.props.flash?.success ?? t('orders.due_collected')));
             playSound('order_paid');
-            printAfter('confirm_payment', order);
+            printAfter('due_sale', order);
         },
         onError: (errors) => notify.error(String(Object.values(errors)[0] ?? t('common.error_occurred'))),
     });
@@ -2902,11 +2948,12 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                         {{ confirmPaymentLabel }}
                     </button>
                     <button
+                        v-if="posActions.due_sale.enabled"
                         type="button"
-                        :disabled="! canCompleteWithDue"
+                        :disabled="! canQuickDue"
                         :title="t('orders.due_sale_title')"
                         class="col-span-2 flex h-7 items-center justify-center gap-1 rounded-md border border-warning/50 bg-warning/10 text-xs font-semibold text-foreground hover:bg-warning/25 disabled:cursor-not-allowed disabled:border-border disabled:bg-background disabled:text-muted disabled:opacity-50"
-                        @click="completeWithDue"
+                        @click="openDueDialog"
                     >
                         <AppIcon name="hand-holding-dollar" size="11" />
                         {{ t('orders.due_sale') }}
@@ -2914,7 +2961,8 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                     <button
                         type="button"
                         :disabled="! latestOrder && ! lastPayment"
-                        class="col-span-2 flex h-7 items-center justify-center gap-1 rounded-md border border-border bg-background text-xs font-medium text-foreground hover:border-accent disabled:cursor-not-allowed disabled:opacity-50"
+                        :class="secondaryRowSpanClass"
+                        class="flex h-7 items-center justify-center gap-1 rounded-md border border-border bg-background text-xs font-medium text-foreground hover:border-accent disabled:cursor-not-allowed disabled:opacity-50"
                         @click="printCustomerCopy"
                     >
                         <AppIcon name="print" size="11" />
@@ -2923,7 +2971,8 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                     <button
                         type="button"
                         :disabled="! lastPayment && ! latestOrder"
-                        class="col-span-2 flex h-7 items-center justify-center gap-1 rounded-md border border-border bg-background text-xs font-medium text-foreground hover:border-accent disabled:cursor-not-allowed disabled:opacity-50"
+                        :class="secondaryRowSpanClass"
+                        class="flex h-7 items-center justify-center gap-1 rounded-md border border-border bg-background text-xs font-medium text-foreground hover:border-accent disabled:cursor-not-allowed disabled:opacity-50"
                         @click="startNewOrder"
                     >
                         <AppIcon name="plus" size="11" />
@@ -3428,6 +3477,50 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                     <div class="flex justify-end gap-2 border-t border-border px-5 py-3">
                         <button type="button" class="h-10 rounded-md border border-border px-4 text-sm text-foreground hover:bg-background" @click="billReview = null">{{ t('common.cancel') }}</button>
                         <button type="button" class="h-10 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground hover:opacity-90" @click="confirmBillReview">{{ t('orders.review_confirm') }}</button>
+                    </div>
+                </div>
+            </div>
+        </Teleport>
+
+        <!-- Due sale: confirm, and ask for the customer when the ticket has none -->
+        <Teleport to="body">
+            <div v-if="dueDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" :aria-label="t('orders.due_sale_title')" @keydown.esc="closeDueDialog" @keydown.enter.prevent="confirmDue">
+                <div class="w-full max-w-md rounded-xl border border-border bg-surface p-4">
+                    <h2 class="text-lg font-semibold text-foreground">{{ t('orders.due_sale_title') }}</h2>
+                    <p class="mt-0.5 text-sm text-muted">{{ t('orders.due_confirm_message') }}</p>
+
+                    <dl class="mt-3 divide-y divide-border rounded-md border border-border bg-background text-sm">
+                        <div class="flex justify-between px-3 py-1.5"><dt class="text-muted">{{ t('orders.review_total') }}</dt><dd class="font-medium tabular-nums">{{ formatMoney(dueDialogAmounts.due) }}</dd></div>
+                        <div class="flex justify-between px-3 py-1.5"><dt class="text-muted">{{ t('orders.due_received') }}</dt><dd class="font-medium tabular-nums">{{ formatMoney(dueDialogAmounts.received) }}</dd></div>
+                        <div class="flex justify-between px-3 py-1.5"><dt class="font-semibold">{{ t('orders.due_balance') }}</dt><dd class="font-bold tabular-nums text-danger">{{ formatMoney(dueDialogAmounts.balance) }}</dd></div>
+                    </dl>
+
+                    <div class="relative mt-3 flex items-center gap-1" @focusin="suggestOpen = true" @focusout="closeSuggestions">
+                        <div class="min-w-0 flex-1">
+                            <MobileInput v-model="customerMobile" :placeholder="t('orders.customer_mobile')" />
+                        </div>
+                        <input
+                            v-model="customerName"
+                            type="text"
+                            maxlength="100"
+                            :placeholder="t('orders.customer_name')"
+                            :aria-label="t('orders.customer_name')"
+                            autocomplete="off"
+                            class="h-7 min-w-0 flex-1 rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none placeholder:text-muted/60 focus:border-accent focus:ring-2 focus:ring-accent/40"
+                        >
+                        <ul v-if="suggestOpen && customerSuggestions.length" class="thin-scrollbar absolute inset-x-0 top-full z-30 mt-1 max-h-48 overflow-y-auto rounded-md border border-border bg-surface py-1 shadow-lg" role="listbox">
+                            <li v-for="match in customerSuggestions" :key="match.id" role="option">
+                                <button type="button" class="flex w-full items-center justify-between gap-2 px-2 py-1 text-left text-[13px] hover:bg-background" @mousedown.prevent="pickCustomer(match)">
+                                    <span class="min-w-0 truncate font-medium text-foreground">{{ match.name || t('orders.walk_in_customer') }}</span>
+                                    <span class="shrink-0 tabular-nums text-muted">{{ match.mobile }}</span>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="mt-4 flex justify-end gap-2">
+                        <button type="button" class="h-9 rounded-md border border-border px-3 text-sm text-foreground hover:bg-background" @click="closeDueDialog">{{ t('common.cancel') }}</button>
+                        <button type="button" :disabled="! customerMobile" class="h-9 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50" @click="confirmDue">{{ t('orders.due_sale') }}</button>
                     </div>
                 </div>
             </div>

@@ -23,6 +23,7 @@ const ACTION_ROWS = [
     { key: 'send_to_kitchen', exact: false },
     { key: 'confirm_payment', exact: true, hint: 'settings.action_confirm_payment_hint' },
     { key: 'quick_save', exact: 'locked', hint: 'settings.action_quick_save_hint' },
+    { key: 'due_sale', exact: false, hint: 'settings.action_due_sale_hint' },
 ];
 
 const SOUND_GROUPS = [
@@ -83,6 +84,8 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
                         <th class="px-2 py-1.5 text-center font-medium">{{ t('settings.col_exact') }}</th>
                         <th class="px-2 py-1.5 text-center font-medium">{{ t('settings.col_invoice') }}</th>
                         <th class="px-2 py-1.5 text-center font-medium">{{ t('settings.col_kitchen') }}</th>
+                        <th class="px-2 py-1.5 text-center font-medium">{{ t('settings.col_instant_print') }}</th>
+                        <th class="px-2 py-1.5 text-center font-medium">{{ t('settings.col_clear') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -97,8 +100,10 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
                             <input v-else-if="row.exact === 'locked'" type="checkbox" checked disabled :class="checkboxClass" :aria-label="`${t(`settings.action_${row.key}`)} - ${t('settings.col_exact')}`">
                             <span v-else class="text-muted">-</span>
                         </td>
-                        <td class="px-2 py-1.5 text-center"><input v-model="pos.actions[row.key].print_invoice" type="checkbox" :class="checkboxClass" :aria-label="`${t(`settings.action_${row.key}`)} - ${t('settings.col_invoice')}`"></td>
-                        <td class="px-2 py-1.5 text-center"><input v-model="pos.actions[row.key].print_kitchen" type="checkbox" :class="checkboxClass" :aria-label="`${t(`settings.action_${row.key}`)} - ${t('settings.col_kitchen')}`"></td>
+                        <td class="px-2 py-1.5 text-center"><input v-model="pos.actions[row.key].print_invoice" type="checkbox" :disabled="! pos.actions[row.key].instant_print" :class="checkboxClass" :aria-label="`${t(`settings.action_${row.key}`)} - ${t('settings.col_invoice')}`"></td>
+                        <td class="px-2 py-1.5 text-center"><input v-model="pos.actions[row.key].print_kitchen" type="checkbox" :disabled="! pos.actions[row.key].instant_print" :class="checkboxClass" :aria-label="`${t(`settings.action_${row.key}`)} - ${t('settings.col_kitchen')}`"></td>
+                        <td class="px-2 py-1.5 text-center"><input v-model="pos.actions[row.key].instant_print" type="checkbox" :class="checkboxClass" :aria-label="`${t(`settings.action_${row.key}`)} - ${t('settings.col_instant_print')}`"></td>
+                        <td class="px-2 py-1.5 text-center"><input v-model="pos.actions[row.key].clear" type="checkbox" :class="checkboxClass" :aria-label="`${t(`settings.action_${row.key}`)} - ${t('settings.col_clear')}`"></td>
                     </tr>
                 </tbody>
             </table>

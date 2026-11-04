@@ -206,6 +206,28 @@ it('attaches a customer typed after the order was sent when completing on due', 
         ->and($order->customer?->name)->toBe('Karim');
 });
 
+it('saves a fresh ticket on due in two steps: the order with the modal customer, then the due', function (): void {
+    $this->actingAs($this->cashier, 'staff')->post('/admin/orders', [
+        'order_type' => 'takeaway',
+        'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        'customer_mobile' => '01744444444',
+        'customer_name' => 'Salma',
+        'terminal' => 'T01',
+    ])->assertRedirect();
+
+    $order = Order::query()->latest('id')->firstOrFail();
+
+    $this->actingAs($this->cashier, 'staff')
+        ->post("/admin/orders/{$order->id}/due", ['lines' => [['method' => 'cash', 'amount' => '50']], 'customer_mobile' => '01744444444', 'customer_name' => 'Salma'])
+        ->assertRedirect();
+
+    $order->refresh();
+
+    expect($order->is_due)->toBeTrue()
+        ->and($order->customer?->name)->toBe('Salma')
+        ->and($order->balanceDue())->toBe(150.0);
+});
+
 it('suggests past customers by mobile or name for the POS auto-fill', function (): void {
     Customer::query()->create(['name' => 'Karim Uddin', 'mobile' => '8801733333333', 'is_active' => true]);
 

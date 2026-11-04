@@ -18,9 +18,9 @@ final class PosSettings
 {
     public const LAYOUTS = ['classic', 'compact', 'bold'];
 
-    public const ACTIONS = ['send_to_kitchen', 'confirm_payment', 'quick_save'];
+    public const ACTIONS = ['send_to_kitchen', 'confirm_payment', 'quick_save', 'due_sale'];
 
-    public const FLAGS = ['enabled', 'exact_amount', 'print_invoice', 'print_kitchen'];
+    public const FLAGS = ['enabled', 'exact_amount', 'print_invoice', 'print_kitchen', 'instant_print', 'clear'];
 
     public const TOKENS = ['BRANCH', 'TERMINAL', 'YYYY', 'YY', 'MM', 'DD', 'TIME', 'RAND', 'SEQ'];
 
@@ -69,9 +69,10 @@ final class PosSettings
     {
         return [
             'actions' => [
-                'send_to_kitchen' => ['enabled' => true, 'exact_amount' => false, 'print_invoice' => false, 'print_kitchen' => false],
-                'confirm_payment' => ['enabled' => true, 'exact_amount' => false, 'print_invoice' => false, 'print_kitchen' => false],
-                'quick_save' => ['enabled' => false, 'exact_amount' => true, 'print_invoice' => true, 'print_kitchen' => false],
+                'send_to_kitchen' => ['enabled' => true, 'exact_amount' => false, 'print_invoice' => false, 'print_kitchen' => false, 'instant_print' => false, 'clear' => false],
+                'confirm_payment' => ['enabled' => true, 'exact_amount' => false, 'print_invoice' => false, 'print_kitchen' => false, 'instant_print' => false, 'clear' => false],
+                'quick_save' => ['enabled' => false, 'exact_amount' => true, 'print_invoice' => true, 'print_kitchen' => false, 'instant_print' => true, 'clear' => true],
+                'due_sale' => ['enabled' => true, 'exact_amount' => false, 'print_invoice' => false, 'print_kitchen' => false, 'instant_print' => false, 'clear' => true],
             ],
             'review_before_save' => false,
             'invoice_layout' => 'classic',
@@ -131,6 +132,12 @@ final class PosSettings
 
         unset($stored['payment_methods'], $stored['cash_suggestions'], $stored['sounds']);
 
+        foreach ($stored['actions'] ?? [] as $action => $row) {
+            if (is_array($row) && ! array_key_exists('instant_print', $row)) {
+                $stored['actions'][$action]['instant_print'] = ! empty($row['print_invoice']) || ! empty($row['print_kitchen']);
+            }
+        }
+
         $settings = array_replace_recursive(self::defaults(), $stored);
         $settings['payment_methods'] = $methods;
         $settings['review_before_save'] = (bool) $settings['review_before_save'];
@@ -142,6 +149,7 @@ final class PosSettings
         // The quick save button always pays the exact total, and the kitchen button never takes cash.
         $settings['actions']['quick_save']['exact_amount'] = true;
         $settings['actions']['send_to_kitchen']['exact_amount'] = false;
+        $settings['actions']['due_sale']['exact_amount'] = false;
 
         return $settings;
     }
@@ -267,6 +275,8 @@ final class PosSettings
             'pos.actions.*.exact_amount' => ['required', 'boolean'],
             'pos.actions.*.print_invoice' => ['required', 'boolean'],
             'pos.actions.*.print_kitchen' => ['required', 'boolean'],
+            'pos.actions.*.instant_print' => ['sometimes', 'boolean'],
+            'pos.actions.*.clear' => ['sometimes', 'boolean'],
             'pos.review_before_save' => ['sometimes', 'boolean'],
             'pos.invoice_layout' => ['required_with:pos', Rule::in(self::LAYOUTS)],
             'pos.invoice_pattern' => ['required_with:pos', 'string', 'max:60', function (string $attribute, mixed $value, Closure $fail): void {
@@ -305,6 +315,8 @@ final class PosSettings
 
         foreach (self::ACTIONS as $action) {
             $row = $pos['actions'][$action] ?? null;
+
+            $row ??= $action === 'due_sale' ? self::defaults()['actions']['due_sale'] : null;
 
             abort_if($row === null, 422);
 
