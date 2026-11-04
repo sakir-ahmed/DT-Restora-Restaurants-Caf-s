@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { t } from '@/lib/i18n';
 import AppIcon from '@/components/AppIcon.vue';
+import InfoButton from '@/components/ui-kit/InfoButton.vue';
 
 const props = defineProps({
     label: { type: String, required: true },
@@ -12,9 +13,10 @@ const props = defineProps({
     state: { type: String, default: null }, // success | danger (semantic target state)
     loading: { type: Boolean, default: false },
     sparkline: { type: Array, default: () => [] },
+    info: { type: Boolean, default: false }, // show the "how is this calculated" button
 });
 
-const emit = defineEmits(['click']);
+const emit = defineEmits(['click', 'info']);
 
 const numericChange = computed(() => Number(props.change));
 
@@ -48,13 +50,17 @@ const points = computed(() => {
         <div class="flex items-center justify-between gap-2">
             <span class="text-xs font-medium uppercase tracking-wider text-muted" :class="$page.props.locale === 'bn' ? 'normal-case tracking-normal' : ''">{{ label }}</span>
 
-            <span
-                v-if="state"
-                class="flex h-5 w-5 items-center justify-center rounded-full"
-                :class="state === 'danger' ? 'bg-danger/10 text-danger' : 'bg-success/10 text-success'"
-            >
-                <AppIcon :name="state === 'danger' ? 'triangle-exclamation' : 'circle-check'" size="10" />
-            </span>
+            <div class="flex items-center gap-1">
+                <span
+                    v-if="state"
+                    class="flex h-5 w-5 items-center justify-center rounded-full"
+                    :class="state === 'danger' ? 'bg-danger/10 text-danger' : 'bg-success/10 text-success'"
+                >
+                    <AppIcon :name="state === 'danger' ? 'triangle-exclamation' : 'circle-check'" size="10" />
+                </span>
+
+                <InfoButton v-if="info" @click="emit('info')" />
+            </div>
         </div>
 
         <div v-if="loading" class="h-7 w-24 animate-pulse rounded bg-border/60" />

@@ -304,3 +304,25 @@ it('shows expenses by category and due balances on the dashboard', function (): 
         'collected' => '100.00',
     ]);
 });
+
+it('passes the previous period dates and has explanations in every language', function (): void {
+    $response = $this->actingAs($this->owner, 'staff')->get('/admin?period=7days&branch='.$this->branch->id);
+
+    $props = $response->viewData('page')['props'];
+
+    expect($props['previousFrom'])->toBe(now()->subDays(13)->toDateString())
+        ->and($props['previousTo'])->toBe(now()->subDays(7)->toDateString());
+
+    $keys = array_keys(trans('dashboard.info.items', [], 'en'));
+
+    expect($keys)->toContain('expenses', 'net_profit', 'dues');
+
+    foreach (['en', 'bn'] as $locale) {
+        foreach ($keys as $key) {
+            foreach (['title', 'what', 'formula'] as $part) {
+                expect(trans("dashboard.info.items.$key.$part", [], $locale))
+                    ->not->toBe("dashboard.info.items.$key.$part");
+            }
+        }
+    }
+});

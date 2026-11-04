@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import { t } from '@/lib/i18n';
 import AppIcon from '@/components/AppIcon.vue';
+import InfoButton from '@/components/ui-kit/InfoButton.vue';
 
 const props = defineProps({
     title: { type: String, required: true },
@@ -12,7 +13,10 @@ const props = defineProps({
     exportName: { type: String, default: 'chart' },
     tableHeaders: { type: Array, default: () => [] },
     tableRows: { type: Array, default: () => [] },
+    info: { type: Boolean, default: false }, // show the "how is this calculated" button
 });
+
+const emit = defineEmits(['info', 'retry']);
 
 const showTable = ref(false);
 
@@ -45,6 +49,8 @@ function downloadCsv() {
             </div>
 
             <div class="flex items-center gap-1">
+                <InfoButton v-if="info" @click="emit('info')" />
+
                 <button
                     type="button"
                     class="flex h-6 items-center gap-1 rounded border border-border px-1.5 text-[11px] text-muted hover:text-foreground"
@@ -75,7 +81,7 @@ function downloadCsv() {
         <div v-else-if="error" class="flex h-48 flex-col items-center justify-center gap-2 text-center">
             <AppIcon name="triangle-exclamation" size="24" class="text-danger" />
             <p class="text-[13px] text-muted">{{ error }}</p>
-            <button type="button" class="text-xs text-foreground underline" @click="$emit('retry')">{{ t('common.retry') }}</button>
+            <button type="button" class="text-xs text-foreground underline" @click="emit('retry')">{{ t('common.retry') }}</button>
         </div>
 
         <div v-else-if="empty" class="flex h-48 flex-col items-center justify-center gap-1 text-center">

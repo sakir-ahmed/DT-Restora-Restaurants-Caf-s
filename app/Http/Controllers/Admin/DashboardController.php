@@ -37,6 +37,8 @@ class DashboardController extends Controller
             'period' => $period,
             'from' => $from->toDateString(),
             'to' => $to->toDateString(),
+            'previousFrom' => $prevFrom->toDateString(),
+            'previousTo' => $prevTo->toDateString(),
             'summary' => $summary,
             'previous' => $previous,
             'salesByDay' => $metrics->salesByDay($branchId, $from, $to),
@@ -85,7 +87,7 @@ class DashboardController extends Controller
      */
     private function previousPeriod(CarbonImmutable $from, CarbonImmutable $to): array
     {
-        $length = $from->diffInDays($to) + 1;
+        $length = (int) $from->startOfDay()->diffInDays($to->startOfDay()) + 1;
 
         return [$from->subDays($length)->startOfDay(), $from->subDay()->endOfDay()];
     }
