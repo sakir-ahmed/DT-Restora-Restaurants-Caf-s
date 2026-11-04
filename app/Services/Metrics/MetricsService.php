@@ -103,6 +103,72 @@ class MetricsService
     }
 
     /**
+     * Expenses in the period grouped by category, largest first.
+     *
+     * @return array<int, array{category: string, total: string}>
+     */
+    public function expensesByCategory(?int $branchId, CarbonInterface $from, CarbonInterface $to): array
+    {
+        return Expense::query()
+            ->when($branchId, fn ($query) => $query->where('branch_id', $branchId))
+            ->whereBetween('expense_date', [$from->copy()->startOfDay(), $to->copy()->endOfDay()])
+            ->selectRaw('category, SUM(amount) as total')
+            ->groupBy('category')
+            ->orderByDesc('total')
+            ->get()
+            ->map(fn ($row): array => [
+                'category' => (string) $row->category,
+                'total' => number_format((float) $row->total, 2, '.', ''),
+            ])
+            ->all();
+    }
+
+    /**
+     * Money owed on due sales (all time, as it stays owed until collected), plus what was
+     * put on due and what was collected within the period.
+     *
+     * @return array{outstanding: string, open_count: int, new_due: string, collected: string}
+     */
+    public function dues(?int $branchId, CarbonInterface $from, CarbonInterface $to): array
+    {
+        $range = [$from->copy()->startOfDay(), $to->copy()->endOfDay()];
+
+        $dueOrders = Order::query()
+            ->where('status', '!=', OrderStatus::Void->value)
+            ->where('is_due', true)
+            ->when($branchId, fn ($query) => $query->where('branch_id', $branchId));
+
+        $outstanding = (float) (clone $dueOrders)->sum('total')
+            - (float) Payment::query()
+                ->where('status', Payment::STATUS_COMPLETED)
+                ->whereIn('order_id', (clone $dueOrders)->select('id'))
+                ->sum('amount');
+
+        $newDue = (float) (clone $dueOrders)->whereBetween('paid_at', $range)->sum('total')
+            - (float) Payment::query()
+                ->where('status', Payment::STATUS_COMPLETED)
+                ->whereIn('order_id', (clone $dueOrders)->whereBetween('paid_at', $range)->select('id'))
+                ->where('is_due_collection', false)
+                ->sum('amount');
+
+        $collected = (float) Payment::query()
+            ->where('status', Payment::STATUS_COMPLETED)
+            ->where('is_due_collection', true)
+            ->whereBetween('created_at', $range)
+            ->whereIn('order_id', Order::query()
+                ->when($branchId, fn ($query) => $query->where('branch_id', $branchId))
+                ->select('id'))
+            ->sum('amount');
+
+        return [
+            'outstanding' => number_format(max(0.0, $outstanding), 2, '.', ''),
+            'open_count' => (clone $dueOrders)->count(),
+            'new_due' => number_format(max(0.0, $newDue), 2, '.', ''),
+            'collected' => number_format($collected, 2, '.', ''),
+        ];
+    }
+
+    /**
      * @return array<int, array{date: string, total: string, orders: int}>
      */
     public function salesByDay(?int $branchId, CarbonInterface $from, CarbonInterface $to): array

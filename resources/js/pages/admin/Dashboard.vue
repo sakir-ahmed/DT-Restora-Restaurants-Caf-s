@@ -35,6 +35,8 @@ const props = defineProps({
     salesByChannel: { type: Array, default: () => [] },
     topItems: { type: Array, default: () => [] },
     branchComparison: { type: Array, default: () => [] },
+    expensesByCategory: { type: Array, default: () => [] },
+    dues: { type: Object, required: true },
     alerts: { type: Object, required: true },
     setup: { type: Object, required: true },
 });
@@ -102,6 +104,18 @@ const topItemsData = computed(() => ({
     }],
 }));
 
+const expenseData = computed(() => {
+    const palette = [chartColors.primary, chartColors.accent, chartColors.success, chartColors.danger, chartColors.muted];
+
+    return {
+        labels: props.expensesByCategory.map((row) => t('expenses.categories.' + row.category)),
+        datasets: [{
+            data: props.expensesByCategory.map((row) => Number(row.total)),
+            backgroundColor: props.expensesByCategory.map((_, index) => palette[index % palette.length]),
+        }],
+    };
+});
+
 const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -163,6 +177,9 @@ const profitLines = computed(() => ([
             <KpiCard :label="t('dashboard.wastage')" :value="formatMoney(summary.wastage_cost, { symbol: true })" :change="change('wastage_cost')" />
             <KpiCard :label="t('dashboard.net_profit')" :value="formatMoney(summary.net_profit, { symbol: true })" :change="change('net_profit')" :state="Number(summary.net_profit) < 0 ? 'danger' : null" />
             <KpiCard :label="t('dashboard.orders')" :value="formatNumber(summary.orders)" :change="change('orders')" />
+            <KpiCard :label="t('dashboard.expenses')" :value="formatMoney(summary.expenses, { symbol: true })" :change="change('expenses')" />
+            <KpiCard :label="t('dashboard.dues_outstanding')" :value="formatMoney(dues.outstanding, { symbol: true })" :state="Number(dues.outstanding) > 0 ? 'danger' : 'success'" />
+            <KpiCard :label="t('dashboard.dues_collected')" :value="formatMoney(dues.collected, { symbol: true })" />
         </div>
 
         <!-- Alerts -->
@@ -223,6 +240,43 @@ const profitLines = computed(() => ([
                     <Bar :data="topItemsData" :options="barOptions" />
                 </template>
             </ChartCard>
+
+            <ChartCard
+                :title="t('dashboard.expenses_by_category')"
+                :table-headers="[t('expenses.category'), t('dashboard.expenses')]"
+                :table-rows="expensesByCategory.map((row) => [t('expenses.categories.' + row.category), row.total])"
+                export-name="expenses-by-category"
+            >
+                <template #chart>
+                    <Doughnut :data="expenseData" :options="donutOptions" />
+                </template>
+            </ChartCard>
+
+            <section class="rounded-lg border border-border bg-surface p-3">
+                <header class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-foreground">{{ t('dashboard.dues_title') }}</h3>
+                    <a :href="route('admin.dues.index')" class="text-xs text-muted hover:text-foreground">{{ t('common.view') }}</a>
+                </header>
+
+                <ul class="mt-2 space-y-1.5 text-[13px]">
+                    <li class="flex items-center justify-between">
+                        <span class="text-muted">{{ t('dashboard.dues_open_count') }}</span>
+                        <span class="tabular-nums">{{ formatNumber(dues.open_count) }}</span>
+                    </li>
+                    <li class="flex items-center justify-between">
+                        <span class="text-muted">{{ t('dashboard.dues_outstanding') }}</span>
+                        <MoneyText :value="dues.outstanding" class="font-semibold" />
+                    </li>
+                    <li class="flex items-center justify-between">
+                        <span class="text-muted">{{ t('dashboard.dues_new') }}</span>
+                        <MoneyText :value="dues.new_due" />
+                    </li>
+                    <li class="flex items-center justify-between">
+                        <span class="text-muted">{{ t('dashboard.dues_collected') }}</span>
+                        <MoneyText :value="dues.collected" />
+                    </li>
+                </ul>
+            </section>
 
             <section class="rounded-lg border border-border bg-surface p-3">
                 <h3 class="text-sm font-semibold text-foreground">{{ t('dashboard.profit_breakdown') }}</h3>

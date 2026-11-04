@@ -36,6 +36,12 @@ return [
         'low_stock_count' => ':count ingredients are at or below the reorder level.',
         'wastage_spike' => 'Wastage is above the 7-day average.',
     ],
+    'expenses_by_category' => 'Expenses by category',
+    'dues_title' => 'Dues',
+    'dues_open_count' => 'Open due sales',
+    'dues_outstanding' => 'Dues outstanding',
+    'dues_new' => 'Put on due in period',
+    'dues_collected' => 'Dues collected',
     'empty_title' => 'No data yet',
     'setup' => [
         'title' => 'Setup checklist',

@@ -42,6 +42,8 @@ class DashboardController extends Controller
             'salesByDay' => $metrics->salesByDay($branchId, $from, $to),
             'salesByChannel' => $metrics->salesByChannel($branchId, $from, $to),
             'topItems' => $metrics->topItems($branchId, $from, $to),
+            'expensesByCategory' => $metrics->expensesByCategory($branchId, $from, $to),
+            'dues' => $metrics->dues($branchId, $from, $to),
             'branchComparison' => $seesAll ? $metrics->branchComparison($from, $to) : [],
             'alerts' => [
                 'lowStock' => $metrics->lowStock($branchId ?? $this->firstBranchId()),

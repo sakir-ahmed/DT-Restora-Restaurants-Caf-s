@@ -36,6 +36,12 @@ return [
         'low_stock_count' => ':countটি উপকরণ রিঅর্ডার সীমার নিচে বা সমান।',
         'wastage_spike' => 'অপচয় গত ৭ দিনের গড়ের চেয়ে বেশি।',
     ],
+    'expenses_by_category' => 'ক্যাটাগরি অনুযায়ী খরচ',
+    'dues_title' => 'বাকি',
+    'dues_open_count' => 'বাকি থাকা বিক্রয়',
+    'dues_outstanding' => 'মোট বাকি',
+    'dues_new' => 'এই সময়ে বাকিতে দেওয়া',
+    'dues_collected' => 'বাকি আদায়',
     'empty_title' => 'এখনো কোনো তথ্য নেই',
     'setup' => [
         'title' => 'সেটআপ তালিকা',

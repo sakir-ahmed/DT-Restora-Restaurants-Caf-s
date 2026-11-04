@@ -262,3 +262,45 @@ it('scopes the dashboard for a branch manager', function (): void {
 
     expect($props['branchComparison'])->toBeEmpty();
 });
+
+it('shows expenses by category and due balances on the dashboard', function (): void {
+    foreach ([['rent', '700.00'], ['utilities', '200.00'], ['rent', '100.00']] as [$category, $amount]) {
+        Expense::query()->create([
+            'branch_id' => $this->branch->id,
+            'expense_date' => now()->toDateString(),
+            'category' => $category,
+            'amount' => $amount,
+        ]);
+    }
+
+    $dueOrderId = seedOrder($this, '1000.00');
+    DB::table('orders')->where('id', $dueOrderId)->update(['is_due' => true]);
+
+    foreach ([['400.00', false], ['100.00', true]] as [$amount, $isCollection]) {
+        DB::table('payments')->insert([
+            'order_id' => $dueOrderId,
+            'method' => 'cash',
+            'amount' => $amount,
+            'status' => 'completed',
+            'is_due_collection' => $isCollection,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
+    $response = $this->actingAs($this->owner, 'staff')->get('/admin?branch='.$this->branch->id);
+
+    $response->assertOk();
+
+    $props = $response->viewData('page')['props'];
+
+    expect($props['expensesByCategory'])->toBe([
+        ['category' => 'rent', 'total' => '800.00'],
+        ['category' => 'utilities', 'total' => '200.00'],
+    ])->and($props['dues'])->toBe([
+        'outstanding' => '500.00',
+        'open_count' => 1,
+        'new_due' => '600.00',
+        'collected' => '100.00',
+    ]);
+});
