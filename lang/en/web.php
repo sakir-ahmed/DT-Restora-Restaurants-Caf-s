@@ -5,6 +5,8 @@ declare(strict_types=1);
 return [
     'nav_menu' => 'Menu',
     'nav_account' => 'My account',
+    'nav_admin_login' => 'Admin login',
+    'staff_prompt' => 'Are you staff?',
     'nav_login' => 'Sign in',
     'privacy' => 'Privacy policy',
     'terms' => 'Terms of service',

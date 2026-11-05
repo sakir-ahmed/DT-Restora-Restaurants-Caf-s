@@ -1,5 +1,5 @@
 <script setup>
-import { Head, router } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
@@ -87,6 +87,14 @@ function verify() {
                 <AppIcon v-if="busy" name="spinner" spin />
                 {{ t('auth.sign_in') }}
             </button>
+        </div>
+
+        <div class="mt-5 flex items-center justify-between gap-3 border-t border-border pt-4 text-sm">
+            <span class="text-muted">{{ t('web.staff_prompt') }}</span>
+            <Link href="/login" class="inline-flex items-center gap-1.5 font-semibold text-foreground hover:underline">
+                <AppIcon name="user-shield" size="13" />
+                {{ t('web.nav_admin_login') }}
+            </Link>
         </div>
     </div>
     </div>

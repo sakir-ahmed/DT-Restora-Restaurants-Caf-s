@@ -5,6 +5,8 @@ declare(strict_types=1);
 return [
     'nav_menu' => 'মেনু',
     'nav_account' => 'আমার অ্যাকাউন্ট',
+    'nav_admin_login' => 'অ্যাডমিন লগইন',
+    'staff_prompt' => 'আপনি কি স্টাফ?',
     'nav_login' => 'সাইন ইন',
     'privacy' => 'গোপনীয়তা নীতি',
     'terms' => 'সেবার শর্তাবলী',
