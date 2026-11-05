@@ -13,10 +13,10 @@ const DemoExperience = defineAsyncComponent(() => import('./components/demo/Demo
 
 import ConfirmHost from './components/ui-kit/ConfirmHost.vue';
 import UpdatePrompt from './components/ui-kit/UpdatePrompt.vue';
-import { Workbox } from 'workbox-window';
 import { t } from './lib/i18n';
 import { notify } from './lib/notify';
 import { vNumeric } from './lib/numericInput';
+import { registerServiceWorker } from './lib/pwa';
 import { pageTitle } from './lib/title';
 import { Ziggy } from './ziggy';
 
@@ -97,21 +97,5 @@ createInertiaApp({
     },
 });
 
-// Prompt before applying a new service worker. Nothing reloads until the cashier chooses.
-// The worker is served from /sw.js so its scope covers /admin, not only /build.
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
-    const worker = new Workbox('/sw.js', { scope: '/' });
-
-    worker.addEventListener('waiting', () => {
-        window.dispatchEvent(new CustomEvent('pwa-update', {
-            detail: {
-                apply: () => {
-                    worker.messageSkipWaiting();
-                    window.location.reload();
-                },
-            },
-        }));
-    });
-
-    worker.register();
-}
+// Offline support: the worker is served from /sw.js so its scope covers /admin and /rider.
+registerServiceWorker();

@@ -35,8 +35,9 @@ final class Brand
                 ['file' => 'favicon.png', 'type' => 'image/png', 'sizes' => '96x96'],
             ],
             'icons' => [
-                ['file' => 'emblem-192.png', 'sizes' => '192x192', 'type' => 'image/png'],
-                ['file' => 'emblem-512.png', 'sizes' => '512x512', 'type' => 'image/png'],
+                ['file' => 'emblem-192.png', 'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'any'],
+                ['file' => 'emblem-512.png', 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'any'],
+                ['file' => 'emblem-maskable-512.png', 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'maskable'],
             ],
             'themeColor' => '#17120b',
             'backgroundColor' => '#0e0b07',
@@ -53,8 +54,10 @@ final class Brand
                 ['file' => 'favicon.ico', 'type' => 'image/x-icon', 'sizes' => '32x32'],
             ],
             'icons' => [
-                ['file' => 'logo-512.png', 'sizes' => '512x512', 'type' => 'image/png'],
-                ['file' => 'favicon.svg', 'sizes' => 'any', 'type' => 'image/svg+xml'],
+                ['file' => 'logo-192.png', 'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'any'],
+                ['file' => 'logo-512.png', 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'any'],
+                ['file' => 'logo-maskable-512.png', 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'maskable'],
+                ['file' => 'favicon.svg', 'sizes' => 'any', 'type' => 'image/svg+xml', 'purpose' => 'any'],
             ],
             'themeColor' => '#0b63ce',
             'backgroundColor' => '#f5f7fa',
@@ -181,22 +184,47 @@ final class Brand
     public static function manifest(): array
     {
         $profile = self::profile();
+        $mode = self::mode();
 
         return [
+            'id' => '/',
             'name' => $profile['name'].' POS',
             'short_name' => $profile['name'],
-            'description' => $profile['name'].' restaurant POS',
+            'description' => $profile['name'].' restaurant POS that keeps working without internet',
             'start_url' => '/admin/pos',
             'scope' => '/',
             'display' => 'standalone',
+            'display_override' => ['standalone', 'minimal-ui'],
+            'orientation' => 'any',
+            'categories' => ['business', 'food', 'productivity'],
             'theme_color' => self::themeColor(),
             'background_color' => self::backgroundColor(),
+            'prefer_related_applications' => false,
             'icons' => array_map(fn (array $icon): array => [
-                'src' => '/images/'.self::mode().'/brand/'.$icon['file'],
+                'src' => '/images/'.$mode.'/brand/'.$icon['file'],
                 'sizes' => $icon['sizes'],
                 'type' => $icon['type'],
-                'purpose' => 'any',
+                'purpose' => $icon['purpose'],
             ], $profile['icons']),
+            'shortcuts' => self::shortcuts(),
+        ];
+    }
+
+    /**
+     * Quick actions offered by the installed app icon. Each opens a page behind
+     * its own permission, so staff without access get the normal denied page.
+     *
+     * @return list<array{name: string, short_name: string, url: string, icons: list<array{src: string, sizes: string, type: string}>}>
+     */
+    private static function shortcuts(): array
+    {
+        $icon = collect(self::profile()['icons'])->first(fn (array $icon): bool => $icon['purpose'] === 'any' && $icon['sizes'] === '192x192');
+        $icons = $icon === null ? [] : [['src' => '/images/'.self::mode().'/brand/'.$icon['file'], 'sizes' => $icon['sizes'], 'type' => $icon['type']]];
+
+        return [
+            ['name' => __('nav.pos'), 'short_name' => __('nav.pos'), 'url' => '/admin/pos', 'icons' => $icons],
+            ['name' => __('nav.orders'), 'short_name' => __('nav.orders'), 'url' => '/admin/orders', 'icons' => $icons],
+            ['name' => __('nav.kds'), 'short_name' => __('nav.kds'), 'url' => '/admin/kds', 'icons' => $icons],
         ];
     }
 

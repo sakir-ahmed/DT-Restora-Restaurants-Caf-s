@@ -69,12 +69,19 @@ use App\Http\Controllers\Web\ItemController;
 use App\Http\Controllers\Web\LegalController;
 use App\Http\Controllers\Web\LocationController;
 use App\Http\Controllers\Web\MenuController;
+use App\Http\Controllers\Web\PwaController;
 use App\Http\Controllers\Web\RobotsController;
 use App\Http\Controllers\Web\SitemapController;
 use App\Http\Controllers\Web\TableMenuController;
 use App\Http\Controllers\Web\TrackController;
 use App\Http\Controllers\Web\WebPaymentController;
+use App\Http\Middleware\EnsureWebsiteEnabled;
+use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\SetLocale;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 Route::get('/', HomeController::class)->name('web.home');
 Route::get('/about', AboutController::class)->name('web.about');
@@ -135,6 +142,12 @@ Route::get('/sitemap.xml', SitemapController::class)->name('web.sitemap');
 Route::get('/robots.txt', RobotsController::class)->name('web.robots');
 Route::get('/favicon.ico', [BrandController::class, 'favicon'])->name('web.favicon');
 Route::get('/manifest.webmanifest', [BrandController::class, 'manifest'])->name('web.manifest');
+
+// PWA files. Neither needs a session, so neither starts one (no cookie, safe to cache).
+Route::withoutMiddleware([PreventRequestForgery::class, StartSession::class, ShareErrorsFromSession::class, EnsureWebsiteEnabled::class, HandleInertiaRequests::class, SetLocale::class])->group(function (): void {
+    Route::get('/sw.js', [PwaController::class, 'serviceWorker'])->name('web.sw');
+    Route::get('/offline', [PwaController::class, 'offline'])->name('web.offline');
+});
 
 Route::post('/locale', LocaleController::class)->name('locale.switch');
 

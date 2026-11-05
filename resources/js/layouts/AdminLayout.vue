@@ -10,6 +10,8 @@ import NotificationBell from '@/components/ui-kit/NotificationBell.vue';
 import SyncStatusPill from '@/components/ui-kit/SyncStatusPill.vue';
 import ThemeToggle from '@/components/ui-kit/ThemeToggle.vue';
 import { t } from '@/lib/i18n';
+import { notify } from '@/lib/notify';
+import { canInstall, clearPrivateCaches, needsIosInstallSteps, promptInstall } from '@/lib/pwa';
 import { configureSounds, preloadSounds } from '@/lib/sounds';
 
 const page = usePage();
@@ -150,8 +152,21 @@ function switchBranch(event) {
     });
 }
 
-function logout() {
+async function logout() {
+    await clearPrivateCaches();
     router.post('/logout');
+}
+
+const showInstall = computed(() => canInstall.value || needsIosInstallSteps.value);
+
+async function installApp() {
+    if (canInstall.value) {
+        await promptInstall();
+
+        return;
+    }
+
+    notify.info(t('pwa.install_ios'));
 }
 
 function openCommandPalette() {
@@ -297,6 +312,17 @@ function openCommandPalette() {
                                 <AppIcon name="user" size="12" />
                                 {{ t('nav.profile') }}
                             </Link>
+
+                            <button
+                                v-if="showInstall"
+                                type="button"
+                                data-install-app
+                                class="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-[13px] text-foreground hover:bg-background"
+                                @click="installApp"
+                            >
+                                <AppIcon name="download" size="12" />
+                                {{ t('pwa.install') }}
+                            </button>
 
                             <button
                                 type="button"

@@ -12,7 +12,7 @@ export default defineConfig({
         },
         {
             name: 'journey',
-            testMatch: /pos-offline-journey\.spec\.js/,
+            testMatch: /(pos-offline-journey|pwa)\.spec\.js/,
             use: {
                 baseURL: 'http://127.0.0.1:8099',
                 browserName: 'chromium',

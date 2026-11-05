@@ -265,6 +265,9 @@ A feature is **done** only when all of these are true:
 ## 13. Offline-First Rules
 
 - Admin, POS and KDS are a PWA. The service worker caches the app shell with versioned caches; on a new deploy, show "Update available" and never reload in the middle of an order.
+- The service worker is built by `vite-plugin-pwa` and served from `/sw.js` by `PwaController` (`Cache-Control: no-store`, root scope). It must stay self-contained (no `importScripts`), because a cached import would hide new releases. It is registered only on `/admin`, `/rider` and `/login` (`resources/js/lib/pwa.js`).
+- Screens already opened are kept in the `pages` and `screens` caches (network first, 3 second timeout); a screen never opened shows the precached `/offline` page. Both caches are emptied at sign out.
+- The manifest comes from `Brand::manifest()` (per-mode icons, including a maskable one, and shortcuts), never from the Vite build.
 - Reference data comes from `/api/v1/sync/bootstrap` and `/sync/changes`, stored in IndexedDB (Dexie).
 - Every write made offline is stored in a local **outbox** with a `client_id` (ULID), type, payload and timestamp, then pushed to `/api/v1/sync/push`. Retries must be safe because the server is idempotent by `client_id`.
 - The UI writes to the local database first and shows the result immediately; sync is a background concern.
