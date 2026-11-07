@@ -53,6 +53,7 @@ return [
     'no_recipe' => 'No recipe',
     'has_recipe' => 'Recipe set',
     'lines' => 'Ingredient lines',
+    'total_ingredients' => 'Total ingredients',
     'add_recipe_line' => 'Add ingredient',
     'recipe_qty_positive' => 'Quantities must be greater than zero.',
     'unknown_ingredient' => 'One of the ingredients does not exist.',

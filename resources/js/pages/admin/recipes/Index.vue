@@ -26,7 +26,7 @@ const columns = computed(() => [
     { key: 'category_name', label: t('menu.category'), align: 'left' },
     { key: 'price_display', label: t('menu.price'), type: 'money', sortable: true, minWidth: '96px' },
     { key: 'recipe_status', label: t('inventory.recipes'), align: 'left' },
-    { key: 'lines_count', label: t('inventory.lines'), type: 'number', minWidth: '64px' },
+    { key: 'lines_count', label: t('inventory.total_ingredients'), type: 'number', minWidth: '64px' },
     { key: 'actions', label: '', align: 'right', minWidth: '96px' },
 ]);
 

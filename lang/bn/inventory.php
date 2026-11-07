@@ -53,6 +53,7 @@ return [
     'no_recipe' => 'রেসিপি নেই',
     'has_recipe' => 'রেসিপি আছে',
     'lines' => 'উপকরণের লাইন',
+    'total_ingredients' => 'মোট উপকরণ',
     'add_recipe_line' => 'উপকরণ যোগ করুন',
     'recipe_qty_positive' => 'পরিমাণ শূন্যের চেয়ে বেশি হতে হবে।',
     'unknown_ingredient' => 'একটি উপকরণ খুঁজে পাওয়া যায়নি।',
