@@ -258,25 +258,42 @@ class MetricsService
     }
 
     /**
+     * Active ingredients at or below their reorder level. Stock is kept in the base unit while the
+     * reorder level is typed in the ingredient's own unit, so the level is converted before comparing
+     * and the quantity is shown back in the ingredient's unit. An ingredient with no stock row in the
+     * branch counts as zero stock.
+     *
      * @return array<int, array{id: int, name: string, stock_qty: string, reorder_level: string, unit_symbol: string}>
      */
     public function lowStock(?int $branchId): array
     {
-        $rows = DB::table('ingredient_stocks')
-            ->join('ingredients', 'ingredients.id', '=', 'ingredient_stocks.ingredient_id')
+        $rows = DB::table('ingredients')
             ->join('units', 'units.id', '=', 'ingredients.unit_id')
-            ->when($branchId, fn ($query) => $query->where('ingredient_stocks.branch_id', $branchId))
+            ->when(
+                $branchId,
+                fn ($query) => $query->leftJoin('ingredient_stocks', fn ($join) => $join
+                    ->on('ingredient_stocks.ingredient_id', '=', 'ingredients.id')
+                    ->where('ingredient_stocks.branch_id', '=', $branchId)),
+                fn ($query) => $query->join('ingredient_stocks', 'ingredient_stocks.ingredient_id', '=', 'ingredients.id'),
+            )
             ->where('ingredients.is_active', true)
             ->where('ingredients.reorder_level', '>', 0)
-            ->whereColumn('ingredient_stocks.stock_qty', '<=', 'ingredients.reorder_level')
+            ->whereRaw('COALESCE(ingredient_stocks.stock_qty, 0) <= ingredients.reorder_level * units.factor')
             ->orderBy('ingredients.name')
-            ->select('ingredient_stocks.*', 'ingredients.name as ingredient_name', 'ingredients.reorder_level', 'units.symbol as unit_symbol')
+            ->select(
+                'ingredients.id as ingredient_id',
+                'ingredients.name as ingredient_name',
+                'ingredients.reorder_level',
+                'units.symbol as unit_symbol',
+                'units.factor as unit_factor',
+                DB::raw('COALESCE(ingredient_stocks.stock_qty, 0) as stock_qty'),
+            )
             ->get();
 
-        return $rows->map(fn ($row) => [
+        return $rows->map(fn ($row): array => [
             'id' => (int) $row->ingredient_id,
             'name' => (string) $row->ingredient_name,
-            'stock_qty' => (string) (0 + (float) $row->stock_qty),
+            'stock_qty' => (string) (0 + round((float) $row->stock_qty / max((float) $row->unit_factor, 0.000001), 3)),
             'reorder_level' => (string) (0 + (float) $row->reorder_level),
             'unit_symbol' => (string) $row->unit_symbol,
         ])->all();

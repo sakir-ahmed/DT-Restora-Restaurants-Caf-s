@@ -1,5 +1,5 @@
 <script setup>
-import { router } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import {
     ArcElement,
@@ -370,17 +370,21 @@ const profitLines = computed(() => ([
                 <InfoButton @click="infoKey = 'wastage_spike'" />
             </div>
 
-            <div v-if="alerts.lowStock.length" class="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-[13px]">
-                <p class="flex items-center gap-2 font-medium text-foreground">
-                    <AppIcon name="triangle-exclamation" size="14" class="text-warning" />
+            <div v-if="alerts.lowStock.length" class="rounded-lg border border-danger/50 bg-danger/10 px-3 py-2 text-[13px]" role="alert">
+                <p class="flex items-center gap-2 font-semibold text-danger">
+                    <AppIcon name="triangle-exclamation" size="14" />
                     <span class="flex-1">{{ t('dashboard.alerts.low_stock_count', { count: alerts.lowStock.length }) }}</span>
                     <InfoButton @click="infoKey = 'low_stock'" />
                 </p>
-                <ul class="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-muted">
-                    <li v-for="item in alerts.lowStock.slice(0, 5)" :key="item.id">
-                        {{ item.name }}: {{ Number(item.stock_qty) }} / {{ Number(item.reorder_level) }} {{ item.unit_symbol }}
+                <ul class="mt-1.5 flex flex-wrap gap-1.5">
+                    <li v-for="item in alerts.lowStock.slice(0, 8)" :key="item.id" class="inline-flex items-center gap-1 rounded-md border border-danger/40 bg-surface px-2 py-0.5 text-xs text-foreground">
+                        <span class="h-1.5 w-1.5 rounded-full bg-danger" />
+                        {{ item.name }}
+                        <span class="font-semibold tabular-nums text-danger">{{ Number(item.stock_qty) }} / {{ Number(item.reorder_level) }} {{ item.unit_symbol }}</span>
                     </li>
+                    <li v-if="alerts.lowStock.length > 8" class="px-1 text-xs text-muted">+{{ alerts.lowStock.length - 8 }}</li>
                 </ul>
+                <Link :href="route('admin.ingredients.index', { low: 1 })" class="mt-1.5 inline-block text-xs font-medium text-danger underline">{{ t('dashboard.alerts.view_low_stock') }}</Link>
             </div>
         </div>
 

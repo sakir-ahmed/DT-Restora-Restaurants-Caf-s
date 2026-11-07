@@ -58,6 +58,7 @@ return [
     'recipe_qty_positive' => 'Quantities must be greater than zero.',
     'unknown_ingredient' => 'One of the ingredients does not exist.',
     'food_cost' => 'Food cost',
+    'profit_percent' => 'Profit %',
     'food_cost_percent' => 'Food cost %',
     'current_cost' => 'Current cost',
     'calculate' => 'Calculate cost',
@@ -124,7 +125,7 @@ return [
     'calc_note_line' => 'Line cost = quantity x average purchase cost of that ingredient in this branch.',
     'calc_note_unit' => 'Quantities and costs use the smallest unit: grams for kg, millilitres for litres, pieces for pcs. So the cost is per gram, not per kg.',
     'calc_note_total' => 'Food cost = the sum of all line costs for one serving.',
-    'calc_note_percent' => 'Food cost % = food cost / selling price x 100. Margin = selling price - food cost. Above 40% turns red.',
+    'calc_note_percent' => 'Food cost % = food cost / selling price x 100. Margin = selling price - food cost. Above 40% turns red. Profit % = margin / selling price x 100, so it is 100 minus the food cost %.',
     'calc_note_example' => 'Example: beef bought at Tk 680 per kg costs Tk 0.68 per gram, so 200 g costs Tk 136.',
     'categories' => 'Categories',
     'category' => 'Category',
@@ -172,6 +173,9 @@ return [
     'purchase_details' => 'Purchase details',
     'received_at' => 'Received at',
     'note_all_items' => 'Note for all items',
+    'low_stock' => 'Low',
+    'show_low_stock_only' => 'Show low stock only',
+    'show_all_ingredients' => 'Show all',
 ];
 
 // extra keys used by the dashboard alert

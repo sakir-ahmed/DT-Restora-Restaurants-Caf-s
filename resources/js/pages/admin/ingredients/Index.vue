@@ -15,6 +15,7 @@ const props = defineProps({
     units: { type: Array, required: true },
     categories: { type: Array, default: () => [] },
     canManage: { type: Boolean, default: false },
+    lowOnly: { type: Boolean, default: false },
 });
 
 const slideOverOpen = ref(false);
@@ -31,6 +32,7 @@ const columns = computed(() => [
 
 // '' shows every ingredient, 'none' the uncategorised ones, otherwise a category id
 const categoryFilter = ref('');
+const showLowOnly = ref(props.lowOnly);
 
 const visibleIngredients = computed(() => props.ingredients.filter((ingredient) => {
     if (categoryFilter.value === '') {
@@ -44,7 +46,7 @@ const visibleIngredients = computed(() => props.ingredients.filter((ingredient) 
     return ingredient.ingredient_category_id === Number(categoryFilter.value);
 }));
 
-const rows = computed(() => visibleIngredients.value.map((ingredient) => {
+const allRows = computed(() => visibleIngredients.value.map((ingredient) => {
     const stock = ingredient.stocks?.[0];
     const factor = Number(ingredient.unit?.factor ?? 1);
 
@@ -56,12 +58,13 @@ const rows = computed(() => visibleIngredients.value.map((ingredient) => {
         category_name: ingredient.category?.name ?? '',
         stock_display: `${Number(displayQty.toFixed(3)).toString()}`,
         sort_stock: Number(stock?.stock_qty ?? 0),
-        low_stock: Number(stock?.stock_qty ?? 0) <= Number(ingredient.reorder_level) && Number(ingredient.reorder_level) > 0,
+        low_stock: Number(ingredient.reorder_level) > 0 && Number(displayQty.toFixed(3)) <= Number(ingredient.reorder_level),
         reorder_display: Number(ingredient.reorder_level).toString(),
     };
 }));
 
-const lowStockCount = computed(() => rows.value.filter((row) => row.low_stock).length);
+const lowStockCount = computed(() => allRows.value.filter((row) => row.low_stock).length);
+const rows = computed(() => (showLowOnly.value ? allRows.value.filter((row) => row.low_stock) : allRows.value));
 
 const form = useForm({
     name: '', name_bn: '', unit_id: '', ingredient_category_id: '', reorder_level: '0', is_active: true,
@@ -135,9 +138,12 @@ function save() {
             </template>
         </PageHeader>
 
-        <div v-if="lowStockCount > 0" class="mb-3 flex items-center gap-2 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-[13px] text-foreground">
-            <AppIcon name="triangle-exclamation" size="14" class="text-warning" />
-            {{ t('dashboard.alerts.low_stock_count', { count: lowStockCount }) }}
+        <div v-if="lowStockCount > 0" class="mb-3 flex items-center gap-2 rounded-lg border border-danger/50 bg-danger/10 px-3 py-2 text-[13px] font-medium text-danger" role="alert">
+            <AppIcon name="triangle-exclamation" size="14" />
+            <span class="flex-1">{{ t('dashboard.alerts.low_stock_count', { count: lowStockCount }) }}</span>
+            <button type="button" class="rounded-md border border-danger/50 bg-surface px-2 py-0.5 text-xs font-medium text-danger hover:bg-danger/10" :aria-pressed="showLowOnly" @click="showLowOnly = ! showLowOnly">
+                {{ showLowOnly ? t('inventory.show_all_ingredients') : t('inventory.show_low_stock_only') }}
+            </button>
         </div>
 
         <div v-if="categories.length > 0" class="mb-2 flex items-center gap-2">
@@ -162,10 +168,18 @@ function save() {
         >
             <template #cell(name)="{ row }">
                 <span class="flex items-center gap-1.5 truncate font-medium">
-                    <AppIcon v-if="row.low_stock" name="triangle-exclamation" size="12" class="text-warning" />
-                    {{ row.name }}
+                    <span v-if="row.low_stock" class="h-2 w-2 shrink-0 rounded-full bg-danger" :title="t('inventory.low_stock')" />
+                    <AppIcon v-if="row.low_stock" name="triangle-exclamation" size="12" class="text-danger" />
+                    <span :class="row.low_stock ? 'text-danger' : ''">{{ row.name }}</span>
                 </span>
                 <span v-if="row.name_bn" class="block truncate text-xs text-muted">{{ row.name_bn }}</span>
+            </template>
+            <template #cell(stock_display)="{ row, value }">
+                <span v-if="row.low_stock" class="inline-flex items-center justify-end gap-1 font-semibold tabular-nums text-danger">
+                    {{ value }}
+                    <span class="rounded bg-danger/15 px-1 text-[10px] font-semibold uppercase text-danger">{{ t('inventory.low_stock') }}</span>
+                </span>
+                <span v-else>{{ value }}</span>
             </template>
             <template #cell(is_active)="{ value }">
                 <StatusBadge :status="value ? 'active' : 'inactive'" />

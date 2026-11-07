@@ -113,3 +113,11 @@ it('does not let a cashier manage ingredient categories', function (): void {
 
     expect(IngredientCategory::query()->count())->toBe(0);
 });
+
+it('opens the ingredients page filtered to low stock from the dashboard link', function (): void {
+    $this->actingAs($this->owner, 'staff')->get(route('admin.ingredients.index', ['low' => 1]))
+        ->assertInertia(fn ($page) => $page->where('lowOnly', true));
+
+    $this->actingAs($this->owner, 'staff')->get(route('admin.ingredients.index'))
+        ->assertInertia(fn ($page) => $page->where('lowOnly', false));
+});

@@ -326,3 +326,24 @@ it('passes the previous period dates and has explanations in every language', fu
         }
     }
 });
+
+it('compares the reorder level in the ingredient unit, not the base unit', function (): void {
+    $gram = Unit::query()->create(['name' => 'Gram', 'symbol' => 'g-'.uniqid(), 'type' => 'weight', 'factor' => 1]);
+    $kg = Unit::query()->create(['name' => 'Kilogram', 'symbol' => 'kg-'.uniqid(), 'type' => 'weight', 'base_unit_id' => $gram->id, 'factor' => 1000]);
+
+    $low = Ingredient::query()->create(['name' => 'Beef', 'unit_id' => $kg->id, 'reorder_level' => 10, 'is_active' => true]);
+    $enough = Ingredient::query()->create(['name' => 'Rice', 'unit_id' => $kg->id, 'reorder_level' => 10, 'is_active' => true]);
+    $noStockRow = Ingredient::query()->create(['name' => 'Salt', 'unit_id' => $kg->id, 'reorder_level' => 2, 'is_active' => true]);
+    $noLevel = Ingredient::query()->create(['name' => 'Water', 'unit_id' => $kg->id, 'reorder_level' => 0, 'is_active' => true]);
+
+    IngredientStock::query()->create(['branch_id' => $this->branch->id, 'ingredient_id' => $low->id, 'stock_qty' => 8000, 'avg_cost' => 1]);
+    IngredientStock::query()->create(['branch_id' => $this->branch->id, 'ingredient_id' => $enough->id, 'stock_qty' => 12000, 'avg_cost' => 1]);
+
+    $names = collect(app(MetricsService::class)->lowStock($this->branch->id));
+
+    expect($names->pluck('name')->all())->toBe(['Beef', 'Salt'])
+        ->and($names->firstWhere('name', 'Beef')['stock_qty'])->toBe('8')
+        ->and($names->firstWhere('name', 'Beef')['reorder_level'])->toBe('10')
+        ->and($names->firstWhere('name', 'Salt')['stock_qty'])->toBe('0')
+        ->and($noLevel->id)->not->toBeIn($names->pluck('id')->all());
+});

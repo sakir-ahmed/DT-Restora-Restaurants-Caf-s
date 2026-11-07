@@ -127,6 +127,7 @@ const costing = computed(() => {
         total,
         price,
         percent: price > 0 ? (total / price) * 100 : null,
+        profitPercent: price > 0 ? ((price - total) / price) * 100 : null,
         margin: price - total,
         missingCost: lines.filter((line) => line.unitCost === 0).map((line) => line.name),
     };
@@ -259,6 +260,12 @@ function save() {
                                     <td class="py-1 text-muted" colspan="2">{{ t('inventory.food_cost_percent') }}</td>
                                     <td class="py-1 text-right tabular-nums" :class="costing.percent > 40 ? 'font-semibold text-danger' : 'text-success'">
                                         {{ costing.percent === null ? '\u2013' : costing.percent.toFixed(1) + '%' }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-1 text-muted" colspan="2">{{ t('inventory.profit_percent') }}</td>
+                                    <td class="py-1 text-right tabular-nums" :class="costing.profitPercent !== null && costing.profitPercent < 60 ? 'font-semibold text-danger' : 'text-success'">
+                                        {{ costing.profitPercent === null ? '\u2013' : costing.profitPercent.toFixed(1) + '%' }}
                                     </td>
                                 </tr>
                             </tfoot>

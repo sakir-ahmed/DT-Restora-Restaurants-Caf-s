@@ -29,6 +29,7 @@ return [
     'margin' => 'Margin',
     'alerts' => [
         'today' => 'Today',
+        'view_low_stock' => 'View low stock ingredients',
         'low_stock_count' => ':count ingredients are at or below the reorder level.',
         'wastage_spike' => 'Wastage spike today.',
         'week_average' => '7-day average',

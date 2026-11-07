@@ -35,10 +35,14 @@ class IngredientStock extends Model
         return $this->belongsTo(Ingredient::class);
     }
 
+    /**
+     * The reorder level is in the ingredient's own unit, stock is in the base unit.
+     */
     public function isBelowReorderLevel(): bool
     {
         $reorderLevel = (float) ($this->ingredient->reorder_level ?? 0);
+        $factor = (float) ($this->ingredient->unit->factor ?? 1);
 
-        return $reorderLevel > 0 && (float) $this->stock_qty <= $reorderLevel;
+        return $reorderLevel > 0 && (float) $this->stock_qty <= $reorderLevel * $factor;
     }
 }

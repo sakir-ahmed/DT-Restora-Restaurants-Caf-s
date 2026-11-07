@@ -35,6 +35,7 @@ class IngredientController extends Controller
             'categories' => IngredientCategory::query()->active()->ordered()->get(['id', 'name', 'name_bn']),
             'units' => Unit::query()->orderBy('type')->orderBy('name')->get(['id', 'name', 'symbol', 'type']),
             'canManage' => $request->user('staff')?->can('inventory.manage'),
+            'lowOnly' => $request->boolean('low'),
         ]);
     }
 

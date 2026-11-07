@@ -29,6 +29,7 @@ return [
     'margin' => 'মার্জিন',
     'alerts' => [
         'today' => 'আজ',
+        'view_low_stock' => 'কম স্টকের উপকরণ দেখুন',
         'low_stock_count' => ':countটি উপকরণ রিঅর্ডার সীমার নিচে বা সমান।',
         'wastage_spike' => 'আজ অপচয় বেড়েছে।',
         'week_average' => '৭ দিনের গড়',
