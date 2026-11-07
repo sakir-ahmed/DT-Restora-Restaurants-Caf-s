@@ -11,6 +11,7 @@ import PageHeader from '@/components/ui-kit/PageHeader.vue';
 import SlideOver from '@/components/ui-kit/SlideOver.vue';
 import StatusBadge from '@/components/ui-kit/StatusBadge.vue';
 import SwitchField from '@/components/ui-kit/SwitchField.vue';
+import { useConfirm } from '@/components/ui-kit/useConfirm.js';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/format';
 import { notify } from '@/lib/notify';
@@ -25,7 +26,6 @@ const props = defineProps({
 });
 
 const slideOverOpen = ref(false);
-const expandedId = ref(null);
 
 const columns = computed(() => [
     { key: 'purchased_at', label: t('inventory.purchased_at'), align: 'left', sortable: true, minWidth: '112px' },
@@ -225,8 +225,72 @@ function receive(purchase) {
     });
 }
 
-function toggleExpand(row) {
-    expandedId.value = expandedId.value === row.id ? null : row.id;
+const confirm = useConfirm();
+const editing = ref(null);
+
+const editForm = useForm({
+    supplier_id: '',
+    invoice_no: '',
+    purchased_at: today,
+    note: '',
+    items: [],
+});
+
+const editIsDraft = computed(() => editing.value?.status === 'draft');
+const editIsReceived = computed(() => editing.value?.status === 'received');
+const editIsFull = computed(() => editIsDraft.value || editIsReceived.value);
+const editIsLocked = computed(() => editing.value?.status === 'cancelled');
+const editTotal = computed(() => editForm.items.reduce((sum, line) => sum + Number(line.qty || 0) * Number(line.unit_cost || 0), 0));
+
+function openEdit(purchase) {
+    editForm.clearErrors();
+    editForm.defaults({
+        supplier_id: purchase.supplier_id ?? '',
+        invoice_no: purchase.invoice_no ?? '',
+        purchased_at: String(purchase.purchased_at).slice(0, 10),
+        note: purchase.note ?? '',
+        items: (purchase.items ?? []).map((item) => ({
+            category_id: '',
+            ingredient_id: item.ingredient_id,
+            unit_id: item.unit_id,
+            qty: String(Number(item.qty)),
+            unit_cost: Number(item.unit_cost).toFixed(2),
+        })),
+    }).reset();
+    editing.value = purchase;
+}
+
+function addEditLine() {
+    editForm.items.push({ category_id: '', ingredient_id: '', unit_id: '', qty: '1', unit_cost: '0.00' });
+}
+
+async function saveEdit() {
+    if (editIsReceived.value) {
+        const result = await confirm({
+            variant: 'warning',
+            level: 'simple',
+            title: t('inventory.correct_purchase_title'),
+            message: t('inventory.purchase_correct_warning'),
+            facts: [
+                { label: t('common.total'), value: formatMoney(editTotal.value) },
+            ],
+            confirmText: t('inventory.save_changes'),
+        });
+
+        if (! result?.confirmed) {
+            return;
+        }
+    }
+
+    editForm.transform((data) => ({
+        ...data,
+        supplier_id: data.supplier_id === '' ? null : data.supplier_id,
+    })).put(route('admin.purchases.update', editing.value.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            editing.value = null;
+        },
+    });
 }
 </script>
 
@@ -254,7 +318,7 @@ function toggleExpand(row) {
             :empty-title="t('inventory.no_purchases')"
             :empty-action="canManage ? t('inventory.add_purchase') : ''"
             :totals-row="{ label: t('common.total'), total: formatMoney(rows.reduce((sum, row) => sum + Number(row.total), 0)) }"
-            @row-click="toggleExpand"
+            @row-click="openEdit"
             @empty-action="openCreate"
         >
             <template #cell(purchased_at)="{ value }">
@@ -392,6 +456,145 @@ function toggleExpand(row) {
                 <button type="button" :disabled="form.processing || form.items.length === 0" class="inline-flex h-7 items-center gap-1.5 rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60" @click="save">
                     <AppIcon v-if="form.processing" name="spinner" spin />
                     {{ t('common.save') }}
+                </button>
+            </template>
+        </SlideOver>
+
+        <SlideOver :open="editing !== null" :title="t('inventory.edit_purchase')" extra-wide @close="editing = null">
+            <form v-if="editing" novalidate class="space-y-3" @submit.prevent="saveEdit">
+                <p v-if="editIsLocked" class="rounded-md border border-border bg-background px-2.5 py-2 text-xs text-muted">{{ t('inventory.purchase_not_editable') }}</p>
+                <p v-else-if="editIsReceived" class="rounded-md border border-warning/40 bg-warning/10 px-2.5 py-2 text-xs text-foreground">{{ t('inventory.purchase_correct_warning') }}</p>
+
+                <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+                    <FormField v-if="editIsFull" :label="t('inventory.purchased_at')" required :error="editForm.errors.purchased_at">
+                        <template #default="{ id }">
+                            <input :id="id" v-model="editForm.purchased_at" type="date" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
+                        </template>
+                    </FormField>
+                    <FormField v-if="editIsFull" :label="t('inventory.supplier')" :error="editForm.errors.supplier_id">
+                        <template #default="{ id }">
+                            <select :id="id" v-model="editForm.supplier_id" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent">
+                                <option value="">{{ t('inventory.without_supplier') }}</option>
+                                <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">{{ supplier.name }}</option>
+                            </select>
+                        </template>
+                    </FormField>
+                    <FormField :label="t('inventory.invoice_no')" :error="editForm.errors.invoice_no">
+                        <template #default="{ id }">
+                            <input :id="id" v-model="editForm.invoice_no" type="text" maxlength="100" :disabled="editIsLocked" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
+                        </template>
+                    </FormField>
+                    <div class="col-span-2">
+                        <FormField :label="t('common.note')" :error="editForm.errors.note">
+                            <template #default="{ id }">
+                                <textarea :id="id" v-model="editForm.note" rows="2" maxlength="1000" :disabled="editIsLocked" class="w-full resize-y rounded-md border border-border bg-surface px-2 py-1.5 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40" />
+                            </template>
+                        </FormField>
+                    </div>
+                </div>
+
+                <div v-if="editIsFull" class="border-t border-border pt-3">
+                    <div class="mb-2 flex items-center justify-between">
+                        <h3 class="text-xs font-semibold uppercase tracking-wider text-muted" :class="$page.props.locale === 'bn' ? 'normal-case tracking-normal' : ''">{{ t('inventory.items_label') }}</h3>
+                        <button type="button" class="inline-flex h-6 items-center gap-1 rounded border border-border px-1.5 text-[11px] text-foreground hover:bg-background" @click="addEditLine">
+                            <AppIcon name="plus" size="10" />
+                            {{ t('inventory.add_line') }}
+                        </button>
+                    </div>
+                    <p v-if="editForm.errors.items" class="mb-1 text-xs text-danger">{{ editForm.errors.items }}</p>
+
+                    <div class="mb-2 overflow-x-auto rounded-md border border-border">
+                        <table class="w-full min-w-[720px] text-[13px]">
+                            <thead>
+                                <tr class="border-b border-border bg-background text-xs font-semibold text-muted">
+                                    <th class="px-2 py-1.5 text-left">{{ t('inventory.ingredient') }}</th>
+                                    <th class="px-2 py-1.5 text-left">{{ t('inventory.unit') }}</th>
+                                    <th class="px-2 py-1.5 text-right">{{ t('inventory.qty') }}</th>
+                                    <th class="px-2 py-1.5 text-right">{{ t('inventory.unit_cost') }}</th>
+                                    <th class="px-2 py-1.5 text-right">{{ t('inventory.line_total') }}</th>
+                                    <th class="w-8 px-1 py-1.5" />
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(line, index) in editForm.items" :key="index" class="border-b border-border last:border-0">
+                                    <td class="px-1 py-1 align-top">
+                                        <select v-model="line.ingredient_id" :aria-label="t('inventory.ingredient')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent" :class="editForm.errors['items.' + index + '.ingredient_id'] ? 'border-danger' : ''" @change="onIngredientChange(line)">
+                                            <option value="" disabled>{{ t('common.select') }}</option>
+                                            <option v-for="option in ingredientsOptions(line)" :key="option.value" :value="option.value">{{ option.label }}</option>
+                                        </select>
+                                        <p v-if="editForm.errors['items.' + index + '.ingredient_id']" class="mt-0.5 text-xs text-danger">{{ editForm.errors['items.' + index + '.ingredient_id'] }}</p>
+                                    </td>
+                                    <td class="w-20 px-1 py-1 align-top">
+                                        <select v-model="line.unit_id" :aria-label="t('inventory.unit')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent" :class="editForm.errors['items.' + index + '.unit_id'] ? 'border-danger' : ''">
+                                            <option value="" disabled>---</option>
+                                            <option v-for="unit in unitsFor(line)" :key="unit.id" :value="unit.id">{{ unit.symbol }}</option>
+                                        </select>
+                                    </td>
+                                    <td class="w-24 px-1 py-1 align-top">
+                                        <input v-model="line.qty" type="text" inputmode="decimal" v-numeric step="0.001" min="0" :aria-label="t('inventory.qty')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent" :class="editForm.errors['items.' + index + '.qty'] ? 'border-danger' : ''">
+                                        <p v-if="editForm.errors['items.' + index + '.qty']" class="mt-0.5 text-xs text-danger">{{ editForm.errors['items.' + index + '.qty'] }}</p>
+                                    </td>
+                                    <td class="w-32 px-1 py-1 align-top">
+                                        <MoneyInput v-model="line.unit_cost" />
+                                    </td>
+                                    <td class="w-28 px-1 py-1 align-top">
+                                        <span class="flex h-7 items-center justify-end tabular-nums">{{ formatMoney(Number(line.qty || 0) * Number(line.unit_cost || 0)) }}</span>
+                                    </td>
+                                    <td class="w-8 px-1 py-1 align-top">
+                                        <button type="button" class="flex h-7 w-7 items-center justify-center rounded text-muted hover:text-danger" :aria-label="t('common.remove')" @click="editForm.items.splice(index, 1)">
+                                            <AppIcon name="xmark" size="12" />
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="flex justify-end border-t border-border pt-2 text-[13px] font-semibold text-foreground">
+                        {{ t('common.total') }}: {{ formatMoney(editTotal) }}
+                    </div>
+                </div>
+                <div v-else class="border-t border-border pt-3">
+                    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted" :class="$page.props.locale === 'bn' ? 'normal-case tracking-normal' : ''">{{ t('inventory.items_label') }}</h3>
+                    <dl class="mb-3 grid grid-cols-2 gap-x-4 gap-y-2 text-[13px]">
+                        <div>
+                            <dt class="text-xs text-muted">{{ t('inventory.purchased_at') }}</dt>
+                            <dd class="text-foreground"><DateText :value="editing.purchased_at" /></dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs text-muted">{{ t('inventory.supplier') }}</dt>
+                            <dd class="text-foreground">{{ editing.supplier?.name ?? t('inventory.no_supplier_label') }}</dd>
+                        </div>
+                    </dl>
+                    <table class="w-full text-[13px]">
+                        <thead>
+                            <tr class="border-b border-border bg-background text-xs font-semibold text-muted">
+                                <th class="px-2 py-1.5 text-left">{{ t('inventory.ingredient') }}</th>
+                                <th class="px-2 py-1.5 text-right">{{ t('inventory.qty') }}</th>
+                                <th class="px-2 py-1.5 text-right">{{ t('inventory.unit_cost') }}</th>
+                                <th class="px-2 py-1.5 text-right">{{ t('inventory.line_total') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in editing.items" :key="item.id" class="border-b border-border last:border-0">
+                                <td class="px-2 py-1.5 text-foreground">{{ item.ingredient?.name }}</td>
+                                <td class="px-2 py-1.5 text-right tabular-nums">{{ Number(item.qty) }} {{ item.unit?.symbol }}</td>
+                                <td class="px-2 py-1.5 text-right tabular-nums">{{ formatMoney(item.unit_cost) }}</td>
+                                <td class="px-2 py-1.5 text-right tabular-nums">{{ formatMoney(item.line_total) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="mt-3 text-right text-sm font-semibold text-foreground">
+                        {{ t('common.total') }}: {{ formatMoney(editing.total) }}
+                    </div>
+                </div>
+            </form>
+
+            <template #footer>
+                <button type="button" class="h-7 rounded-md border border-border bg-surface px-2.5 text-[13px] text-foreground hover:bg-background" @click="editing = null">{{ t('common.cancel') }}</button>
+                <button v-if="! editIsLocked" type="button" :disabled="editForm.processing || (editIsFull && editForm.items.length === 0)" class="inline-flex h-7 items-center gap-1.5 rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60" @click="saveEdit">
+                    <AppIcon v-if="editForm.processing" name="spinner" spin />
+                    {{ t('inventory.save_changes') }}
                 </button>
             </template>
         </SlideOver>

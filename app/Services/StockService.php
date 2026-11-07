@@ -107,4 +107,30 @@ class StockService
         $locked->last_cost = $incomingBaseUnitCost;
         $locked->save();
     }
+
+    /**
+     * Undo the cost effect of a received line when a purchase is corrected. Sales and wastage never
+     * change the average, so removing the line is the exact inverse of receiving it. Call it right
+     * after the quantity has been taken out of stock, inside the same transaction.
+     */
+    public function removeWeightedAverageCost(IngredientStock $stock, float $removedBaseQty, float $removedBaseUnitCost): void
+    {
+        $locked = IngredientStock::query()->whereKey($stock->id)->lockForUpdate()->first();
+
+        if ($locked === null) {
+            throw new LogicException('Stock row disappeared during cost update.');
+        }
+
+        $remainingQty = (float) $locked->stock_qty;
+        $beforeQty = $remainingQty + $removedBaseQty;
+
+        if ($remainingQty <= 0) {
+            return;
+        }
+
+        $value = ($beforeQty * (float) $locked->avg_cost) - ($removedBaseQty * $removedBaseUnitCost);
+
+        $locked->avg_cost = max(0, round($value / $remainingQty, 4));
+        $locked->save();
+    }
 }

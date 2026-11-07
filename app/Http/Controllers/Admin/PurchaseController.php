@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Inventory\CorrectReceivedPurchaseAction;
 use App\Actions\Inventory\ReceivePurchaseAction;
+use App\Exceptions\InsufficientStockException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PurchaseRequest;
+use App\Http\Requests\Admin\PurchaseUpdateRequest;
 use App\Models\Branch;
 use App\Models\Ingredient;
 use App\Models\IngredientCategory;
@@ -94,6 +97,74 @@ class PurchaseController extends Controller
         }
 
         return back()->with('success', __('inventory.purchase_created'));
+    }
+
+    /**
+     * Edit a purchase. A draft has posted nothing, so it is a plain update. A received purchase is
+     * corrected through one action that reverses and re-posts stock, cost and the ledger together, and
+     * refuses when the goods were already used. A cancelled purchase is read-only.
+     */
+    public function update(PurchaseUpdateRequest $request, Purchase $purchase, CorrectReceivedPurchaseAction $correct): RedirectResponse
+    {
+        $user = $request->user('staff');
+        abort_unless($user->canAccessBranch($purchase->branch_id), 404);
+
+        $data = $request->validated();
+        $data['invoice_no'] = trim((string) ($data['invoice_no'] ?? '')) ?: null;
+        $data['note'] = $data['note'] ?? null;
+        $data['supplier_id'] = $data['supplier_id'] ?? null;
+
+        if ($purchase->status === Purchase::STATUS_RECEIVED) {
+            try {
+                $correct->execute($purchase, $data, $user);
+            } catch (InsufficientStockException $exception) {
+                $name = Ingredient::query()->whereKey($exception->ingredientId)->value('name');
+
+                return back()->with('error', __('inventory.purchase_correction_blocked', [
+                    'ingredient' => $name,
+                    'available' => rtrim(rtrim(number_format($exception->availableQty, 3, '.', ''), '0'), '.'),
+                ]));
+            }
+
+            return back()->with('success', __('inventory.purchase_corrected'));
+        }
+
+        $updated = DB::transaction(function () use ($data, $purchase, $user): bool {
+            $locked = Purchase::query()->whereKey($purchase->id)->lockForUpdate()->firstOrFail();
+
+            if ($locked->status !== Purchase::STATUS_DRAFT) {
+                return false;
+            }
+
+            $locked->update([
+                'supplier_id' => $data['supplier_id'],
+                'invoice_no' => $data['invoice_no'],
+                'purchased_at' => $data['purchased_at'],
+                'note' => $data['note'],
+            ]);
+
+            $locked->items()->delete();
+
+            foreach ($data['items'] as $line) {
+                $locked->items()->create([
+                    'ingredient_id' => (int) $line['ingredient_id'],
+                    'unit_id' => (int) $line['unit_id'],
+                    'qty' => $line['qty'],
+                    'unit_cost' => $line['unit_cost'],
+                    'line_total' => round((float) $line['qty'] * (float) $line['unit_cost'], 2),
+                ]);
+            }
+
+            activity()->performedOn($locked)->causedBy($user)->log('purchase.updated');
+
+            return true;
+        });
+
+        if (! $updated) {
+            return back()->with('error', __('inventory.purchase_not_editable'));
+        }
+
+        return back()->with('success', __('inventory.purchase_updated'));
     }
 
     /**

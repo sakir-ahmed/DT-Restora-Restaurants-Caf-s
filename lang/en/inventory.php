@@ -159,6 +159,17 @@ return [
     'no_supplier_label' => 'No supplier',
     'purchase_split_note' => 'Lines from different suppliers are saved as separate purchases.',
     'ingredients_count' => ':count ingredients',
+    'edit_purchase' => 'Edit purchase',
+    'purchase_updated' => 'Purchase updated.',
+    'purchase_not_editable' => 'This purchase cannot be edited.',
+    'save_changes' => 'Save changes',
+    'purchase_corrected' => 'Purchase corrected. Stock, cost and accounts were updated.',
+    'purchase_correction_blocked' => 'Cannot save: :ingredient has already been used and only :available is in stock, so this correction would make stock negative. Nothing was changed.',
+    'purchase_correction_journal_note' => 'Reversal for correction of purchase #:id',
+    'purchase_correct_warning' => 'This purchase is already received. Saving reverses its old stock, average cost and accounting entry and posts the corrected ones. It is refused if the goods were already used.',
+    'correct_purchase_title' => 'Correct received purchase',
+    'purchase_details' => 'Purchase details',
+    'received_at' => 'Received at',
     'note_all_items' => 'Note for all items',
 ];
 
