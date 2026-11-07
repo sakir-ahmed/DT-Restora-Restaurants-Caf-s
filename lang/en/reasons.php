@@ -10,5 +10,7 @@ return [
     'dropped' => 'Dropped or damaged',
     'complimentary' => 'Complimentary',
     'over_production' => 'Over production',
+    'duplicate_order' => 'Duplicate order',
+    'payment_failed' => 'Payment failed',
     'other' => 'Other',
 ];

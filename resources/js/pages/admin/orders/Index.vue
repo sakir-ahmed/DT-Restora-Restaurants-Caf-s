@@ -1,6 +1,6 @@
 <script setup>
 import { router } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
 import DataTable from '@/components/ui-kit/DataTable.vue';
 import DateText from '@/components/ui-kit/DateText.vue';
@@ -23,11 +23,6 @@ const props = defineProps({
 });
 
 const confirm = useConfirm();
-
-const voidDialogOpen = ref(false);
-const voidTarget = ref(null);
-const voidReason = ref('');
-const voidNote = ref('');
 
 const columns = computed(() => [
     { key: 'created_at', label: t('ui_kit.created'), align: 'left', minWidth: '112px' },
@@ -65,34 +60,13 @@ function setFilter(key, value) {
     router.get(route('admin.orders.index'), { ...props.filters, [key]: value }, { preserveState: true });
 }
 
-function openVoidDialog(order) {
-    voidTarget.value = order;
-    voidReason.value = '';
-    voidNote.value = '';
-    voidDialogOpen.value = true;
-}
-
-function submitVoidRequest() {
-    router.post(route('admin.orders.void-request', voidTarget.value.id), {
-        reason_code: voidReason.value,
-        note: voidNote.value || null,
-    }, {
-        preserveState: true,
-        onSuccess: () => {
-            voidDialogOpen.value = false;
-            notify.success(t('orders.void_requested'));
-        },
-        onError: () => notify.error(t('common.error_occurred')),
-    });
-}
-
-async function approveVoid(order) {
+async function deleteOrder(order) {
     const result = await confirm({
         variant: 'danger',
         level: 'reason',
-        title: t('orders.approve_void_title', { invoice: order.invoice_no }),
-        message: t('orders.approve_void_message'),
-        confirmText: t('orders.void_confirm'),
+        title: t('orders.delete_title', { invoice: order.invoice_no }),
+        message: t('orders.delete_restore_message'),
+        confirmText: t('orders.delete_order'),
         reasons: ['wrong_item', 'customer_changed_mind', 'kitchen_mistake', 'duplicate_order', 'payment_failed', 'other'],
         facts: [
             { label: t('inventory.invoice_no'), value: order.invoice_no },
@@ -104,13 +78,13 @@ async function approveVoid(order) {
         return;
     }
 
-    router.post(route('admin.orders.approve-void', order.id), {
+    router.post(route('admin.orders.delete', order.id), {
         reason_code: result.reason,
-        note: result.note,
+        note: result.note ?? null,
     }, {
         preserveState: true,
-        onSuccess: () => notify.success(t('orders.voided')),
-        onError: () => notify.error(t('common.error_occurred')),
+        onSuccess: () => notify.success(t('orders.deleted')),
+        onError: (errors) => notify.error(String(Object.values(errors)[0] ?? t('common.error_occurred'))),
     });
 }
 
@@ -213,56 +187,15 @@ function pay(order) {
                         v-if="canVoid && row.raw_status !== 'void'"
                         type="button"
                         class="flex h-6 w-6 items-center justify-center rounded text-muted hover:bg-danger/10 hover:text-danger"
-                        :aria-label="t('orders.void_confirm')"
-                        @click="row.has_pending_void && canApproveVoid ? approveVoid(row) : openVoidDialog(row)"
+                        :aria-label="t('orders.delete_order')"
+                        :title="t('orders.delete_order')"
+                        @click="deleteOrder(row)"
                     >
                         <AppIcon name="circle-xmark" size="12" />
                     </button>
                 </div>
             </template>
         </DataTable>
-
-        <!-- Void request dialog -->
-        <Teleport to="body">
-            <div v-if="voidDialogOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                <div class="w-full max-w-md rounded-xl border border-border bg-surface p-4">
-                    <h2 class="text-base font-semibold text-foreground">{{ t('orders.void_title', { invoice: voidTarget?.invoice_no }) }}</h2>
-                    <p class="mt-1 text-[13px] text-muted">{{ t('orders.void_message') }}</p>
-
-                    <div class="mt-3 space-y-3">
-                        <div>
-                            <label class="mb-1 block text-xs font-medium text-foreground" for="void-reason">{{ t('inventory.reason') }} <span class="text-danger">*</span></label>
-                            <select id="void-reason" v-model="voidReason" class="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground">
-                                <option value="" disabled>{{ t('common.select_reason') }}</option>
-                                <option value="wrong_item">{{ t('reasons.wrong_item') }}</option>
-                                <option value="customer_changed_mind">{{ t('reasons.customer_changed_mind') }}</option>
-                                <option value="kitchen_mistake">{{ t('reasons.kitchen_mistake') }}</option>
-                                <option value="duplicate_order">{{ t('orders.reason_duplicate') }}</option>
-                                <option value="payment_failed">{{ t('orders.reason_payment_failed') }}</option>
-                                <option value="other">{{ t('reasons.other') }}</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="mb-1 block text-xs font-medium text-foreground" for="void-note">{{ t('common.note') }}</label>
-                            <textarea id="void-note" v-model="voidNote" rows="2" class="w-full resize-y rounded-md border border-border bg-background px-2 py-1 text-sm text-foreground" />
-                        </div>
-                    </div>
-
-                    <div class="mt-4 flex justify-end gap-2">
-                        <button type="button" class="h-9 rounded-md border border-border px-3 text-sm text-foreground hover:bg-background" @click="voidDialogOpen = false">{{ t('common.cancel') }}</button>
-                        <button
-                            type="button"
-                            :disabled="! voidReason"
-                            class="h-9 rounded-lg bg-danger px-3 text-sm font-semibold text-white hover:bg-danger/90 disabled:opacity-50"
-                            @click="submitVoidRequest"
-                        >
-                            {{ t('orders.send_request') }}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </Teleport>
     </div>
 </template>
 

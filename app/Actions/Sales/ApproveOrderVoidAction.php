@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Sales;
 
 use App\Enums\OrderStatus;
+use App\Models\Branch;
 use App\Models\Order;
 use App\Models\Recipe;
 use App\Models\RestaurantTable;
@@ -12,6 +13,7 @@ use App\Models\User;
 use App\Models\VoidRequest;
 use App\Services\Accounting\AccountingService;
 use App\Services\LoyaltyService;
+use App\Services\PosSettings;
 use App\Services\StockService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -37,6 +39,12 @@ class ApproveOrderVoidAction
             }
 
             $order = Order::query()->whereKey($request->order_id)->lockForUpdate()->firstOrFail();
+
+            if (! PosSettings::orderDeleteEnabled(Branch::query()->find($order->branch_id))) {
+                throw ValidationException::withMessages([
+                    'request' => __('orders.delete_disabled'),
+                ]);
+            }
 
             $request->update([
                 'status' => 'approved',

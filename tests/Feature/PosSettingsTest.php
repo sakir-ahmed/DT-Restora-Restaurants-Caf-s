@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use App\Actions\Sales\CreateOrderAction;
+use App\Enums\OrderStatus;
 use App\Enums\OrderType;
 use App\Models\Branch;
+use App\Models\Journal;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\Order;
@@ -537,4 +539,173 @@ it('keeps the bill review off by default and saves it per branch', function (): 
 
     $this->actingAs($this->cashier, 'staff')->get('/admin/pos')->assertInertia(fn ($page) => $page
         ->where('branch.pos_settings.review_before_save', true));
+});
+
+it('keeps order editing and deleting on by default and saves them per branch', function (): void {
+    expect(PosSettings::for($this->branch)['order_edit_enabled'])->toBeTrue()
+        ->and(PosSettings::for($this->branch)['order_delete_enabled'])->toBeTrue();
+
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
+        'pos' => ['order_edit_enabled' => false, 'order_delete_enabled' => false],
+    ]))->assertRedirect();
+
+    $settings = PosSettings::for($this->branch->fresh());
+
+    expect($settings['order_edit_enabled'])->toBeFalse()
+        ->and($settings['order_delete_enabled'])->toBeFalse();
+
+    $this->actingAs($this->cashier, 'staff')->get('/admin/pos')->assertInertia(fn ($page) => $page
+        ->where('branch.pos_settings.order_edit_enabled', false)
+        ->where('branch.pos_settings.order_delete_enabled', false));
+});
+
+it('blocks revising an order when editing is switched off for the branch', function (): void {
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::Takeaway,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        cashier: $this->cashier,
+        shift: $this->shift,
+        terminalCode: 'T01',
+    );
+
+    $payload = [
+        'order_type' => 'takeaway',
+        'items' => [['menu_item_id' => $this->item->id, 'quantity' => 4]],
+    ];
+
+    $this->branch->update(['pos_settings' => ['order_edit_enabled' => false]]);
+
+    $this->actingAs($this->cashier, 'staff')->put(route('admin.orders.update', $order), $payload)
+        ->assertSessionHasErrors('order');
+
+    expect((int) $order->fresh()->items->first()->quantity)->toBe(1);
+
+    $this->branch->update(['pos_settings' => ['order_edit_enabled' => true]]);
+
+    $this->actingAs($this->cashier, 'staff')->put(route('admin.orders.update', $order), $payload)
+        ->assertSessionHasNoErrors();
+
+    expect((int) $order->fresh()->items->first()->quantity)->toBe(4);
+});
+
+it('blocks voiding and clearing orders when deleting is switched off for the branch', function (): void {
+    $manager = User::factory()->role('branch-manager', $this->branch->id)->create();
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::Takeaway,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        cashier: $this->cashier,
+        shift: $this->shift,
+        terminalCode: 'T01',
+    );
+
+    $this->branch->update(['pos_settings' => ['order_delete_enabled' => false]]);
+
+    $this->actingAs($this->cashier, 'staff')->post(route('admin.orders.void-request', $order), ['reason_code' => 'wrong_item'])
+        ->assertSessionHasErrors('order');
+
+    $this->actingAs($manager, 'staff')->post(route('admin.pos.orders.clear', $order), ['reason_code' => 'wrong_item'])
+        ->assertSessionHasErrors('order');
+
+    $this->actingAs($manager, 'staff')->get(route('admin.orders.index'))->assertInertia(fn ($page) => $page
+        ->where('canVoid', false)
+        ->where('canApproveVoid', false));
+
+    expect($order->fresh()->status)->not->toBe(OrderStatus::Void)
+        ->and($order->voidRequest()->exists())->toBeFalse();
+
+    $this->branch->update(['pos_settings' => ['order_delete_enabled' => true]]);
+
+    $this->actingAs($this->cashier, 'staff')->post(route('admin.orders.void-request', $order), ['reason_code' => 'wrong_item'])
+        ->assertSessionHasNoErrors();
+});
+
+it('deletes an order in one step for staff who may void, with no pending request left', function (): void {
+    $manager = User::factory()->role('branch-manager', $this->branch->id)->create();
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::Takeaway,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        cashier: $this->cashier,
+        shift: $this->shift,
+        terminalCode: 'T01',
+    );
+
+    $this->actingAs($this->cashier, 'staff')->post(route('admin.orders.delete', $order), ['reason_code' => 'wrong_item'])
+        ->assertForbidden();
+
+    expect($order->fresh()->status)->not->toBe(OrderStatus::Void);
+
+    $this->actingAs($manager, 'staff')->post(route('admin.orders.delete', $order), ['reason_code' => 'wrong_item'])
+        ->assertSessionHasNoErrors()
+        ->assertSessionHas('success');
+
+    expect($order->fresh()->status)->toBe(OrderStatus::Void)
+        ->and($order->voidRequest()->where('status', 'approved')->count())->toBe(1)
+        ->and($order->voidRequest()->where('status', 'pending')->exists())->toBeFalse();
+});
+
+it('deletes an order that already has a pending void request by approving it', function (): void {
+    $manager = User::factory()->role('branch-manager', $this->branch->id)->create();
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::Takeaway,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        cashier: $this->cashier,
+        shift: $this->shift,
+        terminalCode: 'T01',
+    );
+
+    $this->actingAs($this->cashier, 'staff')->post(route('admin.orders.void-request', $order), ['reason_code' => 'wrong_item'])
+        ->assertSessionHasNoErrors();
+
+    $this->actingAs($manager, 'staff')->post(route('admin.orders.delete', $order), ['reason_code' => 'other'])
+        ->assertSessionHasNoErrors();
+
+    expect($order->fresh()->status)->toBe(OrderStatus::Void)
+        ->and($order->voidRequest()->count())->toBe(1);
+});
+
+it('does not delete an order when deleting is switched off for the branch', function (): void {
+    $manager = User::factory()->role('branch-manager', $this->branch->id)->create();
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::Takeaway,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        cashier: $this->cashier,
+        shift: $this->shift,
+        terminalCode: 'T01',
+    );
+
+    $this->branch->update(['pos_settings' => ['order_delete_enabled' => false]]);
+
+    $this->actingAs($manager, 'staff')->post(route('admin.orders.delete', $order), ['reason_code' => 'wrong_item'])
+        ->assertSessionHasErrors();
+
+    expect($order->fresh()->status)->not->toBe(OrderStatus::Void);
+});
+
+it('reverses the sales journal when a paid order is deleted', function (): void {
+    $manager = User::factory()->role('branch-manager', $this->branch->id)->create();
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::Takeaway,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 2]],
+        cashier: $this->cashier,
+        shift: $this->shift,
+        terminalCode: 'T01',
+    );
+
+    $this->actingAs($this->cashier, 'staff')->post("/admin/orders/{$order->id}/pay", ['tendered' => 500])->assertRedirect();
+
+    $journal = Journal::query()->where('source_type', $order->getMorphClass())->where('source_id', $order->id)->firstOrFail();
+    expect($journal->status)->toBe(Journal::STATUS_POSTED);
+
+    $this->actingAs($manager, 'staff')->post(route('admin.orders.delete', $order), ['reason_code' => 'wrong_item'])
+        ->assertSessionHasNoErrors();
+
+    expect($order->fresh()->status)->toBe(OrderStatus::Void)
+        ->and($journal->fresh()->status)->toBe(Journal::STATUS_REVERSED)
+        ->and(Journal::query()->where('reverses_journal_id', $journal->id)->exists())->toBeTrue();
 });

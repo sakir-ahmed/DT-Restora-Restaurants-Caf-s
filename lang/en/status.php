@@ -14,7 +14,7 @@ return [
     'picked_up' => 'Picked up',
     'on_the_way' => 'On the way',
     'assigned' => 'Assigned',
-    'void' => 'Void',
+    'void' => 'Deleted',
     'cancelled' => 'Cancelled',
     'failed' => 'Failed',
     'draft' => 'Draft',

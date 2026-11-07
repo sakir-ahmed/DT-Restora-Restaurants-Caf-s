@@ -14,7 +14,7 @@ return [
     'picked_up' => 'সংগ্রহ করেছে',
     'on_the_way' => 'পথে আছে',
     'assigned' => 'নির্ধারিত',
-    'void' => 'বাতিল',
+    'void' => 'মুছে ফেলা',
     'cancelled' => 'বাতিল',
     'failed' => 'ব্যর্থ',
     'draft' => 'খসড়া',

@@ -317,6 +317,7 @@ Route::prefix('admin')
         Route::post('orders/{order}/manual-payment', [PaymentController::class, 'recordManual'])->name('payments.manual')->middleware('permission:orders.create');
         Route::post('payments/{payment}/approve', [PaymentController::class, 'approveManual'])->name('payments.approve')->middleware('permission:payments.manage');
         Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status')->middleware('permission:orders.create');
+        Route::post('orders/{order}/delete', [OrderController::class, 'deleteOrder'])->name('orders.delete')->middleware('permission:orders.void');
         Route::post('orders/{order}/void-request', [OrderController::class, 'requestVoid'])->name('orders.void-request')->middleware('permission:orders.create');
         Route::post('orders/{order}/approve-void', [OrderController::class, 'approveVoid'])->name('orders.approve-void')->middleware('permission:orders.void');
         Route::get('orders/{order}/receipt', [ReceiptController::class, 'show'])->name('orders.receipt')->middleware('permission:orders.view');

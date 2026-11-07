@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Actions\Sales;
 
+use App\Models\Branch;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\VoidRequest;
+use App\Services\PosSettings;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -16,6 +18,12 @@ class RequestOrderVoidAction
     {
         return DB::transaction(function () use ($order, $requester, $reasonCode, $note): VoidRequest {
             $order = Order::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
+
+            if (! PosSettings::orderDeleteEnabled(Branch::query()->find($order->branch_id))) {
+                throw ValidationException::withMessages([
+                    'order' => __('orders.delete_disabled'),
+                ]);
+            }
 
             if ($order->isVoid()) {
                 throw ValidationException::withMessages([

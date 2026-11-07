@@ -19,11 +19,14 @@ use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Shift;
+use App\Models\VoidRequest;
 use App\Services\Aggregators\PlatformAdapters;
 use App\Services\PosSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -50,8 +53,8 @@ class OrderController extends Controller
         return Inertia::render('admin/orders/Index', [
             'orders' => $orders,
             'filters' => $request->only(['status', 'search']),
-            'canVoid' => $request->user('staff')?->can('orders.void'),
-            'canApproveVoid' => $request->user('staff')?->can('orders.void'),
+            'canVoid' => PosSettings::orderDeleteEnabled($branch) && $request->user('staff')?->can('orders.void'),
+            'canApproveVoid' => PosSettings::orderDeleteEnabled($branch) && $request->user('staff')?->can('orders.void'),
             'canApprovePayments' => $request->user('staff')?->can('payments.manage'),
         ]);
     }
@@ -356,6 +359,32 @@ class OrderController extends Controller
         $action->execute($order, $user, (string) $validated['reason_code'], $validated['note'] ?? null);
 
         return back()->with('success', __('orders.void_requested'));
+    }
+
+    /**
+     * Delete an order in one step for staff who may void: the reason is recorded and the order is
+     * voided at once. Stock goes back, the sales journal is reversed and loyalty points are taken back.
+     * A void request that was already pending is approved instead of creating a second one.
+     */
+    public function deleteOrder(Request $request, Order $order, RequestOrderVoidAction $requestVoid, ApproveOrderVoidAction $approveVoid): RedirectResponse
+    {
+        $user = $request->user('staff');
+        abort_unless($user->canAccessBranch($order->branch_id), 404);
+
+        $validated = $request->validate([
+            'reason_code' => ['required', 'string', Rule::in(VoidRequest::REASONS)],
+            'note' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        DB::transaction(function () use ($order, $user, $validated, $requestVoid, $approveVoid): void {
+            $pending = $order->voidRequest()->where('status', 'pending')->first();
+
+            $pending ??= $requestVoid->execute($order, $user, (string) $validated['reason_code'], $validated['note'] ?? null);
+
+            $approveVoid->execute($pending, $user);
+        });
+
+        return back()->with('success', __('orders.deleted'));
     }
 
     public function approveVoid(Request $request, Order $order, ApproveOrderVoidAction $action): RedirectResponse

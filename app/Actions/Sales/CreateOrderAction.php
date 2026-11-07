@@ -22,6 +22,7 @@ use App\Models\Shift;
 use App\Models\User;
 use App\Services\CouponService;
 use App\Services\InvoiceNumberService;
+use App\Services\PosSettings;
 use App\Services\StockService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -81,6 +82,10 @@ class CreateOrderAction
             $branch = Branch::query()->whereKey($branch->id)->lockForUpdate()->firstOrFail();
 
             if ($revising !== null) {
+                if (! PosSettings::orderEditEnabled($branch)) {
+                    throw ValidationException::withMessages(['order' => __('orders.edit_disabled')]);
+                }
+
                 $revising = $this->releaseForRevision($revising, $tableId, $type);
             }
 

@@ -68,6 +68,16 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
     </section>
 
     <section>
+        <SwitchField v-model="pos.order_edit_enabled" :label="t('settings.order_edit_enabled')" />
+        <p class="mt-1 text-xs text-muted">{{ t('settings.order_edit_enabled_helper') }}</p>
+    </section>
+
+    <section>
+        <SwitchField v-model="pos.order_delete_enabled" :label="t('settings.order_delete_enabled')" />
+        <p class="mt-1 text-xs text-muted">{{ t('settings.order_delete_enabled_helper') }}</p>
+    </section>
+
+    <section>
         <SwitchField v-model="allowNegativeStock" :label="t('settings.sell_without_stock')" />
         <p class="mt-1 text-xs text-muted">{{ t('settings.sell_without_stock_helper') }}</p>
     </section>

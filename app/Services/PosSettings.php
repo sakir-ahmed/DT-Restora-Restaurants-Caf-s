@@ -57,6 +57,8 @@ final class PosSettings
      * @return array{
      *     actions: array<string, array<string, bool>>,
      *     review_before_save: bool,
+     *     order_edit_enabled: bool,
+     *     order_delete_enabled: bool,
      *     invoice_layout: string,
      *     invoice_pattern: string,
      *     invoice_seq_digits: int,
@@ -75,6 +77,8 @@ final class PosSettings
                 'due_sale' => ['enabled' => true, 'exact_amount' => false, 'print_invoice' => false, 'print_kitchen' => false, 'instant_print' => false, 'clear' => true],
             ],
             'review_before_save' => false,
+            'order_edit_enabled' => true,
+            'order_delete_enabled' => true,
             'invoice_layout' => 'classic',
             'invoice_pattern' => self::DEFAULT_PATTERN,
             'invoice_seq_digits' => 4,
@@ -90,6 +94,22 @@ final class PosSettings
     public static function defaultSounds(): array
     {
         return ['enabled' => true, 'volume' => 70, 'events' => self::SOUND_EVENTS];
+    }
+
+    /**
+     * Whether staff may revise an order after it was sent. On unless the branch switched it off.
+     */
+    public static function orderEditEnabled(?Branch $branch): bool
+    {
+        return (bool) ($branch?->pos_settings['order_edit_enabled'] ?? true);
+    }
+
+    /**
+     * Whether staff may void or clear an order. On unless the branch switched it off.
+     */
+    public static function orderDeleteEnabled(?Branch $branch): bool
+    {
+        return (bool) ($branch?->pos_settings['order_delete_enabled'] ?? true);
     }
 
     /**
@@ -116,6 +136,8 @@ final class PosSettings
      * @return array{
      *     actions: array<string, array<string, bool>>,
      *     review_before_save: bool,
+     *     order_edit_enabled: bool,
+     *     order_delete_enabled: bool,
      *     invoice_layout: string,
      *     invoice_pattern: string,
      *     invoice_seq_digits: int,
@@ -141,6 +163,8 @@ final class PosSettings
         $settings = array_replace_recursive(self::defaults(), $stored);
         $settings['payment_methods'] = $methods;
         $settings['review_before_save'] = (bool) $settings['review_before_save'];
+        $settings['order_edit_enabled'] = (bool) $settings['order_edit_enabled'];
+        $settings['order_delete_enabled'] = (bool) $settings['order_delete_enabled'];
         $settings['sounds'] = self::soundsFor($branch);
         $settings['cash_suggestions'] = is_array($suggestions)
             ? array_values(array_map('intval', $suggestions))
@@ -278,6 +302,8 @@ final class PosSettings
             'pos.actions.*.instant_print' => ['sometimes', 'boolean'],
             'pos.actions.*.clear' => ['sometimes', 'boolean'],
             'pos.review_before_save' => ['sometimes', 'boolean'],
+            'pos.order_edit_enabled' => ['sometimes', 'boolean'],
+            'pos.order_delete_enabled' => ['sometimes', 'boolean'],
             'pos.invoice_layout' => ['required_with:pos', Rule::in(self::LAYOUTS)],
             'pos.invoice_pattern' => ['required_with:pos', 'string', 'max:60', function (string $attribute, mixed $value, Closure $fail): void {
                 if (! is_string($value) || ! self::patternIsValid($value)) {
@@ -326,6 +352,8 @@ final class PosSettings
         return [
             'actions' => $actions,
             'review_before_save' => (bool) ($pos['review_before_save'] ?? false),
+            'order_edit_enabled' => (bool) ($pos['order_edit_enabled'] ?? true),
+            'order_delete_enabled' => (bool) ($pos['order_delete_enabled'] ?? true),
             'invoice_layout' => $pos['invoice_layout'],
             'invoice_pattern' => $pos['invoice_pattern'],
             'invoice_seq_digits' => (int) $pos['invoice_seq_digits'],

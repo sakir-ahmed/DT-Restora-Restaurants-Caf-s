@@ -10,5 +10,7 @@ return [
     'dropped' => 'পড়ে গেছে বা নষ্ট হয়েছে',
     'complimentary' => 'ফ্রি পরিবেশন',
     'over_production' => 'অতিরিক্ত তৈরি হয়েছে',
+    'duplicate_order' => 'ডুপ্লিকেট অর্ডার',
+    'payment_failed' => 'পরিশোধ ব্যর্থ',
     'other' => 'অন্যান্য',
 ];

@@ -415,6 +415,12 @@ async function clearRunningOrder(order) {
  * removed or changed. Saving updates the same invoice.
  */
 function editOrder(order) {
+    if (! orderEditEnabled.value) {
+        notify.error(t('orders.edit_disabled'));
+
+        return;
+    }
+
     if (cart.value.length > 0 && ! latestOrder.value) {
         holdOrder();
     }
@@ -601,6 +607,8 @@ const posActions = computed(() => {
     return Object.fromEntries(Object.entries(DEFAULT_ACTIONS).map(([key, defaults]) => [key, { ...defaults, ...(configured[key] ?? {}) }]));
 });
 const reviewBeforeSave = computed(() => Boolean(branch.value.pos_settings?.review_before_save));
+const orderEditEnabled = computed(() => branch.value.pos_settings?.order_edit_enabled !== false);
+const orderDeleteEnabled = computed(() => branch.value.pos_settings?.order_delete_enabled !== false);
 // Bill review: the modal shows the cart and amounts before a new invoice is saved
 const billReview = ref(null);
 // Same numbers the payment lane shows: what the cashier typed as received, and the change from it.
@@ -3364,7 +3372,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                                         </template>
                                     </button>
 
-                                    <div v-if="openOrderByTable.get(table.id)" class="mt-1.5 grid gap-1" :class="canVoid ? 'grid-cols-3' : 'grid-cols-2'">
+                                    <div v-if="openOrderByTable.get(table.id)" class="mt-1.5 grid gap-1" :class="canVoid && orderDeleteEnabled ? 'grid-cols-3' : 'grid-cols-2'">
                                         <button type="button" class="inline-flex h-7 items-center justify-center gap-1 rounded-md border border-border bg-surface text-xs font-medium text-foreground hover:border-accent" :title="t('orders.print_invoice')" @click.stop="printOrderInvoice(openOrderByTable.get(table.id))">
                                             <AppIcon name="print" size="11" />
                                             {{ t('orders.print_short') }}
@@ -3373,7 +3381,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                                             <AppIcon name="circle-check" size="11" />
                                             {{ t('orders.paid_short') }}
                                         </button>
-                                        <button v-if="canVoid" type="button" class="inline-flex h-7 items-center justify-center gap-1 rounded-md border border-danger/40 bg-danger/10 text-xs font-medium text-danger hover:bg-danger/20 disabled:opacity-50" :disabled="clearBusy" @click.stop="clearTable(table)">
+                                        <button v-if="canVoid && orderDeleteEnabled" type="button" class="inline-flex h-7 items-center justify-center gap-1 rounded-md border border-danger/40 bg-danger/10 text-xs font-medium text-danger hover:bg-danger/20 disabled:opacity-50" :disabled="clearBusy" @click.stop="clearTable(table)">
                                             <AppIcon name="trash" size="11" />
                                             {{ t('orders.clear_short') }}
                                         </button>
@@ -3405,7 +3413,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                                         <AppIcon name="circle-check" size="11" />
                                         {{ t('orders.paid_short') }}
                                     </button>
-                                    <button v-if="canVoid" type="button" class="inline-flex h-7 items-center justify-center gap-1 rounded-md border border-danger/40 bg-danger/10 px-2 text-xs font-medium text-danger hover:bg-danger/20 disabled:opacity-50" :disabled="clearBusy" @click.stop="clearRunningOrder(order)">
+                                    <button v-if="canVoid && orderDeleteEnabled" type="button" class="inline-flex h-7 items-center justify-center gap-1 rounded-md border border-danger/40 bg-danger/10 px-2 text-xs font-medium text-danger hover:bg-danger/20 disabled:opacity-50" :disabled="clearBusy" @click.stop="clearRunningOrder(order)">
                                         <AppIcon name="trash" size="11" />
                                         {{ t('orders.clear_short') }}
                                     </button>
