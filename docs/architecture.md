@@ -40,6 +40,8 @@
 
 ## 2. Folder Structure
 
+The repository is a monorepo: `web-app/` (Laravel), `flutter-app/` (Flutter) and the shared `docs/`. The tree below is inside `web-app/`.
+
 ```text
 app/
 ├── Actions/            # One class = one business operation (CreateOrderAction)

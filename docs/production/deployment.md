@@ -1,6 +1,6 @@
 # Arman's Kitchen deployment (branch production/armanskitchen)
 
-A fresh server can be deployed from this guide. The application is Laravel with Inertia, a database, a queue worker, a scheduler, and Reverb for live kitchen and rider updates.
+A fresh server can be deployed from this guide. The Laravel app lives in `web-app/` of the repository, so run every command below from that folder. The Flutter app (`flutter-app/`) is not deployed to the server. The application is Laravel with Inertia, a database, a queue worker, a scheduler, and Reverb for live kitchen and rider updates.
 
 ## Server
 
@@ -11,7 +11,7 @@ A fresh server can be deployed from this guide. The application is Laravel with 
 
 ## First install
 
-1. Copy the repository onto the server and point the web root at `public/`.
+1. Copy the repository onto the server and point the web root at `web-app/public/`.
 2. Copy `.env.example` to `.env`. Set `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL`, and the database credentials.
 3. Set `APP_KEY` with `php artisan key:generate`.
 4. Keep `IS_DEMO=false`. On a fresh database the seeder creates the bootstrap data (roles, chart of accounts, units, payment methods, default settings), the root administrator, and Arman's Kitchen: the outlet, the full printed menu with photos, the Qasr Al Mandi pre-order range and the website gallery.
@@ -48,6 +48,7 @@ php artisan db:seed --class=ProductionDataSeeder --force
 
 ```bash
 git pull origin production/armanskitchen
+cd web-app
 composer install --no-dev --optimize-autoloader
 npm ci && npm run build
 php artisan migrate --force
@@ -101,9 +102,10 @@ Staff and customer apps send `Authorization: Bearer <token>`. Order and payment 
 
 ## Update
 
-Put the site in maintenance mode, pull the new code, install dependencies, build assets, migrate, and restart the workers:
+Put the site in maintenance mode, pull the new code, install dependencies, build assets, migrate, and restart the workers (or run `web-app/deploy.sh`, which does all of this):
 
 ```bash
+cd web-app
 php artisan down
 git pull
 composer install --no-dev --optimize-autoloader

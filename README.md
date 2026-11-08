@@ -1,205 +1,123 @@
 # DT Restora
 
-**DT Restora** — restaurant owner control system, a product of **Datatech BD Ltd** (datatechbd.com) — _Software that runs business._ An Owner Control System for restaurants and cafes in Bangladesh.
+**DT Restora** is a restaurant owner control system by **Datatech BD Ltd** (datatechbd.com) — _Software that runs business._ It gives owners financial visibility across branches (profit, recipe costing, wastage, inventory, accounting) and runs the customer side too: online ordering, loyalty, delivery tracking and delivery-app order intake. The interface is bilingual (English and Bangla).
 
-DT Restora goes beyond a standard POS. It gives owners clear financial visibility across branches (profit, recipe costing, wastage, inventory, full accounting) and runs the customer side too: online ordering, loyalty, delivery tracking and delivery-app order intake. The interface is fully bilingual (English and Bangla).
+This repository is a **monorepo**. The web application and the mobile application live side by side and share one set of documentation.
 
-> This project is built phase by phase from the specification in `docs/`. Start with `docs/roadmap.md`.
+| Folder | What it is | Stack |
+| ------ | ---------- | ----- |
+| [`web-app/`](web-app/README.md) | Backend, admin panel, POS, public website and the `/api/v1` REST API | Laravel 13, PHP 8.3+, Inertia, Vue 3, Tailwind CSS v4 |
+| [`flutter-app/`](flutter-app/README.md) | Staff and owner mobile app (Android and iOS) | Flutter 3, Dart 3 |
+| [`docs/`](docs/README.md) | Shared specification: PRD, architecture, API, design, roadmap, deployment, marketing | Markdown |
 
----
+The Flutter app is a client of the web app: it talks to `web-app` over `/api/v1` (see [`docs/api.md`](docs/api.md)). Change the API in `web-app/` and the client in `flutter-app/` in the same commit when they must move together.
 
-## Features
+## Repository layout
 
-- **Multi-branch management:** branch switching, role-based scoping, stock transfers, branch-wise P&L
-- **Owner dashboard:** gross vs net sales, food cost, wastage, salary, expenses, estimated net profit, alerts
-- **POS and payments:** touch-friendly POS, cash, bKash, Nagad, SSLCommerz, split payments, KDS, 80mm receipts
-- **Recipes and inventory:** recipe builder, automatic stock deduction, costing engine, purchases, wastage logger, stock counts
-- **Customer website:** SEO-friendly online ordering, QR table ordering, order tracking
-- **Loyalty and coupons:** points ledger, tiers, coupons, SMS campaigns
-- **Delivery:** dispatch board, rider web view with live location, customer tracking
-- **Aggregator integrations:** adapter framework for delivery platforms, commission tracking
-- **Accounting:** double-entry ledger, vouchers, payables, trial balance, P&L, balance sheet, VAT summary
-- **Full offline mode:** installable PWA with local queue and automatic sync
-- **Mobile-ready API:** documented, versioned `/api/v1` for future customer, rider and staff apps (the mobile apps are a separate project)
+```text
+dt-restora/
+├── web-app/            Laravel application (own composer.json, package.json, Docker, tests)
+├── flutter-app/        Flutter application (own pubspec.yaml, tests)
+├── docs/               Shared documentation
+├── .github/workflows/  web-app.yml and flutter-app.yml, each runs only for its own folder
+├── Makefile            Shortcuts for both apps (run `make help`)
+├── AGENTS.md           Instructions for AI coding agents (CLAUDE.md is the same file)
+└── .editorconfig       Shared editor settings
+```
 
-Full scope and business rules: `docs/prd.md`.
+Each app is self-contained: run its commands from inside its folder. Nothing in the repository root is needed to build or test either app.
 
----
+## Requirements
 
-## Tech Stack
+| Tool | Version | Needed for |
+| ---- | ------- | ---------- |
+| PHP | 8.3+ | web-app |
+| Composer | 2.x | web-app |
+| Node.js and npm | 20+ | web-app assets |
+| Flutter SDK | stable, Dart `^3.13` (see `flutter-app/pubspec.yaml`) | flutter-app |
+| Docker and Docker Compose | optional | full web stack (MySQL, Redis, Reverb) |
+| Android Studio or Xcode | optional | running the mobile app on an emulator or simulator |
 
-| Area                  | Technology                                             |
-| --------------------- | ------------------------------------------------------ |
-| Backend               | Laravel 13.x, PHP 8.3+                                 |
-| Database              | MySQL 8                                                |
-| Cache, session, queue | Redis                                                  |
-| Frontend              | Inertia.js v2, Vue 3, Tailwind CSS v4, shadcn-vue      |
-| Icons and charts      | Font Awesome Free, Chart.js                            |
-| Real-time             | Laravel Reverb                                         |
-| Auth and roles        | Laravel Sanctum, Socialite (Google), Spatie Permission |
-| Audit and backup      | Spatie Activitylog, Spatie Backup                      |
-| SMS                   | BdBulkSMS                                              |
-| Testing and quality   | Pest, Laravel Pint, Larastan                           |
-| Containers            | Docker and Docker Compose                              |
+## Quick start
 
----
-
-## Documentation
-
-All project documentation lives in `docs/`. AI coding agents read `CLAUDE.md` first.
-
-| File                   | Purpose                                                           |
-| ---------------------- | ----------------------------------------------------------------- |
-| `docs/prd.md`          | Product requirements: roles, modules, business rules, scope       |
-| `docs/architecture.md` | Tech stack, folder structure, coding rules, Definition of Done    |
-| `docs/api.md`          | API conventions, endpoints, payment gateway flows                 |
-| `docs/design.md`       | Design system, components, icons, sizing, tables, dialogs, charts |
-| `docs/docker.md`       | Docker services, commands and the logging standard               |
-| `docs/roadmap.md`      | Build phases with acceptance criteria                             |
-| `docs/ui-preview.html` | Static visual mockup of the intended UI (open in a browser)       |
-| `docs/production/`     | Production site: deployment guide and the source photos and brand files |
-| `docs/demo/`           | Demo site: marketing material, screenshots and social posts       |
-
----
-
-## Getting Started
-
-### Requirements
-
-- Docker and Docker Compose
-- Git
-- Node.js 20+ and npm (only if you run the frontend outside Docker)
-
-### Setup
+Clone, then set up both apps:
 
 ```sh
 git clone <repository-url> dt-restora
 cd dt-restora
+make setup
+```
 
+Or step by step.
+
+**Web app** (SQLite, no Docker needed for a local run):
+
+```sh
+cd web-app
+composer install
 cp .env.example .env
-# Edit .env: database, Redis, mail, BdBulkSMS, bKash, SSLCommerz, Google OAuth
-
-docker compose up -d --build
-docker compose exec app composer install
-docker compose exec app php artisan key:generate
-docker compose exec app php artisan migrate --seed
-docker compose exec app npm install
-docker compose exec app npm run dev
+php artisan key:generate
+php artisan migrate --seed     # prints the admin password once
+npm install
+npm run build
+php artisan serve              # http://localhost:8000
 ```
 
-The service names above (`app`) follow the Docker Compose file created in Phase 0 of the roadmap. Adjust them if yours differ.
-
-Open the app at `http://localhost`. The admin panel is at `/admin`. The seeder creates the root administrator (username `admin`) with a random strong password and prints it once at the end of `php artisan migrate:fresh --seed`. If it is lost, run `php artisan admin:reset-password`. With `IS_DEMO=false` the seeder loads the production data (`ProductionDataSeeder`: the real outlet, menu and gallery, on a fresh install only). With `IS_DEMO=true` it loads the demo data (sample branches, menu, staff and orders) instead.
-
-
-### Docker
-
-Full service list, common commands and the logging standard: [docs/docker.md](docs/docker.md). The essentials:
+**Flutter app:**
 
 ```sh
-cp docker-compose.override.yml.example docker-compose.override.yml   # local overrides (git-ignored)
-docker compose up -d --build
-docker compose logs -f app
+cd flutter-app
+flutter pub get
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api/v1
 ```
 
-### Background processes
+`10.0.2.2` is how the Android emulator reaches the host machine. On the iOS simulator use `http://localhost:8000/api/v1`. On a phone on the same Wi-Fi use `http://<computer-ip>:8000/api/v1` and start the server with `php artisan serve --host=0.0.0.0`. The server address can also be entered inside the app on its setup screen.
 
-These run as separate containers in the Docker setup:
+## Common commands
 
-| Process                                      | Command                     |
-| -------------------------------------------- | --------------------------- |
-| Queue worker                                 | `php artisan queue:work`    |
-| Scheduler (backups, loyalty expiry, reports) | `php artisan schedule:work` |
-| Real-time server (Reverb)                    | `php artisan reverb:start`  |
+Run `make help` for the full list. The most useful:
 
----
+| Command | Does |
+| ------- | ---- |
+| `make setup` | Install dependencies for both apps |
+| `make web-serve` | Start the Laravel server on port 8000 |
+| `make web-dev` | Start the Vite dev server (hot reload) |
+| `make web-test` | Pest tests for the web app |
+| `make web-lint` | Pint (style check) and Larastan (static analysis) |
+| `make web-build` | Production asset build |
+| `make app-run` | Run the Flutter app (uses `API_BASE_URL`, default Android emulator address) |
+| `make app-test` | Flutter analyze and tests |
+| `make check` | Everything CI runs, for both apps |
 
-## Environment Variables
+## Documentation
 
-Key groups in `.env.example` (see the file for the full list):
+Everything is indexed in [`docs/README.md`](docs/README.md). Start with:
 
-| Group    | Examples                                                              |
-| -------- | --------------------------------------------------------------------- |
-| App      | `APP_NAME`, `APP_URL`, `APP_LOCALE`, `APP_TIMEZONE=Asia/Dhaka`        |
-| Database | `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`                |
-| Redis    | `CACHE_STORE=redis`, `SESSION_DRIVER=redis`, `QUEUE_CONNECTION=redis` |
-| Reverb   | `REVERB_APP_ID`, `REVERB_APP_KEY`, `REVERB_APP_SECRET`, `REVERB_HOST` |
-| SMS      | `BDBULKSMS_URL`, `BDBULKSMS_TOKEN`                                    |
-| Payments | `BKASH_*`, `NAGAD_*`, `SSLCOMMERZ_*`                                  |
-| Login    | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`                            |
-| Backup   | `AWS_*` (if backing up to S3)                                         |
+- [`docs/prd.md`](docs/prd.md): product requirements and business rules
+- [`docs/architecture.md`](docs/architecture.md): structure and coding rules
+- [`docs/api.md`](docs/api.md): the API contract shared by both apps
+- [`docs/roadmap.md`](docs/roadmap.md): build phases
+- [`docs/production/deployment.md`](docs/production/deployment.md): deploying the web app
+- [`docs/mobile-app.md`](docs/mobile-app.md): building and releasing the Flutter app
 
----
+## Branches and deployment
 
-## Development Workflow
+- `main`: integration branch.
+- `production/armanskitchen`: the live Arman's Kitchen site. Deploy it with `web-app/deploy.sh` on the server (see the deployment guide).
+- `production/demo`: the public demo site.
 
-```sh
-# Run tests
-php artisan test            # or: ./vendor/bin/pest
+CI runs per app. A change that only touches `flutter-app/` does not run the web app pipeline, and the other way round.
 
-# Code style (auto-fix)
-./vendor/bin/pint
+## Contributing
 
-# Static analysis
-./vendor/bin/phpstan
-
-# Fresh database with demo data
-php artisan migrate:fresh --seed
-```
-
-Rules to follow:
-
-- Build one roadmap phase at a time; a phase is finished only when its acceptance criteria and the Definition of Done in `docs/architecture.md` are met.
-- Every feature has Pest tests, including authorization and branch isolation.
-- No emojis anywhere (UI, translations, SMS, receipts, code, commits). Icons come from Font Awesome through `AppIcon`.
-- Every text key exists in both `lang/en` and `lang/bn`.
-
----
-
-## Project Structure
-
-```text
-app/
-  Actions/          single-purpose business operations
-  Services/         integrations (SMS, payments, aggregators) and orchestration
-  Enums/            typed enums
-  Http/
-    Controllers/    Admin (SPA), Api/V1, Web (public SSR)
-    Requests/       validation
-    Resources/      API resources
-  Models/           Eloquent models
-resources/js/       Vue 3 pages and components (ui-kit for shared components)
-lang/en, lang/bn    translations
-docs/               project specification
-tests/              Pest tests
-```
-
----
-
-## Roles
-
-`super-admin`, `owner`, `branch-manager`, `cashier`, `waiter`, `kitchen-manager`, `accountant`, `rider`. Customers use a separate login and cannot access `/admin`.
-
----
-
-## Deployment Notes
-
-- One installation per client (single-tenant), with multiple branches inside it.
-- Serve over HTTPS only. Set `APP_ENV=production` and `APP_DEBUG=false`.
-- Schedule `backup:run` daily and test a restore before going live.
-- Run the queue worker, scheduler and Reverb under a process supervisor.
-- Confirm VAT rate, invoice numbering and receipt format with the client's accountant.
-
----
+1. Work from the app's folder and follow its README.
+2. Read [`AGENTS.md`](AGENTS.md) for the shared rules (no emojis anywhere, every text key in both `en` and `bn`, tests for every feature).
+3. Run `make check` before committing.
+4. Commit messages: a short imperative summary. Mention the app when only one is touched, for example `web-app: ...` or `flutter-app: ...`.
 
 ## Support
 
-**DT Restora** is a product of **Datatech BD Ltd** — datatechbd.com — _Software that runs business._
-
-- Email: sales@datatechbd.com
-- Phone: +880 1575-888775
-- WhatsApp: +880 1575-888775
-- Address: Flat 4-A, Dhumketu Shikder Tower, Holding No. 66, Paschim Monipur, Mirpur, Dhaka-1216, Bangladesh
+Datatech BD Ltd — datatechbd.com — sales@datatechbd.com — +880 1575-888775 (phone and WhatsApp).
 
 ## License
 

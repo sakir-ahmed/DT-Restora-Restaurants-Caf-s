@@ -1,32 +1,19 @@
-*.log
+# Repo-level ignores. Each app keeps its own rules:
+#   web-app/.gitignore     Laravel / Node
+#   flutter-app/.gitignore Flutter / Dart
 .DS_Store
-.env
-.env.backup
-.env.production
-.phpactor.json
-.phpunit.result.cache
+Thumbs.db
+*.log
+
+# Editors and local AI tooling
+/.idea
+/.vscode
+/.nova
+/.zed
 /.codex
 /.cursor/
-/.idea
-/.nova
-/.phpunit.cache
-/.vscode
-/.zed
-/auth.json
-/node_modules
-/public/build
-/public/fonts-manifest.dev.json
-/public/hot
-/public/storage
-/storage/*.key
-/storage/pail
-/vendor
-_ide_helper.php
-Homestead.json
-Homestead.yaml
-Thumbs.db
-/bootstrap/ssr
-/database/e2e.sqlite
+/.claude/settings.local.json
+/.claude/.cc-writes
 
-# Docker local override (copy of docker-compose.override.yml.example)
-/docker-compose.override.yml
+# Leftover from the old repository layout
+/.git.broken
