@@ -1,6 +1,6 @@
 # Mobile app (Flutter)
 
-The staff and owner app in `flutter-app/`. It is a client of the web app's `/api/v1` API (see [api.md](api.md)) and keeps working offline: orders are queued in a local SQLite database and synced when the connection returns.
+The staff and owner app in `flutter-app/`. It is a client of the web app's `/api/v1` API (see [api.md](../api.md)) and keeps working offline: orders are queued in a local SQLite database and synced when the connection returns.
 
 All commands run from `flutter-app/`.
 
@@ -26,7 +26,7 @@ The API address is read in this order: the address saved in the app (setup scree
 flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api/v1
 ```
 
-To get a working local backend, start `web-app` first (see [../README.md](../README.md)) and note the admin password printed by `php artisan migrate --seed`.
+To get a working local backend, start `web-app` first (see [../../README.md](../../README.md)) and note the admin password printed by `php artisan migrate --seed`.
 
 ## Quality checks
 
@@ -44,7 +44,7 @@ flutter build apk --release --dart-define=API_BASE_URL=https://<your-domain>/api
 flutter build appbundle --release --dart-define=API_BASE_URL=https://<your-domain>/api/v1
 ```
 
-Bump `version:` in `pubspec.yaml` (`1.1.0+3` is version name `1.1.0`, build number `3`) before every store upload. The Play Store listing text and screenshots are in `flutter-app/dist/playstore/` (local copy), the privacy page is `flutter-app/docs/privacy.html`.
+Bump `version:` in `pubspec.yaml` (`1.1.0+3` is version name `1.1.0`, build number `3`) before every store upload. The Play Store listing text and screenshots are in [`play-store/`](play-store/PLAY-STORE-LISTING.md), the privacy page is [`privacy.html`](privacy.html).
 
 ## Keeping web and mobile in step
 

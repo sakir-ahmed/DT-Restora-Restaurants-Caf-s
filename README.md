@@ -98,7 +98,7 @@ Everything is indexed in [`docs/README.md`](docs/README.md). Start with:
 - [`docs/api.md`](docs/api.md): the API contract shared by both apps
 - [`docs/roadmap.md`](docs/roadmap.md): build phases
 - [`docs/production/deployment.md`](docs/production/deployment.md): deploying the web app
-- [`docs/mobile-app.md`](docs/mobile-app.md): building and releasing the Flutter app
+- [`docs/mobile/README.md`](docs/mobile/README.md): building and releasing the Flutter app
 
 ## Branches and deployment
 

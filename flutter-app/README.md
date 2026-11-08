@@ -9,7 +9,7 @@ flutter pub get
 flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api/v1
 ```
 
-`10.0.2.2` reaches the host machine from the Android emulator. Other targets and release builds: [`../docs/mobile-app.md`](../docs/mobile-app.md).
+`10.0.2.2` reaches the host machine from the Android emulator. Other targets and release builds: [`../docs/mobile/README.md`](../docs/mobile/README.md).
 
 ## Check
 
@@ -29,8 +29,8 @@ lib/
 test/           Unit and widget tests
 assets/         Images and fonts
 android/, ios/  Platform projects
-docs/           Public privacy page
 dist/           Local release packages (git-ignored)
+
 ```
 
 ## Notes

@@ -19,7 +19,8 @@ Shared documentation for the whole DT Restora monorepo (`web-app/` and `flutter-
 | ---- | ------- |
 | [docker.md](docker.md) | Docker services, commands and the logging standard (web-app) |
 | [production/deployment.md](production/deployment.md) | Production server deployment (web-app) |
-| [mobile-app.md](mobile-app.md) | Running, testing and releasing the Flutter app |
+| [mobile/README.md](mobile/README.md) | Running, testing and releasing the Flutter app |
+| [mobile/privacy.html](mobile/privacy.html), [mobile/play-store/](mobile/play-store/PLAY-STORE-LISTING.md) | Privacy page and Play Store listing kit (text, screenshots, graphics) |
 
 ## Guides and material
 
