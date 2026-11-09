@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToBranch;
+use App\Models\Concerns\SafeDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,7 +21,7 @@ use Illuminate\Support\Str;
  */
 class Reservation extends Model
 {
-    use BelongsToBranch, HasFactory;
+    use BelongsToBranch, HasFactory, SafeDeletes;
 
     public const BOOKED = 'booked';
 
@@ -93,7 +94,7 @@ class Reservation extends Model
             // Letters and digits that are easy to misread over the phone are left out of the random part.
             $suffix = strtr(Str::upper(Str::random(4)), ['0' => 'Q', 'O' => 'W', '1' => 'K', 'I' => 'M', 'L' => 'N']);
             $number = 'RSV-'.now()->format('md').'-'.$suffix;
-        } while (self::query()->withoutBranchScope()->where('booking_no', $number)->exists());
+        } while (self::query()->withoutBranchScope()->withTrashed()->where('booking_no', $number)->exists());
 
         return $number;
     }

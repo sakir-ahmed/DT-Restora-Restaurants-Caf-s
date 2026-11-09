@@ -27,4 +27,10 @@ return [
     'amount_required' => 'Enter an amount greater than zero.',
     'wrong_branch' => 'That employee is not in this branch.',
     'apply' => 'Show',
+    'advances_list' => 'Salary advances in this period',
+    'advances_empty' => 'No advances in this period.',
+    'advance_deleted' => 'Advance deleted. It no longer counts against the pay.',
+    'advance_delete_title' => 'Delete advance for :name?',
+    'advance_delete_message' => 'Use this for an advance recorded by mistake. Its accounting entry is reversed and it no longer reduces the employee pay. It stays in the history marked as deleted.',
+    'advance_delete_journal_note' => 'Reversal for deleted salary advance #:id',
 ];

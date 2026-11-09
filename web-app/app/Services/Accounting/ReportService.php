@@ -225,6 +225,7 @@ class ReportService
         $purchases = DB::table('purchases')
             ->join('suppliers', 'suppliers.id', '=', 'purchases.supplier_id')
             ->where('purchases.status', 'received')
+            ->whereNull('purchases.deleted_at')
             ->orderBy('purchases.purchased_at')
             ->orderBy('purchases.id')
             ->get(['purchases.supplier_id', 'suppliers.name', 'purchases.total', 'purchases.purchased_at']);

@@ -230,6 +230,7 @@ Route::prefix('admin')
         Route::post('reservations', [ReservationController::class, 'store'])->name('reservations.store')->middleware('permission:reservations.manage');
         Route::put('reservations/{reservation}', [ReservationController::class, 'update'])->name('reservations.update')->middleware('permission:reservations.manage');
         Route::get('reservations/{reservation}/confirmation', [ReservationController::class, 'confirmation'])->name('reservations.confirmation')->middleware('permission:reservations.view');
+        Route::delete('reservations/{reservation}', [ReservationController::class, 'destroy'])->name('reservations.destroy')->middleware('permission:reservations.manage');
         Route::post('reservations/{reservation}/deposit', [ReservationController::class, 'collectDeposit'])->name('reservations.deposit')->middleware('permission:reservations.manage');
         Route::post('reservations/{reservation}/deposit/{outcome}', [ReservationController::class, 'closeDeposit'])->where('outcome', 'refund|forfeit')->name('reservations.deposit.close')->middleware('permission:reservations.manage');
         Route::post('reservations/{reservation}/{action}', [ReservationController::class, 'transition'])->where('action', 'seat|complete|cancel|no-show')->name('reservations.transition')->middleware('permission:reservations.manage');
@@ -253,6 +254,7 @@ Route::prefix('admin')
 
         Route::get('payroll', [PayrollController::class, 'index'])->name('payroll.index')->middleware('permission:payroll.manage');
         Route::post('payroll/advances', [PayrollController::class, 'storeAdvance'])->name('payroll.advances.store')->middleware('permission:payroll.manage');
+        Route::delete('payroll/advances/{advance}', [PayrollController::class, 'destroyAdvance'])->name('payroll.advances.destroy')->middleware('permission:payroll.manage');
         Route::get('payroll/slips/{employee}', [PayrollController::class, 'slip'])->name('payroll.slip')->middleware('permission:payroll.manage');
 
         Route::get('letters', [LetterheadController::class, 'index'])->name('letters.index')->middleware('permission:letters.manage');
@@ -278,6 +280,8 @@ Route::prefix('admin')
         Route::get('purchases', [PurchaseController::class, 'index'])->name('purchases.index')->middleware('permission:purchases.manage');
         Route::post('purchases', [PurchaseController::class, 'store'])->name('purchases.store')->middleware('permission:purchases.manage');
         Route::post('purchases/suppliers', [PurchaseController::class, 'storeSupplier'])->name('purchases.suppliers.store')->middleware('permission:purchases.manage');
+        Route::post('purchases/ingredients', [PurchaseController::class, 'storeIngredient'])->name('purchases.ingredients.store')->middleware('permission:purchases.manage');
+        Route::delete('purchases/{purchase}', [PurchaseController::class, 'destroy'])->name('purchases.destroy')->middleware('permission:purchases.manage');
         Route::put('purchases/{purchase}', [PurchaseController::class, 'update'])->name('purchases.update')->middleware('permission:purchases.manage');
         Route::post('purchases/{purchase}/receive', [PurchaseController::class, 'receive'])->name('purchases.receive')->middleware('permission:purchases.manage');
 
@@ -287,14 +291,17 @@ Route::prefix('admin')
 
         Route::get('wastage', [WastageController::class, 'index'])->name('wastage.index')->middleware('permission:inventory.view');
         Route::post('wastage', [WastageController::class, 'store'])->name('wastage.store')->middleware('permission:wastage.log');
+        Route::delete('wastage/{wastage}', [WastageController::class, 'destroy'])->name('wastage.destroy')->middleware('permission:wastage.log');
 
         Route::get('stock-counts', [StockCountController::class, 'index'])->name('stock-counts.index')->middleware('permission:inventory.view');
         Route::post('stock-counts', [StockCountController::class, 'store'])->name('stock-counts.store')->middleware('permission:inventory.manage');
         Route::put('stock-counts/{count}/items', [StockCountController::class, 'updateCounts'])->name('stock-counts.update')->middleware('permission:inventory.manage');
+        Route::delete('stock-counts/{count}', [StockCountController::class, 'destroy'])->name('stock-counts.destroy')->middleware('permission:inventory.manage');
         Route::post('stock-counts/{count}/close', [StockCountController::class, 'close'])->name('stock-counts.close')->middleware('permission:inventory.manage');
 
         Route::get('stock-transfers', [StockTransferController::class, 'index'])->name('stock-transfers.index')->middleware('permission:transfers.manage');
         Route::post('stock-transfers', [StockTransferController::class, 'store'])->name('stock-transfers.store')->middleware('permission:transfers.manage');
+        Route::delete('stock-transfers/{transfer}', [StockTransferController::class, 'destroy'])->name('stock-transfers.destroy')->middleware('permission:transfers.manage');
         Route::post('stock-transfers/{transfer}/approve', [StockTransferController::class, 'approve'])->name('stock-transfers.approve')->middleware('permission:transfers.manage');
         Route::post('stock-transfers/{transfer}/receive', [StockTransferController::class, 'receive'])->name('stock-transfers.receive')->middleware('permission:transfers.manage');
 

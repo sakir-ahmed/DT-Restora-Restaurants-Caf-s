@@ -26,4 +26,6 @@ return [
     'by_customer' => 'By customer',
     'all_sales' => 'All sales',
     'sales_count' => ':count sale(s)',
+    'delete_title' => 'Delete due sale :invoice?',
+    'delete_message' => 'Use this for a sale entered by mistake. The sale is deleted: stock goes back, the sales entry is reversed, loyalty points are taken back and the due is removed. It stays in the history marked as deleted.',
 ];

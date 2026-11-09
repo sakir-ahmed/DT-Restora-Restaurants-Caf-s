@@ -8,6 +8,7 @@ import FormField from '@/components/ui-kit/FormField.vue';
 import PageHeader from '@/components/ui-kit/PageHeader.vue';
 import SlideOver from '@/components/ui-kit/SlideOver.vue';
 import StatusBadge from '@/components/ui-kit/StatusBadge.vue';
+import { useSafeDelete } from '@/lib/safeDelete';
 import { t } from '@/lib/i18n';
 import { notify } from '@/lib/notify';
 
@@ -27,7 +28,7 @@ const columns = computed(() => [
     { key: 'to_name', label: t('inventory.to_branch'), align: 'left' },
     { key: 'items_count', label: t('inventory.items_label'), type: 'number', minWidth: '64px' },
     { key: 'status', label: t('common.status'), minWidth: '104px' },
-    { key: 'actions', label: '', align: 'right', type: 'component', width: '40px' },
+    { key: 'actions', label: '', align: 'right', type: 'component', width: '168px' },
 ]);
 
 const rows = computed(() => props.transfers.map((transfer) => ({
@@ -35,7 +36,24 @@ const rows = computed(() => props.transfers.map((transfer) => ({
     from_name: transfer.from_branch?.code + ' - ' + transfer.from_branch?.name,
     to_name: transfer.to_branch?.code + ' - ' + transfer.to_branch?.name,
     items_count: transfer.items?.length ?? 0,
+    is_deleted: Boolean(transfer.deleted_at),
 })));
+
+const safeDelete = useSafeDelete();
+
+function removeTransfer(transfer) {
+    safeDelete({
+        url: route('admin.stock-transfers.destroy', transfer.id),
+        title: t('inventory.transfer_delete_title', { id: transfer.id }),
+        message: transfer.status === 'received' ? t('inventory.transfer_delete_received_message') : t('inventory.transfer_delete_pending_message'),
+        facts: [
+            { label: t('inventory.from_branch'), value: transfer.from_name },
+            { label: t('inventory.to_branch'), value: transfer.to_name },
+            { label: t('inventory.items_label'), value: String(transfer.items_count) },
+        ],
+        success: t('inventory.transfer_deleted'),
+    });
+}
 
 const form = useForm({
     from_branch_id: '',
@@ -118,13 +136,13 @@ function receive(transfer) {
             <template #cell(created_at)="{ value }">
                 <DateText :value="value" />
             </template>
-            <template #cell(status)="{ value }">
-                <StatusBadge :status="value === 'received' ? 'approved' : value" />
+            <template #cell(status)="{ row, value }">
+                <StatusBadge :status="row.is_deleted ? 'deleted' : (value === 'received' ? 'approved' : value)" />
             </template>
             <template #cell(actions)="{ row }">
                 <div class="flex justify-end gap-1">
                     <button
-                        v-if="row.status === 'requested'"
+                        v-if="row.status === 'requested' && ! row.is_deleted"
                         type="button"
                         class="flex h-6 items-center gap-1 rounded border border-border px-1.5 text-[11px] text-foreground hover:bg-background"
                         @click="approve(row)"
@@ -133,13 +151,23 @@ function receive(transfer) {
                         {{ t('inventory.approve_transfer') }}
                     </button>
                     <button
-                        v-if="row.status === 'approved'"
+                        v-if="row.status === 'approved' && ! row.is_deleted"
                         type="button"
                         class="flex h-6 items-center gap-1 rounded bg-primary px-1.5 text-[11px] font-medium text-primary-foreground"
                         @click="receive(row)"
                     >
                         <AppIcon name="download" size="10" />
                         {{ t('inventory.receive_transfer') }}
+                    </button>
+                    <button
+                        v-if="canManage && ! row.is_deleted"
+                        type="button"
+                        class="flex h-6 w-6 items-center justify-center rounded text-muted hover:bg-danger/10 hover:text-danger"
+                        :aria-label="t('common.delete')"
+                        :title="t('common.delete')"
+                        @click.stop="removeTransfer(row)"
+                    >
+                        <AppIcon name="trash" size="12" />
                     </button>
                 </div>
             </template>

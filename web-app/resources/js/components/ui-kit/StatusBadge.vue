@@ -20,6 +20,7 @@ const MAP = {
     served: { classes: 'bg-success/10 text-success', icon: 'circle-check' },
     delivered: { classes: 'bg-success/10 text-success', icon: 'motorcycle' },
     void: { classes: 'bg-danger/10 text-danger', icon: 'circle-xmark' },
+    deleted: { classes: 'bg-danger/10 text-danger', icon: 'trash' },
     cancelled: { classes: 'bg-danger/10 text-danger', icon: 'circle-xmark' },
     failed: { classes: 'bg-danger/10 text-danger', icon: 'triangle-exclamation' },
     draft: { classes: 'bg-muted/10 text-muted', icon: 'pen-to-square' },

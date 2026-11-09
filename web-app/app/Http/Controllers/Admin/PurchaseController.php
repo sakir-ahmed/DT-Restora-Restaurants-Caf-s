@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\Inventory\CorrectReceivedPurchaseAction;
+use App\Actions\Inventory\DeletePurchaseAction;
 use App\Actions\Inventory\ReceivePurchaseAction;
 use App\Exceptions\InsufficientStockException;
 use App\Http\Controllers\Controller;
@@ -16,6 +17,7 @@ use App\Models\IngredientCategory;
 use App\Models\Purchase;
 use App\Models\Supplier;
 use App\Models\Unit;
+use App\Support\DeleteReasons;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,6 +35,7 @@ class PurchaseController extends Controller
         $branch = $this->currentBranch($request);
 
         $purchases = Purchase::query()
+            ->visible()
             ->where('branch_id', $branch->id)
             ->with(['supplier:id,name', 'items.ingredient:id,name', 'items.unit:id,symbol'])
             ->latest('purchased_at')
@@ -109,6 +112,10 @@ class PurchaseController extends Controller
         $user = $request->user('staff');
         abort_unless($user->canAccessBranch($purchase->branch_id), 404);
 
+        if ($purchase->trashed()) {
+            return back()->with('error', __('inventory.purchase_not_editable'));
+        }
+
         $data = $request->validated();
         $data['invoice_no'] = trim((string) ($data['invoice_no'] ?? '')) ?: null;
         $data['note'] = $data['note'] ?? null;
@@ -165,6 +172,61 @@ class PurchaseController extends Controller
         }
 
         return back()->with('success', __('inventory.purchase_updated'));
+    }
+
+    /**
+     * Delete a purchase entered by mistake. A received one is first undone (stock, average cost and
+     * ledger) and refused when its goods were already used; the row is kept marked as deleted.
+     */
+    public function destroy(Request $request, Purchase $purchase, DeletePurchaseAction $action): RedirectResponse
+    {
+        $this->authorize('purchases.manage');
+
+        $user = $request->user('staff');
+        abort_unless($user->canAccessBranch($purchase->branch_id), 404);
+
+        $reason = DeleteReasons::validate($request);
+
+        try {
+            $action->execute($purchase, $user, $reason['reason'], $reason['note']);
+        } catch (InsufficientStockException $exception) {
+            $name = Ingredient::query()->whereKey($exception->ingredientId)->value('name');
+
+            return back()->with('error', __('inventory.purchase_delete_blocked', [
+                'ingredient' => $name,
+                'available' => rtrim(rtrim(number_format($exception->availableQty, 3, '.', ''), '0'), '.'),
+            ]));
+        }
+
+        return back()->with('success', __('inventory.purchase_deleted'));
+    }
+
+    /**
+     * Add an ingredient from the purchase form without leaving it.
+     */
+    public function storeIngredient(Request $request): JsonResponse
+    {
+        $this->authorize('purchases.manage');
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:150'],
+            'unit_id' => ['required', 'integer', 'exists:units,id'],
+            'ingredient_category_id' => ['nullable', 'integer', 'exists:ingredient_categories,id'],
+        ]);
+
+        $ingredient = Ingredient::query()->create([...$validated, 'reorder_level' => 0, 'is_active' => true]);
+
+        activity()->performedOn($ingredient)->causedBy($request->user('staff'))->log('ingredient.created');
+
+        $ingredient->load('unit:id,symbol,type');
+
+        return response()->json([
+            'id' => $ingredient->id,
+            'name' => $ingredient->name,
+            'unit_id' => $ingredient->unit_id,
+            'ingredient_category_id' => $ingredient->ingredient_category_id,
+            'unit' => $ingredient->unit?->only(['id', 'symbol', 'type']),
+        ], 201);
     }
 
     /**

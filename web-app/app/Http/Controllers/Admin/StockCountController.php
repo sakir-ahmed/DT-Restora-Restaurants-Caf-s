@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\Inventory\CloseStockCountAction;
+use App\Actions\Inventory\DeleteStockCountAction;
+use App\Exceptions\InsufficientStockException;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
+use App\Models\Ingredient;
 use App\Models\IngredientStock;
 use App\Models\StockCount;
+use App\Support\DeleteReasons;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +28,7 @@ class StockCountController extends Controller
         $branch = $this->currentBranch($request);
 
         $counts = StockCount::query()
+            ->visible()
             ->where('branch_id', $branch->id)
             ->withCount('items')
             ->latest()
@@ -113,6 +118,31 @@ class StockCountController extends Controller
         $action->execute($count, $request->user('staff'));
 
         return back()->with('success', __('inventory.count_closed'));
+    }
+
+    /**
+     * Delete a count made by mistake. A closed count takes its variances back out of stock and is
+     * refused when stock has since fallen too low to do so.
+     */
+    public function destroy(Request $request, StockCount $count, DeleteStockCountAction $action): RedirectResponse
+    {
+        $this->authorize('inventory.manage');
+
+        $user = $request->user('staff');
+        abort_unless($user->canAccessBranch($count->branch_id), 404);
+
+        $reason = DeleteReasons::validate($request);
+
+        try {
+            $action->execute($count, $user, $reason['reason'], $reason['note']);
+        } catch (InsufficientStockException $exception) {
+            return back()->with('error', __('inventory.count_delete_blocked', [
+                'ingredient' => Ingredient::query()->whereKey($exception->ingredientId)->value('name'),
+                'available' => rtrim(rtrim(number_format($exception->availableQty, 3, '.', ''), '0'), '.'),
+            ]));
+        }
+
+        return back()->with('success', __('inventory.count_deleted'));
     }
 
     private function currentBranch(Request $request): Branch

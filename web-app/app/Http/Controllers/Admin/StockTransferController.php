@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\Inventory\ApproveStockTransferAction;
+use App\Actions\Inventory\DeleteStockTransferAction;
 use App\Actions\Inventory\ReceiveStockTransferAction;
+use App\Exceptions\InsufficientStockException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StockTransferRequest;
 use App\Models\Branch;
 use App\Models\Ingredient;
 use App\Models\StockTransfer;
 use App\Models\Unit;
+use App\Support\DeleteReasons;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +30,7 @@ class StockTransferController extends Controller
         $user = $request->user('staff');
 
         $transfers = StockTransfer::query()
+            ->visible()
             ->where(function ($query) use ($user): void {
                 $branchId = $user->branch_id ?? (int) session('branch_id', 0);
                 $query->where('from_branch_id', $branchId)->orWhere('to_branch_id', $branchId);
@@ -48,6 +52,31 @@ class StockTransferController extends Controller
             'units' => Unit::query()->orderBy('type')->orderBy('name')->get(['id', 'name', 'symbol', 'type']),
             'canManage' => $user->can('transfers.manage'),
         ]);
+    }
+
+    /**
+     * Delete a transfer made by mistake. A received transfer is undone first (stock goes back to the
+     * source branch) and refused when the destination already used the goods.
+     */
+    public function destroy(Request $request, StockTransfer $transfer, DeleteStockTransferAction $action): RedirectResponse
+    {
+        $this->authorize('transfers.manage');
+
+        $user = $request->user('staff');
+        abort_unless($user->canAccessBranch($transfer->from_branch_id) || $user->canAccessBranch($transfer->to_branch_id), 404);
+
+        $reason = DeleteReasons::validate($request);
+
+        try {
+            $action->execute($transfer, $user, $reason['reason'], $reason['note']);
+        } catch (InsufficientStockException $exception) {
+            return back()->with('error', __('inventory.transfer_delete_blocked', [
+                'ingredient' => Ingredient::query()->whereKey($exception->ingredientId)->value('name'),
+                'available' => rtrim(rtrim(number_format($exception->availableQty, 3, '.', ''), '0'), '.'),
+            ]));
+        }
+
+        return back()->with('success', __('inventory.transfer_deleted'));
     }
 
     public function store(StockTransferRequest $request): RedirectResponse

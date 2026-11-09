@@ -13,4 +13,7 @@ return [
     'duplicate_order' => 'ডুপ্লিকেট অর্ডার',
     'payment_failed' => 'পরিশোধ ব্যর্থ',
     'other' => 'অন্যান্য',
+    'entry_mistake' => 'ভুলে এন্ট্রি হয়েছে',
+    'duplicate_entry' => 'দুইবার এন্ট্রি হয়েছে',
+    'wrong_amount' => 'পরিমাণ ভুল',
 ];

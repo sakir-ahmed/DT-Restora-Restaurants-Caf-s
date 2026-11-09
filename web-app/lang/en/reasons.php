@@ -13,4 +13,7 @@ return [
     'duplicate_order' => 'Duplicate order',
     'payment_failed' => 'Payment failed',
     'other' => 'Other',
+    'entry_mistake' => 'Entered by mistake',
+    'duplicate_entry' => 'Duplicate entry',
+    'wrong_amount' => 'Wrong amount',
 ];

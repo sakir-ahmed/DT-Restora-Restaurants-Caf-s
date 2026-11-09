@@ -13,8 +13,6 @@ return [
     'recorded' => 'Expense recorded.',
     'deleted' => 'Expense deleted.',
     'empty' => 'No expenses recorded yet',
-    'delete_title' => 'Delete this expense?',
-    'delete_message' => 'The expense entry will be removed from reports.',
     'categories' => [
         'rent' => 'Rent',
         'utilities' => 'Utilities',
@@ -24,4 +22,7 @@ return [
         'salary_extra' => 'Extra payments',
         'other' => 'Other',
     ],
+    'delete_journal_note' => 'Reversal for deleted expense #:id',
+    'delete_title' => 'Delete this expense?',
+    'delete_message' => 'The expense is taken out of reports and its accounting entry is reversed. It stays in the history marked as deleted.',
 ];

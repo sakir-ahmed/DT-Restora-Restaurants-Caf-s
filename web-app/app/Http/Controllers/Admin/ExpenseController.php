@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Finance\DeleteExpenseAction;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Expense;
 use App\Services\Accounting\AccountingService;
+use App\Support\DeleteReasons;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -22,6 +24,7 @@ class ExpenseController extends Controller
         $branch = $this->currentBranch($request);
 
         $expenses = Expense::query()
+            ->visible()
             ->where('branch_id', $branch->id)
             ->with('user:id,name')
             ->latest('expense_date')
@@ -59,13 +62,16 @@ class ExpenseController extends Controller
         return back()->with('success', __('expenses.recorded'));
     }
 
-    public function destroy(Request $request, Expense $expense): RedirectResponse
+    public function destroy(Request $request, Expense $expense, DeleteExpenseAction $action): RedirectResponse
     {
         $this->authorize('expenses.manage');
 
-        abort_unless($request->user('staff')->canAccessBranch($expense->branch_id), 404);
+        $user = $request->user('staff');
+        abort_unless($user->canAccessBranch($expense->branch_id), 404);
 
-        $expense->delete();
+        $reason = DeleteReasons::validate($request);
+
+        $action->execute($expense, $user, $reason['reason'], $reason['note']);
 
         return back()->with('success', __('expenses.deleted'));
     }

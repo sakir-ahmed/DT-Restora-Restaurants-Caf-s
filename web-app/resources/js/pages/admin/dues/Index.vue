@@ -1,5 +1,5 @@
 <script setup>
-import { useForm } from '@inertiajs/vue3';
+import { router, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
 import DataTable from '@/components/ui-kit/DataTable.vue';
@@ -10,6 +10,8 @@ import MoneyInput from '@/components/ui-kit/MoneyInput.vue';
 import MoneyText from '@/components/ui-kit/MoneyText.vue';
 import PageHeader from '@/components/ui-kit/PageHeader.vue';
 import SlideOver from '@/components/ui-kit/SlideOver.vue';
+import StatusBadge from '@/components/ui-kit/StatusBadge.vue';
+import { useConfirm } from '@/components/ui-kit/useConfirm.js';
 import { localized } from '@/lib/site';
 import { formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
@@ -19,14 +21,16 @@ const props = defineProps({
     orders: { type: Array, required: true },
     methods: { type: Array, default: () => [] },
     canCollect: { type: Boolean, default: false },
+    canDelete: { type: Boolean, default: false },
 });
 
 const collecting = ref(null);
 
 const form = useForm({ method: '', amount: '', reference: '' });
 
-const totalDue = computed(() => props.orders.reduce((sum, order) => sum + order.balance, 0));
-const customerCount = computed(() => new Set(props.orders.map((order) => order.customer?.id)).size);
+const liveOrders = computed(() => props.orders.filter((order) => ! order.deleted));
+const totalDue = computed(() => liveOrders.value.reduce((sum, order) => sum + order.balance, 0));
+const customerCount = computed(() => new Set(liveOrders.value.map((order) => order.customer?.id)).size);
 
 const columns = computed(() => [
     { key: 'invoice_no', label: t('dues.invoice'), align: 'left', sortable: true },
@@ -35,13 +39,50 @@ const columns = computed(() => [
     { key: 'total', label: t('dues.total'), align: 'right', type: 'money' },
     { key: 'paid', label: t('dues.paid'), align: 'right', type: 'money' },
     { key: 'balance', label: t('dues.balance'), align: 'right', type: 'money', sortable: true },
-    ...(props.canCollect ? [{ key: 'actions', label: '', align: 'right', type: 'component', width: '104px' }] : []),
+    ...(props.canCollect || props.canDelete ? [{ key: 'actions', label: '', align: 'right', type: 'component', width: '136px' }] : []),
 ]);
 
 const rows = computed(() => props.orders.map((order) => ({
     ...order,
     customer_label: [order.customer?.name, order.customer?.mobile].filter(Boolean).join(' '),
 })));
+
+const confirm = useConfirm();
+
+async function removeDue(order) {
+    const result = await confirm({
+        variant: 'danger',
+        level: 'reason',
+        title: t('dues.delete_title', { invoice: order.invoice_no }),
+        message: t('dues.delete_message'),
+        confirmText: t('common.delete'),
+        reasons: ['wrong_item', 'customer_changed_mind', 'duplicate_order', 'other'],
+        facts: [
+            { label: t('dues.invoice'), value: order.invoice_no },
+            { label: t('dues.total'), value: formatMoney(order.total) },
+            { label: t('dues.paid'), value: formatMoney(order.paid) },
+            { label: t('dues.balance'), value: formatMoney(order.balance) },
+        ],
+    });
+
+    if (! result.confirmed) {
+        return;
+    }
+
+    router.post(route('admin.orders.delete', order.id), { reason_code: result.reason, note: result.note ?? null }, {
+        preserveScroll: true,
+        onSuccess: (page) => {
+            if (page.props.flash?.error) {
+                notify.error(String(page.props.flash.error));
+
+                return;
+            }
+
+            notify.success(t('orders.deleted'));
+        },
+        onError: (errors) => notify.error(String(Object.values(errors)[0] ?? t('common.error_occurred'))),
+    });
+}
 
 function methodLabel(code) {
     const entry = props.methods.find((method) => method.method === code);
@@ -77,7 +118,7 @@ function submit() {
 
         <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <KpiCard :label="t('dues.total_due')" :value="formatMoney(totalDue)" icon="hand-holding-dollar" />
-            <KpiCard :label="t('dues.open_sales')" :value="String(orders.length)" icon="receipt" />
+            <KpiCard :label="t('dues.open_sales')" :value="String(liveOrders.length)" icon="receipt" />
             <KpiCard :label="t('dues.customers')" :value="String(customerCount)" icon="users" />
         </div>
 
@@ -96,14 +137,27 @@ function submit() {
                 <DateText :value="row.sold_at" />
             </template>
             <template #cell(balance)="{ row }">
-                <span class="font-semibold text-danger"><MoneyText :value="row.balance" /></span>
+                <span class="font-semibold" :class="row.deleted ? 'text-muted line-through' : 'text-danger'"><MoneyText :value="row.balance" /></span>
             </template>
             <template #cell(actions)="{ row }">
-                <div class="flex justify-end px-2">
-                    <button type="button" class="inline-flex h-6 items-center gap-1 rounded-md bg-primary px-2 text-xs font-medium text-primary-foreground hover:opacity-90" @click.stop="openCollect(row)">
-                        <AppIcon name="money-bill-wave" size="11" />
-                        {{ t('dues.collect') }}
-                    </button>
+                <div class="flex items-center justify-end gap-1 px-2">
+                    <StatusBadge v-if="row.deleted" status="deleted" />
+                    <template v-else>
+                        <button v-if="canCollect" type="button" class="inline-flex h-6 items-center gap-1 rounded-md bg-primary px-2 text-xs font-medium text-primary-foreground hover:opacity-90" @click.stop="openCollect(row)">
+                            <AppIcon name="money-bill-wave" size="11" />
+                            {{ t('dues.collect') }}
+                        </button>
+                        <button
+                            v-if="canDelete"
+                            type="button"
+                            class="flex h-6 w-6 items-center justify-center rounded text-muted hover:bg-danger/10 hover:text-danger"
+                            :aria-label="t('common.delete')"
+                            :title="t('common.delete')"
+                            @click.stop="removeDue(row)"
+                        >
+                            <AppIcon name="trash" size="12" />
+                        </button>
+                    </template>
                 </div>
             </template>
         </DataTable>

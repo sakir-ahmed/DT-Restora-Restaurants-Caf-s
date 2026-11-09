@@ -8,7 +8,8 @@ import FormField from '@/components/ui-kit/FormField.vue';
 import MoneyInput from '@/components/ui-kit/MoneyInput.vue';
 import PageHeader from '@/components/ui-kit/PageHeader.vue';
 import SlideOver from '@/components/ui-kit/SlideOver.vue';
-import { useConfirm } from '@/components/ui-kit/useConfirm.js';
+import StatusBadge from '@/components/ui-kit/StatusBadge.vue';
+import { useSafeDelete } from '@/lib/safeDelete';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/format';
 import { notify } from '@/lib/notify';
@@ -19,7 +20,7 @@ const props = defineProps({
     canManage: { type: Boolean, default: false },
 });
 
-const confirm = useConfirm();
+const safeDelete = useSafeDelete();
 const slideOverOpen = ref(false);
 
 const columns = computed(() => [
@@ -28,7 +29,7 @@ const columns = computed(() => [
     { key: 'description', label: t('expenses.description'), align: 'left', truncate: true },
     { key: 'amount', label: t('expenses.amount'), type: 'money', sortable: true, minWidth: '96px' },
     { key: 'user_name', label: t('staff.name'), align: 'left' },
-    { key: 'actions', label: '', align: 'right', type: 'component', width: '40px' },
+    { key: 'actions', label: '', align: 'right', type: 'component', width: '112px' },
 ]);
 
 const rows = computed(() => props.expenses.map((expense) => ({
@@ -38,9 +39,10 @@ const rows = computed(() => props.expenses.map((expense) => ({
         : t('expenses.categories.' + expense.category),
     user_name: expense.user?.name,
     sort_amount: Number(expense.amount),
+    is_deleted: Boolean(expense.deleted_at),
 })));
 
-const total = computed(() => rows.value.reduce((sum, row) => sum + row.sort_amount, 0));
+const total = computed(() => rows.value.filter((row) => ! row.is_deleted).reduce((sum, row) => sum + row.sort_amount, 0));
 
 const form = useForm({
     expense_date: new Date().toISOString().slice(0, 10),
@@ -68,21 +70,16 @@ function save() {
     });
 }
 
-async function remove(expense) {
-    const result = await confirm({
-        variant: 'danger',
-        level: 'simple',
+function remove(expense) {
+    safeDelete({
+        url: route('admin.expenses.destroy', expense.id),
         title: t('expenses.delete_title'),
         message: t('expenses.delete_message'),
-        confirmText: t('common.delete'),
-    });
-
-    if (! result.confirmed) {
-        return;
-    }
-
-    form.delete(route('admin.expenses.destroy', expense.id), {
-        onSuccess: () => notify.success(t('expenses.deleted')),
+        facts: [
+            { label: t('expenses.category'), value: expense.category_label },
+            { label: t('expenses.amount'), value: formatMoney(expense.amount) },
+        ],
+        success: t('expenses.deleted'),
     });
 }
 </script>
@@ -112,11 +109,13 @@ async function remove(expense) {
             <template #cell(expense_date)="{ value }">
                 <DateText :value="value" />
             </template>
-            <template #cell(amount)="{ value }">
-                <span class="text-danger">{{ formatMoney(value) }}</span>
+            <template #cell(amount)="{ row, value }">
+                <span :class="row.is_deleted ? 'text-muted line-through' : 'text-danger'">{{ formatMoney(value) }}</span>
             </template>
             <template #cell(actions)="{ row }">
+                <StatusBadge v-if="row.is_deleted" status="deleted" />
                 <button
+                    v-else
                     type="button"
                     class="flex h-6 w-6 items-center justify-center rounded text-muted hover:bg-danger/10 hover:text-danger"
                     :aria-label="t('common.delete')"

@@ -25,4 +25,5 @@ return [
     'free' => 'Free',
     'occupied' => 'Occupied',
     'reserved' => 'Reserved',
+    'deleted' => 'Deleted',
 ];

@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\Sales\CollectDueAction;
+use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Models\Setting;
 use App\Services\PosSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -27,19 +29,22 @@ class DueController extends Controller
         $orders = Order::query()
             ->where('branch_id', $branch->id)
             ->where('is_due', true)
+            ->when(! Setting::showsDeletedItems(), fn ($query) => $query->where('status', '!=', OrderStatus::Void->value))
             ->with(['customer:id,name,mobile', 'payments:id,order_id,method,amount,status,is_due_collection,created_at'])
             ->orderBy('paid_at')
             ->get()
             ->map(function (Order $order): array {
                 $paid = $order->amountPaid();
+                $deleted = $order->status === OrderStatus::Void;
 
                 return [
                     'id' => $order->id,
+                    'deleted' => $deleted,
                     'invoice_no' => $order->invoice_no,
                     'sold_at' => $order->paid_at?->toIso8601String(),
                     'total' => (float) $order->total,
                     'paid' => $paid,
-                    'balance' => max(0.0, round((float) $order->total - $paid, 2)),
+                    'balance' => $deleted ? 0.0 : max(0.0, round((float) $order->total - $paid, 2)),
                     'customer' => $order->customer?->only(['id', 'name', 'mobile']),
                     'collections' => $order->payments
                         ->where('is_due_collection', true)
@@ -63,6 +68,7 @@ class DueController extends Controller
             'orders' => $orders,
             'methods' => $methods,
             'canCollect' => (bool) $request->user('staff')?->can('orders.create'),
+            'canDelete' => PosSettings::orderDeleteEnabled($branch) && $request->user('staff')?->can('orders.void'),
         ]);
     }
 

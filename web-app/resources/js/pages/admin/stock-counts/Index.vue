@@ -7,6 +7,7 @@ import DateText from '@/components/ui-kit/DateText.vue';
 import PageHeader from '@/components/ui-kit/PageHeader.vue';
 import StatusBadge from '@/components/ui-kit/StatusBadge.vue';
 import { useConfirm } from '@/components/ui-kit/useConfirm.js';
+import { useSafeDelete } from '@/lib/safeDelete';
 import { t } from '@/lib/i18n';
 import { notify } from '@/lib/notify';
 
@@ -26,12 +27,28 @@ const columns = computed(() => [
     { key: 'items_count', label: t('inventory.items_label'), type: 'number', minWidth: '64px' },
     { key: 'status', label: t('common.status'), minWidth: '104px' },
     { key: 'closed_at', label: t('inventory.close_count'), align: 'left' },
+    ...(props.canManage ? [{ key: 'actions', label: '', align: 'right', type: 'component', width: '112px' }] : []),
 ]);
 
 const rows = computed(() => props.counts.map((count) => ({
     ...count,
     closed_at: count.closed_at ? count.closed_at : null,
+    is_deleted: Boolean(count.deleted_at),
 })));
+
+const safeDelete = useSafeDelete();
+
+function removeCount(count) {
+    safeDelete({
+        url: route('admin.stock-counts.destroy', count.id),
+        title: t('inventory.count_delete_title', { id: count.id }),
+        message: count.status === 'closed' ? t('inventory.count_delete_closed_message') : t('inventory.count_delete_open_message'),
+        facts: [
+            { label: t('inventory.items_label'), value: String(count.items_count ?? 0) },
+        ],
+        success: t('inventory.count_deleted'),
+    });
+}
 
 async function startCount() {
     router.post(route('admin.stock-counts.store'), {}, {
@@ -163,8 +180,20 @@ function varianceOf(item) {
             <template #cell(created_at)="{ value }">
                 <DateText :value="value" />
             </template>
-            <template #cell(status)="{ value }">
-                <StatusBadge :status="value === 'open' ? 'open' : 'closed'" />
+            <template #cell(status)="{ row, value }">
+                <StatusBadge :status="row.is_deleted ? 'deleted' : (value === 'open' ? 'open' : 'closed')" />
+            </template>
+            <template #cell(actions)="{ row }">
+                <button
+                    v-if="! row.is_deleted"
+                    type="button"
+                    class="flex h-6 w-6 items-center justify-center rounded text-muted hover:bg-danger/10 hover:text-danger"
+                    :aria-label="t('common.delete')"
+                    :title="t('common.delete')"
+                    @click.stop="removeCount(row)"
+                >
+                    <AppIcon name="trash" size="12" />
+                </button>
             </template>
             <template #cell(closed_at)="{ value }">
                 <DateText v-if="value" :value="value" />

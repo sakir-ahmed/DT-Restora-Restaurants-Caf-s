@@ -15,6 +15,7 @@ class Setting extends Model
         'pos_lock_enabled',
         'delete_confirm_delay_enabled',
         'delete_confirm_delay_seconds',
+        'show_deleted_items',
         'delivery_otp_enabled',
         'tax_registration_no',
         'social_facebook',
@@ -34,11 +35,20 @@ class Setting extends Model
         'pos_lock_enabled' => 'boolean',
         'delete_confirm_delay_enabled' => 'boolean',
         'delete_confirm_delay_seconds' => 'integer',
+        'show_deleted_items' => 'boolean',
         'delivery_otp_enabled' => 'boolean',
         'established_year' => 'integer',
         'website_enabled' => 'boolean',
         'online_delivery_enabled' => 'boolean',
     ];
+
+    /**
+     * Whether list pages keep deleted records visible (marked as deleted) or hide them.
+     */
+    public static function showsDeletedItems(): bool
+    {
+        return (bool) self::current()->show_deleted_items;
+    }
 
     /**
      * The singleton operational settings row, created with defaults on first use.

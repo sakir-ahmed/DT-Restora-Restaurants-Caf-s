@@ -26,6 +26,7 @@ const form = useForm({
     pos_lock_enabled: Boolean(props.settings.pos_lock_enabled),
     delete_confirm_delay_enabled: Boolean(props.settings.delete_confirm_delay_enabled),
     delete_confirm_delay_seconds: props.settings.delete_confirm_delay_seconds ?? 5,
+    show_deleted_items: Boolean(props.settings.show_deleted_items),
     delivery_otp_enabled: Boolean(props.settings.delivery_otp_enabled),
     tax_registration_no: props.settings.tax_registration_no ?? '',
     social_facebook: props.settings.social_facebook ?? '',
@@ -205,6 +206,11 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
                         >
                     </template>
                 </FormField>
+
+                <div class="col-span-2 flex flex-col gap-0.5">
+                    <SwitchField v-model="form.show_deleted_items" :label="t('settings.show_deleted_items')" />
+                    <p class="text-xs text-muted">{{ t('settings.show_deleted_items_helper') }}</p>
+                </div>
 
             </div>
 

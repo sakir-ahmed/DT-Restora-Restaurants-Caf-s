@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToBranch;
+use App\Models\Concerns\SafeDeletes;
 use Database\Factories\SalaryAdvanceFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class SalaryAdvance extends Model
 {
     /** @use HasFactory<SalaryAdvanceFactory> */
-    use BelongsToBranch, HasFactory;
+    use BelongsToBranch, HasFactory, SafeDeletes;
 
     protected $fillable = [
         'branch_id', 'employee_id', 'amount', 'advanced_on', 'note', 'journal_id', 'recorded_by',

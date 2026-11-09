@@ -1,11 +1,14 @@
 <script setup>
 import { router, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
+import AppIcon from '@/components/AppIcon.vue';
 import DataTable from '@/components/ui-kit/DataTable.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
 import MoneyInput from '@/components/ui-kit/MoneyInput.vue';
 import PageHeader from '@/components/ui-kit/PageHeader.vue';
 import SlideOver from '@/components/ui-kit/SlideOver.vue';
+import StatusBadge from '@/components/ui-kit/StatusBadge.vue';
+import { useSafeDelete } from '@/lib/safeDelete';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/format';
 import { notify } from '@/lib/notify';
@@ -15,6 +18,7 @@ const props = defineProps({
     to: { type: String, required: true },
     rows: { type: Array, required: true },
     employees: { type: Array, required: true },
+    advances: { type: Array, default: () => [] },
 });
 
 const filters = ref({ from: props.from, to: props.to });
@@ -68,6 +72,34 @@ function saveAdvance() {
         },
     });
 }
+
+const advanceColumns = computed(() => [
+    { key: 'advanced_on', label: t('payroll.advanced_on'), align: 'left', minWidth: '112px' },
+    { key: 'employee', label: t('attendance.employee'), align: 'left' },
+    { key: 'amount_display', label: t('payroll.amount'), align: 'right' },
+    { key: 'note', label: t('payroll.note'), align: 'left', truncate: true },
+    { key: 'actions', label: '', align: 'right', type: 'component', width: '112px' },
+]);
+
+const advanceRows = computed(() => props.advances.map((advance) => ({
+    ...advance,
+    amount_display: formatMoney(advance.amount),
+})));
+
+const safeDelete = useSafeDelete();
+
+function removeAdvance(advance) {
+    safeDelete({
+        url: route('admin.payroll.advances.destroy', advance.id),
+        title: t('payroll.advance_delete_title', { name: advance.employee }),
+        message: t('payroll.advance_delete_message'),
+        facts: [
+            { label: t('attendance.employee'), value: advance.employee },
+            { label: t('payroll.amount'), value: formatMoney(advance.amount) },
+        ],
+        success: t('payroll.advance_deleted'),
+    });
+}
 </script>
 
 <template>
@@ -100,6 +132,26 @@ function saveAdvance() {
             </template>
             <template #cell(slip)="{ row }">
                 <a :href="slipHref(row)" target="_blank" rel="noopener" class="whitespace-nowrap text-[13px] text-accent underline">{{ t('payroll.slip') }}</a>
+            </template>
+        </DataTable>
+
+        <h2 class="mb-2 mt-6 text-sm font-semibold text-foreground">{{ t('payroll.advances_list') }}</h2>
+        <DataTable :columns="advanceColumns" :rows="advanceRows" :empty-title="t('payroll.advances_empty')">
+            <template #cell(amount_display)="{ row }">
+                <span class="tabular-nums" :class="row.deleted ? 'text-muted line-through' : ''">{{ row.amount_display }}</span>
+            </template>
+            <template #cell(actions)="{ row }">
+                <StatusBadge v-if="row.deleted" status="deleted" />
+                <button
+                    v-else
+                    type="button"
+                    class="flex h-6 w-6 items-center justify-center rounded text-muted hover:bg-danger/10 hover:text-danger"
+                    :aria-label="t('common.delete')"
+                    :title="t('common.delete')"
+                    @click.stop="removeAdvance(row)"
+                >
+                    <AppIcon name="trash" size="12" />
+                </button>
             </template>
         </DataTable>
 

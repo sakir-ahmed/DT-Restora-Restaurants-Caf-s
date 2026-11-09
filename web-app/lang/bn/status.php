@@ -25,4 +25,5 @@ return [
     'free' => 'খালি',
     'occupied' => 'ব্যস্ত',
     'reserved' => 'সংরক্ষিত',
+    'deleted' => 'মুছে ফেলা',
 ];

@@ -12,6 +12,7 @@ import SlideOver from '@/components/ui-kit/SlideOver.vue';
 import StatusBadge from '@/components/ui-kit/StatusBadge.vue';
 import SwitchField from '@/components/ui-kit/SwitchField.vue';
 import { useConfirm } from '@/components/ui-kit/useConfirm.js';
+import { useSafeDelete } from '@/lib/safeDelete';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/format';
 import { notify } from '@/lib/notify';
@@ -34,7 +35,7 @@ const columns = computed(() => [
     { key: 'items_count', label: t('inventory.items_label'), type: 'number', minWidth: '64px' },
     { key: 'total', label: t('inventory.total'), type: 'money', sortable: true, minWidth: '96px' },
     { key: 'status', label: t('common.status'), minWidth: '104px' },
-    { key: 'actions', label: '', align: 'right', type: 'component', width: '40px' },
+    { key: 'actions', label: '', align: 'right', type: 'component', width: '88px' },
 ]);
 
 const rows = computed(() => props.purchases.map((purchase) => ({
@@ -42,7 +43,27 @@ const rows = computed(() => props.purchases.map((purchase) => ({
     supplier_name: purchase.supplier?.name ?? t('inventory.no_supplier_label'),
     items_count: purchase.items?.length ?? 0,
     created_by: purchase.user?.name,
+    status: purchase.deleted_at ? 'deleted' : purchase.status,
+    is_deleted: Boolean(purchase.deleted_at),
 })));
+
+const liveTotal = computed(() => rows.value.filter((row) => ! row.is_deleted).reduce((sum, row) => sum + Number(row.total), 0));
+
+const safeDelete = useSafeDelete();
+
+function removePurchase(purchase) {
+    safeDelete({
+        url: route('admin.purchases.destroy', purchase.id),
+        title: t('inventory.purchase_delete_title', { invoice: purchase.invoice_no || ('#' + purchase.id) }),
+        message: purchase.status === 'received' ? t('inventory.purchase_delete_received_message') : t('inventory.purchase_delete_draft_message'),
+        facts: [
+            { label: t('inventory.supplier'), value: purchase.supplier?.name ?? t('inventory.no_supplier_label') },
+            { label: t('inventory.items_label'), value: String(purchase.items?.length ?? 0) },
+            { label: t('inventory.total'), value: formatMoney(purchase.total) },
+        ],
+        success: t('inventory.purchase_deleted'),
+    });
+}
 
 const today = new Date().toISOString().slice(0, 10);
 
@@ -80,7 +101,7 @@ const total = computed(() => form.items.reduce((sum, line) => sum + Number(line.
 
 // A line's category narrows its ingredient list: '' shows all, 'none' the uncategorised ones.
 function ingredientsOptions(line) {
-    return props.ingredients
+    return allIngredients.value
         .filter((ingredient) => {
             if (! line.category_id) {
                 return true;
@@ -118,6 +139,15 @@ function suppliersFor(line) {
 
 // Suppliers made from this form show on every line straight away, before the page reloads.
 const createdSuppliers = ref([]);
+
+// Ingredients made from this form join every line's list straight away, before the page reloads.
+const createdIngredients = ref([]);
+const ingredientDialog = ref(null);
+const allIngredients = computed(() => {
+    const known = new Set(props.ingredients.map((ingredient) => ingredient.id));
+
+    return [...props.ingredients, ...createdIngredients.value.filter((ingredient) => ! known.has(ingredient.id))];
+});
 const supplierDialog = ref(null);
 
 function onSupplierChange(line) {
@@ -131,6 +161,56 @@ function xsrfToken() {
     const cookie = document.cookie.split('; ').find((entry) => entry.startsWith('XSRF-TOKEN='));
 
     return cookie ? decodeURIComponent(cookie.split('=')[1]) : '';
+}
+
+async function createIngredient() {
+    const dialog = ingredientDialog.value;
+
+    if (! dialog || dialog.busy) {
+        return;
+    }
+
+    if (! dialog.name.trim()) {
+        dialog.error = t('inventory.ingredient_name_required');
+
+        return;
+    }
+
+    if (! dialog.unit_id) {
+        dialog.error = t('inventory.ingredient_unit_required');
+
+        return;
+    }
+
+    dialog.busy = true;
+    dialog.error = '';
+
+    try {
+        const response = await fetch(route('admin.purchases.ingredients.store'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-XSRF-TOKEN': xsrfToken() },
+            credentials: 'same-origin',
+            body: JSON.stringify({ name: dialog.name.trim(), unit_id: Number(dialog.unit_id), ingredient_category_id: dialog.category_id ? Number(dialog.category_id) : null }),
+        });
+        const body = await response.json();
+
+        if (! response.ok) {
+            dialog.error = String(Object.values(body.errors ?? {})[0]?.[0] ?? body.message ?? t('common.error_occurred'));
+            dialog.busy = false;
+
+            return;
+        }
+
+        createdIngredients.value.push(body);
+        dialog.line.category_id = '';
+        dialog.line.ingredient_id = body.id;
+        onIngredientChange(dialog.line);
+        ingredientDialog.value = null;
+        notify.success(t('inventory.ingredient_created'));
+    } catch {
+        dialog.error = t('common.error_occurred');
+        dialog.busy = false;
+    }
 }
 
 async function createSupplier() {
@@ -176,7 +256,15 @@ async function createSupplier() {
 }
 
 function onIngredientChange(line) {
-    const ingredient = props.ingredients.find((i) => i.id === Number(line.ingredient_id));
+    if (line.ingredient_id === '__new') {
+        line.ingredient_id = '';
+        line.unit_id = '';
+        ingredientDialog.value = { line, name: '', unit_id: '', category_id: line.category_id && line.category_id !== 'none' ? line.category_id : '', error: '', busy: false };
+
+        return;
+    }
+
+    const ingredient = allIngredients.value.find((i) => i.id === Number(line.ingredient_id));
 
     line.unit_id = ingredient?.unit_id ?? '';
 
@@ -186,7 +274,7 @@ function onIngredientChange(line) {
 }
 
 function unitsFor(line) {
-    const ingredient = props.ingredients.find((i) => i.id === Number(line.ingredient_id));
+    const ingredient = allIngredients.value.find((i) => i.id === Number(line.ingredient_id));
 
     if (! ingredient) {
         return props.units;
@@ -238,8 +326,9 @@ const editForm = useForm({
 
 const editIsDraft = computed(() => editing.value?.status === 'draft');
 const editIsReceived = computed(() => editing.value?.status === 'received');
-const editIsFull = computed(() => editIsDraft.value || editIsReceived.value);
-const editIsLocked = computed(() => editing.value?.status === 'cancelled');
+const editIsDeleted = computed(() => Boolean(editing.value?.deleted_at));
+const editIsFull = computed(() => (editIsDraft.value || editIsReceived.value) && ! editIsDeleted.value);
+const editIsLocked = computed(() => editing.value?.status === 'cancelled' || editIsDeleted.value);
 const editTotal = computed(() => editForm.items.reduce((sum, line) => sum + Number(line.qty || 0) * Number(line.unit_cost || 0), 0));
 
 function openEdit(purchase) {
@@ -317,7 +406,7 @@ async function saveEdit() {
             clickable
             :empty-title="t('inventory.no_purchases')"
             :empty-action="canManage ? t('inventory.add_purchase') : ''"
-            :totals-row="{ label: t('common.total'), total: formatMoney(rows.reduce((sum, row) => sum + Number(row.total), 0)) }"
+            :totals-row="{ label: t('common.total'), total: formatMoney(liveTotal) }"
             @row-click="openEdit"
             @empty-action="openCreate"
         >
@@ -331,6 +420,7 @@ async function saveEdit() {
                 <StatusBadge :status="value" />
             </template>
             <template #cell(actions)="{ row }">
+                <div class="flex items-center justify-end gap-1">
                 <button
                     v-if="row.status === 'draft'"
                     type="button"
@@ -340,6 +430,17 @@ async function saveEdit() {
                     <AppIcon name="check" size="10" />
                     {{ t('inventory.receive_action') }}
                 </button>
+                <button
+                    v-if="canManage && ! row.is_deleted"
+                    type="button"
+                    class="flex h-6 w-6 items-center justify-center rounded text-muted hover:bg-danger/10 hover:text-danger"
+                    :aria-label="t('common.delete')"
+                    :title="t('common.delete')"
+                    @click.stop="removePurchase(row)"
+                >
+                    <AppIcon name="trash" size="12" />
+                </button>
+                </div>
             </template>
         </DataTable>
 
@@ -402,6 +503,7 @@ async function saveEdit() {
                                     <select v-model="line.ingredient_id" :aria-label="t('inventory.ingredient')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent" :class="form.errors['items.' + index + '.ingredient_id'] ? 'border-danger' : ''" @change="onIngredientChange(line)">
                                         <option value="" disabled>{{ t('common.select') }}</option>
                                         <option v-for="option in ingredientsOptions(line)" :key="option.value" :value="option.value">{{ option.label }}</option>
+                                        <option value="__new">{{ t('inventory.create_ingredient_option') }}</option>
                                     </select>
                                     <p v-if="form.errors['items.' + index + '.ingredient_id']" class="mt-0.5 text-xs text-danger">{{ form.errors['items.' + index + '.ingredient_id'] }}</p>
                                 </td>
@@ -521,6 +623,7 @@ async function saveEdit() {
                                         <select v-model="line.ingredient_id" :aria-label="t('inventory.ingredient')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent" :class="editForm.errors['items.' + index + '.ingredient_id'] ? 'border-danger' : ''" @change="onIngredientChange(line)">
                                             <option value="" disabled>{{ t('common.select') }}</option>
                                             <option v-for="option in ingredientsOptions(line)" :key="option.value" :value="option.value">{{ option.label }}</option>
+                                        <option value="__new">{{ t('inventory.create_ingredient_option') }}</option>
                                         </select>
                                         <p v-if="editForm.errors['items.' + index + '.ingredient_id']" class="mt-0.5 text-xs text-danger">{{ editForm.errors['items.' + index + '.ingredient_id'] }}</p>
                                     </td>
@@ -600,6 +703,49 @@ async function saveEdit() {
         </SlideOver>
 
         <Teleport to="body">
+            <div v-if="ingredientDialog" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4" @click.self="ingredientDialog = null" @keydown.esc="ingredientDialog = null">
+                <form class="w-full max-w-sm space-y-3 rounded-xl border border-border bg-surface p-4" role="dialog" aria-modal="true" :aria-label="t('inventory.quick_ingredient_title')" novalidate @submit.prevent="createIngredient">
+                    <div>
+                        <h2 class="text-base font-semibold text-foreground">{{ t('inventory.quick_ingredient_title') }}</h2>
+                        <p class="text-xs text-muted">{{ t('inventory.quick_ingredient_hint') }}</p>
+                    </div>
+
+                    <FormField :label="t('inventory.ingredient')" required :error="ingredientDialog.error">
+                        <template #default="{ id }">
+                            <input :id="id" v-model="ingredientDialog.name" type="text" maxlength="150" autofocus class="h-7 w-full rounded-md border bg-surface px-2 text-[13px] text-foreground outline-none focus:ring-2 focus:ring-accent/40" :class="ingredientDialog.error ? 'border-danger' : 'border-border focus:border-accent'">
+                        </template>
+                    </FormField>
+
+                    <div class="grid grid-cols-2 gap-x-3">
+                        <FormField :label="t('inventory.unit')" required>
+                            <template #default="{ id }">
+                                <select :id="id" v-model="ingredientDialog.unit_id" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
+                                    <option value="" disabled>{{ t('common.select') }}</option>
+                                    <option v-for="unit in units" :key="unit.id" :value="unit.id">{{ unit.name }} ({{ unit.symbol }})</option>
+                                </select>
+                            </template>
+                        </FormField>
+
+                        <FormField :label="t('inventory.category')">
+                            <template #default="{ id }">
+                                <select :id="id" v-model="ingredientDialog.category_id" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
+                                    <option value="">{{ t('inventory.category_none') }}</option>
+                                    <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
+                                </select>
+                            </template>
+                        </FormField>
+                    </div>
+
+                    <div class="flex justify-end gap-2">
+                        <button type="button" class="h-7 rounded-md border border-border bg-surface px-2.5 text-[13px] text-foreground hover:bg-background" @click="ingredientDialog = null">{{ t('common.cancel') }}</button>
+                        <button type="submit" :disabled="ingredientDialog.busy" class="inline-flex h-7 items-center gap-1.5 rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60">
+                            <AppIcon v-if="ingredientDialog.busy" name="spinner" spin />
+                            {{ t('common.save') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+
             <div v-if="supplierDialog" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4" @click.self="supplierDialog = null" @keydown.esc="supplierDialog = null">
                 <form class="w-full max-w-sm space-y-3 rounded-xl border border-border bg-surface p-4" role="dialog" aria-modal="true" :aria-label="t('inventory.quick_supplier_title')" novalidate @submit.prevent="createSupplier">
                     <div>

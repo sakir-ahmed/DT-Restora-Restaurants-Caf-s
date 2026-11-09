@@ -118,4 +118,10 @@ return [
     'summary_booked' => 'Booked',
     'summary_seated' => 'Seated',
     'summary_guests' => 'Guests',
+    'status_deleted' => 'Deleted',
+    'deleted' => 'Booking deleted. Its tables are free again.',
+    'delete_title' => 'Delete booking :booking?',
+    'delete_message' => 'Use this for a booking entered by mistake. Its tables are freed at once and the booking stays in the history marked as deleted.',
+    'delete_blocked_seated' => 'A booking whose guests were already seated has a kitchen order and a bill behind it, so it cannot be deleted.',
+    'delete_blocked_deposit' => 'This booking has booking money. Refund or forfeit it first, then delete the booking.',
 ];

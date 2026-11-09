@@ -15,6 +15,7 @@ use App\Models\Reservation;
 use App\Models\RestaurantTable;
 use App\Services\PosSettings;
 use App\Services\ReservationService;
+use App\Support\DeleteReasons;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HtmlResponse;
@@ -59,6 +60,7 @@ class ReservationController extends Controller
         $methods = PaymentMethod::query()->active()->orderBy('sort_order')->orderBy('id')->get();
 
         $reservations = Reservation::query()
+            ->visible()
             ->where('branch_id', $branch->id)
             ->overlapping($from, $to)
             ->with(['tables:id,name,area,seats'])
@@ -195,6 +197,38 @@ class ReservationController extends Controller
         return back()->with('success', $message);
     }
 
+    /**
+     * Delete a booking entered by mistake. Only a booking that never had guests or money attached
+     * can go: one that was seated or completed has a kitchen order and a bill behind it, and one with
+     * booking money must have that money settled first. Its tables are free again at once.
+     */
+    public function destroy(Request $request, Reservation $reservation): RedirectResponse
+    {
+        $this->authorize('reservations.manage');
+
+        $user = $request->user('staff');
+        abort_unless($user->canAccessBranch($reservation->branch_id), 404);
+
+        $reason = DeleteReasons::validate($request);
+
+        if (in_array($reservation->status, [Reservation::SEATED, Reservation::COMPLETED], true)) {
+            return back()->with('error', __('reservations.delete_blocked_seated'));
+        }
+
+        if ($reservation->deposit_status !== Reservation::DEPOSIT_NONE) {
+            return back()->with('error', __('reservations.delete_blocked_deposit'));
+        }
+
+        DB::transaction(function () use ($reservation, $user, $reason): void {
+            $reservation->forceFill(['deleted_by' => $user->id, 'delete_reason' => $reason['reason'], 'delete_note' => $reason['note']])->save();
+            $reservation->delete();
+        });
+
+        activity()->performedOn($reservation)->causedBy($user)->withProperties($reason)->log('reservations.deleted');
+
+        return back()->with('success', __('reservations.deleted'));
+    }
+
     public function collectDeposit(Request $request, Reservation $reservation): RedirectResponse
     {
         $this->authorize('reservations.manage');
@@ -308,6 +342,7 @@ class ReservationController extends Controller
 
         return [
             'id' => $reservation->id,
+            'deleted' => $reservation->trashed(),
             'booking_no' => $reservation->booking_no,
             'guest_name' => $reservation->guest_name,
             'guest_mobile' => $reservation->guest_mobile,

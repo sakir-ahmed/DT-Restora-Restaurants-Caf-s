@@ -10,6 +10,7 @@ import { formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { notify } from '@/lib/notify';
 import { printUrl } from '@/lib/print';
+import { useSafeDelete } from '@/lib/safeDelete';
 import { localized } from '@/lib/site';
 
 const props = defineProps({
@@ -88,14 +89,16 @@ function clock(iso) {
 function holdingNow(reservation) {
     const now = Date.now();
 
-    return reservation.status === 'booked' && new Date(reservation.starts_at).getTime() <= now && new Date(reservation.ends_at).getTime() > now;
+    return ! reservation.deleted && reservation.status === 'booked' && new Date(reservation.starts_at).getTime() <= now && new Date(reservation.ends_at).getTime() > now;
 }
 
+const liveReservations = computed(() => props.reservations.filter((entry) => ! entry.deleted));
+
 const summary = computed(() => ({
-    booked: props.reservations.filter((entry) => entry.status === 'booked').length,
-    seated: props.reservations.filter((entry) => entry.status === 'seated').length,
-    guests: props.reservations.filter((entry) => ['booked', 'seated'].includes(entry.status)).reduce((sum, entry) => sum + entry.party_size, 0),
-    held: props.reservations.reduce((sum, entry) => sum + Number(entry.deposit.balance), 0),
+    booked: liveReservations.value.filter((entry) => entry.status === 'booked').length,
+    seated: liveReservations.value.filter((entry) => entry.status === 'seated').length,
+    guests: liveReservations.value.filter((entry) => ['booked', 'seated'].includes(entry.status)).reduce((sum, entry) => sum + entry.party_size, 0),
+    held: liveReservations.value.reduce((sum, entry) => sum + Number(entry.deposit.balance), 0),
 }));
 
 const STATUS_CLASSES = {
@@ -104,6 +107,7 @@ const STATUS_CLASSES = {
     completed: 'bg-muted/10 text-muted',
     cancelled: 'bg-danger/10 text-danger',
     no_show: 'bg-warning/15 text-warning',
+    deleted: 'bg-danger/10 text-danger',
 };
 
 const DEPOSIT_CLASSES = {
@@ -114,7 +118,7 @@ const DEPOSIT_CLASSES = {
 };
 
 function holding(reservation) {
-    return ['booked', 'seated'].includes(reservation.status);
+    return ! reservation.deleted && ['booked', 'seated'].includes(reservation.status);
 }
 
 // ---- the booking form ----
@@ -351,6 +355,21 @@ async function act(reservation, action) {
     });
 }
 
+const safeDelete = useSafeDelete();
+
+function removeReservation(reservation) {
+    safeDelete({
+        url: route('admin.reservations.destroy', reservation.id),
+        title: t('reservations.delete_title', { booking: reservation.booking_no }),
+        message: t('reservations.delete_message'),
+        facts: [
+            { label: t('reservations.guest_name'), value: reservation.guest_name },
+            { label: t('reservations.tables'), value: reservation.tables.map((table) => table.name).join(', ') },
+        ],
+        success: t('reservations.deleted'),
+    });
+}
+
 function printConfirmation(reservation) {
     printUrl(route('admin.reservations.confirmation', reservation.id));
 }
@@ -460,7 +479,7 @@ function saveAdvance() {
                         <span v-if="reservation.deposit.status !== 'none'" class="rounded-full px-2 py-0.5 text-[11px] font-medium" :class="DEPOSIT_CLASSES[reservation.deposit.status]" :title="t('reservations.deposit')">
                             {{ formatMoney(reservation.deposit.amount) }} {{ t(`reservations.deposit_${reservation.deposit.status}`) }}
                         </span>
-                        <span class="rounded-full px-2 py-0.5 text-[11px] font-medium" :class="STATUS_CLASSES[reservation.status]">{{ t(`reservations.status_${reservation.status}`) }}</span>
+                        <span class="rounded-full px-2 py-0.5 text-[11px] font-medium" :class="STATUS_CLASSES[reservation.deleted ? 'deleted' : reservation.status]">{{ t(`reservations.status_${reservation.deleted ? 'deleted' : reservation.status}`) }}</span>
                     </div>
                 </div>
 
@@ -474,7 +493,7 @@ function saveAdvance() {
                         {{ t('reservations.print_confirmation') }}
                     </button>
 
-                    <template v-if="canManage">
+                    <template v-if="canManage && ! reservation.deleted">
                         <button v-if="reservation.status === 'booked'" type="button" class="inline-flex h-7 items-center gap-1 rounded-md bg-success px-2 text-xs font-medium text-white hover:opacity-90" @click="act(reservation, 'seat')">
                             <AppIcon name="circle-check" size="11" />
                             {{ reservation.preorder.length ? t('reservations.action_seat_preorder') : t('reservations.action_seat') }}
@@ -499,6 +518,9 @@ function saveAdvance() {
                             </button>
                             <button v-if="reservation.status === 'booked'" type="button" class="h-7 rounded-md border border-border px-2 text-xs text-muted hover:text-warning" @click="act(reservation, 'no-show')">{{ t('reservations.action_no_show') }}</button>
                             <button v-if="reservation.status === 'booked'" type="button" class="h-7 rounded-md border border-border px-2 text-xs text-muted hover:text-danger" @click="act(reservation, 'cancel')">{{ t('common.cancel') }}</button>
+                            <button v-if="reservation.status !== 'seated' && reservation.status !== 'completed'" type="button" class="flex h-7 w-7 items-center justify-center rounded-md border border-border text-muted hover:text-danger" :aria-label="t('common.delete')" :title="t('common.delete')" @click="removeReservation(reservation)">
+                                <AppIcon name="trash" size="12" />
+                            </button>
                         </span>
                     </template>
                 </div>

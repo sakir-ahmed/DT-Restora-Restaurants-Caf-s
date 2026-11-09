@@ -18,6 +18,7 @@ use App\Http\Requests\Admin\CreateOrderRequest;
 use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\Order;
+use App\Models\Setting;
 use App\Models\Shift;
 use App\Models\VoidRequest;
 use App\Services\Aggregators\PlatformAdapters;
@@ -46,6 +47,7 @@ class OrderController extends Controller
             ->when($request->string('search')->toString(), function ($query, $search): void {
                 $query->where('invoice_no', 'like', "%{$search}%");
             })
+            ->when(! Setting::showsDeletedItems(), fn ($query) => $query->where('status', '!=', OrderStatus::Void->value))
             ->latest()
             ->limit(100)
             ->get();

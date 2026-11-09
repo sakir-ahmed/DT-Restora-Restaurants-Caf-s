@@ -160,4 +160,6 @@ return [
     'order_edit_enabled_helper' => 'On by default. When off, a sent order can no longer be changed from the POS or the API.',
     'order_delete_enabled' => 'Allow deleting orders',
     'order_delete_enabled_helper' => 'On by default. When off, orders can no longer be voided or cleared, and pending void requests cannot be approved.',
+    'show_deleted_items' => 'Show deleted items in lists',
+    'show_deleted_items_helper' => 'When on, deleted orders, purchases, wastage, expenses, stock counts, transfers, bookings and salary advances stay in their lists marked as Deleted, so every delete is visible. When off they are hidden. Deleted records never count in stock, totals or reports either way.',
 ];

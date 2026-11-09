@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Inventory\DeleteWastageAction;
 use App\Actions\Inventory\LogWastageAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\WastageRequest;
@@ -11,6 +12,7 @@ use App\Models\Branch;
 use App\Models\Ingredient;
 use App\Models\Unit;
 use App\Models\Wastage;
+use App\Support\DeleteReasons;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -25,6 +27,7 @@ class WastageController extends Controller
         $branch = $this->currentBranch($request);
 
         $wastages = Wastage::query()
+            ->visible()
             ->where('branch_id', $branch->id)
             ->with(['ingredient:id,name', 'unit:id,symbol', 'user:id,name'])
             ->latest()
@@ -37,6 +40,7 @@ class WastageController extends Controller
             'units' => Unit::query()->orderBy('type')->orderBy('name')->get(['id', 'name', 'symbol', 'type']),
             'reasons' => Wastage::REASONS,
             'canLog' => $request->user('staff')?->can('wastage.log'),
+            'canDelete' => (bool) $request->user('staff')?->can('wastage.log'),
         ]);
     }
 
@@ -55,6 +59,20 @@ class WastageController extends Controller
         );
 
         return back()->with('success', __('inventory.wastage_logged'));
+    }
+
+    public function destroy(Request $request, Wastage $wastage, DeleteWastageAction $action): RedirectResponse
+    {
+        $this->authorize('wastage.log');
+
+        $user = $request->user('staff');
+        abort_unless($user->canAccessBranch($wastage->branch_id), 404);
+
+        $reason = DeleteReasons::validate($request);
+
+        $action->execute($wastage, $user, $reason['reason'], $reason['note']);
+
+        return back()->with('success', __('inventory.wastage_deleted'));
     }
 
     private function currentBranch(Request $request): Branch

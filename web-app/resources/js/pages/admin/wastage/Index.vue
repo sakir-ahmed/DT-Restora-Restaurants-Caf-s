@@ -7,6 +7,8 @@ import DateText from '@/components/ui-kit/DateText.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
 import PageHeader from '@/components/ui-kit/PageHeader.vue';
 import SlideOver from '@/components/ui-kit/SlideOver.vue';
+import StatusBadge from '@/components/ui-kit/StatusBadge.vue';
+import { useSafeDelete } from '@/lib/safeDelete';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/format';
 import { notify } from '@/lib/notify';
@@ -17,6 +19,7 @@ const props = defineProps({
     units: { type: Array, required: true },
     reasons: { type: Array, required: true },
     canLog: { type: Boolean, default: false },
+    canDelete: { type: Boolean, default: false },
 });
 
 const slideOverOpen = ref(false);
@@ -28,6 +31,7 @@ const columns = computed(() => [
     { key: 'reason', label: t('inventory.reason'), align: 'left' },
     { key: 'user_name', label: t('staff.name'), align: 'left' },
     { key: 'cost', label: t('inventory.cost'), type: 'money', sortable: true, minWidth: '96px' },
+    ...(props.canDelete ? [{ key: 'actions', label: '', align: 'right', type: 'component', width: '56px' }] : []),
 ]);
 
 const rows = computed(() => props.wastages.map((wastage) => ({
@@ -37,9 +41,26 @@ const rows = computed(() => props.wastages.map((wastage) => ({
     reason: t('reasons.' + wastage.reason_code) === 'reasons.' + wastage.reason_code ? wastage.reason_code : t('reasons.' + wastage.reason_code),
     user_name: wastage.user?.name,
     sort_cost: Number(wastage.cost),
+    is_deleted: Boolean(wastage.deleted_at),
 })));
 
-const totalCost = computed(() => rows.value.reduce((sum, row) => sum + row.sort_cost, 0));
+const totalCost = computed(() => rows.value.filter((row) => ! row.is_deleted).reduce((sum, row) => sum + row.sort_cost, 0));
+
+const safeDelete = useSafeDelete();
+
+function removeWastage(wastage) {
+    safeDelete({
+        url: route('admin.wastage.destroy', wastage.id),
+        title: t('inventory.wastage_delete_title', { ingredient: wastage.ingredient_name }),
+        message: t('inventory.wastage_delete_message'),
+        facts: [
+            { label: t('inventory.ingredient'), value: wastage.ingredient_name },
+            { label: t('inventory.qty'), value: wastage.qty_display },
+            { label: t('inventory.cost'), value: formatMoney(wastage.cost) },
+        ],
+        success: t('inventory.wastage_deleted'),
+    });
+}
 
 const form = useForm({
     ingredient_id: '',
@@ -102,8 +123,21 @@ function save() {
             <template #cell(created_at)="{ value }">
                 <DateText :value="value" relative />
             </template>
-            <template #cell(cost)="{ value }">
-                <span class="text-danger">{{ formatMoney(value) }}</span>
+            <template #cell(cost)="{ row, value }">
+                <span :class="row.is_deleted ? 'text-muted line-through' : 'text-danger'">{{ formatMoney(value) }}</span>
+            </template>
+            <template #cell(actions)="{ row }">
+                <StatusBadge v-if="row.is_deleted" status="deleted" />
+                <button
+                    v-else
+                    type="button"
+                    class="flex h-6 w-6 items-center justify-center rounded text-muted hover:bg-danger/10 hover:text-danger"
+                    :aria-label="t('common.delete')"
+                    :title="t('common.delete')"
+                    @click.stop="removeWastage(row)"
+                >
+                    <AppIcon name="trash" size="12" />
+                </button>
             </template>
         </DataTable>
 
