@@ -2,9 +2,12 @@
 import { useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
+import ScopeNote from '@/components/ui-kit/ScopeNote.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
 import SwitchField from '@/components/ui-kit/SwitchField.vue';
 import PageHeader from '@/components/ui-kit/PageHeader.vue';
+import InvoicePrintSetup from '@/components/admin/InvoicePrintSetup.vue';
+import BranchPosForm from '@/components/admin/BranchPosForm.vue';
 import DeliveryZoneManager from '@/components/admin/DeliveryZoneManager.vue';
 import PaymentMethodManager from '@/components/admin/PaymentMethodManager.vue';
 import { t } from '@/lib/i18n';
@@ -14,7 +17,15 @@ const props = defineProps({
     settings: { type: Object, required: true },
     paymentMethods: { type: Array, default: () => [] },
     deliveryZones: { type: Array, default: () => [] },
+    deliveryEnabled: { type: Boolean, default: true },
     branchName: { type: String, default: '' },
+    branchId: { type: Number, default: null },
+    branchCode: { type: String, default: '' },
+    branchPos: { type: Object, default: null },
+    layouts: { type: Array, default: () => [] },
+    papers: { type: Array, default: () => [] },
+    invoicePrint: { type: Object, default: null },
+    defaultPattern: { type: String, default: '' },
 });
 
 const tab = ref('general');
@@ -36,7 +47,6 @@ const form = useForm({
     social_whatsapp: props.settings.social_whatsapp ?? '',
     established_year: props.settings.established_year ?? '',
     website_enabled: Boolean(props.settings.website_enabled),
-    online_delivery_enabled: Boolean(props.settings.online_delivery_enabled),
 });
 
 function save() {
@@ -52,9 +62,9 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
     <div>
         <PageHeader :title="t('settings.title')" :description="t('settings.subtitle')" />
 
-        <div class="mb-3 flex gap-1" role="tablist">
+        <div class="mb-3 flex flex-wrap gap-1" role="tablist">
             <button
-                v-for="entry in [{ key: 'general', label: t('settings.tab_general') }, { key: 'methods', label: t('settings.tab_methods') }, { key: 'areas', label: t('settings.tab_areas') }]"
+                v-for="entry in [{ key: 'general', label: t('settings.tab_general') }, { key: 'methods', label: t('settings.tab_methods') }, { key: 'pos', label: t('settings.tab_pos') }, { key: 'invoice', label: t('settings.tab_invoice') }, { key: 'areas', label: t('settings.tab_areas') }]"
                 :key="entry.key"
                 type="button"
                 role="tab"
@@ -67,9 +77,16 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
             </button>
         </div>
 
+        <ScopeNote v-if="! ['areas', 'pos', 'invoice'].includes(tab)" scope="global" />
+        <ScopeNote v-else scope="branch" :branch="branchName" />
+
+        <BranchPosForm v-if="tab === 'pos' && branchPos" :key="branchId" :pos="branchPos" :layouts="layouts" :default-pattern="defaultPattern" :branch-code="branchCode" />
+
+        <InvoicePrintSetup v-if="tab === 'invoice' && invoicePrint" :key="branchId" :invoice-print="invoicePrint" :layouts="layouts" :papers="papers" />
+
         <PaymentMethodManager v-show="tab === 'methods'" :methods="paymentMethods" />
 
-        <DeliveryZoneManager v-show="tab === 'areas'" :zones="deliveryZones" :branch-name="branchName" :delivery-enabled="Boolean(form.online_delivery_enabled)" />
+        <DeliveryZoneManager v-show="tab === 'areas'" :zones="deliveryZones" :branch-name="branchName" :delivery-enabled="deliveryEnabled" />
 
         <form v-show="tab === 'general'" novalidate class="max-w-2xl rounded-lg border border-border bg-surface p-4" @submit.prevent="save">
             <h2 class="mb-2 text-[13px] font-semibold text-foreground">{{ t('settings.section_website') }}</h2>
@@ -84,16 +101,6 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
                         <input :id="id" v-model="form.established_year" type="number" min="1800" :max="new Date().getFullYear()" step="1" :class="[inputClass, 'text-right tabular-nums']">
                     </template>
                 </FormField>
-            </div>
-
-            <h2 class="mb-2 border-t border-border pt-3 text-[13px] font-semibold text-foreground">{{ t('settings.section_online_delivery') }}</h2>
-            <div class="mb-3 grid grid-cols-2 gap-x-4 gap-y-3">
-                <div class="col-span-2 flex flex-col gap-0.5">
-                    <SwitchField v-model="form.online_delivery_enabled" :label="t('settings.online_delivery_enabled')" />
-                    <p class="text-xs text-muted">{{ t('settings.online_delivery_enabled_helper') }}</p>
-                </div>
-
-                <p v-if="form.online_delivery_enabled" class="col-span-2 text-xs text-muted">{{ t('settings.delivery_areas_hint') }}</p>
             </div>
 
             <h2 class="mb-2 border-t border-border pt-3 text-[13px] font-semibold text-foreground">{{ t('settings.section_business') }}</h2>

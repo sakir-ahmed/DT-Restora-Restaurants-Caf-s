@@ -16,8 +16,40 @@ function row(label, value) {
     return `<tr><td>${escapeHtml(label)}</td><td class="right">${escapeHtml(value)}</td></tr>`;
 }
 
+const PAGES = {
+    '58mm': '@page { size: 58mm auto; margin: 0; } body { width: 50mm; padding: 3mm 0; font-size: 10px; line-height: 1.35; }',
+    '80mm': '@page { size: 80mm auto; margin: 0; } body { width: 72mm; padding: 4mm 0; font-size: 11px; line-height: 1.45; }',
+    a5: '@page { size: A5; margin: 10mm; } body { width: auto; max-width: 128mm; padding: 0; font-size: 13px; line-height: 1.5; }',
+    a4: '@page { size: A4; margin: 14mm; } body { width: auto; max-width: 182mm; padding: 0; font-size: 14px; line-height: 1.5; }',
+};
+
+const STYLES = {
+    compact: 'body { font-size: 90%; line-height: 1.3; } .hr { margin: 3px 0; }',
+    bold: '.hr { border-top: 2px solid #000; } .grand td { font-size: 150%; padding: 4px 0; border-top: 2px solid #000; border-bottom: 2px solid #000; }',
+    modern: '.brand { background: #000; color: #fff; padding: 6px 4px; margin-bottom: 6px; } .hr { border-top: 1px solid #999; } .grand td { background: #000; color: #fff; padding: 5px 6px; font-size: 125%; }',
+    detailed: '.hr { border-top: 1px solid #000; } .grand td { border-top: 1px solid #000; border-bottom: 3px double #000; padding: 4px 0; }',
+    minimal: '.hr { border-top: 0; margin: 8px 0; } .bold { font-weight: 600; } .grand td { border-top: 1px solid #000; padding-top: 4px; }',
+};
+
 /**
- * 80mm receipt for a sale that has not reached the server yet.
+ * Print CSS for a paper size and style. Mirrors App\Support\ReceiptStyle
+ * (PHP); keep the two in step.
+ */
+export function receiptCss(layout = 'classic', paper = '80mm') {
+    return `${PAGES[paper] ?? PAGES['80mm']}
+body { font-family: 'Noto Sans Bengali', 'Courier New', monospace; margin: 0 auto; color: #000; }
+.center { text-align: center; }
+.bold { font-weight: 700; }
+.large { font-size: 118%; }
+.hr { border-top: 1px dashed #000; margin: 6px 0; }
+table { width: 100%; border-collapse: collapse; }
+td { padding: 1px 0; vertical-align: top; }
+td.right { text-align: right; }
+${STYLES[layout] ?? ''}`;
+}
+
+/**
+ * Receipt for a sale that has not reached the server yet.
  *
  * @param {object} receipt
  */
@@ -46,29 +78,14 @@ export function localReceiptHtml(receipt) {
 <head>
 <meta charset="utf-8">
 <title>${escapeHtml(receipt.invoiceNo)}</title>
-<style>
-@page { size: 80mm auto; margin: 0; }
-body { font-family: 'Noto Sans Bengali', 'Courier New', monospace; width: 72mm; margin: 0 auto; padding: 4mm 0; color: #000; font-size: 11px; line-height: 1.45; }
-.center { text-align: center; }
-.bold { font-weight: 700; }
-.large { font-size: 13px; }
-.hr { border-top: 1px dashed #000; margin: 6px 0; }
-table { width: 100%; border-collapse: collapse; }
-td { padding: 1px 0; vertical-align: top; }
-td.right { text-align: right; }
-body.layout-compact { font-size: 10px; line-height: 1.3; }
-body.layout-compact .large { font-size: 11px; }
-body.layout-compact .hr { margin: 3px 0; }
-body.layout-bold { font-size: 12px; }
-body.layout-bold .hr { border-top: 2px solid #000; }
-body.layout-bold .grand td { font-size: 16px; padding: 4px 0; border-top: 2px solid #000; border-bottom: 2px solid #000; }
-</style>
+<style>${receiptCss(receipt.layout, receipt.paper)}</style>
 </head>
-<body class="layout-${escapeHtml(receipt.layout ?? 'classic')}">
-<div class="center bold large">${escapeHtml(branch.name ?? '')}</div>
+<body class="layout-${escapeHtml(receipt.layout ?? 'classic')} paper-${escapeHtml(receipt.paper ?? '80mm')}">
+<div class="brand center"><div class="bold large">${escapeHtml(branch.name ?? '')}</div>
 ${branch.address ? `<div class="center">${escapeHtml(branch.address)}</div>` : ''}
 ${branch.tax_registration_no ? `<div class="center">${escapeHtml(t('receipt.bin'))}: ${escapeHtml(branch.tax_registration_no)}</div>` : ''}
 ${branch.phone ? `<div class="center">${escapeHtml(t('receipt.phone'))}: ${escapeHtml(branch.phone)}</div>` : ''}
+</div>
 <div class="hr"></div>
 <div class="bold">${escapeHtml(receipt.invoiceNo)}</div>
 <div>${escapeHtml(receipt.when ?? '')}</div>

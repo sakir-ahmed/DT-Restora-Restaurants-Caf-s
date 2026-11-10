@@ -17,6 +17,7 @@ use App\Models\Shift;
 use App\Models\User;
 use App\Services\InvoiceNumberService;
 use App\Services\PosSettings;
+use App\Support\ReceiptStyle;
 use Database\Seeders\ChartOfAccountsSeeder;
 use Database\Seeders\PaymentMethodSeeder;
 use Database\Seeders\RoleSeeder;
@@ -708,4 +709,29 @@ it('reverses the sales journal when a paid order is deleted', function (): void 
     expect($order->fresh()->status)->toBe(OrderStatus::Void)
         ->and($journal->fresh()->status)->toBe(Journal::STATUS_REVERSED)
         ->and(Journal::query()->where('reverses_journal_id', $journal->id)->exists())->toBeTrue();
+});
+
+it('previews a sample invoice for every style and paper size and saves the choice', function (): void {
+    $branch = Branch::factory()->create(['code' => 'BR09']);
+    $owner = User::factory()->role('owner')->create(['branch_id' => $branch->id]);
+
+    foreach (ReceiptStyle::LAYOUTS as $layout) {
+        foreach (ReceiptStyle::PAPERS as $paper) {
+            $this->actingAs($owner, 'staff')
+                ->get(route('admin.settings.invoice-preview', ['layout' => $layout, 'paper' => $paper]))
+                ->assertOk()
+                ->assertSee('paper-'.$paper, false)
+                ->assertSee('Chicken Biryani');
+        }
+    }
+
+    $this->actingAs($owner, 'staff')->get(route('admin.settings.invoice-preview', ['layout' => 'nope', 'paper' => 'a4']))->assertSessionHasErrors('layout');
+
+    $this->actingAs($owner, 'staff')
+        ->put(route('admin.settings.invoice-print'), ['layout' => 'detailed', 'paper' => 'a5'])
+        ->assertSessionHasNoErrors();
+
+    $pos = PosSettings::for($branch->fresh());
+
+    expect($pos['invoice_layout'])->toBe('detailed')->and($pos['invoice_paper'])->toBe('a5');
 });

@@ -4,78 +4,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $order->invoice_no }}</title>
-    <style>
-        @page {
-            size: 80mm auto;
-            margin: 0;
-        }
-
-        body {
-            font-family: 'Noto Sans Bengali', 'Courier New', monospace;
-            width: 72mm;
-            margin: 0 auto;
-            padding: 4mm 0;
-            color: #000;
-            font-size: 11px;
-            line-height: 1.45;
-        }
-
-        .center { text-align: center; }
-        .bold { font-weight: 700; }
-        .large { font-size: 13px; }
-
-        .hr {
-            border-top: 1px dashed #000;
-            margin: 6px 0;
-        }
-
-        table.items {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table.items td {
-            padding: 1px 0;
-            vertical-align: top;
-        }
-
-        td.right, th.right { text-align: right; }
-
-        .addon-line {
-            padding-left: 8px;
-            font-size: 10px;
-        }
-
-        .totals td {
-            padding: 1px 0;
-        }
-
-        @media screen {
-            body {
-                background: #f3f4f6;
-                padding: 16px 0;
-                width: 72mm;
-                box-shadow: 0 0 8px rgba(0, 0, 0, .25);
-            }
-        }
-
-        /* Compact: tighter type and spacing for narrow rolls */
-        body.layout-compact { font-size: 10px; line-height: 1.3; }
-        body.layout-compact .large { font-size: 11px; }
-        body.layout-compact .hr { margin: 3px 0; }
-        body.layout-compact .addon-line { font-size: 9px; }
-
-        /* Bold: large centered total and solid separators */
-        body.layout-bold { font-size: 12px; }
-        body.layout-bold .hr { border-top: 2px solid #000; }
-        body.layout-bold .grand td { font-size: 16px; padding: 4px 0; border-top: 2px solid #000; border-bottom: 2px solid #000; }
-
-        @media print {
-            .no-print { display: none; }
-        }
-    </style>
+    <style>{!! \App\Support\ReceiptStyle::css($layout ?? 'classic', $paper ?? '80mm') !!}</style>
 </head>
-<body class="layout-{{ $layout ?? 'classic' }}">
+@php
+    $layout = $layout ?? 'classic';
+    $paper = $paper ?? '80mm';
+    $tabular = \App\Support\ReceiptStyle::isTabular($layout, $paper);
+    $money = fn ($value): string => \Illuminate\Support\Number::format((float) $value, 2);
+@endphp
+<body class="layout-{{ $layout }} paper-{{ $paper }}">
+    <div class="brand center">
     <div class="center bold large">{{ $order->branch->name }}</div>
     @if ($order->branch->name_bn)
         <div class="center">{{ $order->branch->name_bn }}</div>
@@ -89,6 +27,7 @@
     @if ($order->branch->phone)
         <div class="center">{{ __('receipt.phone') }}: {{ $order->branch->phone }}</div>
     @endif
+    </div>
 
     <div class="hr"></div>
 
@@ -104,20 +43,49 @@
     <div class="hr"></div>
 
     <table class="items">
+        @if ($tabular)
+            <thead>
+                <tr>
+                    <th>{{ __('receipt.item') }}</th>
+                    <th class="right">{{ __('receipt.qty') }}</th>
+                    <th class="right">{{ __('receipt.rate') }}</th>
+                    <th class="right">{{ __('receipt.amount') }}</th>
+                </tr>
+            </thead>
+        @endif
+        <tbody>
         @foreach ($order->items as $item)
-            <tr>
-                <td class="bold">{{ $item->quantity }} x {{ app()->getLocale() === 'bn' && $item->name_bn ? $item->name_bn : $item->name }}</td>
-                <td class="right">{{ \Illuminate\Support\Number::format((float) $item->line_total, 2) }}</td>
-            </tr>
-            @if ($item->add_ons)
-                @foreach ($item->add_ons as $addOn)
+            @php($itemName = app()->getLocale() === 'bn' && $item->name_bn ? $item->name_bn : $item->name)
+            @if ($tabular)
+                <tr>
+                    <td class="bold">{{ $itemName }}</td>
+                    <td class="right">{{ $item->quantity }}</td>
+                    <td class="right">{{ $money($item->unit_price) }}</td>
+                    <td class="right">{{ $money($item->line_total) }}</td>
+                </tr>
+            @else
+                <tr>
+                    <td class="bold">{{ $item->quantity }} x {{ $itemName }}</td>
+                    <td class="right">{{ $money($item->line_total) }}</td>
+                </tr>
+            @endif
+            @foreach ($item->add_ons ?? [] as $addOn)
+                @if ($tabular)
+                    <tr>
+                        <td class="addon-line">+ {{ $addOn['name'] }}</td>
+                        <td class="right addon-line">{{ $addOn['qty'] ?? 1 }}</td>
+                        <td class="right addon-line">{{ $money($addOn['price']) }}</td>
+                        <td class="right addon-line">{{ $money(((float) $addOn['price']) * ($addOn['qty'] ?? 1)) }}</td>
+                    </tr>
+                @else
                     <tr>
                         <td class="addon-line">+ {{ $addOn['qty'] ?? 1 }} x {{ $addOn['name'] }}</td>
-                        <td class="right addon-line">{{ \Illuminate\Support\Number::format(((float) $addOn['price']) * ($addOn['qty'] ?? 1), 2) }}</td>
+                        <td class="right addon-line">{{ $money(((float) $addOn['price']) * ($addOn['qty'] ?? 1)) }}</td>
                     </tr>
-                @endforeach
-            @endif
+                @endif
+            @endforeach
         @endforeach
+        </tbody>
     </table>
 
     <div class="hr"></div>
@@ -184,6 +152,9 @@
 
     @if ($isReprint)
         <div class="center bold">{{ __('receipt.reprint') }}</div>
+    @endif
+    @if ($isSample ?? false)
+        <div class="center bold no-print">{{ __('receipt.sample') }}</div>
     @endif
 
     <div class="center no-print" style="margin-top: 12px;">

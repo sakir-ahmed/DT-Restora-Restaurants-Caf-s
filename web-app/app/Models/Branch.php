@@ -21,7 +21,7 @@ class Branch extends Model
         'name', 'name_bn', 'code', 'phone', 'address', 'address_bn', 'city', 'city_bn',
         'latitude', 'longitude', 'vat_percent', 'vat_inclusive',
         'service_charge_percent', 'allow_negative_stock',
-        'online_ordering_enabled', 'opening_hours', 'receipt_footer',
+        'online_ordering_enabled', 'online_delivery_enabled', 'opening_hours', 'receipt_footer',
         'pos_settings', 'is_active',
     ];
 
@@ -33,6 +33,7 @@ class Branch extends Model
         'service_charge_percent' => 'decimal:2',
         'allow_negative_stock' => 'boolean',
         'online_ordering_enabled' => 'boolean',
+        'online_delivery_enabled' => 'boolean',
         'opening_hours' => 'array',
         'pos_settings' => 'array',
         'is_active' => 'boolean',

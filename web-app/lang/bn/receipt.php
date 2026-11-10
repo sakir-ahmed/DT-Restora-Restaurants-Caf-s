@@ -3,6 +3,11 @@
 declare(strict_types=1);
 
 return [
+    'item' => 'আইটেম',
+    'qty' => 'পরিমাণ',
+    'rate' => 'দর',
+    'amount' => 'টাকা',
+    'sample' => 'নমুনা প্রিভিউ',
     'phone' => 'ফোন',
     'bin' => 'বিআইএন',
     'table' => 'টেবিল',

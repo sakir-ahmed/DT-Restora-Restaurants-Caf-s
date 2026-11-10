@@ -10,6 +10,7 @@ use App\Models\MenuItem;
 use App\Models\Order;
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\PosSettings;
 use App\Services\PublicCache;
 use Database\Seeders\ChartOfAccountsSeeder;
 use Database\Seeders\RoleSeeder;
@@ -64,17 +65,16 @@ it('closes the public website when it is switched off, but not for staff or orde
     $this->actingAs(User::factory()->role('owner')->create(), 'staff')->get('/')->assertOk();
 });
 
-it('lets the owner switch the website and delivery on or off from Settings', function (): void {
+it('lets the owner switch the website on or off from Settings', function (): void {
     $owner = User::factory()->role('owner')->create();
 
     $this->actingAs($owner, 'staff')
-        ->put(route('admin.settings.update'), settingsPayload(['website_enabled' => false, 'online_delivery_enabled' => false, 'established_year' => 2013]))
+        ->put(route('admin.settings.update'), settingsPayload(['website_enabled' => false, 'established_year' => 2013]))
         ->assertSessionHasNoErrors();
 
     $settings = Setting::current();
 
     expect($settings->website_enabled)->toBeFalse()
-        ->and($settings->online_delivery_enabled)->toBeFalse()
         ->and($settings->established_year)->toBe(2013);
 
     $this->actingAs($owner, 'staff')
@@ -83,7 +83,7 @@ it('lets the owner switch the website and delivery on or off from Settings', fun
 });
 
 it('offers only pickup on the website when delivery is switched off', function (): void {
-    Setting::current()->update(['online_delivery_enabled' => false]);
+    $this->branch->update(['online_delivery_enabled' => false]);
 
     $this->actingAs($this->customer, 'customer')->get('/checkout')
         ->assertInertia(fn ($page) => $page->where('delivery.enabled', false));
@@ -233,4 +233,42 @@ it('shows years of service only when the opening year is set', function (): void
     PublicCache::bump();
 
     $this->get('/')->assertInertia(fn ($page) => $page->where('stats.years', 5));
+});
+
+it('switches website delivery per branch', function (): void {
+    $owner = User::factory()->role('owner')->create(['branch_id' => $this->branch->id]);
+    $other = Branch::factory()->create(['code' => 'BR02', 'online_delivery_enabled' => true]);
+
+    $this->actingAs($owner, 'staff')
+        ->put(route('admin.settings.delivery-enabled'), ['enabled' => false])
+        ->assertSessionHasNoErrors();
+
+    expect($this->branch->fresh()->online_delivery_enabled)->toBeFalse()
+        ->and($other->fresh()->online_delivery_enabled)->toBeTrue();
+
+    $this->actingAs($owner, 'staff')->get(route('admin.settings.index'))
+        ->assertInertia(fn ($page) => $page->where('deliveryEnabled', false));
+});
+
+it('saves POS and billing options for the selected branch from Settings', function (): void {
+    $owner = User::factory()->role('owner')->create(['branch_id' => $this->branch->id]);
+    $pos = PosSettings::for($this->branch);
+    $pos['review_before_save'] = true;
+    $pos['cash_suggestions'] = [100, 500];
+
+    $this->actingAs($owner, 'staff')
+        ->put(route('admin.settings.branch-pos'), ['pos' => $pos, 'allow_negative_stock' => true, 'vat_percent' => '5.00', 'vat_inclusive' => true, 'service_charge_percent' => '10.00', 'online_ordering_enabled' => true])
+        ->assertSessionHasNoErrors();
+
+    $branch = $this->branch->fresh();
+
+    expect($branch->allow_negative_stock)->toBeTrue()
+        ->and((float) $branch->vat_percent)->toBe(5.0)
+        ->and((float) $branch->service_charge_percent)->toBe(10.0)
+        ->and($branch->vat_inclusive)->toBeTrue()
+        ->and(PosSettings::for($branch)['review_before_save'])->toBeTrue()
+        ->and(PosSettings::for($branch)['cash_suggestions'])->toBe([100, 500]);
+
+    $this->actingAs($owner, 'staff')->get(route('admin.settings.index'))
+        ->assertInertia(fn ($page) => $page->where('branchId', $this->branch->id)->has('branchPos.actions'));
 });

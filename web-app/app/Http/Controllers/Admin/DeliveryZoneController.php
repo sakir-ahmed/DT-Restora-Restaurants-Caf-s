@@ -17,6 +17,22 @@ use Illuminate\Validation\Rule;
  */
 class DeliveryZoneController extends Controller
 {
+    /**
+     * Website delivery on or off for this branch only.
+     */
+    public function toggle(Request $request): RedirectResponse
+    {
+        $this->authorize('settings.manage');
+
+        $branch = $this->currentBranch($request);
+
+        $branch->update(['online_delivery_enabled' => $request->validate(['enabled' => ['required', 'boolean']])['enabled']]);
+
+        activity()->causedBy($request->user('staff'))->performedOn($branch)->log('branch.online_delivery_toggled');
+
+        return back()->with('success', __('settings.saved'));
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $this->authorize('settings.manage');

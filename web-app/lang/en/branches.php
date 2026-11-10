@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 return [
     'title' => 'Branches',
-    'subtitle' => 'Locations, tax and service settings.',
+    'subtitle' => 'Locations, tax and service settings. Each branch has its own; shared options are under Settings.',
     'add' => 'Add branch',
     'edit' => 'Edit branch',
     'name' => 'Branch name',
@@ -18,7 +18,8 @@ return [
     'city' => 'City',
     'receipt_footer' => 'Receipt footer',
     'settings_group' => 'Branch settings',
-    'form_hint' => 'Shop details, tax, and POS and billing options for this branch.',
+    'form_scope_note' => 'Shop details of this branch. VAT, service charge, online ordering and POS and billing options are under Settings, POS and billing.',
+    'form_hint' => 'Name, contact and address of this branch.',
     'tab_details' => 'Details',
     'tab_pos' => 'POS and billing',
     'vat_percent' => 'VAT percent',

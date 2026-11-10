@@ -26,13 +26,7 @@ class BranchController extends Controller
             ->get();
 
         return Inertia::render('admin/branches/Index', [
-            'branches' => $branches->map(fn (Branch $branch): array => [
-                ...$branch->toArray(),
-                'pos' => PosSettings::for($branch),
-            ])->values(),
-            'defaultPos' => PosSettings::defaults(),
-            'layouts' => PosSettings::LAYOUTS,
-            'defaultPattern' => PosSettings::DEFAULT_PATTERN,
+            'branches' => $branches->values(),
             'canManage' => $request->user('staff')?->can('branches.manage'),
         ]);
     }

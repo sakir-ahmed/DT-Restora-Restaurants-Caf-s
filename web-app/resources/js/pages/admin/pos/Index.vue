@@ -630,6 +630,7 @@ const reviewAmounts = computed(() => {
     return { due, received, change: Math.max(0, received - due) };
 });
 const invoiceLayout = computed(() => branch.value.pos_settings?.invoice_layout ?? 'classic');
+const invoicePaper = computed(() => branch.value.pos_settings?.invoice_paper ?? '80mm');
 const primarySpanClass = computed(() => {
     const visible = ['send_to_kitchen', 'confirm_payment', 'quick_save'].filter((key) => posActions.value[key].enabled).length;
 
@@ -1563,6 +1564,7 @@ function finishSave(mode, order) {
 function localInvoiceHtml(order) {
     return localReceiptHtml({
         layout: invoiceLayout.value,
+        paper: invoicePaper.value,
         branch: branch.value,
         invoiceNo: order.invoice_no,
         when: new Date().toLocaleString(),

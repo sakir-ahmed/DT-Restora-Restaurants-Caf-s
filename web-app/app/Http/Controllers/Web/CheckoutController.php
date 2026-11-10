@@ -14,7 +14,6 @@ use App\Jobs\SendSmsJob;
 use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\DeliveryZone;
-use App\Models\Setting;
 use App\Services\CouponService;
 use App\Services\DemoJourney;
 use App\Services\OtpService;
@@ -253,7 +252,7 @@ class CheckoutController extends Controller
      */
     private function deliveryEnabled(Branch $branch): bool
     {
-        return Setting::current()->online_delivery_enabled
+        return $branch->online_delivery_enabled
             && DeliveryZone::query()->where('branch_id', $branch->id)->where('is_active', true)->exists();
     }
 

@@ -10,9 +10,11 @@ use App\Models\DeliveryZone;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Setting;
+use App\Services\PosSettings;
 use App\Services\PublicCache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -26,6 +28,24 @@ class SettingController extends Controller
 
         return Inertia::render('admin/settings/Index', [
             'branchName' => $branch?->name ?? '',
+            'branchId' => $branch?->id,
+            'branchCode' => $branch?->code ?? '',
+            'branchPos' => $branch !== null ? [
+                ...PosSettings::for($branch),
+                'allow_negative_stock' => (bool) $branch->allow_negative_stock,
+                'vat_percent' => (string) $branch->vat_percent,
+                'vat_inclusive' => (bool) $branch->vat_inclusive,
+                'service_charge_percent' => (string) $branch->service_charge_percent,
+                'online_ordering_enabled' => (bool) $branch->online_ordering_enabled,
+            ] : null,
+            'layouts' => PosSettings::LAYOUTS,
+            'papers' => PosSettings::PAPERS,
+            'invoicePrint' => $branch !== null ? [
+                'layout' => PosSettings::for($branch)['invoice_layout'],
+                'paper' => PosSettings::for($branch)['invoice_paper'],
+            ] : null,
+            'defaultPattern' => PosSettings::DEFAULT_PATTERN,
+            'deliveryEnabled' => (bool) ($branch?->online_delivery_enabled ?? true),
             'deliveryZones' => DeliveryZone::query()
                 ->where('branch_id', $branch?->id)
                 ->orderBy('sort_order')
@@ -70,7 +90,6 @@ class SettingController extends Controller
                 'social_whatsapp',
                 'established_year',
                 'website_enabled',
-                'online_delivery_enabled',
             ]),
         ]);
     }
@@ -96,7 +115,6 @@ class SettingController extends Controller
             'social_whatsapp' => ['nullable', 'url:http,https', 'max:255'],
             'established_year' => ['nullable', 'integer', 'min:1800', 'max:'.now()->year],
             'website_enabled' => ['sometimes', 'boolean'],
-            'online_delivery_enabled' => ['sometimes', 'boolean'],
         ], [], [
             'discount_limit_percent' => __('settings.discount_limit'),
             'wastage_spike_multiplier' => __('settings.wastage_spike'),
@@ -114,7 +132,6 @@ class SettingController extends Controller
             'social_whatsapp' => __('settings.social_whatsapp'),
             'established_year' => __('settings.established_year'),
             'website_enabled' => __('settings.website_enabled'),
-            'online_delivery_enabled' => __('settings.online_delivery_enabled'),
         ]);
 
         Setting::current()->update($validated);
@@ -124,6 +141,68 @@ class SettingController extends Controller
             ->causedBy($request->user('staff'))
             ->performedOn(Setting::current())
             ->log('settings.updated');
+
+        return back()->with('success', __('settings.saved'));
+    }
+
+    /**
+     * Invoice style and paper size of the selected branch.
+     */
+    public function updateInvoicePrint(Request $request): RedirectResponse
+    {
+        $this->authorize('settings.manage');
+
+        $branch = $this->currentBranch($request);
+
+        abort_if($branch === null, 404);
+
+        $validated = $request->validate([
+            'layout' => ['required', Rule::in(PosSettings::LAYOUTS)],
+            'paper' => ['required', Rule::in(PosSettings::PAPERS)],
+        ]);
+
+        $branch->update(['pos_settings' => [
+            ...(is_array($branch->pos_settings) ? $branch->pos_settings : []),
+            'invoice_layout' => $validated['layout'],
+            'invoice_paper' => $validated['paper'],
+        ]]);
+
+        activity()->causedBy($request->user('staff'))->performedOn($branch)->log('branch.invoice_print_updated');
+
+        return back()->with('success', __('settings.saved'));
+    }
+
+    /**
+     * POS and billing options of the selected branch. The same options are in
+     * the branch edit form; both write to the same branch record.
+     */
+    public function updateBranchPos(Request $request): RedirectResponse
+    {
+        $this->authorize('settings.manage');
+
+        $branch = $this->currentBranch($request);
+
+        abort_if($branch === null, 404);
+
+        $validated = $request->validate([
+            ...PosSettings::rules(),
+            'allow_negative_stock' => ['boolean'],
+            'vat_percent' => ['required', 'numeric', 'between:0,100'],
+            'vat_inclusive' => ['boolean'],
+            'service_charge_percent' => ['required', 'numeric', 'between:0,100'],
+            'online_ordering_enabled' => ['boolean'],
+        ]);
+
+        $branch->update([
+            'allow_negative_stock' => (bool) ($validated['allow_negative_stock'] ?? false),
+            'vat_percent' => $validated['vat_percent'],
+            'vat_inclusive' => (bool) ($validated['vat_inclusive'] ?? false),
+            'service_charge_percent' => $validated['service_charge_percent'],
+            'online_ordering_enabled' => (bool) ($validated['online_ordering_enabled'] ?? false),
+            ...(isset($validated['pos']) ? ['pos_settings' => PosSettings::fromInput($validated['pos'])] : []),
+        ]);
+
+        activity()->causedBy($request->user('staff'))->performedOn($branch)->log('branch.pos_settings_updated');
 
         return back()->with('success', __('settings.saved'));
     }

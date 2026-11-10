@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\Branch;
 use App\Models\PaymentMethod;
+use App\Support\ReceiptStyle;
 use Closure;
 use Illuminate\Validation\Rule;
 
@@ -16,7 +17,9 @@ use Illuminate\Validation\Rule;
  */
 final class PosSettings
 {
-    public const LAYOUTS = ['classic', 'compact', 'bold'];
+    public const LAYOUTS = ReceiptStyle::LAYOUTS;
+
+    public const PAPERS = ReceiptStyle::PAPERS;
 
     public const ACTIONS = ['send_to_kitchen', 'confirm_payment', 'quick_save', 'due_sale'];
 
@@ -60,6 +63,7 @@ final class PosSettings
      *     order_edit_enabled: bool,
      *     order_delete_enabled: bool,
      *     invoice_layout: string,
+     *     invoice_paper: string,
      *     invoice_pattern: string,
      *     invoice_seq_digits: int,
      *     payment_methods: array<int, array{method: string, enabled: bool, name: string, name_bn: ?string, type: string}>,
@@ -80,6 +84,7 @@ final class PosSettings
             'order_edit_enabled' => true,
             'order_delete_enabled' => true,
             'invoice_layout' => 'classic',
+            'invoice_paper' => ReceiptStyle::DEFAULT_PAPER,
             'invoice_pattern' => self::DEFAULT_PATTERN,
             'invoice_seq_digits' => 4,
             'payment_methods' => self::normalizeMethods(null),
@@ -139,6 +144,7 @@ final class PosSettings
      *     order_edit_enabled: bool,
      *     order_delete_enabled: bool,
      *     invoice_layout: string,
+     *     invoice_paper: string,
      *     invoice_pattern: string,
      *     invoice_seq_digits: int,
      *     payment_methods: array<int, array{method: string, enabled: bool, name: string, name_bn: ?string, type: string}>,
@@ -305,6 +311,7 @@ final class PosSettings
             'pos.order_edit_enabled' => ['sometimes', 'boolean'],
             'pos.order_delete_enabled' => ['sometimes', 'boolean'],
             'pos.invoice_layout' => ['required_with:pos', Rule::in(self::LAYOUTS)],
+            'pos.invoice_paper' => ['sometimes', Rule::in(self::PAPERS)],
             'pos.invoice_pattern' => ['required_with:pos', 'string', 'max:60', function (string $attribute, mixed $value, Closure $fail): void {
                 if (! is_string($value) || ! self::patternIsValid($value)) {
                     $fail(__('settings.invoice_pattern_invalid'));
@@ -355,6 +362,7 @@ final class PosSettings
             'order_edit_enabled' => (bool) ($pos['order_edit_enabled'] ?? true),
             'order_delete_enabled' => (bool) ($pos['order_delete_enabled'] ?? true),
             'invoice_layout' => $pos['invoice_layout'],
+            'invoice_paper' => $pos['invoice_paper'] ?? ReceiptStyle::DEFAULT_PAPER,
             'invoice_pattern' => $pos['invoice_pattern'],
             'invoice_seq_digits' => (int) $pos['invoice_seq_digits'],
             'payment_methods' => self::normalizeMethods($pos['payment_methods']),

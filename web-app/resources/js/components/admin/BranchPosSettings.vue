@@ -182,18 +182,6 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
     <section class="space-y-3 border-t border-border pt-3">
         <h2 class="text-[13px] font-semibold text-foreground">{{ t('settings.section_invoice') }}</h2>
 
-        <div role="radiogroup" :aria-label="t('settings.invoice_layout')" class="grid grid-cols-3 gap-2">
-            <label
-                v-for="layout in layouts"
-                :key="layout"
-                class="flex cursor-pointer items-center gap-2 rounded-md border px-2 py-1.5 text-[13px]"
-                :class="pos.invoice_layout === layout ? 'border-accent bg-accent/10' : 'border-border bg-background'"
-            >
-                <input v-model="pos.invoice_layout" type="radio" name="invoice_layout" :value="layout" class="accent-[var(--color-primary)]">
-                {{ t(`settings.layout_${layout}`) }}
-            </label>
-        </div>
-
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_8rem]">
             <FormField :label="t('settings.invoice_pattern')" :helper="t('settings.invoice_pattern_helper')" :error="errors['pos.invoice_pattern']" required>
                 <template #default="{ id }">

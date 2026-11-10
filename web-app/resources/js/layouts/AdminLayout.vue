@@ -175,7 +175,7 @@ function openCommandPalette() {
 </script>
 
 <template>
-    <div class="flex min-h-screen bg-background text-foreground">
+    <div class="flex min-h-screen bg-background text-foreground lg:h-[calc(100dvh-var(--demo-banner-h))] lg:min-h-0 lg:overflow-hidden">
         <!-- Mobile overlay -->
         <div
             v-if="sidebarOpen"
@@ -185,7 +185,7 @@ function openCommandPalette() {
 
         <!-- Sidebar -->
         <aside
-            class="fixed top-(--demo-banner-h) bottom-0 left-0 z-40 flex shrink-0 flex-col border-r border-border bg-surface transition-all duration-150 lg:static"
+            class="fixed top-(--demo-banner-h) bottom-0 left-0 z-40 flex shrink-0 flex-col border-r border-border bg-surface transition-all duration-150 lg:static lg:h-full"
             :class="[
                 sidebarCollapsed ? 'w-14' : 'w-[220px]',
                 sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
@@ -196,7 +196,7 @@ function openCommandPalette() {
                 <span v-if="!sidebarCollapsed" class="truncate text-sm font-semibold"><BrandName :name="page.props.appName" /></span>
             </div>
 
-            <nav class="thin-scrollbar flex-1 space-y-3 overflow-y-auto p-2" aria-label="Main">
+            <nav class="thin-scrollbar min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain p-2" aria-label="Main">
                 <div v-for="group in nav" :key="group.label">
                     <p
                         v-if="!sidebarCollapsed"
@@ -236,8 +236,8 @@ function openCommandPalette() {
         </aside>
 
         <!-- Main -->
-        <div class="flex min-w-0 flex-1 flex-col">
-            <header class="sticky top-(--demo-banner-h) z-30 flex h-12 shrink-0 items-center gap-2 border-b border-border bg-surface px-3">
+        <div class="thin-scrollbar flex min-w-0 flex-1 flex-col lg:h-full lg:overflow-y-auto">
+            <header class="sticky top-0 z-30 flex h-12 shrink-0 items-center gap-2 border-b border-border bg-surface px-3">
                 <button
                     type="button"
                     class="flex h-8 w-8 items-center justify-center rounded-md text-muted hover:text-foreground lg:hidden"

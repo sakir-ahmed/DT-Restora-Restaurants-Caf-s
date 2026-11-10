@@ -11,7 +11,7 @@ import { t } from '@/lib/i18n';
 import { notify } from '@/lib/notify';
 import { localized } from '@/lib/site';
 
-defineProps({
+const props = defineProps({
     zones: { type: Array, required: true },
     branchName: { type: String, default: '' },
     deliveryEnabled: { type: Boolean, default: true },
@@ -32,6 +32,13 @@ const form = useForm({
 });
 
 const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40';
+
+function toggleDelivery(value) {
+    router.put(route('admin.settings.delivery-enabled'), { enabled: value }, {
+        preserveScroll: true,
+        onSuccess: () => notify.success(t('settings.saved')),
+    });
+}
 
 function startCreate() {
     editing.value = null;
@@ -102,6 +109,11 @@ async function remove(zone) {
                 <AppIcon name="plus" size="12" />
                 {{ t('settings.zone_add') }}
             </button>
+        </div>
+
+        <div class="mb-3 flex flex-col gap-0.5">
+            <SwitchField :model-value="props.deliveryEnabled" :label="t('settings.online_delivery_enabled', { branch: branchName })" @update:model-value="toggleDelivery" />
+            <p class="text-xs text-muted">{{ t('settings.online_delivery_enabled_helper') }}</p>
         </div>
 
         <p v-if="! deliveryEnabled" class="mb-3 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-muted">{{ t('settings.zones_delivery_off') }}</p>

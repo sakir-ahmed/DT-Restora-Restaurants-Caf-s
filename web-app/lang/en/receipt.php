@@ -3,6 +3,11 @@
 declare(strict_types=1);
 
 return [
+    'item' => 'Item',
+    'qty' => 'Qty',
+    'rate' => 'Rate',
+    'amount' => 'Amount',
+    'sample' => 'SAMPLE PREVIEW',
     'phone' => 'Phone',
     'bin' => 'BIN',
     'table' => 'Table',

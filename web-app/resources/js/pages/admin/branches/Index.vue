@@ -2,8 +2,8 @@
 import { useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
-import BranchPosSettings from '@/components/admin/BranchPosSettings.vue';
 import DataTable from '@/components/ui-kit/DataTable.vue';
+import ScopeNote from '@/components/ui-kit/ScopeNote.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
 import MoneyInput from '@/components/ui-kit/MoneyInput.vue';
 import PageHeader from '@/components/ui-kit/PageHeader.vue';
@@ -18,16 +18,12 @@ import { notify } from '@/lib/notify';
 const props = defineProps({
     branches: { type: Array, required: true },
     canManage: { type: Boolean, default: false },
-    defaultPos: { type: Object, required: true },
-    layouts: { type: Array, default: () => [] },
-    defaultPattern: { type: String, required: true },
 });
 
 const confirm = useConfirm();
 
 const slideOverOpen = ref(false);
 const editingId = ref(null);
-const slideTab = ref('details');
 
 const columns = computed(() => [
     { key: 'code', label: t('branches.code'), align: 'left', sortable: true, minWidth: '70px' },
@@ -47,28 +43,15 @@ const rows = computed(() => props.branches.map((branch) => ({
 
 const emptyForm = {
     name: '', name_bn: '', code: '', phone: '', address: '', address_bn: '', city: '', city_bn: '',
-    latitude: '', longitude: '', vat_percent: '15.00', vat_inclusive: false,
-    service_charge_percent: '0.00', allow_negative_stock: false,
-    online_ordering_enabled: false, receipt_footer: '', is_active: true,
+    latitude: '', longitude: '', receipt_footer: '', is_active: true,
 };
 
-function clone(value) {
-    return JSON.parse(JSON.stringify(value));
-}
-
-function cashText(pos) {
-    return (pos.cash_suggestions ?? []).join(', ');
-}
-
-const form = useForm({ ...emptyForm, pos: clone(props.defaultPos), cash_suggestions_text: cashText(props.defaultPos) });
-
-const showPosErrors = computed(() => Object.keys(form.errors).some((key) => key.startsWith('pos')));
+const form = useForm({ ...emptyForm });
 
 function openCreate() {
     editingId.value = null;
-    form.defaults({ ...emptyForm, pos: clone(props.defaultPos), cash_suggestions_text: cashText(props.defaultPos) }).reset();
+    form.defaults({ ...emptyForm }).reset();
     form.clearErrors();
-    slideTab.value = 'details';
     slideOverOpen.value = true;
 }
 
@@ -85,34 +68,14 @@ function openEdit(branch) {
         city_bn: branch.city_bn ?? '',
         latitude: branch.latitude ?? '',
         longitude: branch.longitude ?? '',
-        vat_percent: branch.vat_percent,
-        vat_inclusive: branch.vat_inclusive,
-        service_charge_percent: branch.service_charge_percent,
-        allow_negative_stock: branch.allow_negative_stock,
-        online_ordering_enabled: branch.online_ordering_enabled,
         receipt_footer: branch.receipt_footer ?? '',
         is_active: branch.is_active,
-        pos: clone(branch.pos),
-        cash_suggestions_text: cashText(branch.pos),
     }).reset();
     form.clearErrors();
-    slideTab.value = 'details';
     slideOverOpen.value = true;
 }
 
 function save() {
-    form.transform((data) => {
-        const { cash_suggestions_text: suggestions, ...rest } = data;
-
-        return {
-            ...rest,
-            pos: {
-                ...rest.pos,
-                cash_suggestions: suggestions.split(/[,\s]+/).filter(Boolean).map(Number).filter((value) => Number.isFinite(value)),
-            },
-        };
-    });
-
     if (editingId.value === null) {
         form.post(route('admin.branches.store'), {
             onSuccess: () => {
@@ -198,33 +161,9 @@ async function remove(branch) {
             wide
             @close="slideOverOpen = false"
         >
-            <div class="mb-3 flex gap-1" role="tablist">
-                <button
-                    v-for="entry in [{ key: 'details', label: t('branches.tab_details'), error: ! showPosErrors && Object.keys(form.errors).length > 0 }, { key: 'pos', label: t('branches.tab_pos'), error: showPosErrors }]"
-                    :key="entry.key"
-                    type="button"
-                    role="tab"
-                    :aria-selected="slideTab === entry.key"
-                    class="h-7 rounded-md border px-3 text-[13px] font-medium"
-                    :class="[slideTab === entry.key ? 'border-accent bg-accent/15 text-foreground' : 'border-border bg-surface text-muted hover:text-foreground', entry.error ? 'border-danger' : '']"
-                    @click="slideTab = entry.key"
-                >
-                    {{ entry.label }}
-                </button>
-            </div>
+            <ScopeNote scope="branch" :branch="form.name" :text="t('branches.form_scope_note')" />
 
-            <BranchPosSettings
-                v-show="slideTab === 'pos'"
-                v-model:cash-text="form.cash_suggestions_text"
-                v-model:allow-negative-stock="form.allow_negative_stock"
-                :pos="form.pos"
-                :errors="form.errors"
-                :layouts="layouts"
-                :default-pattern="defaultPattern"
-                :branch-code="form.code"
-            />
-
-            <form v-show="slideTab === 'details'" novalidate class="space-y-3" @submit.prevent="save">
+            <form novalidate class="space-y-3" @submit.prevent="save">
                 <div class="grid grid-cols-2 gap-x-4 gap-y-3">
                     <FormField :label="t('branches.name')" required :error="form.errors.name">
                         <template #default="{ id }">
@@ -334,25 +273,7 @@ async function remove(branch) {
                 </div>
 
                 <div class="border-t border-border pt-3">
-                    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted" :class="$page.props.locale === 'bn' ? 'normal-case tracking-normal' : ''">
-                        {{ t('branches.settings_group') }}
-                    </h3>
-
-                    <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-                        <FormField :label="t('branches.vat_percent')" required :error="form.errors.vat_percent">
-                            <MoneyInput v-model="form.vat_percent" prefix="%" />
-                        </FormField>
-
-                        <FormField :label="t('branches.service_charge')" required :error="form.errors.service_charge_percent">
-                            <MoneyInput v-model="form.service_charge_percent" prefix="%" />
-                        </FormField>
-                    </div>
-
-                    <div class="mt-3 space-y-2">
-                        <SwitchField v-model="form.vat_inclusive" :label="t('branches.vat_inclusive')" />
-                        <SwitchField v-model="form.online_ordering_enabled" :label="t('branches.online_ordering_enabled')" />
-                        <SwitchField v-model="form.is_active" :label="t('branches.is_active')" />
-                    </div>
+                    <SwitchField v-model="form.is_active" :label="t('branches.is_active')" />
                 </div>
             </form>
 
