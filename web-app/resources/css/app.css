@@ -26,6 +26,44 @@
     --demo-banner-h: 0px;
 }
 
+/*
+ * Tailwind 4 resets buttons to the default arrow. Anything a person can click
+ * shows the hand, and anything switched off shows that it cannot be used.
+ */
+@layer base {
+    button:not(:disabled),
+    summary,
+    select:not(:disabled),
+    a[href],
+    [role='button']:not([aria-disabled='true']),
+    [role='tab'],
+    [role='switch']:not(:disabled),
+    [role='menuitem'],
+    [role='option'],
+    [role='radio'],
+    [role='checkbox'],
+    input[type='checkbox']:not(:disabled),
+    input[type='radio']:not(:disabled),
+    input[type='file']:not(:disabled),
+    input[type='submit']:not(:disabled),
+    input[type='button']:not(:disabled),
+    input[type='range']:not(:disabled),
+    label:has(> input[type='checkbox']:not(:disabled)),
+    label:has(> input[type='radio']:not(:disabled)),
+    [data-clickable] {
+        cursor: pointer;
+    }
+
+    button:disabled,
+    select:disabled,
+    input:disabled,
+    textarea:disabled,
+    [role='button'][aria-disabled='true'],
+    [aria-disabled='true'] {
+        cursor: not-allowed;
+    }
+}
+
 @media print {
     :root {
         --demo-banner-h: 0px;
