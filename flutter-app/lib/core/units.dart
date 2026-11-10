@@ -137,6 +137,17 @@ String? stockHint(UnitInfo? ingredientUnit, UnitInfo? unit, num qty) {
   return '${formatQuantity(inStockUnit)} ${ingredientUnit.symbol}';
 }
 
+/// Stock is kept in the base unit (g, l, pcs). This is the same stock in the
+/// ingredient's own unit, to three decimals: 2,000 g of a kg ingredient is 2.
+/// A missing or zero factor leaves the quantity as it is.
+double stockInUnit(num baseQty, num unitFactor) {
+  if (unitFactor <= 0) {
+    return (baseQty * 1000).round() / 1000;
+  }
+
+  return (baseQty / unitFactor * 1000).round() / 1000;
+}
+
 /// The unit an ingredient is tracked in, from an ingredient row of the
 /// reference payload (`unit_id`), or null when it is not in [units].
 UnitInfo? ingredientUnit(Map<String, dynamic> ingredient, Iterable<UnitInfo> units) {

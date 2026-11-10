@@ -190,4 +190,13 @@ void main() {
     expect(ingredientUnit({'id': 1, 'unit_id': 99}, all), isNull);
     expect(ingredientUnit({'id': 1}, all), isNull);
   });
+
+  test('stock kept in grams is shown in the ingredient unit', () {
+    expect(stockInUnit(2000, 1000), 2);
+    expect(stockInUnit(-770, 1000), -0.77);
+    expect(stockInUnit(250, 0.001), 250000);
+    expect(stockInUnit(36, 12), 3);
+    expect(stockInUnit(5, 1), 5);
+    expect(stockInUnit(5, 0), 5);
+  });
 }

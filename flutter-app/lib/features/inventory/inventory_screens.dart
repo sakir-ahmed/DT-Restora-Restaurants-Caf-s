@@ -163,7 +163,9 @@ class StockScreen extends StatelessWidget {
                 final r = rows[i];
                 final id = (r['ingredient_id'] as num).toInt();
                 final meta = ingredients[id];
-                final low = meta != null && toNum(r['stock_qty']) <= toNum(meta['reorder_level']);
+                // Stock is kept in the base unit (g, l, pcs); show and compare it in the ingredient's own unit.
+                final shown = stockInUnit(toNum(r['stock_qty']), toNum(meta?['unit_factor']));
+                final low = meta != null && shown <= toNum(meta['reorder_level']);
                 return Card(
                   child: ListTile(
                     leading: Icon(low ? Icons.warning_amber : Icons.inventory_2,
@@ -171,7 +173,7 @@ class StockScreen extends StatelessWidget {
                     title: Text('${r['name']}'),
                     subtitle: Text('Avg cost ${fmtMoney(r['avg_cost'])}${low ? '  -  Low stock' : ''}'),
                     trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                      Text('${toNum(r['stock_qty']).toStringAsFixed(2)} ${meta?['unit_symbol'] ?? ''}',
+                      Text('${formatQuantity(shown)} ${meta?['unit_symbol'] ?? ''}',
                           style: const TextStyle(fontWeight: FontWeight.w700)),
                       if (app.can('inventory.manage'))
                         IconButton(
@@ -508,17 +510,14 @@ class _PurchaseFormState extends State<_PurchaseForm> {
               onChanged: choices.length < 2 ? null : (v) => setState(() => line.unitId = v),
             ),
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            flex: 2,
-            child: TextField(
-              controller: line.cost,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(labelText: 'Cost per ${chosen?.symbol ?? 'unit'}', isDense: true),
-              onChanged: (_) => setState(() {}),
-            ),
-          ),
         ]),
+        const SizedBox(height: 8),
+        TextField(
+          controller: line.cost,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(labelText: 'Cost per ${chosen?.symbol ?? 'unit'}', isDense: true),
+          onChanged: (_) => setState(() {}),
+        ),
         if (hint != null || (qty > 0 && cost > 0))
           Padding(
             padding: const EdgeInsets.only(top: 4),
@@ -556,6 +555,8 @@ class _PurchaseFormState extends State<_PurchaseForm> {
       field(_invoice, 'Supplier invoice no. (optional)'),
       for (var i = 0; i < _lines.length; i++) _lineEditor(i, ingredients, units),
       DropdownButtonFormField<int>(
+        // A new key after every pick clears the field, so the same ingredient can be added again.
+        key: ValueKey(_lines.length),
         initialValue: null,
         decoration: const InputDecoration(labelText: 'Add ingredient'),
         items: [for (final i in ingredients) DropdownMenuItem(value: (i['id'] as num).toInt(), child: Text('${i['name']}'))],

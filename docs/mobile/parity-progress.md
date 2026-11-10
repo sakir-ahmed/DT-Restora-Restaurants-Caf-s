@@ -23,7 +23,7 @@ cd flutter-app && flutter analyze && flutter test
 cd web-app && ./vendor/bin/pint && php artisan test
 ```
 
-What could not be done yet: running the app on an emulator or simulator (no Android SDK or full Xcode on this Mac). Hands-on checks of screens are therefore listed as "device check" items and stay open until someone runs the app.
+Device checks run on the Android emulator (Pixel_API36). The SDK lives on the disk image `AndroidDev.sparsebundle`, attach it first (`diskutil image attach "/Volumes/SAKIR 1TB/AndroidDev.sparsebundle"`), then `flutter run -d emulator-5554 --dart-define=API_BASE_URL=http://10.0.2.2:8000/api/v1` with the backend running on port 8000.
 
 Status words: **Todo**, **Doing**, **Done**, **Blocked**.
 
@@ -34,7 +34,7 @@ Status words: **Todo**, **Doing**, **Done**, **Blocked**.
 | P01 | Baseline: `flutter analyze` clean, existing 14 tests green, tracker created | E0.7 | Done | analyze: no issues; test: 14 passed (2026-11-10) |
 | P02 | Shared unit code in Dart (reference unit, relation text, picker label, conversion, stock hint), mirroring `web-app/resources/js/lib/units.js` | E4.1 | Done | analyze: no issues; `test/units_test.dart`: 10 passed; relations and the 10 l to 10,000 ml example match the web Settings and purchase form |
 | P03 | API: `units` in the reference payload carry `type`, `factor`, `is_system`; ingredients carry `unit_type` and `unit_factor`; `docs/api.md` section 10b added | A1.1 | Done | `ApiReferenceTest`: 4 passed; Pint clean |
-| P04 | Purchases: per-line unit picker with size hint, cost per chosen unit, "Adds N to stock" and line total | E4.3 | Done (device check open) | analyze: no issues; 25 tests passed (11 new unit tests incl. `ingredientUnit`); the 10 l to 10,000 ml example matches the web form. Device check: open Purchases, add an ml ingredient, pick l, enter 10 and confirm the hint reads 10,000 ml, then save and compare stock with the web |
+| P04 | Purchases: per-line unit picker with size hint, cost per chosen unit, "Adds N to stock" and line total | E4.3 | Done | analyze: no issues; 25 tests passed (11 new unit tests incl. `ingredientUnit`); the 10 l to 10,000 ml example matches the web form. Device check on the emulator (2026-11-11): the form opens, ingredients load, the unit picker shows `kg (1,000 g)`; labels were cut off on a phone, so the line layout was changed (qty and unit on one row, cost on its own row) and the add-ingredient field now clears after each pick. Still to do by hand: save a purchase in a different unit and compare stock with the web |
 | P05a | API: average cost per base unit in the reference payload (`ingredient_costs`, for `recipes.manage`) so the app can show live recipe cost | A1.1 | Done | `ApiReferenceTest`: 6 passed; documented in `docs/api.md` 10b |
 | P05b | Recipes: per-line unit, live cost and margin in the app | E4.4 | Todo | needs P05a |
 | P06 | Wastage and stock transfers: unit picker | E4.5 | Todo | |
@@ -69,3 +69,26 @@ Later parts (orders delete and reprint, tables, reservations, menu categories, s
 | 2026-11-10 | P04 | Purchase form: `_PurchaseLine`, unit picker, hint and total. `flutter analyze`: no issues. `flutter test`: 25 passed. Not run on a device. |
 | 2026-11-10 | P03 | Reference payload extended in `StaffApiController::reference`, documented in `docs/api.md` 10b. PHP test added. The sync bootstrap has no units list, so nothing to change there. |
 | 2026-11-10 | P02 | `lib/core/units.dart` and `test/units_test.dart` added. `flutter analyze`: no issues. New tests: 10 passed. |
+
+## Device audit: Android emulator, 2026-11-11
+
+Signed in as a local test owner and opened every Sales and Inventory screen. No exceptions in the Flutter log. App analysis: no issues; tests: 26 passed.
+
+| Screen | Result |
+| --- | --- |
+| Login, Home | Works. The demo-accounts list on the login screen only works against a database that has those users |
+| Dashboard | Works (net sales, orders, food cost, net profit, daily bars, low stock) |
+| Orders | Works; list, status chips, totals match the web |
+| Reservations | Works; booked reservation with Seated, No show, Cancelled |
+| Kitchen | Works (empty state shown) |
+| Cash shift | Works (open shift prompt) |
+| Tables | Works |
+| Menu | Works, but items show names only, no prices (web shows prices) |
+| Stock | **Fixed.** Stock was shown in base units next to the ingredient unit (2,000 g shown as "2000 kg") and the low-stock flag compared the wrong units. Now converted with the ingredient's unit factor; `stockInUnit` has tests |
+| Purchases | Works; list, new purchase sheet, ingredient list, unit picker. Layout fixed (see P04) |
+| Stock count | Works, but "System" quantities are base units with no unit symbol, so a counted quantity is ambiguous. **Open** |
+| Transfers | Works; transfers have no unit picker. **Open** (P06) |
+| Wastage | Works, but the Log wastage form sits inside a second app bar (double header) and has no unit picker. **Open** (P06) |
+| POS | Opens and loads the menu with prices and add buttons. One early tap on the POS tile did nothing and could not be reproduced reliably. **Watch** |
+
+Not yet audited: People, Finance and Website modules, saving a sale, payment sheet, printing, offline mode.
