@@ -1,0 +1,737 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Actions\Sales\CreateOrderAction;
+use App\Enums\OrderStatus;
+use App\Enums\OrderType;
+use App\Models\Branch;
+use App\Models\Journal;
+use App\Models\MenuCategory;
+use App\Models\MenuItem;
+use App\Models\Order;
+use App\Models\Payment;
+use App\Models\PaymentMethod;
+use App\Models\Setting;
+use App\Models\Shift;
+use App\Models\User;
+use App\Services\InvoiceNumberService;
+use App\Services\PosSettings;
+use App\Support\ReceiptStyle;
+use Database\Seeders\ChartOfAccountsSeeder;
+use Database\Seeders\PaymentMethodSeeder;
+use Database\Seeders\RoleSeeder;
+use Database\Seeders\UnitSeeder;
+
+beforeEach(function (): void {
+    $this->seed([ChartOfAccountsSeeder::class, RoleSeeder::class, UnitSeeder::class]);
+
+    $this->branch = Branch::factory()->create(['code' => 'BR01']);
+    $this->owner = User::factory()->role('owner')->create();
+    $this->cashier = User::factory()->role('cashier', $this->branch->id)->create();
+
+    $this->item = MenuItem::factory()->create([
+        'branch_id' => $this->branch->id,
+        'menu_category_id' => MenuCategory::factory()->create(['branch_id' => $this->branch->id])->id,
+        'base_price' => '100.00',
+    ]);
+
+    $this->shift = Shift::query()->create([
+        'branch_id' => $this->branch->id,
+        'user_id' => $this->cashier->id,
+        'terminal_code' => 'T01',
+        'opening_cash' => 0,
+        'opened_at' => now(),
+    ]);
+});
+
+function branchSettingsPayload(array $overrides = []): array
+{
+    $pos = array_replace_recursive(PosSettings::defaults(), $overrides['pos'] ?? []);
+
+    if (isset($overrides['pos']['cash_suggestions'])) {
+        $pos['cash_suggestions'] = $overrides['pos']['cash_suggestions'];
+    }
+
+    return [
+        'name' => $overrides['name'] ?? 'Main Branch',
+        'code' => 'BR01',
+        'vat_percent' => $overrides['vat_percent'] ?? '7.50',
+        'vat_inclusive' => $overrides['vat_inclusive'] ?? true,
+        'service_charge_percent' => $overrides['service_charge_percent'] ?? '5.00',
+        'receipt_footer' => $overrides['receipt_footer'] ?? 'Thanks',
+        'pos' => $pos,
+    ];
+}
+
+it('falls back to the default button matrix and invoice pattern', function (): void {
+    $settings = PosSettings::for($this->branch);
+
+    expect($settings['actions']['send_to_kitchen']['enabled'])->toBeTrue()
+        ->and($settings['actions']['quick_save']['enabled'])->toBeFalse()
+        ->and($settings['actions']['quick_save']['exact_amount'])->toBeTrue()
+        ->and($settings['invoice_pattern'])->toBe(PosSettings::DEFAULT_PATTERN)
+        ->and($settings['invoice_layout'])->toBe('classic');
+});
+
+it('saves branch POS settings with VAT and sends them to the POS page', function (): void {
+    $payload = branchSettingsPayload(['pos' => [
+        'actions' => ['quick_save' => ['enabled' => true, 'print_invoice' => true, 'print_kitchen' => true]],
+        'invoice_layout' => 'bold',
+    ]]);
+
+    $this->actingAs($this->owner, 'staff')
+        ->put(route('admin.branches.update', $this->branch), $payload)
+        ->assertRedirect();
+
+    $branch = $this->branch->fresh();
+
+    expect($branch->vat_percent)->toBe('7.50')
+        ->and($branch->vat_inclusive)->toBeTrue()
+        ->and(PosSettings::for($branch)['actions']['quick_save']['print_kitchen'])->toBeTrue()
+        ->and(PosSettings::for($branch)['invoice_layout'])->toBe('bold');
+
+    $this->actingAs($this->cashier, 'staff')->get('/admin/pos')->assertInertia(fn ($page) => $page
+        ->where('branch.pos_settings.actions.quick_save.enabled', true)
+        ->where('branch.pos_settings.invoice_layout', 'bold'));
+});
+
+it('keeps the due button on by default and lets a branch switch it off and choose what it prints', function (): void {
+    expect(PosSettings::for($this->branch)['actions']['due_sale']['enabled'])->toBeTrue();
+
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
+        'pos' => ['actions' => ['due_sale' => ['enabled' => false, 'print_invoice' => true]]],
+    ]))->assertRedirect();
+
+    $due = PosSettings::for($this->branch->fresh())['actions']['due_sale'];
+
+    expect($due['enabled'])->toBeFalse()
+        ->and($due['print_invoice'])->toBeTrue()
+        ->and($due['exact_amount'])->toBeFalse();
+});
+
+it('gives every button instant print and clear options, with quick save printing and clearing by default', function (): void {
+    $actions = PosSettings::for($this->branch)['actions'];
+
+    expect($actions['quick_save']['instant_print'])->toBeTrue()
+        ->and($actions['quick_save']['clear'])->toBeTrue()
+        ->and($actions['confirm_payment']['instant_print'])->toBeFalse()
+        ->and($actions['confirm_payment']['clear'])->toBeFalse();
+
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
+        'pos' => ['actions' => ['confirm_payment' => ['instant_print' => true, 'print_invoice' => true, 'clear' => true]]],
+    ]))->assertRedirect();
+
+    $saved = PosSettings::for($this->branch->fresh())['actions']['confirm_payment'];
+
+    expect($saved['instant_print'])->toBeTrue()
+        ->and($saved['print_invoice'])->toBeTrue()
+        ->and($saved['clear'])->toBeTrue();
+});
+
+it('keeps printing for buttons saved before instant print existed', function (): void {
+    $this->branch->update(['pos_settings' => ['actions' => ['confirm_payment' => ['enabled' => true, 'print_invoice' => true]]]]);
+
+    $actions = PosSettings::for($this->branch->fresh())['actions'];
+
+    expect($actions['confirm_payment']['instant_print'])->toBeTrue()
+        ->and($actions['send_to_kitchen']['instant_print'])->toBeFalse();
+});
+
+it('keeps settings separate for each branch', function (): void {
+    $other = Branch::factory()->create(['code' => 'BR02']);
+
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
+        'pos' => ['actions' => ['quick_save' => ['enabled' => true]]],
+    ]))->assertRedirect();
+
+    expect(PosSettings::for($this->branch->fresh())['actions']['quick_save']['enabled'])->toBeTrue()
+        ->and(PosSettings::for($other->fresh())['actions']['quick_save']['enabled'])->toBeFalse();
+});
+
+it('rejects invoice patterns that could repeat invoice numbers', function (string $pattern): void {
+    $this->actingAs($this->owner, 'staff')
+        ->put(route('admin.branches.update', $this->branch), branchSettingsPayload(['pos' => ['invoice_pattern' => $pattern]]))
+        ->assertSessionHasErrors('pos.invoice_pattern');
+})->with([
+    'no sequence' => '{BRANCH}-{TERMINAL}-{YYYY}{MM}{DD}',
+    'no date' => '{BRANCH}-{TERMINAL}-{SEQ}',
+    'no terminal' => '{BRANCH}-{YYYY}{MM}{DD}-{SEQ}',
+    'random without time' => '{BRANCH}-{YYYY}{MM}{DD}-{RAND}',
+    'random and sequence' => '{BRANCH}-{TERMINAL}-{YYYY}{MM}{DD}-{TIME}-{RAND}-{SEQ}',
+    'random without branch' => '{YYYY}{MM}{DD}-{TIME}-{RAND}',
+    'unknown token' => '{BRANCH}-{TERMINAL}-{YYYY}{MM}{DD}-{SEQ}-{FOO}',
+    'unsafe characters' => '{BRANCH} {TERMINAL} {YYYY}{MM}{DD} {SEQ}',
+]);
+
+it('numbers invoices with the branch pattern and claims device numbers back', function (): void {
+    $this->branch->update(['pos_settings' => [
+        'invoice_pattern' => 'INV/{BRANCH}/{TERMINAL}/{YY}{MM}{DD}/{SEQ}',
+        'invoice_seq_digits' => 5,
+    ]]);
+
+    $service = app(InvoiceNumberService::class);
+    $day = now()->format('ymd');
+
+    expect($service->next($this->branch->fresh(), 'T01'))->toBe("INV/BR01/T01/{$day}/00001")
+        ->and($service->claim($this->branch->fresh(), 'T01', "INV/BR01/T01/{$day}/00007"))->toBe("INV/BR01/T01/{$day}/00007")
+        ->and($service->next($this->branch->fresh(), 'T01'))->toBe("INV/BR01/T01/{$day}/00008");
+});
+
+it('accepts random invoice patterns and makes unique offline-safe numbers', function (): void {
+    $this->actingAs($this->owner, 'staff')
+        ->put(route('admin.branches.update', $this->branch), branchSettingsPayload(['pos' => ['invoice_pattern' => '{BRANCH}-{YYYY}{MM}{DD}-{TIME}-{RAND}']]))
+        ->assertSessionHasNoErrors();
+
+    $service = app(InvoiceNumberService::class);
+    $branch = $this->branch->fresh();
+
+    $numbers = collect(range(1, 40))->map(function () use ($service, $branch): string {
+        $number = $service->next($branch, 'T01');
+
+        Order::query()->forceCreate(['branch_id' => $branch->id, 'invoice_no' => $number, 'order_type' => 'takeaway', 'status' => 'pending', 'channel' => 'pos', 'subtotal' => 0, 'total' => 0]);
+
+        return $number;
+    });
+
+    expect($numbers->unique())->toHaveCount(40)
+        ->and($numbers->every(fn (string $number): bool => preg_match('/^BR01-\d{8}-\d{6}-[0-9A-HJKMNP-TV-Z]{4}$/', $number) === 1))->toBeTrue();
+});
+
+it('prints the receipt in the branch layout and a priceless kitchen token', function (): void {
+    $this->branch->update(['pos_settings' => ['invoice_layout' => 'compact']]);
+
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch->fresh(),
+        type: OrderType::Takeaway,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 3]],
+        cashier: $this->cashier,
+        shift: $this->shift,
+        terminalCode: 'T01',
+    );
+
+    $this->actingAs($this->cashier, 'staff')->get(route('admin.orders.receipt', $order))
+        ->assertOk()
+        ->assertSee('layout-compact', false);
+
+    $this->actingAs($this->cashier, 'staff')->get(route('admin.orders.kitchen-token', $order))
+        ->assertOk()
+        ->assertSee($order->invoice_no)
+        ->assertSee('3 x '.$this->item->name)
+        ->assertDontSee('300.00');
+});
+
+it('lets only users with the settings permission change branch settings', function (): void {
+    $this->actingAs($this->cashier, 'staff')
+        ->put(route('admin.branches.update', $this->branch), branchSettingsPayload())
+        ->assertForbidden();
+});
+
+it('keeps payment methods in the chosen order and hides the ones turned off', function (): void {
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
+        'pos' => ['payment_methods' => [
+            ['method' => 'bkash', 'enabled' => true],
+            ['method' => 'cash', 'enabled' => true],
+            ['method' => 'card', 'enabled' => false],
+            ['method' => 'nagad', 'enabled' => false],
+        ]],
+    ]))->assertRedirect();
+
+    $branch = $this->branch->fresh();
+
+    expect(PosSettings::enabledMethods($branch))->toBe(['bkash', 'cash'])
+        ->and(array_column(PosSettings::for($branch)['payment_methods'], 'method'))->toBe(['bkash', 'cash', 'card', 'nagad']);
+});
+
+it('adds payment methods a branch has not seen yet at the end', function (): void {
+    $this->branch->update(['pos_settings' => ['payment_methods' => [['method' => 'card', 'enabled' => true]]]]);
+
+    expect(array_column(PosSettings::for($this->branch->fresh())['payment_methods'], 'method'))->toBe(['card', 'cash', 'bkash', 'nagad']);
+});
+
+it('refuses to turn every payment method off', function (): void {
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
+        'pos' => ['payment_methods' => array_map(fn (string $method): array => ['method' => $method, 'enabled' => false], ['cash', 'bkash', 'nagad', 'card'])],
+    ]))->assertSessionHasErrors('pos.payment_methods');
+});
+
+it('sends the enabled payment methods to the POS page', function (): void {
+    $this->branch->update(['pos_settings' => ['payment_methods' => [
+        ['method' => 'card', 'enabled' => true],
+        ['method' => 'cash', 'enabled' => true],
+        ['method' => 'bkash', 'enabled' => false],
+        ['method' => 'nagad', 'enabled' => false],
+    ]]]);
+
+    $this->actingAs($this->cashier, 'staff')->get('/admin/pos')->assertInertia(fn ($page) => $page
+        ->where('branch.pos_settings.payment_methods.0.method', 'card')
+        ->where('branch.pos_settings.payment_methods.2.enabled', false));
+});
+
+it('pays an order by card and enforces the branch payment methods', function (): void {
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::Takeaway,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        cashier: $this->cashier,
+        shift: $this->shift,
+        terminalCode: 'T01',
+    );
+
+    $this->branch->update(['pos_settings' => ['payment_methods' => [
+        ['method' => 'cash', 'enabled' => false],
+        ['method' => 'card', 'enabled' => true],
+        ['method' => 'bkash', 'enabled' => false],
+        ['method' => 'nagad', 'enabled' => false],
+    ]]]);
+
+    $this->actingAs($this->cashier, 'staff')->post(route('admin.orders.pay', $order), ['tendered' => 500])
+        ->assertSessionHasErrors('tendered');
+
+    $this->actingAs($this->cashier, 'staff')->post(route('admin.payments.split', $order), ['lines' => [
+        ['method' => 'cash', 'amount' => 100],
+        ['method' => 'card', 'amount' => (float) $order->total - 100],
+    ]])->assertSessionHasErrors('lines.0.method');
+
+    $this->actingAs($this->cashier, 'staff')->post(route('admin.payments.single', $order), ['method' => 'card', 'reference' => 'SLIP-9'])
+        ->assertRedirect();
+
+    $order->refresh();
+
+    expect($order->status->value)->toBe('paid')
+        ->and($order->payments()->first()->method)->toBe('card')
+        ->and($order->payments()->first()->reference)->toBe('SLIP-9')
+        ->and((float) $order->payments()->first()->amount)->toBe((float) $order->total);
+});
+
+function posOrder($test, int $quantity = 1)
+{
+    return app(CreateOrderAction::class)->execute(
+        branch: $test->branch,
+        type: OrderType::Takeaway,
+        lines: [['menu_item_id' => $test->item->id, 'quantity' => $quantity]],
+        cashier: $test->cashier,
+        shift: $test->shift,
+        terminalCode: 'T01',
+    );
+}
+
+it('seeds a full set of payment methods including bank POS terminals', function (): void {
+    $this->seed(PaymentMethodSeeder::class);
+
+    expect(PaymentMethod::query()->pluck('type', 'code')->all())->toMatchArray([
+        'cash' => 'cash',
+        'bkash' => 'wallet',
+        'rocket' => 'wallet',
+        'ebl_pos' => 'card',
+        'city_pos' => 'card',
+        'mtb_pos' => 'card',
+    ]);
+
+    // Running it again does not duplicate anything.
+    $this->seed(PaymentMethodSeeder::class);
+
+    expect(PaymentMethod::query()->where('code', 'ebl_pos')->count())->toBe(1);
+});
+
+it('lets an admin add, edit and delete payment methods', function (): void {
+    $this->actingAs($this->owner, 'staff')->post(route('admin.settings.payment-methods.store'), [
+        'code' => 'ebl_pos', 'name' => 'EBL POS', 'name_bn' => null, 'type' => 'card', 'is_active' => true,
+    ])->assertRedirect();
+
+    $method = PaymentMethod::query()->where('code', 'ebl_pos')->firstOrFail();
+
+    expect($method->is_system)->toBeFalse();
+
+    $this->actingAs($this->owner, 'staff')->put(route('admin.settings.payment-methods.update', $method), [
+        'name' => 'EBL Bank POS', 'name_bn' => null, 'type' => 'other', 'is_active' => true,
+    ])->assertRedirect();
+
+    expect($method->fresh()->name)->toBe('EBL Bank POS')->and($method->fresh()->type)->toBe('other');
+
+    $this->actingAs($this->owner, 'staff')->delete(route('admin.settings.payment-methods.destroy', $method))->assertRedirect();
+
+    expect(PaymentMethod::query()->where('code', 'ebl_pos')->exists())->toBeFalse();
+});
+
+it('validates payment method codes and protects built-in and used methods', function (): void {
+    $store = fn (array $data) => $this->actingAs($this->owner, 'staff')->post(route('admin.settings.payment-methods.store'), $data + [
+        'name' => 'X', 'type' => 'wallet', 'is_active' => true,
+    ]);
+
+    $store(['code' => 'Bad Code'])->assertSessionHasErrors('code');
+    $store(['code' => 'bkash'])->assertSessionHasErrors('code');
+    $store(['code' => 'drawer', 'type' => 'cash'])->assertSessionHasErrors('type');
+
+    $cash = PaymentMethod::findByCode('cash');
+
+    $this->actingAs($this->owner, 'staff')->delete(route('admin.settings.payment-methods.destroy', $cash))->assertSessionHas('error');
+    $this->actingAs($this->owner, 'staff')->put(route('admin.settings.payment-methods.update', $cash), [
+        'name' => 'Cash', 'type' => 'card', 'is_active' => false,
+    ])->assertSessionHasErrors('type');
+
+    $used = PaymentMethod::query()->create(['code' => 'rocket', 'name' => 'Rocket', 'type' => 'wallet', 'sort_order' => 9]);
+    $order = posOrder($this);
+    Payment::query()->create(['order_id' => $order->id, 'method' => 'rocket', 'amount' => $order->total, 'status' => 'completed']);
+
+    $this->actingAs($this->owner, 'staff')->delete(route('admin.settings.payment-methods.destroy', $used))->assertSessionHas('error');
+    expect($used->fresh())->not->toBeNull();
+
+    $this->actingAs($this->cashier, 'staff')->post(route('admin.settings.payment-methods.store'), ['code' => 'upay', 'name' => 'Upay', 'type' => 'wallet', 'is_active' => true])->assertForbidden();
+});
+
+it('offers a newly added method to every branch and drops it when switched off', function (): void {
+    PaymentMethod::query()->create(['code' => 'city_pos', 'name' => 'City POS', 'type' => 'card', 'sort_order' => 9]);
+
+    $list = PosSettings::for($this->branch)['payment_methods'];
+
+    expect(end($list))->toMatchArray(['method' => 'city_pos', 'enabled' => true, 'name' => 'City POS', 'type' => 'card']);
+
+    PaymentMethod::findByCode('city_pos')->update(['is_active' => false]);
+
+    expect(PosSettings::enabledMethods($this->branch))->not->toContain('city_pos');
+});
+
+it('completes a bank POS payment at once and keeps a wallet payment pending', function (): void {
+    PaymentMethod::query()->create(['code' => 'ebl_pos', 'name' => 'EBL POS', 'type' => 'card', 'sort_order' => 8]);
+    PaymentMethod::query()->create(['code' => 'rocket', 'name' => 'Rocket', 'type' => 'wallet', 'sort_order' => 9]);
+
+    $single = posOrder($this);
+
+    $this->actingAs($this->cashier, 'staff')->post(route('admin.payments.single', $single), ['method' => 'ebl_pos', 'reference' => 'SLIP-1'])->assertRedirect();
+
+    expect($single->fresh()->status->value)->toBe('paid')
+        ->and($single->payments()->first()->method)->toBe('ebl_pos');
+
+    $split = posOrder($this, 2);
+    $half = (float) $split->total / 2;
+
+    $this->actingAs($this->cashier, 'staff')->post(route('admin.payments.split', $split), ['lines' => [
+        ['method' => 'cash', 'amount' => $half],
+        ['method' => 'rocket', 'amount' => $half, 'reference' => 'RKT-77'],
+    ]])->assertRedirect();
+
+    expect($split->payments()->where('method', 'rocket')->first()->status)->toBe(Payment::STATUS_PENDING_VERIFICATION)
+        ->and($split->fresh()->status->value)->not->toBe('paid');
+
+    $this->actingAs($this->cashier, 'staff')->post(route('admin.payments.single', posOrder($this)), ['method' => 'rocket'])
+        ->assertStatus(302);
+});
+
+it('stores cash suggestions per branch with sensible defaults', function (): void {
+    expect(PosSettings::for($this->branch)['cash_suggestions'])->toBe([1000, 500, 200, 100]);
+
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
+        'pos' => ['cash_suggestions' => [2000, 1000, 500]],
+    ]))->assertRedirect();
+
+    expect(PosSettings::for($this->branch->fresh())['cash_suggestions'])->toBe([2000, 1000, 500]);
+
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
+        'pos' => ['cash_suggestions' => [0, 5000000]],
+    ]))->assertSessionHasErrors(['pos.cash_suggestions.0', 'pos.cash_suggestions.1']);
+});
+
+it('has sensible sound defaults for every sound event', function (): void {
+    $sounds = PosSettings::soundsFor($this->branch);
+
+    expect($sounds['enabled'])->toBeTrue()
+        ->and($sounds['volume'])->toBe(70)
+        ->and(array_keys($sounds['events']))->toBe(array_keys(PosSettings::SOUND_EVENTS))
+        ->and($sounds['events']['order_created'])->toBeTrue()
+        ->and($sounds['events']['qr_order'])->toBeTrue()
+        ->and($sounds['events']['kds_ready'])->toBeTrue()
+        ->and($sounds['events']['item_added'])->toBeFalse();
+});
+
+it('saves sound settings per branch and shares them with every page', function (): void {
+    $other = Branch::factory()->create(['code' => 'BR02']);
+
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
+        'pos' => ['sounds' => ['enabled' => true, 'volume' => 35, 'events' => ['order_held' => false, 'item_added' => true, 'kds_ready' => false]]],
+    ]))->assertRedirect();
+
+    $sounds = PosSettings::soundsFor($this->branch->fresh());
+
+    expect($sounds['volume'])->toBe(35)
+        ->and($sounds['events']['order_held'])->toBeFalse()
+        ->and($sounds['events']['item_added'])->toBeTrue()
+        ->and($sounds['events']['kds_ready'])->toBeFalse()
+        ->and($sounds['events']['order_paid'])->toBeTrue()
+        ->and(PosSettings::soundsFor($other->fresh())['volume'])->toBe(70);
+
+    $this->actingAs($this->cashier, 'staff')->get('/admin/pos')->assertInertia(fn ($page) => $page
+        ->where('sounds.volume', 35)
+        ->where('sounds.events.order_held', false));
+});
+
+it('switches every sound off and rejects a bad volume', function (): void {
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
+        'pos' => ['sounds' => ['enabled' => false, 'volume' => 0]],
+    ]))->assertRedirect();
+
+    expect(PosSettings::soundsFor($this->branch->fresh())['enabled'])->toBeFalse();
+
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
+        'pos' => ['sounds' => ['volume' => 150]],
+    ]))->assertSessionHasErrors('pos.sounds.volume');
+});
+
+it('keeps the POS idle lock off until an admin turns it on', function (): void {
+    expect(Setting::current()->pos_lock_enabled)->toBeFalse();
+
+    $this->actingAs($this->cashier, 'staff')->get('/admin/pos')->assertInertia(fn ($page) => $page->where('posLockEnabled', false));
+
+    $this->actingAs($this->owner, 'staff')->put(route('admin.settings.update'), [
+        'discount_limit_percent' => 10,
+        'wastage_spike_multiplier' => 1.5,
+        'pos_pin_minutes' => 3,
+        'pos_lock_enabled' => true,
+        'delivery_otp_enabled' => true,
+    ])->assertRedirect();
+
+    expect(Setting::current()->pos_lock_enabled)->toBeTrue();
+
+    $this->actingAs($this->cashier, 'staff')->get('/admin/pos')->assertInertia(fn ($page) => $page
+        ->where('posLockEnabled', true)
+        ->where('posPinMinutes', 3));
+});
+
+it('creates a branch with its POS settings in one request', function (): void {
+    $payload = branchSettingsPayload(['name' => 'Gulshan', 'pos' => ['invoice_layout' => 'compact']]);
+    $payload['code'] = 'BR09';
+
+    $this->actingAs($this->owner, 'staff')
+        ->post(route('admin.branches.store'), $payload)
+        ->assertRedirect();
+
+    $branch = Branch::query()->where('code', 'BR09')->firstOrFail();
+
+    expect(PosSettings::for($branch)['invoice_layout'])->toBe('compact');
+});
+
+it('keeps branch settings off the global settings page', function (): void {
+    $this->actingAs($this->owner, 'staff')->get('/admin/settings')->assertInertia(fn ($page) => $page
+        ->missing('branchSettings')
+        ->has('settings.tax_registration_no'));
+});
+
+it('prints the tax registration number from global settings on the receipt data', function (): void {
+    $this->actingAs($this->owner, 'staff')->put('/admin/settings', [
+        'discount_limit_percent' => 10,
+        'wastage_spike_multiplier' => 1.5,
+        'pos_pin_minutes' => 5,
+        'delivery_otp_enabled' => true,
+        'tax_registration_no' => 'BIN-123456',
+    ])->assertRedirect();
+
+    $this->actingAs($this->cashier, 'staff')->get('/admin/pos')->assertInertia(fn ($page) => $page
+        ->where('branch.tax_registration_no', 'BIN-123456'));
+});
+
+it('keeps the bill review off by default and saves it per branch', function (): void {
+    expect(PosSettings::for($this->branch)['review_before_save'])->toBeFalse();
+
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
+        'pos' => ['review_before_save' => true],
+    ]))->assertRedirect();
+
+    expect(PosSettings::for($this->branch->fresh())['review_before_save'])->toBeTrue();
+
+    $this->actingAs($this->cashier, 'staff')->get('/admin/pos')->assertInertia(fn ($page) => $page
+        ->where('branch.pos_settings.review_before_save', true));
+});
+
+it('keeps order editing and deleting on by default and saves them per branch', function (): void {
+    expect(PosSettings::for($this->branch)['order_edit_enabled'])->toBeTrue()
+        ->and(PosSettings::for($this->branch)['order_delete_enabled'])->toBeTrue();
+
+    $this->actingAs($this->owner, 'staff')->put(route('admin.branches.update', $this->branch), branchSettingsPayload([
+        'pos' => ['order_edit_enabled' => false, 'order_delete_enabled' => false],
+    ]))->assertRedirect();
+
+    $settings = PosSettings::for($this->branch->fresh());
+
+    expect($settings['order_edit_enabled'])->toBeFalse()
+        ->and($settings['order_delete_enabled'])->toBeFalse();
+
+    $this->actingAs($this->cashier, 'staff')->get('/admin/pos')->assertInertia(fn ($page) => $page
+        ->where('branch.pos_settings.order_edit_enabled', false)
+        ->where('branch.pos_settings.order_delete_enabled', false));
+});
+
+it('blocks revising an order when editing is switched off for the branch', function (): void {
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::Takeaway,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        cashier: $this->cashier,
+        shift: $this->shift,
+        terminalCode: 'T01',
+    );
+
+    $payload = [
+        'order_type' => 'takeaway',
+        'items' => [['menu_item_id' => $this->item->id, 'quantity' => 4]],
+    ];
+
+    $this->branch->update(['pos_settings' => ['order_edit_enabled' => false]]);
+
+    $this->actingAs($this->cashier, 'staff')->put(route('admin.orders.update', $order), $payload)
+        ->assertSessionHasErrors('order');
+
+    expect((int) $order->fresh()->items->first()->quantity)->toBe(1);
+
+    $this->branch->update(['pos_settings' => ['order_edit_enabled' => true]]);
+
+    $this->actingAs($this->cashier, 'staff')->put(route('admin.orders.update', $order), $payload)
+        ->assertSessionHasNoErrors();
+
+    expect((int) $order->fresh()->items->first()->quantity)->toBe(4);
+});
+
+it('blocks voiding and clearing orders when deleting is switched off for the branch', function (): void {
+    $manager = User::factory()->role('branch-manager', $this->branch->id)->create();
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::Takeaway,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        cashier: $this->cashier,
+        shift: $this->shift,
+        terminalCode: 'T01',
+    );
+
+    $this->branch->update(['pos_settings' => ['order_delete_enabled' => false]]);
+
+    $this->actingAs($this->cashier, 'staff')->post(route('admin.orders.void-request', $order), ['reason_code' => 'wrong_item'])
+        ->assertSessionHasErrors('order');
+
+    $this->actingAs($manager, 'staff')->post(route('admin.pos.orders.clear', $order), ['reason_code' => 'wrong_item'])
+        ->assertSessionHasErrors('order');
+
+    $this->actingAs($manager, 'staff')->get(route('admin.orders.index'))->assertInertia(fn ($page) => $page
+        ->where('canVoid', false)
+        ->where('canApproveVoid', false));
+
+    expect($order->fresh()->status)->not->toBe(OrderStatus::Void)
+        ->and($order->voidRequest()->exists())->toBeFalse();
+
+    $this->branch->update(['pos_settings' => ['order_delete_enabled' => true]]);
+
+    $this->actingAs($this->cashier, 'staff')->post(route('admin.orders.void-request', $order), ['reason_code' => 'wrong_item'])
+        ->assertSessionHasNoErrors();
+});
+
+it('deletes an order in one step for staff who may void, with no pending request left', function (): void {
+    $manager = User::factory()->role('branch-manager', $this->branch->id)->create();
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::Takeaway,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        cashier: $this->cashier,
+        shift: $this->shift,
+        terminalCode: 'T01',
+    );
+
+    $this->actingAs($this->cashier, 'staff')->post(route('admin.orders.delete', $order), ['reason_code' => 'wrong_item'])
+        ->assertForbidden();
+
+    expect($order->fresh()->status)->not->toBe(OrderStatus::Void);
+
+    $this->actingAs($manager, 'staff')->post(route('admin.orders.delete', $order), ['reason_code' => 'wrong_item'])
+        ->assertSessionHasNoErrors()
+        ->assertSessionHas('success');
+
+    expect($order->fresh()->status)->toBe(OrderStatus::Void)
+        ->and($order->voidRequest()->where('status', 'approved')->count())->toBe(1)
+        ->and($order->voidRequest()->where('status', 'pending')->exists())->toBeFalse();
+});
+
+it('deletes an order that already has a pending void request by approving it', function (): void {
+    $manager = User::factory()->role('branch-manager', $this->branch->id)->create();
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::Takeaway,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        cashier: $this->cashier,
+        shift: $this->shift,
+        terminalCode: 'T01',
+    );
+
+    $this->actingAs($this->cashier, 'staff')->post(route('admin.orders.void-request', $order), ['reason_code' => 'wrong_item'])
+        ->assertSessionHasNoErrors();
+
+    $this->actingAs($manager, 'staff')->post(route('admin.orders.delete', $order), ['reason_code' => 'other'])
+        ->assertSessionHasNoErrors();
+
+    expect($order->fresh()->status)->toBe(OrderStatus::Void)
+        ->and($order->voidRequest()->count())->toBe(1);
+});
+
+it('does not delete an order when deleting is switched off for the branch', function (): void {
+    $manager = User::factory()->role('branch-manager', $this->branch->id)->create();
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::Takeaway,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        cashier: $this->cashier,
+        shift: $this->shift,
+        terminalCode: 'T01',
+    );
+
+    $this->branch->update(['pos_settings' => ['order_delete_enabled' => false]]);
+
+    $this->actingAs($manager, 'staff')->post(route('admin.orders.delete', $order), ['reason_code' => 'wrong_item'])
+        ->assertSessionHasErrors();
+
+    expect($order->fresh()->status)->not->toBe(OrderStatus::Void);
+});
+
+it('reverses the sales journal when a paid order is deleted', function (): void {
+    $manager = User::factory()->role('branch-manager', $this->branch->id)->create();
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::Takeaway,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 2]],
+        cashier: $this->cashier,
+        shift: $this->shift,
+        terminalCode: 'T01',
+    );
+
+    $this->actingAs($this->cashier, 'staff')->post("/admin/orders/{$order->id}/pay", ['tendered' => 500])->assertRedirect();
+
+    $journal = Journal::query()->where('source_type', $order->getMorphClass())->where('source_id', $order->id)->firstOrFail();
+    expect($journal->status)->toBe(Journal::STATUS_POSTED);
+
+    $this->actingAs($manager, 'staff')->post(route('admin.orders.delete', $order), ['reason_code' => 'wrong_item'])
+        ->assertSessionHasNoErrors();
+
+    expect($order->fresh()->status)->toBe(OrderStatus::Void)
+        ->and($journal->fresh()->status)->toBe(Journal::STATUS_REVERSED)
+        ->and(Journal::query()->where('reverses_journal_id', $journal->id)->exists())->toBeTrue();
+});
+
+it('previews a sample invoice for every style and paper size and saves the choice', function (): void {
+    $branch = Branch::factory()->create(['code' => 'BR09']);
+    $owner = User::factory()->role('owner')->create(['branch_id' => $branch->id]);
+
+    foreach (ReceiptStyle::LAYOUTS as $layout) {
+        foreach (ReceiptStyle::PAPERS as $paper) {
+            $this->actingAs($owner, 'staff')
+                ->get(route('admin.settings.invoice-preview', ['layout' => $layout, 'paper' => $paper]))
+                ->assertOk()
+                ->assertSee('paper-'.$paper, false)
+                ->assertSee('Chicken Biryani');
+        }
+    }
+
+    $this->actingAs($owner, 'staff')->get(route('admin.settings.invoice-preview', ['layout' => 'nope', 'paper' => 'a4']))->assertSessionHasErrors('layout');
+
+    $this->actingAs($owner, 'staff')
+        ->put(route('admin.settings.invoice-print'), ['layout' => 'detailed', 'paper' => 'a5'])
+        ->assertSessionHasNoErrors();
+
+    $pos = PosSettings::for($branch->fresh());
+
+    expect($pos['invoice_layout'])->toBe('detailed')->and($pos['invoice_paper'])->toBe('a5');
+});

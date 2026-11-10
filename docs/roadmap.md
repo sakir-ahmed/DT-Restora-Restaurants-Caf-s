@@ -45,7 +45,7 @@ Mark finished phases with `[x]`.
 ## Phase 3: POS (Cash only) + KDS
 
 - [x] Tables, order types, hold/resume
-- [x] Order creation action, stock deduction in transaction, invoice numbering per branch and terminal
+- [x] Order creation action, stock deduction in transaction, invoice numbering per branch (random, offline-safe; optional counter per terminal)
 - [x] Cash payment with change calculator, shifts open/close
 - [x] 80mm receipt print (bilingual), reprint with log
 - [x] KDS via Reverb

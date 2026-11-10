@@ -1,0 +1,306 @@
+@import 'tailwindcss';
+
+/* Icon sizing ships with the stylesheet, so server rendered icons never show oversized before JavaScript loads. */
+@import '@fortawesome/fontawesome-svg-core/styles.css';
+
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/noto-sans-bengali/400.css';
+@import '@fontsource/noto-sans-bengali/500.css';
+@import '@fontsource/noto-sans-bengali/600.css';
+@import '@fontsource/noto-sans-bengali/700.css';
+
+/* Self hosted fonts: Poppins for Latin headlines, Inter for Latin text, Noto Sans Bengali for Bangla (its digits stay clear at small sizes). */
+@font-face { font-family: 'Poppins'; font-weight: 500; font-display: swap; src: url('./fonts/poppins-latin-500.woff2') format('woff2'); }
+@font-face { font-family: 'Poppins'; font-weight: 600; font-display: swap; src: url('./fonts/poppins-latin-600.woff2') format('woff2'); }
+@font-face { font-family: 'Poppins'; font-weight: 700; font-display: swap; src: url('./fonts/poppins-latin-700.woff2') format('woff2'); }
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+    --demo-banner-h: 0px;
+}
+
+@media print {
+    :root {
+        --demo-banner-h: 0px;
+    }
+}
+
+@theme {
+    --font-sans: 'Inter', 'Noto Sans Bengali', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Poppins', 'Noto Sans Bengali', ui-sans-serif, system-ui, sans-serif;
+
+    /* Arman's Kitchen brand: warm cream, espresso black and logo gold. */
+    --color-background: #faf7f1; /* Cream */
+    --color-surface: #ffffff;
+    --color-foreground: #17120b; /* Espresso */
+    --color-muted: #5c5446; /* Warm grey */
+    --color-border: #e6dfd0;
+
+    --color-primary: #1f180e; /* Espresso black */
+    --color-primary-foreground: #f6e7bd; /* Pale gold */
+    --color-accent: #8f6a1a; /* Logo gold, deep enough for white text */
+    --color-accent-foreground: #ffffff;
+    --color-success: oklch(0.596 0.145 163); /* emerald-600 */
+    --color-success-foreground: oklch(0.98 0.003 248);
+    --color-danger: oklch(0.586 0.253 17); /* rose-600 */
+    --color-danger-foreground: oklch(0.98 0.003 248);
+    --color-warning: oklch(0.769 0.188 70); /* amber-500, status colour only */
+}
+
+.dark {
+    --color-background: #0e0b07; /* Night */
+    --color-surface: #17120b;
+    --color-foreground: #f6efe0;
+    --color-muted: #c2b79f; /* Soft sand */
+    --color-border: #34291a;
+    --color-primary: #d9b25c; /* Logo gold */
+    --color-primary-foreground: #17120b;
+    --color-accent: #d9b25c;
+    --color-accent-foreground: #17120b;
+}
+
+/* Demo brand (DT Restora, Datatech blue). The production palette above is the default. */
+html[data-brand='demo']:not(.dark) {
+    --color-background: #f5f7fa; /* Cloud */
+    --color-foreground: #0a1428; /* Midnight Navy */
+    --color-muted: #4a5568; /* Slate */
+    --color-border: #dfe6f0;
+    --color-primary: #0b63ce; /* Datatech Blue */
+    --color-primary-foreground: #ffffff;
+    --color-accent: #1c6fe0; /* Sky Blue */
+    --color-accent-foreground: #ffffff;
+}
+
+html[data-brand='demo'].dark {
+    --color-background: #0a1428;
+    --color-surface: #101d36;
+    --color-foreground: #f5f7fa;
+    --color-muted: #afc0d6;
+    --color-border: #22345a;
+    --color-primary: #38a8ff;
+    --color-primary-foreground: #0a1428;
+    --color-accent: #38a8ff;
+    --color-accent-foreground: #ffffff;
+}
+
+html {
+    background-color: var(--color-background);
+}
+
+/* Headlines use the Datatech headline face. */
+h1,
+h2,
+h3 {
+    font-family: var(--font-display);
+}
+
+/* Bangla text needs slightly more line height. */
+html[lang='bn'] body {
+    line-height: 1.65;
+}
+
+/*
+ * Bangla digits and conjuncts blur at very small sizes, so the smallest text
+ * sizes grow by about a pixel in Bangla. Larger sizes are left as they are.
+ */
+html[lang='bn'] .text-xs,
+html[lang='bn'] [class~='text-[12px]'] {
+    font-size: 0.8125rem;
+}
+
+html[lang='bn'] [class~='text-[11px]'] {
+    font-size: 0.75rem;
+}
+
+html[lang='bn'] [class~='text-[10px]'] {
+    font-size: 0.6875rem;
+}
+
+/* Visible focus rings everywhere. */
+:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+}
+
+/* Tabular figures for numeric columns. */
+.tabular-nums {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Compact scrollbar for dense tables. */
+.thin-scrollbar::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Public website: shares the admin tokens; only light motion helpers live here. */
+.site ::selection {
+    background: var(--color-accent);
+    color: var(--color-accent-foreground);
+}
+
+.reveal-pending {
+    opacity: 0;
+    transform: translateY(12px);
+}
+
+.reveal-in {
+    opacity: 1;
+    transform: none;
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    transition-delay: var(--reveal-delay, 0ms);
+}
+
+.nav-link {
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.25rem;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.2s ease;
+}
+
+.nav-link:hover::after,
+.nav-link[aria-current='page']::after {
+    transform: scaleX(1);
+}
+
+@keyframes site-page-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.animate-page-in { animation: site-page-in 0.3s ease-out both; }
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+html[lang='bn'] .site [class*='tracking-'] {
+    letter-spacing: 0;
+}
+
+/* Article text rendered from markdown on the blog. */
+.post-body {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--color-foreground);
+}
+
+.post-body > * + * {
+    margin-top: 1.1rem;
+}
+
+.post-body h2 {
+    margin-top: 2rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.post-body h3 {
+    margin-top: 1.6rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.post-body ul,
+.post-body ol {
+    padding-left: 1.4rem;
+}
+
+.post-body ul {
+    list-style: disc;
+}
+
+.post-body ol {
+    list-style: decimal;
+}
+
+.post-body li + li {
+    margin-top: 0.35rem;
+}
+
+.post-body a {
+    color: var(--color-foreground);
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+}
+
+.post-body blockquote {
+    border-left: 3px solid var(--color-accent);
+    padding-left: 1rem;
+    color: var(--color-muted);
+    font-style: italic;
+}
+
+.post-body hr {
+    border: 0;
+    border-top: 1px solid var(--color-border);
+}
+
+.post-body code {
+    border-radius: 0.375rem;
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    padding: 0.1rem 0.35rem;
+    font-size: 0.9em;
+}
+
+/* Demo mode popups: a soft spring-in, disabled for people who prefer reduced motion. */
+@keyframes demo-pop {
+    0% { transform: translateY(12px) scale(0.96); opacity: 0; }
+    100% { transform: none; opacity: 1; }
+}
+
+.demo-pop {
+    animation: demo-pop 320ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+@keyframes demo-glow {
+    0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-accent) 45%, transparent); }
+    50% { box-shadow: 0 0 0 7px transparent; }
+}
+
+.demo-admin-cta {
+    animation: demo-glow 2.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .demo-pop,
+    .demo-admin-cta {
+        animation: none;
+    }
+}

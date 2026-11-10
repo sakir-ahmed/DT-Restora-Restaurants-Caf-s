@@ -1,0 +1,269 @@
+<script setup>
+import { useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import AppIcon from '@/components/AppIcon.vue';
+import ScopeNote from '@/components/ui-kit/ScopeNote.vue';
+import FormField from '@/components/ui-kit/FormField.vue';
+import SwitchField from '@/components/ui-kit/SwitchField.vue';
+import PageHeader from '@/components/ui-kit/PageHeader.vue';
+import UnitManager from '@/components/admin/UnitManager.vue';
+import SmsMessagesSetup from '@/components/admin/SmsMessagesSetup.vue';
+import SmsProviderSetup from '@/components/admin/SmsProviderSetup.vue';
+import InvoicePrintSetup from '@/components/admin/InvoicePrintSetup.vue';
+import BranchPosForm from '@/components/admin/BranchPosForm.vue';
+import DeliveryZoneManager from '@/components/admin/DeliveryZoneManager.vue';
+import PaymentMethodManager from '@/components/admin/PaymentMethodManager.vue';
+import { t } from '@/lib/i18n';
+import { notify } from '@/lib/notify';
+
+const props = defineProps({
+    settings: { type: Object, required: true },
+    paymentMethods: { type: Array, default: () => [] },
+    deliveryZones: { type: Array, default: () => [] },
+    deliveryEnabled: { type: Boolean, default: true },
+    branchName: { type: String, default: '' },
+    branchId: { type: Number, default: null },
+    branchCode: { type: String, default: '' },
+    branchPos: { type: Object, default: null },
+    layouts: { type: Array, default: () => [] },
+    papers: { type: Array, default: () => [] },
+    sms: { type: Object, default: null },
+    smsFeatures: { type: Array, default: () => [] },
+    smsTemplates: { type: Array, default: () => [] },
+    unitList: { type: Array, default: () => [] },
+    invoicePrint: { type: Object, default: null },
+    defaultPattern: { type: String, default: '' },
+});
+
+const tab = ref('general');
+
+const form = useForm({
+    discount_limit_percent: props.settings.discount_limit_percent,
+    wastage_spike_multiplier: props.settings.wastage_spike_multiplier,
+    pos_pin_minutes: props.settings.pos_pin_minutes,
+    pos_lock_enabled: Boolean(props.settings.pos_lock_enabled),
+    delete_confirm_delay_enabled: Boolean(props.settings.delete_confirm_delay_enabled),
+    delete_confirm_delay_seconds: props.settings.delete_confirm_delay_seconds ?? 5,
+    show_deleted_items: Boolean(props.settings.show_deleted_items),
+    delivery_otp_enabled: Boolean(props.settings.delivery_otp_enabled),
+    tax_registration_no: props.settings.tax_registration_no ?? '',
+    social_facebook: props.settings.social_facebook ?? '',
+    social_instagram: props.settings.social_instagram ?? '',
+    social_youtube: props.settings.social_youtube ?? '',
+    social_tiktok: props.settings.social_tiktok ?? '',
+    social_whatsapp: props.settings.social_whatsapp ?? '',
+    established_year: props.settings.established_year ?? '',
+    website_enabled: Boolean(props.settings.website_enabled),
+});
+
+function save() {
+    form.put(route('admin.settings.update'), {
+        onSuccess: () => notify.success(t('settings.saved')),
+    });
+}
+
+const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40';
+</script>
+
+<template>
+    <div>
+        <PageHeader :title="t('settings.title')" :description="t('settings.subtitle')" />
+
+        <div class="mb-3 flex flex-wrap gap-1" role="tablist">
+            <button
+                v-for="entry in [{ key: 'general', label: t('settings.tab_general') }, { key: 'methods', label: t('settings.tab_methods') }, { key: 'pos', label: t('settings.tab_pos') }, { key: 'invoice', label: t('settings.tab_invoice') }, { key: 'sms', label: t('settings.tab_sms') }, { key: 'units', label: t('settings.tab_units') }, { key: 'areas', label: t('settings.tab_areas') }]"
+                :key="entry.key"
+                type="button"
+                role="tab"
+                :aria-selected="tab === entry.key"
+                class="h-7 rounded-md border px-3 text-[13px] font-medium"
+                :class="tab === entry.key ? 'border-accent bg-accent/15 text-foreground' : 'border-border bg-surface text-muted hover:text-foreground'"
+                @click="tab = entry.key"
+            >
+                {{ entry.label }}
+            </button>
+        </div>
+
+        <ScopeNote v-if="! ['areas', 'pos', 'invoice'].includes(tab)" scope="global" />
+        <ScopeNote v-else scope="branch" :branch="branchName" />
+
+        <BranchPosForm v-if="tab === 'pos' && branchPos" :key="branchId" :pos="branchPos" :layouts="layouts" :default-pattern="defaultPattern" :branch-code="branchCode" />
+
+        <UnitManager v-if="tab === 'units'" :units="unitList" />
+
+        <div v-if="tab === 'sms' && sms" class="max-w-5xl space-y-6">
+            <section aria-labelledby="sms-provider-heading">
+                <h2 id="sms-provider-heading" class="mb-0.5 text-sm font-semibold text-foreground">{{ t('sms.section_provider') }}</h2>
+                <p class="mb-3 text-xs text-muted">{{ t('sms.section_provider_helper') }}</p>
+                <SmsProviderSetup :sms="sms" />
+            </section>
+
+            <section aria-labelledby="sms-messages-heading">
+                <h2 id="sms-messages-heading" class="mb-0.5 text-sm font-semibold text-foreground">{{ t('sms.section_messages') }}</h2>
+                <p class="mb-3 text-xs text-muted">{{ t('sms.section_messages_helper') }}</p>
+                <SmsMessagesSetup :features="smsFeatures" :templates="smsTemplates" />
+            </section>
+        </div>
+
+        <InvoicePrintSetup v-if="tab === 'invoice' && invoicePrint" :key="branchId" :invoice-print="invoicePrint" :layouts="layouts" :papers="papers" />
+
+        <PaymentMethodManager v-show="tab === 'methods'" :methods="paymentMethods" />
+
+        <DeliveryZoneManager v-show="tab === 'areas'" :zones="deliveryZones" :branch-name="branchName" :delivery-enabled="deliveryEnabled" />
+
+        <form v-show="tab === 'general'" novalidate class="max-w-2xl rounded-lg border border-border bg-surface p-4" @submit.prevent="save">
+            <h2 class="mb-2 text-[13px] font-semibold text-foreground">{{ t('settings.section_website') }}</h2>
+            <div class="mb-3 grid grid-cols-2 gap-x-4 gap-y-3">
+                <div class="col-span-2 flex flex-col gap-0.5">
+                    <SwitchField v-model="form.website_enabled" :label="t('settings.website_enabled')" />
+                    <p class="text-xs text-muted">{{ t('settings.website_enabled_helper') }}</p>
+                </div>
+
+                <FormField :label="t('settings.established_year')" :helper="t('settings.established_year_helper')" :error="form.errors.established_year">
+                    <template #default="{ id }">
+                        <input :id="id" v-model="form.established_year" type="number" min="1800" :max="new Date().getFullYear()" step="1" :class="[inputClass, 'text-right tabular-nums']">
+                    </template>
+                </FormField>
+            </div>
+
+            <h2 class="mb-2 border-t border-border pt-3 text-[13px] font-semibold text-foreground">{{ t('settings.section_business') }}</h2>
+            <div class="mb-3 grid grid-cols-2 gap-x-4 gap-y-3">
+                <FormField :label="t('settings.tax_registration_no')" :helper="t('settings.tax_registration_no_helper')" :error="form.errors.tax_registration_no">
+                    <template #default="{ id }">
+                        <input :id="id" v-model="form.tax_registration_no" type="text" maxlength="40" :class="inputClass">
+                    </template>
+                </FormField>
+            </div>
+
+            <h2 class="mb-2 border-t border-border pt-3 text-[13px] font-semibold text-foreground">{{ t('settings.section_social') }}</h2>
+            <p class="mb-2 text-xs text-muted">{{ t('settings.section_social_helper') }}</p>
+            <div class="mb-3 grid grid-cols-2 gap-x-4 gap-y-3">
+                <FormField :label="t('settings.social_facebook')" :error="form.errors.social_facebook">
+                    <template #default="{ id }">
+                        <input :id="id" v-model="form.social_facebook" type="url" maxlength="255" placeholder="https://" :class="inputClass">
+                    </template>
+                </FormField>
+                <FormField :label="t('settings.social_instagram')" :error="form.errors.social_instagram">
+                    <template #default="{ id }">
+                        <input :id="id" v-model="form.social_instagram" type="url" maxlength="255" placeholder="https://" :class="inputClass">
+                    </template>
+                </FormField>
+                <FormField :label="t('settings.social_youtube')" :error="form.errors.social_youtube">
+                    <template #default="{ id }">
+                        <input :id="id" v-model="form.social_youtube" type="url" maxlength="255" placeholder="https://" :class="inputClass">
+                    </template>
+                </FormField>
+                <FormField :label="t('settings.social_tiktok')" :error="form.errors.social_tiktok">
+                    <template #default="{ id }">
+                        <input :id="id" v-model="form.social_tiktok" type="url" maxlength="255" placeholder="https://" :class="inputClass">
+                    </template>
+                </FormField>
+                <FormField :label="t('settings.social_whatsapp')" :error="form.errors.social_whatsapp">
+                    <template #default="{ id }">
+                        <input :id="id" v-model="form.social_whatsapp" type="url" maxlength="255" placeholder="https://" :class="inputClass">
+                    </template>
+                </FormField>
+            </div>
+
+            <h2 class="mb-2 border-t border-border pt-3 text-[13px] font-semibold text-foreground">{{ t('settings.section_operations') }}</h2>
+            <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+                <FormField :label="t('settings.discount_limit')" :helper="t('settings.discount_limit_helper')" :error="form.errors.discount_limit_percent" required>
+                    <template #default="{ id }">
+                        <input
+                            :id="id"
+                            v-model="form.discount_limit_percent"
+                            type="text" inputmode="decimal" v-numeric
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            class="h-7 w-full rounded-md border bg-surface px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:ring-2 focus:ring-accent/40"
+                            :class="form.errors.discount_limit_percent ? 'border-danger' : 'border-border focus:border-accent'"
+                        >
+                    </template>
+                </FormField>
+
+                <FormField :label="t('settings.wastage_spike')" :helper="t('settings.wastage_spike_helper')" :error="form.errors.wastage_spike_multiplier" required>
+                    <template #default="{ id }">
+                        <input
+                            :id="id"
+                            v-model="form.wastage_spike_multiplier"
+                            type="text" inputmode="decimal" v-numeric
+                            min="1"
+                            max="10"
+                            step="0.1"
+                            class="h-7 w-full rounded-md border bg-surface px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:ring-2 focus:ring-accent/40"
+                            :class="form.errors.wastage_spike_multiplier ? 'border-danger' : 'border-border focus:border-accent'"
+                        >
+                    </template>
+                </FormField>
+
+                <div class="col-span-2 flex flex-col gap-0.5">
+                    <SwitchField v-model="form.pos_lock_enabled" :label="t('settings.pos_lock_enabled')" />
+                    <p class="text-xs text-muted">{{ t('settings.pos_lock_helper') }}</p>
+                </div>
+
+                <FormField :label="t('settings.pos_pin')" :helper="t('settings.pos_pin_helper')" :error="form.errors.pos_pin_minutes" required>
+                    <template #default="{ id }">
+                        <input
+                            :id="id"
+                            v-model="form.pos_pin_minutes"
+                            type="text" inputmode="decimal" v-numeric
+                            min="1"
+                            max="60"
+                            :disabled="! form.pos_lock_enabled"
+                            class="h-7 w-full rounded-md border bg-surface px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:ring-2 focus:ring-accent/40"
+                            :class="form.errors.pos_pin_minutes ? 'border-danger' : 'border-border focus:border-accent'"
+                        >
+                    </template>
+                </FormField>
+
+                <div class="col-span-2 flex flex-col gap-0.5">
+                    <SwitchField v-model="form.delete_confirm_delay_enabled" :label="t('settings.delete_confirm_delay_enabled')" />
+                    <p class="text-xs text-muted">{{ t('settings.delete_confirm_delay_helper') }}</p>
+                </div>
+
+                <FormField :label="t('settings.delete_confirm_delay_seconds')" :helper="t('settings.delete_confirm_delay_seconds_helper')" :error="form.errors.delete_confirm_delay_seconds" required>
+                    <template #default="{ id }">
+                        <input
+                            :id="id"
+                            v-model="form.delete_confirm_delay_seconds"
+                            type="text" inputmode="numeric" v-numeric
+                            min="1"
+                            max="60"
+                            :disabled="! form.delete_confirm_delay_enabled"
+                            class="h-7 w-full rounded-md border bg-surface px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:ring-2 focus:ring-accent/40"
+                            :class="form.errors.delete_confirm_delay_seconds ? 'border-danger' : 'border-border focus:border-accent'"
+                        >
+                    </template>
+                </FormField>
+
+                <div class="col-span-2 flex flex-col gap-0.5">
+                    <SwitchField v-model="form.show_deleted_items" :label="t('settings.show_deleted_items')" />
+                    <p class="text-xs text-muted">{{ t('settings.show_deleted_items_helper') }}</p>
+                </div>
+
+            </div>
+
+            <div class="mt-3 border-t border-border pt-3">
+                <SwitchField v-model="form.delivery_otp_enabled" :label="t('settings.delivery_otp')" />
+            </div>
+
+            <div class="mt-3 flex justify-end">
+                <button
+                    type="submit"
+                    class="inline-flex h-7 items-center gap-1.5 rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                    :disabled="form.processing"
+                >
+                    <AppIcon v-if="form.processing" name="spinner" size="12" spin />
+                    {{ t('common.save') }}
+                </button>
+            </div>
+        </form>
+    </div>
+</template>
+
+<script>
+import AdminLayout from '@/layouts/AdminLayout.vue';
+
+export default { layout: AdminLayout };
+</script>

@@ -1,5 +1,7 @@
 # Docker
 
+The Docker setup belongs to the web app. Run every command in this file from `web-app/`.
+
 How the DT Restora stack runs in Docker, and how logs are written and managed.
 
 ## Services

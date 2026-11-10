@@ -1,0 +1,32 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'item' => 'Item',
+    'qty' => 'Qty',
+    'rate' => 'Rate',
+    'amount' => 'Amount',
+    'sample' => 'SAMPLE PREVIEW',
+    'phone' => 'Phone',
+    'bin' => 'BIN',
+    'table' => 'Table',
+    'served_by' => 'Served by',
+    'subtotal' => 'Subtotal',
+    'discount' => 'Discount',
+    'service_charge' => 'Service charge',
+    'other_charge' => 'Other charge',
+    'vat' => 'VAT',
+    'rounding' => 'Rounding',
+    'grand_total' => 'Total',
+    'change' => 'Change',
+    'kitchen_token' => 'Kitchen token',
+    'thank_you' => 'Thank you. Please come again.',
+    'reprint' => 'REPRINT',
+    'print' => 'Print',
+    'order_type' => [
+        'dine_in' => 'Dine-in',
+        'takeaway' => 'Takeaway',
+        'delivery' => 'Delivery',
+    ],
+];

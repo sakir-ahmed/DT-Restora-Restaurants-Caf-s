@@ -1,0 +1,246 @@
+<script setup>
+import { useForm } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
+import AppIcon from '@/components/AppIcon.vue';
+import DataTable from '@/components/ui-kit/DataTable.vue';
+import FormField from '@/components/ui-kit/FormField.vue';
+import PageHeader from '@/components/ui-kit/PageHeader.vue';
+import SlideOver from '@/components/ui-kit/SlideOver.vue';
+import StatusBadge from '@/components/ui-kit/StatusBadge.vue';
+import { t } from '@/lib/i18n';
+import { unitLabel } from '@/lib/units';
+import { notify } from '@/lib/notify';
+
+const props = defineProps({
+    ingredients: { type: Array, required: true },
+    units: { type: Array, required: true },
+    categories: { type: Array, default: () => [] },
+    canManage: { type: Boolean, default: false },
+    lowOnly: { type: Boolean, default: false },
+});
+
+const slideOverOpen = ref(false);
+const editingId = ref(null);
+
+const columns = computed(() => [
+    { key: 'name', label: t('inventory.ingredient'), align: 'left', sortable: true },
+    { key: 'category_name', label: t('inventory.category'), align: 'left', sortable: true, minWidth: '120px' },
+    { key: 'unit_symbol', label: t('inventory.unit'), align: 'left', minWidth: '80px' },
+    { key: 'stock_display', label: t('inventory.stock'), type: 'number', sortable: true, minWidth: '96px' },
+    { key: 'reorder_display', label: t('inventory.reorder_level'), type: 'number', minWidth: '96px' },
+    { key: 'is_active', label: t('common.status'), minWidth: '104px' },
+]);
+
+// '' shows every ingredient, 'none' the uncategorised ones, otherwise a category id
+const categoryFilter = ref('');
+const showLowOnly = ref(props.lowOnly);
+
+const visibleIngredients = computed(() => props.ingredients.filter((ingredient) => {
+    if (categoryFilter.value === '') {
+        return true;
+    }
+
+    if (categoryFilter.value === 'none') {
+        return ingredient.ingredient_category_id === null;
+    }
+
+    return ingredient.ingredient_category_id === Number(categoryFilter.value);
+}));
+
+const allRows = computed(() => visibleIngredients.value.map((ingredient) => {
+    const stock = ingredient.stocks?.[0];
+    const factor = Number(ingredient.unit?.factor ?? 1);
+
+    const displayQty = factor > 0 ? Number(stock?.stock_qty ?? 0) / factor : Number(stock?.stock_qty ?? 0);
+
+    return {
+        ...ingredient,
+        unit_symbol: ingredient.unit?.symbol,
+        category_name: ingredient.category?.name ?? '',
+        stock_display: `${Number(displayQty.toFixed(3)).toString()}`,
+        sort_stock: Number(stock?.stock_qty ?? 0),
+        low_stock: Number(ingredient.reorder_level) > 0 && Number(displayQty.toFixed(3)) <= Number(ingredient.reorder_level),
+        reorder_display: Number(ingredient.reorder_level).toString(),
+    };
+}));
+
+const lowStockCount = computed(() => allRows.value.filter((row) => row.low_stock).length);
+const rows = computed(() => (showLowOnly.value ? allRows.value.filter((row) => row.low_stock) : allRows.value));
+
+const form = useForm({
+    name: '', name_bn: '', unit_id: '', ingredient_category_id: '', reorder_level: '0', is_active: true,
+});
+
+function openCreate() {
+    editingId.value = null;
+    form.defaults({ name: '', name_bn: '', unit_id: '', ingredient_category_id: '', reorder_level: '0', is_active: true }).reset();
+    slideOverOpen.value = true;
+}
+
+function openEdit(ingredient) {
+    editingId.value = ingredient.id;
+    form.defaults({
+        name: ingredient.name,
+        name_bn: ingredient.name_bn ?? '',
+        unit_id: ingredient.unit_id,
+        ingredient_category_id: ingredient.ingredient_category_id ?? '',
+        reorder_level: ingredient.reorder_level,
+        is_active: ingredient.is_active,
+    }).reset();
+    slideOverOpen.value = true;
+}
+
+function save() {
+    if (editingId.value === null) {
+        form.post(route('admin.ingredients.store'), {
+            onSuccess: () => {
+                slideOverOpen.value = false;
+                notify.success(t('inventory.ingredient_created'));
+            },
+        });
+    } else {
+        form.put(route('admin.ingredients.update', editingId.value), {
+            onSuccess: () => {
+                slideOverOpen.value = false;
+                notify.success(t('inventory.ingredient_updated'));
+            },
+        });
+    }
+}
+</script>
+
+<template>
+    <div>
+        <PageHeader :title="t('inventory.title')" :description="t('inventory.subtitle')">
+            <template #actions>
+                <a
+                    href="/admin/ingredient-categories"
+                    class="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 text-[13px] font-medium text-foreground hover:bg-background"
+                >
+                    <AppIcon name="layer-group" size="12" />
+                    {{ t('inventory.categories') }}
+                </a>
+                <a
+                    href="/admin/suppliers"
+                    class="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 text-[13px] font-medium text-foreground hover:bg-background"
+                >
+                    <AppIcon name="truck-fast" size="12" />
+                    {{ t('inventory.suppliers') }}
+                </a>
+                <button
+                    v-if="canManage"
+                    type="button"
+                    class="inline-flex h-7 items-center gap-1.5 rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground hover:opacity-90"
+                    @click="openCreate"
+                >
+                    <AppIcon name="plus" size="12" />
+                    {{ t('inventory.add_ingredient') }}
+                </button>
+            </template>
+        </PageHeader>
+
+        <div v-if="lowStockCount > 0" class="mb-3 flex items-center gap-2 rounded-lg border border-danger/50 bg-danger/10 px-3 py-2 text-[13px] font-medium text-danger" role="alert">
+            <AppIcon name="triangle-exclamation" size="14" />
+            <span class="flex-1">{{ t('dashboard.alerts.low_stock_count', { count: lowStockCount }) }}</span>
+            <button type="button" class="rounded-md border border-danger/50 bg-surface px-2 py-0.5 text-xs font-medium text-danger hover:bg-danger/10" :aria-pressed="showLowOnly" @click="showLowOnly = ! showLowOnly">
+                {{ showLowOnly ? t('inventory.show_all_ingredients') : t('inventory.show_low_stock_only') }}
+            </button>
+        </div>
+
+        <div v-if="categories.length > 0" class="mb-2 flex items-center gap-2">
+            <label for="ingredient-category-filter" class="text-xs font-medium text-muted">{{ t('inventory.category') }}</label>
+            <select id="ingredient-category-filter" v-model="categoryFilter" class="h-7 rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
+                <option value="">{{ t('inventory.all_categories') }}</option>
+                <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
+                <option value="none">{{ t('inventory.category_none') }}</option>
+            </select>
+        </div>
+
+        <DataTable
+            :columns="columns"
+            :rows="rows"
+            searchable
+            :clickable="canManage"
+            :empty-title="t('inventory.no_ingredients')"
+            :empty-description="t('inventory.no_ingredients_hint')"
+            :empty-action="canManage ? t('inventory.add_ingredient') : ''"
+            @row-click="canManage && openEdit($event)"
+            @empty-action="openCreate"
+        >
+            <template #cell(name)="{ row }">
+                <span class="flex items-center gap-1.5 truncate font-medium">
+                    <span v-if="row.low_stock" class="h-2 w-2 shrink-0 rounded-full bg-danger" :title="t('inventory.low_stock')" />
+                    <AppIcon v-if="row.low_stock" name="triangle-exclamation" size="12" class="text-danger" />
+                    <span :class="row.low_stock ? 'text-danger' : ''">{{ row.name }}</span>
+                </span>
+                <span v-if="row.name_bn" class="block truncate text-xs text-muted">{{ row.name_bn }}</span>
+            </template>
+            <template #cell(stock_display)="{ row, value }">
+                <span v-if="row.low_stock" class="inline-flex items-center justify-end gap-1 font-semibold tabular-nums text-danger">
+                    {{ value }}
+                    <span class="rounded bg-danger/15 px-1 text-[10px] font-semibold uppercase text-danger">{{ t('inventory.low_stock') }}</span>
+                </span>
+                <span v-else>{{ value }}</span>
+            </template>
+            <template #cell(is_active)="{ value }">
+                <StatusBadge :status="value ? 'active' : 'inactive'" />
+            </template>
+        </DataTable>
+
+        <SlideOver :open="slideOverOpen" :title="editingId === null ? t('inventory.add_ingredient') : t('inventory.edit_ingredient')" @close="slideOverOpen = false">
+            <form novalidate class="space-y-3" @submit.prevent="save">
+                <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+                    <FormField :label="t('inventory.ingredient')" required :error="form.errors.name">
+                        <template #default="{ id }">
+                            <input :id="id" v-model="form.name" type="text" class="h-7 w-full rounded-md border bg-surface px-2 text-[13px] text-foreground outline-none focus:ring-2 focus:ring-accent/40" :class="form.errors.name ? 'border-danger' : 'border-border focus:border-accent'">
+                        </template>
+                    </FormField>
+
+                    <FormField :label="t('branches.name_bn')" :error="form.errors.name_bn">
+                        <template #default="{ id }">
+                            <input :id="id" v-model="form.name_bn" type="text" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
+                        </template>
+                    </FormField>
+
+                    <FormField :label="t('inventory.unit')" required :error="form.errors.unit_id" :helper="t('inventory.unit_helper')">
+                        <template #default="{ id }">
+                            <select :id="id" v-model="form.unit_id" class="h-7 w-full rounded-md border bg-surface px-2 text-[13px] text-foreground outline-none focus:ring-2 focus:ring-accent/40" :class="form.errors.unit_id ? 'border-danger' : 'border-border focus:border-accent'">
+                                <option value="" disabled>{{ t('common.select') }}</option>
+                                <option v-for="unit in units" :key="unit.id" :value="unit.id">{{ unit.name }} ({{ unitLabel(unit, units) }})</option>
+                            </select>
+                        </template>
+                    </FormField>
+
+                    <FormField :label="t('inventory.category')" :helper="t('inventory.category_helper')" :error="form.errors.ingredient_category_id">
+                        <template #default="{ id }">
+                            <select :id="id" v-model="form.ingredient_category_id" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
+                                <option value="">{{ t('inventory.category_none') }}</option>
+                                <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
+                            </select>
+                        </template>
+                    </FormField>
+
+                    <FormField :label="t('inventory.reorder_level')" :helper="t('inventory.reorder_helper')" :error="form.errors.reorder_level">
+                        <template #default="{ id }">
+                            <input :id="id" v-model="form.reorder_level" type="text" inputmode="decimal" v-numeric step="0.001" min="0" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
+                        </template>
+                    </FormField>
+                </div>
+            </form>
+
+            <template #footer>
+                <button type="button" class="h-7 rounded-md border border-border bg-surface px-2.5 text-[13px] text-foreground hover:bg-background" @click="slideOverOpen = false">{{ t('common.cancel') }}</button>
+                <button type="button" :disabled="form.processing" class="inline-flex h-7 items-center gap-1.5 rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60" @click="save">
+                    <AppIcon v-if="form.processing" name="spinner" spin />
+                    {{ t('common.save') }}
+                </button>
+            </template>
+        </SlideOver>
+    </div>
+</template>
+
+<script>
+import AdminLayout from '@/layouts/AdminLayout.vue';
+
+export default { layout: AdminLayout };
+</script>
