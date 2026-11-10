@@ -926,10 +926,26 @@ class StaffApiController extends Controller
         $data = [];
 
         if ($user->can('inventory.view') || $user->can('wastage.log') || $user->can('purchases.manage')) {
-            $data['units'] = Unit::query()->orderBy('name')->get(['id', 'name', 'name_bn', 'symbol'])->all();
+            // Each unit says what it measures and how many base units (g, l, pcs) it holds, so the app can
+            // convert a quantity entered in another unit (10 l of an ml ingredient) and show "1 box = 12 pcs".
+            $data['units'] = Unit::query()
+                ->orderBy('type')
+                ->orderBy('factor')
+                ->orderBy('id')
+                ->get(['id', 'name', 'name_bn', 'symbol', 'type', 'factor', 'is_system'])
+                ->map(fn (Unit $unit): array => [
+                    'id' => $unit->id,
+                    'name' => $unit->name,
+                    'name_bn' => $unit->name_bn,
+                    'symbol' => $unit->symbol,
+                    'type' => $unit->type,
+                    'factor' => (string) $unit->factor,
+                    'is_system' => $unit->is_system,
+                ])
+                ->all();
             $data['ingredients'] = Ingredient::query()
                 ->where('is_active', true)
-                ->with('unit:id,symbol')
+                ->with('unit:id,symbol,type,factor')
                 ->orderBy('name')
                 ->get()
                 ->map(fn (Ingredient $ingredient): array => [
@@ -939,6 +955,8 @@ class StaffApiController extends Controller
                     'unit_id' => $ingredient->unit_id,
                     'ingredient_category_id' => $ingredient->ingredient_category_id,
                     'unit_symbol' => $ingredient->unit?->symbol,
+                    'unit_type' => $ingredient->unit?->type,
+                    'unit_factor' => $ingredient->unit !== null ? (string) $ingredient->unit->factor : null,
                     'reorder_level' => (string) $ingredient->reorder_level,
                 ])
                 ->all();

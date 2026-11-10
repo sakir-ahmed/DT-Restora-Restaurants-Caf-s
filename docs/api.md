@@ -232,6 +232,23 @@ Rules for every channel:
 
 ---
 
+## 10b. Lookup lists (`GET /api/v1/branches/{branch}/reference`)
+
+Lists the staff app needs to build forms. Each block is included only when the user holds a matching permission (`inventory.view`, `wastage.log` or `purchases.manage` for the stock lists; `delivery.dispatch` for riders).
+
+**`units`** (sorted by `type`, then `factor`):
+
+| Field | Meaning |
+| ----- | ------- |
+| `id`, `name`, `name_bn`, `symbol` | Identity and labels |
+| `type` | `weight`, `volume` or `count`. Units are only comparable within a type |
+| `factor` | Decimal string: how many of the type's base unit (g, l, pcs) one of this unit holds. `kg` is `"1000.000000"`, `ml` is `"0.001000"`, a box of 12 is `"12.000000"` |
+| `is_system` | `true` for the fixed standard units; custom units (box, large box) are `false` |
+
+**`ingredients`** also carry `unit_type` and `unit_factor` (the ingredient's own unit), so the app can show stock in that unit and convert a quantity entered in another unit of the same type: `base = qty * unit.factor`, `shown = base / ingredient.unit_factor`. Example: 10 l of an ingredient kept in ml is `10 * 1 / 0.001 = 10,000 ml`. The server converts on receipt with the same rule.
+
+---
+
 ## 11. Offline Sync (`/api/v1/sync`)
 
 Used by the POS PWA (and any future staff app).

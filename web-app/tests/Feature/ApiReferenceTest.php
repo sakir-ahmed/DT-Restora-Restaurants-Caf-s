@@ -8,6 +8,7 @@ use App\Models\RestaurantTable;
 use App\Models\Unit;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
+use Database\Seeders\UnitSeeder;
 
 beforeEach(function (): void {
     $this->seed([RoleSeeder::class]);
@@ -47,6 +48,27 @@ it('gives an owner the inventory and dispatch lookup lists', function (): void {
 
     expect($data)->toHaveKeys(['units', 'ingredients', 'suppliers', 'riders', 'tables'])
         ->and($data['ingredients'][0]['unit_symbol'])->toBe('kg');
+});
+
+it('describes every unit and ingredient unit so the app can convert quantities', function (): void {
+    $this->seed(UnitSeeder::class);
+    $ml = Unit::query()->where('symbol', 'ml')->firstOrFail();
+    $box = Unit::query()->create(['name' => 'Box', 'symbol' => 'box', 'type' => 'count', 'base_unit_id' => Unit::query()->where('symbol', 'pcs')->value('id'), 'factor' => 12]);
+    Ingredient::query()->create(['name' => 'Milk', 'unit_id' => $ml->id, 'reorder_level' => 5, 'is_active' => true]);
+
+    $owner = User::factory()->role('owner')->create();
+    $data = $this->withToken($owner->createToken('staff', ['staff'])->plainTextToken)
+        ->getJson('/api/v1/branches/'.$this->branch->id.'/reference')
+        ->assertOk()
+        ->json('data');
+
+    $units = collect($data['units'])->keyBy('symbol');
+
+    expect($units['kg'])->toMatchArray(['type' => 'weight', 'factor' => '1000.000000', 'is_system' => true])
+        ->and($units['ml'])->toMatchArray(['type' => 'volume', 'factor' => '0.001000', 'is_system' => true])
+        ->and($units['box'])->toMatchArray(['id' => $box->id, 'type' => 'count', 'factor' => '12.000000', 'is_system' => false])
+        ->and(collect($data['units'])->pluck('type')->unique()->values()->all())->toBe(['count', 'volume', 'weight'])
+        ->and($data['ingredients'][0])->toMatchArray(['unit_symbol' => 'ml', 'unit_type' => 'volume', 'unit_factor' => '0.001000']);
 });
 
 it('hides a branch the user cannot access', function (): void {

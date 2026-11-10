@@ -33,7 +33,7 @@ Status words: **Todo**, **Doing**, **Done**, **Blocked**.
 | --- | --- | --- | --- | --- |
 | P01 | Baseline: `flutter analyze` clean, existing 14 tests green, tracker created | E0.7 | Done | analyze: no issues; test: 14 passed (2026-11-10) |
 | P02 | Shared unit code in Dart (reference unit, relation text, picker label, conversion, stock hint), mirroring `web-app/resources/js/lib/units.js` | E4.1 | Done | analyze: no issues; `test/units_test.dart`: 10 passed; relations and the 10 l to 10,000 ml example match the web Settings and purchase form |
-| P03 | API: `units` in the reference and bootstrap payloads carry `type`, `factor`, `is_system`; `docs/api.md` updated | A1.1 | Todo | |
+| P03 | API: `units` in the reference payload carry `type`, `factor`, `is_system`; ingredients carry `unit_type` and `unit_factor`; `docs/api.md` section 10b added | A1.1 | Done | `ApiReferenceTest`: 4 passed; Pint clean |
 | P04 | Purchases: per-line unit picker with size hint and "adds N to stock" line | E4.3 | Todo | |
 | P05 | Recipes: per-line unit, live cost and margin | E4.4 | Todo | |
 | P06 | Wastage and stock transfers: unit picker | E4.5 | Todo | |
@@ -65,4 +65,5 @@ Later parts (orders delete and reprint, tables, reservations, menu categories, s
 | Date | Part | Notes |
 | --- | --- | --- |
 | 2026-11-10 | P01 | Baseline recorded. `flutter analyze`: no issues. `flutter test`: 14 passed. |
+| 2026-11-10 | P03 | Reference payload extended in `StaffApiController::reference`, documented in `docs/api.md` 10b. PHP test added. The sync bootstrap has no units list, so nothing to change there. |
 | 2026-11-10 | P02 | `lib/core/units.dart` and `test/units_test.dart` added. `flutter analyze`: no issues. New tests: 10 passed. |
