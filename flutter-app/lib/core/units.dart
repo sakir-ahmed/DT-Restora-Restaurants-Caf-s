@@ -137,6 +137,21 @@ String? stockHint(UnitInfo? ingredientUnit, UnitInfo? unit, num qty) {
   return '${formatQuantity(inStockUnit)} ${ingredientUnit.symbol}';
 }
 
+/// The unit an ingredient is tracked in, from an ingredient row of the
+/// reference payload (`unit_id`), or null when it is not in [units].
+UnitInfo? ingredientUnit(Map<String, dynamic> ingredient, Iterable<UnitInfo> units) {
+  final id = ingredient['unit_id'];
+  final wanted = id is num ? id.toInt() : int.tryParse('$id');
+
+  for (final unit in units) {
+    if (unit.id == wanted) {
+      return unit;
+    }
+  }
+
+  return null;
+}
+
 /// Units an ingredient may be entered in: every unit of its type, smallest first.
 List<UnitInfo> unitsForType(Iterable<UnitInfo> units, String type) {
   final list = units.where((u) => u.type == type).toList();

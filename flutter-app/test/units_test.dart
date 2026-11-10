@@ -183,4 +183,11 @@ void main() {
     expect(unit.factor, 12);
     expect(unit.isSystem, isFalse);
   });
+
+  test('finds the unit an ingredient is tracked in from its reference row', () {
+    expect(ingredientUnit({'id': 1, 'unit_id': 5}, all), ml);
+    expect(ingredientUnit({'id': 1, 'unit_id': '9'}, all), box);
+    expect(ingredientUnit({'id': 1, 'unit_id': 99}, all), isNull);
+    expect(ingredientUnit({'id': 1}, all), isNull);
+  });
 }

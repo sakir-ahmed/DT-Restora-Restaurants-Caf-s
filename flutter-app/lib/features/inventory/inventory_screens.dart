@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/api_client.dart';
 import '../../core/app_state.dart';
 import '../../core/theme.dart';
+import '../../core/units.dart';
 import '../../ui/widgets.dart';
 import 'menu_manage_screen.dart';
 
@@ -398,7 +399,7 @@ class _PurchaseFormState extends State<_PurchaseForm> {
   int? _supplier;
   final _invoice = TextEditingController();
   bool _receive = true;
-  final List<({int ingredient, TextEditingController qty, TextEditingController cost})> _lines = [];
+  final List<_PurchaseLine> _lines = [];
   String? _error;
   bool _busy = false;
 
@@ -434,7 +435,8 @@ class _PurchaseFormState extends State<_PurchaseForm> {
       final qty = double.tryParse(l.qty.text);
       final cost = double.tryParse(l.cost.text);
       if (qty != null && qty > 0 && cost != null) {
-        items.add({'ingredient_id': l.ingredient, 'unit_id': ing['unit_id'], 'qty': qty, 'unit_cost': cost});
+        // The unit chosen on the line (box, kg ...); the server converts it to the ingredient's stock unit.
+        items.add({'ingredient_id': l.ingredient, 'unit_id': l.unitId ?? ing['unit_id'], 'qty': qty, 'unit_cost': cost});
       }
     }
     if (_supplier == null || items.isEmpty) {
@@ -461,6 +463,74 @@ class _PurchaseFormState extends State<_PurchaseForm> {
     }
   }
 
+  /// One purchase line: ingredient, quantity with a unit picker (every unit of
+  /// the ingredient's kind, with its size), the cost per chosen unit, and what
+  /// the line adds to stock when the unit differs from the ingredient's own.
+  Widget _lineEditor(int i, List<Map<String, dynamic>> ingredients, List<UnitInfo> units) {
+    final line = _lines[i];
+    final ingredient = ingredients.firstWhere((x) => x['id'] == line.ingredient);
+    final own = ingredientUnit(ingredient, units);
+    final choices = own == null ? <UnitInfo>[] : unitsForType(units, own.type);
+    final chosen = choices.where((u) => u.id == line.unitId).firstOrNull ?? own;
+    final qty = double.tryParse(line.qty.text) ?? 0;
+    final hint = stockHint(own, chosen, qty);
+    final cost = double.tryParse(line.cost.text) ?? 0;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Expanded(child: Text('${ingredient['name']}', style: const TextStyle(fontWeight: FontWeight.w600))),
+          IconButton(
+            visualDensity: VisualDensity.compact,
+            icon: const Icon(Icons.close),
+            onPressed: () => setState(() => _lines.removeAt(i)),
+          ),
+        ]),
+        Row(children: [
+          Expanded(
+            flex: 2,
+            child: TextField(
+              controller: line.qty,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(labelText: 'Qty', isDense: true),
+              onChanged: (_) => setState(() {}),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 3,
+            child: DropdownButtonFormField<int>(
+              isExpanded: true,
+              initialValue: chosen?.id,
+              decoration: const InputDecoration(labelText: 'Unit', isDense: true),
+              items: [for (final u in choices) DropdownMenuItem(value: u.id, child: Text(unitLabel(u, units), overflow: TextOverflow.ellipsis))],
+              onChanged: choices.length < 2 ? null : (v) => setState(() => line.unitId = v),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 2,
+            child: TextField(
+              controller: line.cost,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(labelText: 'Cost per ${chosen?.symbol ?? 'unit'}', isDense: true),
+              onChanged: (_) => setState(() {}),
+            ),
+          ),
+        ]),
+        if (hint != null || (qty > 0 && cost > 0))
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              [if (hint != null) 'Adds $hint to stock', if (qty > 0 && cost > 0) 'Line total ${fmtMoney(qty * cost)}'].join('   '),
+              style: TextStyle(fontSize: 12, color: context.muted),
+            ),
+          ),
+      ]),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_error != null) {
@@ -474,6 +544,7 @@ class _PurchaseFormState extends State<_PurchaseForm> {
       return const Padding(padding: EdgeInsets.symmetric(vertical: 24), child: EmptyState(_needsUpdate));
     }
     final ingredients = asRows(ref['ingredients']);
+    final units = [for (final u in asRows(ref['units'])) UnitInfo.fromJson(u)];
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       DropdownButtonFormField<int>(
         initialValue: _supplier,
@@ -483,41 +554,15 @@ class _PurchaseFormState extends State<_PurchaseForm> {
       ),
       const SizedBox(height: 12),
       field(_invoice, 'Supplier invoice no. (optional)'),
-      for (var i = 0; i < _lines.length; i++)
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: Row(children: [
-            Expanded(
-              flex: 3,
-              child: Text(ingredients.firstWhere((x) => x['id'] == _lines[i].ingredient)['name'].toString()),
-            ),
-            Expanded(
-              flex: 2,
-              child: TextField(
-                controller: _lines[i].qty,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'Qty', isDense: true),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              flex: 2,
-              child: TextField(
-                controller: _lines[i].cost,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'Unit cost', isDense: true),
-              ),
-            ),
-            IconButton(icon: const Icon(Icons.close), onPressed: () => setState(() => _lines.removeAt(i))),
-          ]),
-        ),
+      for (var i = 0; i < _lines.length; i++) _lineEditor(i, ingredients, units),
       DropdownButtonFormField<int>(
         initialValue: null,
         decoration: const InputDecoration(labelText: 'Add ingredient'),
         items: [for (final i in ingredients) DropdownMenuItem(value: (i['id'] as num).toInt(), child: Text('${i['name']}'))],
         onChanged: (v) {
           if (v != null) {
-            setState(() => _lines.add((ingredient: v, qty: TextEditingController(), cost: TextEditingController())));
+            final ingredient = ingredients.firstWhere((x) => x['id'] == v);
+            setState(() => _lines.add(_PurchaseLine(v, ingredientUnit(ingredient, units)?.id)));
           }
         },
       ),
@@ -530,6 +575,17 @@ class _PurchaseFormState extends State<_PurchaseForm> {
       FilledButton(onPressed: _busy ? null : _save, child: const Text('Save purchase')),
     ]);
   }
+}
+
+/// One line of the purchase form: the ingredient, the unit chosen for it, and
+/// the quantity and cost typed so far.
+class _PurchaseLine {
+  _PurchaseLine(this.ingredient, this.unitId);
+
+  final int ingredient;
+  int? unitId;
+  final TextEditingController qty = TextEditingController();
+  final TextEditingController cost = TextEditingController();
 }
 
 // ---------------------------------------------------------------- stock count
