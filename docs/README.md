@@ -11,6 +11,7 @@ Shared documentation for the whole DT Restora monorepo (`web-app/` and `flutter-
 | [api.md](api.md) | API conventions, endpoints, payment gateway flows | both (contract) |
 | [design.md](design.md) | Design system, components, icons, sizing, tables, dialogs, charts | both |
 | [roadmap.md](roadmap.md) | Build phases with acceptance criteria | both |
+| [flutter-parity-plan.md](flutter-parity-plan.md) | Plan to bring the Flutter app to the web admin panel's functionality: gap matrix, API work, UI plan, phases | flutter-app (and API in web-app) |
 | [ui.html](ui.html) | Static visual mockup of the intended UI (open in a browser) | both |
 
 ## Operations
