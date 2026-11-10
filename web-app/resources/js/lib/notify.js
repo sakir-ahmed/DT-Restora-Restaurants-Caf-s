@@ -1,3 +1,4 @@
+import { h } from 'vue';
 import { toast } from 'vue-sonner';
 import { t } from './i18n';
 import { playSound } from './sounds';
@@ -59,12 +60,34 @@ export const notify = {
 
         shownSms.add(entry.id);
 
-        toast(t('common.demo_sms_title', { mobile: entry.mobile }), {
-            description: `${entry.message}\n\n${t('common.demo_sms_note')}`,
-            duration: 30000,
-            closeButton: true,
-            style: { whiteSpace: 'pre-line' },
-        });
+        const bangla = document.documentElement.lang === 'bn';
+        let id = null;
+
+        // A small chat card: who it went to, the message as a bubble, and a quiet line that nothing was really sent.
+        id = toast.custom({
+            render: () => h('div', {
+                role: 'status',
+                class: 'flex w-[340px] max-w-[calc(100vw-2rem)] flex-col gap-1.5 rounded-xl border border-border bg-surface p-3 text-foreground shadow-lg',
+            }, [
+                h('div', { class: 'flex items-center justify-between gap-2' }, [
+                    h('span', { class: `inline-flex items-center gap-1.5 text-[10px] font-semibold text-muted ${bangla ? '' : 'uppercase tracking-wider'}` }, [
+                        h('span', { class: 'h-1.5 w-1.5 rounded-full bg-accent', 'aria-hidden': 'true' }),
+                        t('common.demo_sms_title'),
+                    ]),
+                    h('span', { class: 'flex items-center gap-2' }, [
+                        h('span', { class: 'text-[11px] tabular-nums text-muted' }, t('common.demo_sms_to', { mobile: entry.mobile })),
+                        h('button', {
+                            type: 'button',
+                            class: 'flex h-5 w-5 items-center justify-center rounded text-muted hover:text-foreground',
+                            'aria-label': t('common.close'),
+                            onClick: () => toast.dismiss(id),
+                        }, '\u00d7'),
+                    ]),
+                ]),
+                h('div', { class: 'whitespace-pre-line break-words rounded-2xl rounded-tl-sm bg-accent/15 px-3 py-2 text-[13px] leading-snug' }, entry.message),
+                h('p', { class: 'text-[10px] italic text-muted' }, t('common.demo_sms_note')),
+            ]),
+        }, { duration: 30000 });
     },
 
     warning(message, detail = null) {

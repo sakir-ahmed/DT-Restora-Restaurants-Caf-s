@@ -18,7 +18,9 @@ use App\Models\MenuItem;
 use App\Models\Order;
 use App\Models\Recipe;
 use App\Models\RestaurantTable;
+use App\Models\Setting;
 use App\Models\Shift;
+use App\Models\SmsLog;
 use App\Models\Unit;
 use App\Models\User;
 use App\Services\InvoiceNumberService;
@@ -521,4 +523,57 @@ it('sends menu numbers to the pos page', function (): void {
     $this->actingAs($this->cashier, 'staff')->get('/admin/pos')->assertInertia(fn ($page) => $page
         ->where('categories.0.items.0.menu_no', $this->item->fresh()->menu_no)
         ->whereNot('categories.0.items.0.variants.0.menu_no', null));
+});
+
+it('texts the invoice after a counter order with a customer mobile is paid, and shows the demo preview', function (): void {
+    config(['services.sms.demo' => true]);
+    Setting::current()->update(['sms_features' => ['invoice' => true]]);
+
+    $this->actingAs($this->cashier, 'staff')->post('/admin/orders', [
+        'order_type' => 'takeaway',
+        'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        'customer_mobile' => '01712345678',
+        'customer_name' => 'Rahim',
+        'terminal' => 'T01',
+    ])->assertRedirect();
+
+    $order = Order::query()->firstOrFail();
+
+    $this->actingAs($this->cashier, 'staff')->post("/admin/orders/{$order->id}/pay", ['tendered' => 250])->assertRedirect();
+
+    $log = SmsLog::query()->where('feature', 'invoice')->first();
+
+    expect($log)->not->toBeNull()
+        ->and($log->status)->toBe('demo')
+        ->and($log->message)->toContain($order->invoice_no);
+
+    // The next page response carries the preview to the browser.
+    $this->actingAs($this->cashier, 'staff')->get('/admin/pos')
+        ->assertInertia(fn ($page) => $page->has('demoSms', 1)->where('demoSms.0.mobile', fn ($mobile): bool => str_contains((string) $mobile, '1712345678')));
+});
+
+it('shows a demo invoice preview for a walk-in sale and records a skip outside the demo', function (): void {
+    Setting::current()->update(['sms_features' => ['invoice' => true]]);
+    $pay = function (): void {
+        $this->actingAs($this->cashier, 'staff')->post('/admin/orders', [
+            'order_type' => 'takeaway',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+            'terminal' => 'T01',
+        ])->assertRedirect();
+
+        $order = Order::query()->latest('id')->firstOrFail();
+        $this->actingAs($this->cashier, 'staff')->post("/admin/orders/{$order->id}/pay", ['tendered' => 250])->assertRedirect();
+    };
+
+    config(['services.sms.demo' => true]);
+    $pay();
+
+    expect(SmsLog::query()->where('feature', 'invoice')->latest('id')->first()->status)->toBe('demo');
+
+    config(['services.sms.demo' => false]);
+    $pay();
+
+    $skipped = SmsLog::query()->where('feature', 'invoice')->latest('id')->first();
+
+    expect($skipped->status)->toBe('skipped')->and($skipped->response)->toBe(__('sms.no_mobile_reason'));
 });

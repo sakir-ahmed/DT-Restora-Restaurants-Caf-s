@@ -22,6 +22,7 @@ use App\Models\Setting;
 use App\Models\Shift;
 use App\Models\VoidRequest;
 use App\Services\PosSettings;
+use App\Services\Sms\SmsFeatures;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -56,6 +57,7 @@ class PosController extends Controller
             ->first();
 
         return Inertia::render('admin/pos/Index', [
+            'invoiceSmsEnabled' => SmsFeatures::enabled('invoice'),
             'categories' => $categories,
             'tables' => $this->tablesWithBookings($branch),
             'stockBook' => $this->stockBook($branch, $categories),

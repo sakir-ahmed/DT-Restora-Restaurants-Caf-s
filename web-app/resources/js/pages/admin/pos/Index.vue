@@ -31,6 +31,7 @@ const props = defineProps({
     posPinMinutes: { type: Number, default: 5 },
     posLockEnabled: { type: Boolean, default: false },
     stockBook: { type: Object, default: () => ({ allow_negative: true, recipes: {}, stock: {} }) },
+    invoiceSmsEnabled: { type: Boolean, default: false },
 });
 
 const confirm = useConfirm();
@@ -2775,7 +2776,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                 <!-- Customer mobile and optional name; matches from past customers fill both -->
                 <div class="relative flex items-center gap-1" @focusin="suggestOpen = true" @focusout="closeSuggestions" @keydown.esc="suggestOpen = false">
                     <div class="min-w-0 flex-1">
-                        <MobileInput v-model="customerMobile" :placeholder="t('orders.customer_mobile')" />
+                        <MobileInput v-model="customerMobile" :placeholder="invoiceSmsEnabled ? t('orders.customer_mobile_invoice_sms') : t('orders.customer_mobile')" />
                     </div>
                     <input
                         v-model="customerName"

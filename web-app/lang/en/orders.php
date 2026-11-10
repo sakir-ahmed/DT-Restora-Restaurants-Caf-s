@@ -113,6 +113,7 @@ return [
     'table_optional' => 'Optional. Leave it empty to save the order without a table.',
     'table_seats' => ':count seats',
     'table_occupied' => 'occupied',
+    'customer_mobile_invoice_sms' => 'Customer mobile for invoice SMS',
     'customer_mobile' => 'Customer mobile (optional)',
     'customer_name' => 'Customer name (optional)',
     'discount' => 'Discount',

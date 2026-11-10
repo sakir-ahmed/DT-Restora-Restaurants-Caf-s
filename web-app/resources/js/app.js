@@ -58,12 +58,6 @@ createInertiaApp({
                 return () => [
                     page.props?.isDemo ? h(DemoBanner) : null,
                     h(App, props),
-                    mounted.value && page.props?.smsDemo
-                        ? h('div', {
-                            role: 'status',
-                            class: 'pointer-events-none fixed bottom-3 left-3 z-[60] max-w-[calc(100vw-1.5rem)] rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-muted shadow-sm',
-                        }, t('common.demo_sms_badge'))
-                        : null,
                     mounted.value && page.props?.isDemo ? h(DemoExperience) : null,
                     mounted.value ? h(ConfirmHost) : null,
                     mounted.value ? h(UpdatePrompt) : null,

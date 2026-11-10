@@ -113,6 +113,7 @@ return [
     'table_optional' => 'ঐচ্ছিক। টেবিল না বেছেও অর্ডার সংরক্ষণ করা যায়।',
     'table_seats' => ':count আসন',
     'table_occupied' => 'ব্যস্ত',
+    'customer_mobile_invoice_sms' => 'ইনভয়েস এসএমএসের জন্য গ্রাহকের মোবাইল',
     'customer_mobile' => 'গ্রাহকের মোবাইল (ঐচ্ছিক)',
     'customer_name' => 'গ্রাহকের নাম (ঐচ্ছিক)',
     'discount' => 'ছাড়',

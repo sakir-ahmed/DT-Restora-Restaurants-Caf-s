@@ -97,5 +97,7 @@ return [
     'edit_wording' => 'Edit wording (:count)',
     'hide_wording' => 'Hide wording',
     'feature_off_note' => 'This message is switched off, so changes are kept but nothing is sent until you switch it on.',
+    'walk_in_label' => 'Walk-in (no mobile)',
+    'no_mobile_reason' => 'No customer mobile number on the order.',
     'features_saved' => 'SMS features saved.',
 ];
