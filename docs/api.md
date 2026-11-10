@@ -247,6 +247,8 @@ Lists the staff app needs to build forms. Each block is included only when the u
 
 **`ingredients`** also carry `unit_type` and `unit_factor` (the ingredient's own unit), so the app can show stock in that unit and convert a quantity entered in another unit of the same type: `base = qty * unit.factor`, `shown = base / ingredient.unit_factor`. Example: 10 l of an ingredient kept in ml is `10 * 1 / 0.001 = 10,000 ml`. The server converts on receipt with the same rule.
 
+**`ingredient_costs`** (only with `recipes.manage`): map of ingredient id to the branch's average purchase cost **per base unit** (g, l, pcs), as a decimal string. Price a recipe line as `qty * unit.factor * cost`.
+
 ---
 
 ## 11. Offline Sync (`/api/v1/sync`)

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Branch;
 use App\Models\Ingredient;
+use App\Models\IngredientStock;
 use App\Models\RestaurantTable;
 use App\Models\Unit;
 use App\Models\User;
@@ -69,6 +70,30 @@ it('describes every unit and ingredient unit so the app can convert quantities',
         ->and($units['box'])->toMatchArray(['id' => $box->id, 'type' => 'count', 'factor' => '12.000000', 'is_system' => false])
         ->and(collect($data['units'])->pluck('type')->unique()->values()->all())->toBe(['count', 'volume', 'weight'])
         ->and($data['ingredients'][0])->toMatchArray(['unit_symbol' => 'ml', 'unit_type' => 'volume', 'unit_factor' => '0.001000']);
+});
+
+it('gives recipe managers the average cost per base unit of each ingredient', function (): void {
+    $unit = Unit::query()->firstOrCreate(['symbol' => 'kg'], ['name' => 'Kilogram', 'name_bn' => 'kg', 'type' => 'weight', 'factor' => 1000]);
+    $rice = Ingredient::query()->create(['name' => 'Rice', 'unit_id' => $unit->id, 'reorder_level' => 5, 'is_active' => true]);
+    IngredientStock::query()->create(['branch_id' => $this->branch->id, 'ingredient_id' => $rice->id, 'stock_qty' => 5000, 'avg_cost' => '0.0850']);
+
+    $manager = User::factory()->role('branch-manager', $this->branch->id)->create();
+
+    $costs = $this->withToken($manager->createToken('staff', ['staff'])->plainTextToken)
+        ->getJson('/api/v1/branches/'.$this->branch->id.'/reference')
+        ->assertOk()
+        ->json('data.ingredient_costs');
+
+    expect($costs[(string) $rice->id])->toBe('0.0850');
+});
+
+it('keeps ingredient costs from users who cannot manage recipes', function (): void {
+    $cashier = User::factory()->role('cashier', $this->branch->id)->create();
+
+    $this->withToken($cashier->createToken('staff', ['staff'])->plainTextToken)
+        ->getJson('/api/v1/branches/'.$this->branch->id.'/reference')
+        ->assertOk()
+        ->assertJsonMissingPath('data.ingredient_costs');
 });
 
 it('hides a branch the user cannot access', function (): void {

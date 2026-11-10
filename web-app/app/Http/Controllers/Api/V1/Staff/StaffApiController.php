@@ -967,6 +967,16 @@ class StaffApiController extends Controller
                 ->all();
         }
 
+        if ($user->can('recipes.manage')) {
+            // Average purchase cost per base unit (g, l, pcs) in this branch, keyed by ingredient id, so the
+            // app can price a recipe line as it is typed: cost = qty in base units * this value.
+            $data['ingredient_costs'] = IngredientStock::query()
+                ->where('branch_id', $branchModel->id)
+                ->pluck('avg_cost', 'ingredient_id')
+                ->map(fn ($cost): string => (string) $cost)
+                ->all();
+        }
+
         if ($user->can('delivery.dispatch')) {
             $data['riders'] = Rider::query()
                 ->where('is_active', true)
