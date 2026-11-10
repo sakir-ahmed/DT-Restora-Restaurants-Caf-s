@@ -14,6 +14,7 @@ import SwitchField from '@/components/ui-kit/SwitchField.vue';
 import { useConfirm } from '@/components/ui-kit/useConfirm.js';
 import { useSafeDelete } from '@/lib/safeDelete';
 import { t } from '@/lib/i18n';
+import { unitLabel } from '@/lib/units';
 import { formatMoney } from '@/lib/format';
 import { notify } from '@/lib/notify';
 
@@ -537,10 +538,10 @@ async function saveEdit() {
                                 <td class="px-1 py-1 align-top">
                                     <input v-model="line.invoice_no" type="text" maxlength="100" :aria-label="t('inventory.invoice_no')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent">
                                 </td>
-                                <td class="px-1 py-1 align-top w-20">
+                                <td class="px-1 py-1 align-top w-36">
                                     <select v-model="line.unit_id" :aria-label="t('inventory.unit')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent" :class="form.errors['items.' + index + '.unit_id'] ? 'border-danger' : ''">
                                         <option value="" disabled>---</option>
-                                        <option v-for="unit in unitsFor(line)" :key="unit.id" :value="unit.id">{{ unit.symbol }}</option>
+                                        <option v-for="unit in unitsFor(line)" :key="unit.id" :value="unit.id">{{ unitLabel(unit, units) }}</option>
                                     </select>
                                 </td>
                                 <td class="px-1 py-1 align-top w-24">
@@ -646,10 +647,10 @@ async function saveEdit() {
                                         </select>
                                         <p v-if="editForm.errors['items.' + index + '.ingredient_id']" class="mt-0.5 text-xs text-danger">{{ editForm.errors['items.' + index + '.ingredient_id'] }}</p>
                                     </td>
-                                    <td class="w-20 px-1 py-1 align-top">
+                                    <td class="w-36 px-1 py-1 align-top">
                                         <select v-model="line.unit_id" :aria-label="t('inventory.unit')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent" :class="editForm.errors['items.' + index + '.unit_id'] ? 'border-danger' : ''">
                                             <option value="" disabled>---</option>
-                                            <option v-for="unit in unitsFor(line)" :key="unit.id" :value="unit.id">{{ unit.symbol }}</option>
+                                            <option v-for="unit in unitsFor(line)" :key="unit.id" :value="unit.id">{{ unitLabel(unit, units) }}</option>
                                         </select>
                                     </td>
                                     <td class="w-24 px-1 py-1 align-top">
@@ -741,7 +742,7 @@ async function saveEdit() {
                             <template #default="{ id }">
                                 <select :id="id" v-model="ingredientDialog.unit_id" class="h-7 w-full rounded-md border border-border bg-surface px-2 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/40">
                                     <option value="" disabled>{{ t('common.select') }}</option>
-                                    <option v-for="unit in units" :key="unit.id" :value="unit.id">{{ unit.name }} ({{ unit.symbol }})</option>
+                                    <option v-for="unit in units" :key="unit.id" :value="unit.id">{{ unit.name }} ({{ unitLabel(unit, units) }})</option>
                                 </select>
                             </template>
                         </FormField>

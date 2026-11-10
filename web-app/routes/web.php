@@ -45,6 +45,7 @@ use App\Http\Controllers\Admin\StockTransferController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\SyncConflictController;
 use App\Http\Controllers\Admin\UiKitController;
+use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WastageController;
 use App\Http\Controllers\Auth\LoginController;
@@ -387,6 +388,10 @@ Route::prefix('admin')
         Route::post('settings/payment-methods', [PaymentMethodController::class, 'store'])->name('settings.payment-methods.store')->middleware('permission:settings.manage');
         Route::put('settings/payment-methods/{method}', [PaymentMethodController::class, 'update'])->name('settings.payment-methods.update')->middleware('permission:settings.manage');
         Route::delete('settings/payment-methods/{method}', [PaymentMethodController::class, 'destroy'])->name('settings.payment-methods.destroy')->middleware('permission:settings.manage');
+        Route::post('settings/units', [UnitController::class, 'store'])->name('settings.units.store')->middleware('permission:settings.manage');
+        Route::post('settings/units/reset', [UnitController::class, 'reset'])->name('settings.units.reset')->middleware('permission:settings.manage');
+        Route::put('settings/units/{unit}', [UnitController::class, 'update'])->name('settings.units.update')->middleware('permission:settings.manage');
+        Route::delete('settings/units/{unit}', [UnitController::class, 'destroy'])->name('settings.units.destroy')->middleware('permission:settings.manage');
         Route::put('settings/sms/features', [SettingController::class, 'updateSmsFeatures'])->name('settings.sms.features')->middleware('permission:settings.manage');
         Route::put('settings/sms/templates/{template}', [SettingController::class, 'updateSmsTemplate'])->name('settings.sms.templates')->middleware('permission:settings.manage');
         Route::get('sms', [SmsController::class, 'index'])->name('sms.index')->middleware('permission:sms.manage');

@@ -11,6 +11,7 @@ use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Setting;
 use App\Models\SmsLog;
+use App\Models\Unit;
 use App\Services\PosSettings;
 use App\Services\PublicCache;
 use App\Services\Sms\SmsFeatures;
@@ -42,6 +43,21 @@ class SettingController extends Controller
                 'enabled' => SmsFeatures::enabled($key),
             ])->values()->all(),
             'smsTemplates' => $this->smsTemplates(),
+            'unitList' => Unit::query()->orderBy('type')->orderBy('factor')->orderBy('id')->get()->map(function (Unit $unit): array {
+                $usage = $unit->usage();
+
+                return [
+                    'id' => $unit->id,
+                    'name' => $unit->name,
+                    'name_bn' => $unit->name_bn,
+                    'symbol' => $unit->symbol,
+                    'type' => $unit->type,
+                    'factor' => (float) $unit->factor,
+                    'is_system' => $unit->is_system,
+                    'usage' => $usage,
+                    'in_use' => array_sum($usage) > 0,
+                ];
+            })->values()->all(),
             'branchId' => $branch?->id,
             'branchCode' => $branch?->code ?? '',
             'branchPos' => $branch !== null ? [

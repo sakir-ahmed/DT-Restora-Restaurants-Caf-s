@@ -89,6 +89,7 @@ return [
     'sms_test_failed' => 'Test SMS failed: :reason',
     'sms_test_demo' => 'Demo mode: the test SMS was shown on screen and not sent.',
     'sms_demo_note' => 'SMS demo mode is on: messages appear on screen and are not sent through the provider.',
+    'tab_units' => 'Units',
     'tab_general' => 'General',
     'branch' => 'Branch',
     'branch_helper' => 'These settings apply to the selected branch only.',

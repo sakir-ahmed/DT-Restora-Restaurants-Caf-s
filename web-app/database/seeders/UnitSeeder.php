@@ -5,56 +5,39 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Models\Unit;
+use App\Support\StandardUnits;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class UnitSeeder extends Seeder
 {
+    /**
+     * Create or restore the fixed standard units. Safe to run again: it never
+     * touches the units an owner added.
+     */
     public function run(): void
     {
-        $gram = Unit::query()->updateOrCreate(
-            ['symbol' => 'g'],
-            ['name' => 'Gram', 'name_bn' => 'গ্রাম', 'type' => 'weight', 'base_unit_id' => null, 'factor' => 1],
-        );
+        $bases = [];
 
-        Unit::query()->updateOrCreate(
-            ['symbol' => 'kg'],
-            ['name' => 'Kilogram', 'name_bn' => 'কিলোগ্রাম', 'type' => 'weight', 'base_unit_id' => $gram->id, 'factor' => 1000],
-        );
+        foreach (StandardUnits::all() as $definition) {
+            $isBase = $definition['symbol'] === StandardUnits::BASE[$definition['type']];
 
-        Unit::query()->updateOrCreate(
-            ['symbol' => 'mg'],
-            ['name' => 'Milligram', 'name_bn' => 'মিলিগ্রাম', 'type' => 'weight', 'base_unit_id' => $gram->id, 'factor' => 0.001],
-        );
-
-        $litre = Unit::query()->updateOrCreate(
-            ['symbol' => 'l'],
-            ['name' => 'Litre', 'name_bn' => 'লিটার', 'type' => 'volume', 'base_unit_id' => null, 'factor' => 1],
-        );
-
-        Unit::query()->updateOrCreate(
-            ['symbol' => 'ml'],
-            ['name' => 'Millilitre', 'name_bn' => 'মিলিলিটার', 'type' => 'volume', 'base_unit_id' => $litre->id, 'factor' => 0.001],
-        );
-
-        foreach ([
-            ['tsp', 'Teaspoon', 'চা চামচ', 0.005],
-            ['tbsp', 'Tablespoon', 'টেবিল চামচ', 0.015],
-            ['cup', 'Cup', 'কাপ', 0.24],
-        ] as [$symbol, $name, $nameBn, $factor]) {
-            Unit::query()->updateOrCreate(
-                ['symbol' => $symbol],
-                ['name' => $name, 'name_bn' => $nameBn, 'type' => 'volume', 'base_unit_id' => $litre->id, 'factor' => $factor],
+            $unit = Unit::query()->updateOrCreate(
+                ['symbol' => $definition['symbol']],
+                [
+                    'name' => $definition['name'],
+                    'name_bn' => $definition['name_bn'],
+                    'type' => $definition['type'],
+                    'base_unit_id' => $isBase ? null : ($bases[$definition['type']] ?? Unit::query()->where('symbol', StandardUnits::BASE[$definition['type']])->value('id')),
+                    'factor' => $definition['factor'],
+                    // The column arrives in a later migration; this seeder also runs from an earlier one.
+                    ...(Schema::hasColumn('units', 'is_system') ? ['is_system' => true] : []),
+                ],
             );
+
+            if ($isBase) {
+                $bases[$definition['type']] = $unit->id;
+            }
         }
-
-        $piece = Unit::query()->updateOrCreate(
-            ['symbol' => 'pcs'],
-            ['name' => 'Piece', 'name_bn' => 'টি', 'type' => 'count', 'base_unit_id' => null, 'factor' => 1],
-        );
-
-        Unit::query()->updateOrCreate(
-            ['symbol' => 'dozen'],
-            ['name' => 'Dozen', 'name_bn' => 'ডজন', 'type' => 'count', 'base_unit_id' => $piece->id, 'factor' => 12],
-        );
     }
 }

@@ -10,6 +10,7 @@ import SlideOver from '@/components/ui-kit/SlideOver.vue';
 import StatusBadge from '@/components/ui-kit/StatusBadge.vue';
 import { useSafeDelete } from '@/lib/safeDelete';
 import { t } from '@/lib/i18n';
+import { unitLabel } from '@/lib/units';
 import { notify } from '@/lib/notify';
 
 const props = defineProps({
@@ -217,7 +218,7 @@ function receive(transfer) {
                             <template #default="{ id }">
                                 <select :id="id" v-model="line.unit_id" class="h-7 w-full rounded-md border border-border bg-surface px-1 text-[12px] text-foreground outline-none focus:border-accent">
                                     <option value="" disabled>---</option>
-                                    <option v-for="unit in unitsFor(line)" :key="unit.id" :value="unit.id">{{ unit.symbol }}</option>
+                                    <option v-for="unit in unitsFor(line)" :key="unit.id" :value="unit.id">{{ unitLabel(unit, units) }}</option>
                                 </select>
                             </template>
                         </FormField>

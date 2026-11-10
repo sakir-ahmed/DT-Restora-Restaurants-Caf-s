@@ -10,6 +10,7 @@ import SlideOver from '@/components/ui-kit/SlideOver.vue';
 import StatusBadge from '@/components/ui-kit/StatusBadge.vue';
 import { useSafeDelete } from '@/lib/safeDelete';
 import { t } from '@/lib/i18n';
+import { unitLabel } from '@/lib/units';
 import { formatMoney } from '@/lib/format';
 import { notify } from '@/lib/notify';
 
@@ -157,7 +158,7 @@ function save() {
                         <template #default="{ id }">
                             <select :id="id" v-model="form.unit_id" class="h-7 w-full rounded-md border bg-surface px-2 text-[13px] text-foreground outline-none focus:ring-2 focus:ring-accent/40" :class="form.errors.unit_id ? 'border-danger' : 'border-border focus:border-accent'">
                                 <option value="" disabled>{{ t('common.select') }}</option>
-                                <option v-for="unit in unitsForSelected()" :key="unit.id" :value="unit.id">{{ unit.name }} ({{ unit.symbol }})</option>
+                                <option v-for="unit in unitsForSelected()" :key="unit.id" :value="unit.id">{{ unit.name }} ({{ unitLabel(unit, units) }})</option>
                             </select>
                         </template>
                     </FormField>

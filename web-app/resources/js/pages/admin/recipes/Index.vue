@@ -122,9 +122,12 @@ function defaultUnit(ingredient) {
         return options.find((unit) => unit.symbol === 'ml') ?? own;
     }
 
-    return Number(ingredient.unit.factor) <= 1
-        ? own
-        : (options.find((unit) => unit.symbol === 'g') ?? own);
+    if (Number(ingredient.unit.factor) <= 1) {
+        return own;
+    }
+
+    // A kg ingredient starts in grams, a box ingredient in pieces: the smallest unit of its kind.
+    return options.find((unit) => unit.symbol === 'g') ?? options[0] ?? own;
 }
 
 function onRecipeIngredientChange(line) {

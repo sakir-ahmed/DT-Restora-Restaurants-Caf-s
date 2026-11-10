@@ -6,6 +6,7 @@ import ScopeNote from '@/components/ui-kit/ScopeNote.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
 import SwitchField from '@/components/ui-kit/SwitchField.vue';
 import PageHeader from '@/components/ui-kit/PageHeader.vue';
+import UnitManager from '@/components/admin/UnitManager.vue';
 import SmsMessagesSetup from '@/components/admin/SmsMessagesSetup.vue';
 import SmsProviderSetup from '@/components/admin/SmsProviderSetup.vue';
 import InvoicePrintSetup from '@/components/admin/InvoicePrintSetup.vue';
@@ -29,6 +30,7 @@ const props = defineProps({
     sms: { type: Object, default: null },
     smsFeatures: { type: Array, default: () => [] },
     smsTemplates: { type: Array, default: () => [] },
+    unitList: { type: Array, default: () => [] },
     invoicePrint: { type: Object, default: null },
     defaultPattern: { type: String, default: '' },
 });
@@ -69,7 +71,7 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
 
         <div class="mb-3 flex flex-wrap gap-1" role="tablist">
             <button
-                v-for="entry in [{ key: 'general', label: t('settings.tab_general') }, { key: 'methods', label: t('settings.tab_methods') }, { key: 'pos', label: t('settings.tab_pos') }, { key: 'invoice', label: t('settings.tab_invoice') }, { key: 'sms', label: t('settings.tab_sms') }, { key: 'areas', label: t('settings.tab_areas') }]"
+                v-for="entry in [{ key: 'general', label: t('settings.tab_general') }, { key: 'methods', label: t('settings.tab_methods') }, { key: 'pos', label: t('settings.tab_pos') }, { key: 'invoice', label: t('settings.tab_invoice') }, { key: 'sms', label: t('settings.tab_sms') }, { key: 'units', label: t('settings.tab_units') }, { key: 'areas', label: t('settings.tab_areas') }]"
                 :key="entry.key"
                 type="button"
                 role="tab"
@@ -86,6 +88,8 @@ const inputClass = 'h-7 w-full rounded-md border border-border bg-surface px-2 t
         <ScopeNote v-else scope="branch" :branch="branchName" />
 
         <BranchPosForm v-if="tab === 'pos' && branchPos" :key="branchId" :pos="branchPos" :layouts="layouts" :default-pattern="defaultPattern" :branch-code="branchCode" />
+
+        <UnitManager v-if="tab === 'units'" :units="unitList" />
 
         <div v-if="tab === 'sms' && sms" class="max-w-5xl space-y-6">
             <section aria-labelledby="sms-provider-heading">
