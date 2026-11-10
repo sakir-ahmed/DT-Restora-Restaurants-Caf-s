@@ -11,6 +11,8 @@ return [
     'ingredient_created' => 'Ingredient created.',
     'ingredient_updated' => 'Ingredient updated.',
     'ingredient_deactivated' => 'Ingredient deactivated.',
+    'unit_incompatible' => 'The chosen unit does not match the ingredient unit type.',
+    'converted_stock' => 'Adds :qty :unit to stock',
     'unit' => 'Unit',
     'reorder_level' => 'Reorder level',
     'stock' => 'Stock',

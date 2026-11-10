@@ -33,7 +33,7 @@ class IngredientController extends Controller
         return Inertia::render('admin/ingredients/Index', [
             'ingredients' => $ingredients,
             'categories' => IngredientCategory::query()->active()->ordered()->get(['id', 'name', 'name_bn']),
-            'units' => Unit::query()->orderBy('type')->orderBy('name')->get(['id', 'name', 'symbol', 'type']),
+            'units' => Unit::query()->orderBy('type')->orderBy('factor')->get(['id', 'name', 'symbol', 'type', 'factor']),
             'canManage' => $request->user('staff')?->can('inventory.manage'),
             'lowOnly' => $request->boolean('low'),
         ]);

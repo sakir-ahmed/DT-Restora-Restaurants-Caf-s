@@ -7,6 +7,7 @@ use App\Models\Ingredient;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\Recipe;
+use App\Models\Unit;
 use App\Models\User;
 use Database\Seeders\ChartOfAccountsSeeder;
 use Database\Seeders\RoleSeeder;
@@ -46,4 +47,29 @@ it('saves a recipe, rejects a repeated ingredient, and removes it when emptied',
 
 it('shows the recipes page', function (): void {
     $this->actingAs($this->owner, 'staff')->get(route('admin.recipes.index'))->assertOk();
+});
+
+it('converts a recipe line typed in another unit into the base unit', function (): void {
+    $milk = Ingredient::factory()->create(['unit_id' => Unit::query()->where('symbol', 'ml')->value('id')]);
+    $flour = Ingredient::factory()->create(['unit_id' => Unit::query()->where('symbol', 'kg')->value('id')]);
+    $ml = Unit::query()->where('symbol', 'ml')->value('id');
+    $mg = Unit::query()->where('symbol', 'mg')->value('id');
+
+    $this->actingAs($this->owner, 'staff')->post(route('admin.recipes.store'), [
+        'menu_item_id' => $this->item->id,
+        'lines' => [
+            ['ingredient_id' => $milk->id, 'unit_id' => $ml, 'qty' => '250'],
+            ['ingredient_id' => $flour->id, 'unit_id' => $mg, 'qty' => '500000'],
+        ],
+    ])->assertSessionHasNoErrors();
+
+    $items = Recipe::query()->where('menu_item_id', $this->item->id)->first()->items->keyBy('ingredient_id');
+
+    expect((float) $items[$milk->id]->qty)->toBe(0.25)   // litres
+        ->and((float) $items[$flour->id]->qty)->toBe(500.0); // grams
+
+    $this->actingAs($this->owner, 'staff')->post(route('admin.recipes.store'), [
+        'menu_item_id' => $this->item->id,
+        'lines' => [['ingredient_id' => $milk->id, 'unit_id' => $mg, 'qty' => '5']],
+    ])->assertSessionHasErrors('lines');
 });

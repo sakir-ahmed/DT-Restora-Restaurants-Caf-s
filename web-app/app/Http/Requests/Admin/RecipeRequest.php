@@ -23,6 +23,7 @@ class RecipeRequest extends FormRequest
             'note' => ['nullable', 'string', 'max:1000'],
             'lines' => ['present', 'array'],
             'lines.*.ingredient_id' => ['required', 'integer', 'exists:ingredients,id', 'distinct'],
+            'lines.*.unit_id' => ['nullable', 'integer', 'exists:units,id'],
             'lines.*.qty' => ['required', 'numeric', 'gt:0'],
         ];
     }
@@ -47,6 +48,7 @@ class RecipeRequest extends FormRequest
     {
         return [
             'lines.*.ingredient_id' => __('inventory.ingredient'),
+            'lines.*.unit_id' => __('inventory.unit'),
             'lines.*.qty' => __('inventory.qty'),
         ];
     }

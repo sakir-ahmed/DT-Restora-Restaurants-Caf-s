@@ -16,6 +16,7 @@ const props = defineProps({
     items: { type: Array, required: true },
     ingredients: { type: Array, required: true },
     costs: { type: Object, default: () => ({}) },
+    units: { type: Array, default: () => [] },
 });
 
 const slideOverOpen = ref(false);
@@ -52,10 +53,16 @@ function openBuilder(item) {
     form.defaults({
         menu_item_id: item.id,
         note: item.recipe?.note ?? '',
-        lines: (item.recipe?.items ?? []).map((line) => ({
-            ingredient_id: line.ingredient_id,
-            qty: Number(line.qty),
-        })),
+        lines: (item.recipe?.items ?? []).map((line) => {
+            const unit = defaultUnit(props.ingredients.find((ingredient) => ingredient.id === line.ingredient_id));
+
+            return {
+                ingredient_id: line.ingredient_id,
+                unit_id: unit?.id ?? '',
+                // Stored in base units; show it in the friendly unit.
+                qty: Number((Number(line.qty) / Number(unit?.factor || 1)).toFixed(6)),
+            };
+        }),
     }).reset();
     slideOverOpen.value = true;
 
@@ -67,7 +74,7 @@ function openBuilder(item) {
 const usedIngredients = computed(() => form.lines.map((line) => Number(line.ingredient_id)));
 
 function addLine() {
-    form.lines.push({ ingredient_id: '', qty: '1' });
+    form.lines.push({ ingredient_id: '', unit_id: '', qty: '1' });
 }
 
 function ingredientName(id) {
@@ -82,8 +89,52 @@ function baseSymbol(ingredient) {
     return ingredient?.unit?.base_unit?.symbol ?? ingredient?.unit?.symbol ?? '';
 }
 
-function ingredientUnit(id) {
-    return baseSymbol(props.ingredients.find((ingredient) => ingredient.id === Number(id)));
+/**
+ * Units a recipe line may be typed in: every unit of the ingredient's type
+ * (g, kg, mg ... or ml, l, tsp ...), smallest first.
+ */
+function unitsFor(ingredientId) {
+    const ingredient = props.ingredients.find((entry) => entry.id === Number(ingredientId));
+
+    if (! ingredient?.unit) {
+        return [];
+    }
+
+    return props.units
+        .filter((unit) => unit.type === ingredient.unit.type)
+        .sort((a, b) => Number(a.factor) - Number(b.factor));
+}
+
+/**
+ * Recipe quantities are small, so start in the smallest everyday unit of
+ * the ingredient: its own unit when that is already small (g, ml, pcs),
+ * otherwise ml for volumes and g for weights.
+ */
+function defaultUnit(ingredient) {
+    if (! ingredient?.unit) {
+        return null;
+    }
+
+    const options = unitsFor(ingredient.id);
+    const own = options.find((unit) => unit.id === ingredient.unit.id);
+
+    if (ingredient.unit.type === 'volume') {
+        return options.find((unit) => unit.symbol === 'ml') ?? own;
+    }
+
+    return Number(ingredient.unit.factor) <= 1
+        ? own
+        : (options.find((unit) => unit.symbol === 'g') ?? own);
+}
+
+function onRecipeIngredientChange(line) {
+    const ingredient = props.ingredients.find((entry) => entry.id === Number(line.ingredient_id));
+
+    line.unit_id = defaultUnit(ingredient)?.id ?? '';
+}
+
+function unitFactor(line) {
+    return Number(props.units.find((unit) => unit.id === Number(line.unit_id))?.factor ?? 1);
 }
 
 const sellingPrice = computed(() => {
@@ -108,14 +159,15 @@ const costing = computed(() => {
         .map((line) => {
             const ingredient = props.ingredients.find((entry) => entry.id === Number(line.ingredient_id));
             const unitCost = Number(props.costs[line.ingredient_id] ?? 0);
+            const baseQty = Number(line.qty) * unitFactor(line);
 
             return {
                 key: line.ingredient_id,
                 name: ingredient?.name ?? '',
                 unit: baseSymbol(ingredient),
-                qty: Number(line.qty),
+                qty: baseQty,
                 unitCost,
-                lineCost: Number(line.qty) * unitCost,
+                lineCost: baseQty * unitCost,
             };
         });
 
@@ -191,10 +243,10 @@ function save() {
                         </button>
                     </div>
 
-                    <div v-for="(line, index) in form.lines" :key="index" class="mb-2 grid grid-cols-[1.6fr_0.8fr_28px] items-start gap-2">
+                    <div v-for="(line, index) in form.lines" :key="index" class="mb-2 grid grid-cols-[1.6fr_0.7fr_0.6fr_28px] items-start gap-2">
                         <FormField :error="form.errors['lines.' + index + '.ingredient_id']">
                             <template #default="{ id }">
-                                <select :id="id" v-model="line.ingredient_id" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent">
+                                <select :id="id" v-model="line.ingredient_id" @change="onRecipeIngredientChange(line)" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent">
                                     <option value="" disabled>{{ t('common.select') }}</option>
                                     <option v-for="ingredient in ingredients" :key="ingredient.id" :value="ingredient.id" :disabled="usedIngredients.includes(ingredient.id) && Number(line.ingredient_id) !== ingredient.id">{{ ingredient.name }} ({{ baseSymbol(ingredient) }})</option>
                                 </select>
@@ -204,9 +256,16 @@ function save() {
                         <FormField :error="form.errors['lines.' + index + '.qty']">
                             <template #default="{ id }">
                                 <div class="relative">
-                                    <input :id="id" v-model="line.qty" type="text" inputmode="decimal" v-numeric step="0.000001" min="0" class="h-7 w-full rounded-md border border-border bg-surface py-0 pl-1.5 pr-7 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
-                                    <span class="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-[11px] text-muted">{{ ingredientUnit(line.ingredient_id) }}</span>
+                                    <input :id="id" v-model="line.qty" type="text" inputmode="decimal" v-numeric step="0.000001" min="0" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent">
                                 </div>
+                            </template>
+                        </FormField>
+
+                        <FormField :error="form.errors['lines.' + index + '.unit_id']">
+                            <template #default="{ id }">
+                                <select :id="id" v-model="line.unit_id" :aria-label="t('inventory.unit')" class="h-7 w-full rounded-md border border-border bg-surface px-1 text-[13px] text-foreground outline-none focus:border-accent">
+                                    <option v-for="unit in unitsFor(line.ingredient_id)" :key="unit.id" :value="unit.id">{{ unit.symbol }}</option>
+                                </select>
                             </template>
                         </FormField>
 

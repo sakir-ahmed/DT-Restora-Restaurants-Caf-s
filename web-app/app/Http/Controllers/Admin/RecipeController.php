@@ -12,6 +12,7 @@ use App\Models\Ingredient;
 use App\Models\IngredientStock;
 use App\Models\MenuItem;
 use App\Models\Recipe;
+use App\Models\Unit;
 use App\Services\CostingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -48,6 +49,7 @@ class RecipeController extends Controller
             'items' => $items,
             'ingredients' => $ingredients,
             'costs' => $costs,
+            'units' => Unit::query()->orderBy('type')->orderBy('factor')->get(['id', 'name', 'symbol', 'type', 'factor']),
         ]);
     }
 

@@ -37,7 +37,7 @@ class WastageController extends Controller
         return Inertia::render('admin/wastage/Index', [
             'wastages' => $wastages,
             'ingredients' => Ingredient::query()->active()->with('unit:id,symbol')->orderBy('name')->get(['id', 'name', 'unit_id']),
-            'units' => Unit::query()->orderBy('type')->orderBy('name')->get(['id', 'name', 'symbol', 'type']),
+            'units' => Unit::query()->orderBy('type')->orderBy('factor')->get(['id', 'name', 'symbol', 'type', 'factor']),
             'reasons' => Wastage::REASONS,
             'canLog' => $request->user('staff')?->can('wastage.log'),
             'canDelete' => (bool) $request->user('staff')?->can('wastage.log'),

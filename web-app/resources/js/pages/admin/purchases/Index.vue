@@ -273,6 +273,24 @@ function onIngredientChange(line) {
     line.supplier_id = options.length === 1 ? options[0].id : '';
 }
 
+/**
+ * Shows what a line adds to stock when it is bought in a different unit
+ * than the ingredient is tracked in (10 l of an ml ingredient = 10000 ml).
+ */
+function stockHint(line) {
+    const ingredient = allIngredients.value.find((i) => i.id === Number(line.ingredient_id));
+    const unit = props.units.find((u) => u.id === Number(line.unit_id));
+
+    if (! ingredient?.unit || ! unit || unit.id === ingredient.unit.id || Number(line.qty || 0) <= 0) {
+        return '';
+    }
+
+    const factor = Number(ingredient.unit.factor) || 1;
+    const qty = (Number(line.qty) * Number(unit.factor)) / factor;
+
+    return t('inventory.converted_stock', { qty: Number(qty.toFixed(3)).toLocaleString('en-US'), unit: ingredient.unit.symbol });
+}
+
 function unitsFor(line) {
     const ingredient = allIngredients.value.find((i) => i.id === Number(line.ingredient_id));
 
@@ -527,6 +545,7 @@ async function saveEdit() {
                                 </td>
                                 <td class="px-1 py-1 align-top w-24">
                                     <input v-model="line.qty" type="text" inputmode="decimal" v-numeric step="0.001" min="0" :aria-label="t('inventory.qty')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-[13px] text-foreground outline-none focus:border-accent text-right tabular-nums" :class="form.errors['items.' + index + '.qty'] ? 'border-danger' : ''">
+                                    <p v-if="stockHint(line)" class="mt-0.5 whitespace-nowrap text-[11px] text-muted">{{ stockHint(line) }}</p>
                                 </td>
                                 <td class="px-1 py-1 align-top w-32">
                                     <MoneyInput v-model="line.unit_cost" />
@@ -636,6 +655,7 @@ async function saveEdit() {
                                     <td class="w-24 px-1 py-1 align-top">
                                         <input v-model="line.qty" type="text" inputmode="decimal" v-numeric step="0.001" min="0" :aria-label="t('inventory.qty')" class="h-7 w-full rounded-md border border-border bg-surface px-1.5 text-right text-[13px] tabular-nums text-foreground outline-none focus:border-accent" :class="editForm.errors['items.' + index + '.qty'] ? 'border-danger' : ''">
                                         <p v-if="editForm.errors['items.' + index + '.qty']" class="mt-0.5 text-xs text-danger">{{ editForm.errors['items.' + index + '.qty'] }}</p>
+                                        <p v-if="stockHint(line)" class="mt-0.5 whitespace-nowrap text-[11px] text-muted">{{ stockHint(line) }}</p>
                                     </td>
                                     <td class="w-32 px-1 py-1 align-top">
                                         <MoneyInput v-model="line.unit_cost" />

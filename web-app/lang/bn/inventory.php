@@ -11,6 +11,8 @@ return [
     'ingredient_created' => 'উপকরণ তৈরি হয়েছে।',
     'ingredient_updated' => 'উপকরণ হালনাগাদ হয়েছে।',
     'ingredient_deactivated' => 'উপকরণ নিষ্ক্রিয় করা হয়েছে।',
+    'unit_incompatible' => 'নির্বাচিত একক উপকরণের এককের ধরনের সাথে মেলে না।',
+    'converted_stock' => 'স্টকে যোগ হবে :qty :unit',
     'unit' => 'একক',
     'reorder_level' => 'রিঅর্ডার সীমা',
     'stock' => 'স্টক',

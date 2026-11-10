@@ -49,7 +49,7 @@ class StockTransferController extends Controller
             'transfers' => $transfers,
             'branches' => $branches,
             'ingredients' => Ingredient::query()->active()->with('unit:id,symbol')->orderBy('name')->get(['id', 'name', 'unit_id']),
-            'units' => Unit::query()->orderBy('type')->orderBy('name')->get(['id', 'name', 'symbol', 'type']),
+            'units' => Unit::query()->orderBy('type')->orderBy('factor')->get(['id', 'name', 'symbol', 'type', 'factor']),
             'canManage' => $user->can('transfers.manage'),
         ]);
     }

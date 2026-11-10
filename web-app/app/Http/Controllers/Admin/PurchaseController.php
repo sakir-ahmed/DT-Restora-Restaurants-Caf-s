@@ -46,9 +46,9 @@ class PurchaseController extends Controller
             'purchases' => $purchases,
             'suppliers' => Supplier::query()->where('is_active', true)->with('ingredients:id')->orderBy('name')->get(['id', 'name'])
                 ->map(fn (Supplier $supplier): array => ['id' => $supplier->id, 'name' => $supplier->name, 'ingredient_ids' => $supplier->ingredients->pluck('id')->all()]),
-            'ingredients' => Ingredient::query()->active()->with('unit:id,symbol,type')->orderBy('name')->get(['id', 'name', 'unit_id', 'ingredient_category_id']),
+            'ingredients' => Ingredient::query()->active()->with('unit:id,symbol,type,factor')->orderBy('name')->get(['id', 'name', 'unit_id', 'ingredient_category_id']),
             'categories' => IngredientCategory::query()->active()->ordered()->get(['id', 'name', 'name_bn']),
-            'units' => Unit::query()->orderBy('type')->orderBy('name')->get(['id', 'name', 'symbol', 'type']),
+            'units' => Unit::query()->orderBy('type')->orderBy('factor')->get(['id', 'name', 'symbol', 'type', 'factor']),
             'canManage' => $request->user('staff')?->can('purchases.manage'),
         ]);
     }
