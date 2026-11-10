@@ -1,0 +1,68 @@
+# Flutter parity: progress tracker
+
+Working list for [../flutter-parity-plan.md](../flutter-parity-plan.md). The plan says what to build and why; this file says what is done, what is next and how each part was checked. Update it in the same commit as the part it describes.
+
+## How each part is done
+
+Work goes in small parts, one commit each. A part is only marked done when every box below is true.
+
+1. **Scope** is written here first (what the part includes, what it does not).
+2. **Contract**: if the part needs an API change, the endpoint is built and tested in `web-app` first (PHP test, `docs/api.md` updated), then the app part follows.
+3. **Code** follows the architecture in the plan (typed code, no literal UI strings in new screens when the l10n part has landed, no emojis, shared widgets where they exist).
+4. **Checks pass**:
+   - `cd flutter-app && flutter analyze` shows no issues.
+   - `cd flutter-app && flutter test` passes, with new tests for the logic added by the part.
+   - For API parts: `cd web-app && ./vendor/bin/pint && php artisan test`.
+5. **Same result as the web**: for anything with a visible result, the value is compared with the web page for the same data (written in the "Checked" column).
+6. **Docs and tracker** updated; the commit message names the part.
+
+Commands (the Flutter ones run in your own terminal; the sandbox used for AI sessions cannot open local sockets, so widget tests need a normal terminal):
+
+```sh
+cd flutter-app && flutter analyze && flutter test
+cd web-app && ./vendor/bin/pint && php artisan test
+```
+
+What could not be done yet: running the app on an emulator or simulator (no Android SDK or full Xcode on this Mac). Hands-on checks of screens are therefore listed as "device check" items and stay open until someone runs the app.
+
+Status words: **Todo**, **Doing**, **Done**, **Blocked**.
+
+## Parts
+
+| Part | What | Plan ref | Status | Checked |
+| --- | --- | --- | --- | --- |
+| P01 | Baseline: `flutter analyze` clean, existing 14 tests green, tracker created | E0.7 | Done | analyze: no issues; test: 14 passed (2026-11-10) |
+| P02 | Shared unit code in Dart (reference unit, relation text, picker label, conversion, stock hint), mirroring `web-app/resources/js/lib/units.js` | E4.1 | Done | analyze: no issues; `test/units_test.dart`: 10 passed; relations and the 10 l to 10,000 ml example match the web Settings and purchase form |
+| P03 | API: `units` in the reference and bootstrap payloads carry `type`, `factor`, `is_system`; `docs/api.md` updated | A1.1 | Todo | |
+| P04 | Purchases: per-line unit picker with size hint and "adds N to stock" line | E4.3 | Todo | |
+| P05 | Recipes: per-line unit, live cost and margin | E4.4 | Todo | |
+| P06 | Wastage and stock transfers: unit picker | E4.5 | Todo | |
+| P07 | API: dues list and collect; due sale on create | A1.4 | Todo | |
+| P08 | Dues module in the app (list, detail, collect) and due sale in POS | E2.1 | Todo | |
+| P09 | API: units CRUD with fixed and in-use rules | A1.5 | Todo | |
+| P10 | Units manager in the app (Settings) | E4.1 | Todo | |
+| P11 | API: settings (general, payment methods, delivery zones, invoice print) | A1.6 | Todo | |
+| P12 | Settings hub in the app with scope notes; payment methods and delivery areas | E8.1 | Todo | |
+| P13 | API: SMS provider, features, templates, history, promotion | A1.7 | Todo | |
+| P14 | SMS settings and SMS module in the app | E8.3 | Todo | |
+| P15 | Localisation foundation (`gen_l10n`, English and Bangla) | E0.3 | Todo | needs a decision on moving existing strings |
+| P16 | Shared widget library with golden tests | E0.5 | Todo | |
+| P17 | Typed models and repository layer for Orders and Reference data | E0.4 | Todo | |
+| P18 | Invoice renderer: 6 styles, 4 paper sizes | E2.7 | Todo | |
+| P19 | Realtime client and live kitchen board | E3.1 | Todo | needs Reverb auth for staff tokens (A1.9) |
+| P20 | Push notifications | E3.2 | Todo | needs A1.9 |
+
+Later parts (orders delete and reprint, tables, reservations, menu categories, staff, accounting, rider OTP, customer app) are in the plan's phases 2 to 7 and are added here as they are scheduled.
+
+## Decisions waiting for the product owner
+
+- State management for new features (plan section 7, item 1). Until decided, new parts keep the current `ChangeNotifier` and `AppScope` pattern and put logic in plain Dart classes that do not depend on widgets, so they can move later.
+- Whether the customer app is part of this app.
+- Supported thermal printer models.
+
+## Log
+
+| Date | Part | Notes |
+| --- | --- | --- |
+| 2026-11-10 | P01 | Baseline recorded. `flutter analyze`: no issues. `flutter test`: 14 passed. |
+| 2026-11-10 | P02 | `lib/core/units.dart` and `test/units_test.dart` added. `flutter analyze`: no issues. New tests: 10 passed. |
