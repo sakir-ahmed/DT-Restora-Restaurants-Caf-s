@@ -20,6 +20,7 @@ return [
     'stock_counts' => 'স্টক গণনা',
     'transfers' => 'স্থানান্তর',
     'people' => 'মানুষ',
+    'sms' => 'এসএমএস',
     'customers' => 'গ্রাহক',
     'staff' => 'স্টাফ',
     'attendance' => 'হাজিরা',

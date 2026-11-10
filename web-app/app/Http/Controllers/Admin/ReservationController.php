@@ -15,6 +15,7 @@ use App\Models\Reservation;
 use App\Models\RestaurantTable;
 use App\Services\PosSettings;
 use App\Services\ReservationService;
+use App\Services\Sms\SmsTemplates;
 use App\Support\DeleteReasons;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -324,12 +325,12 @@ class ReservationController extends Controller
             return;
         }
 
-        SendSmsJob::deliver($mobile, __('reservations.sms_confirmed', [
+        SendSmsJob::deliver($mobile, SmsTemplates::render('reservation_confirmed', [
             'booking' => $reservation->booking_no,
             'branch' => $branch->name,
             'tables' => $reservation->tables->pluck('name')->implode(', '),
             'when' => $reservation->starts_at->setTimezone(config('app.timezone'))->translatedFormat('D j M, g:i A'),
-        ]));
+        ]), 'reservation_confirmed');
     }
 
     /**

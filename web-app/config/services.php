@@ -36,7 +36,6 @@ return [
     ],
 
     'bdbulksms' => [
-        'url' => env('BDBULKSMS_URL', 'https://sms.bdbulksms.net/api/send'),
         'token' => env('BDBULKSMS_TOKEN'),
     ],
 

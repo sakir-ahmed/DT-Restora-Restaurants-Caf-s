@@ -20,6 +20,7 @@ return [
     'stock_counts' => 'Stock counts',
     'transfers' => 'Transfers',
     'people' => 'People',
+    'sms' => 'SMS',
     'customers' => 'Customers',
     'staff' => 'Staff',
     'attendance' => 'Attendance',

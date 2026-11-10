@@ -8,6 +8,7 @@ use App\Events\DeliveryStatusChanged;
 use App\Jobs\SendSmsJob;
 use App\Models\Delivery;
 use App\Models\User;
+use App\Services\Sms\SmsTemplates;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -67,7 +68,8 @@ class UpdateDeliveryStatusAction
                 && $order->customer?->mobile !== null) {
                 SendSmsJob::deliver(
                     $order->customer->mobile,
-                    __('delivery.sms_status.'.$nextStatus, ['invoice' => $order->invoice_no]),
+                    SmsTemplates::render('delivery_'.$nextStatus, ['invoice' => $order->invoice_no], $order->customer->locale),
+                    'delivery_status',
                 );
             }
 

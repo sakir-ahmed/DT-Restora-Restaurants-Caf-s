@@ -66,6 +66,7 @@ class RoleSeeder extends Seeder
         'riders.manage',
         'aggregators.manage',
         'settings.manage',
+        'sms.manage',
         'activity.view',
         'sync.resolve',
     ];
@@ -80,7 +81,7 @@ class RoleSeeder extends Seeder
             'employees.manage', 'attendance.manage', 'letters.manage', 'shifts.manage', 'payments.manage', 'expenses.manage',
             'pos.access', 'kds.access',
             'reports.view', 'dashboard.view', 'customers.view', 'customers.manage',
-            'loyalty.manage', 'delivery.dispatch', 'riders.manage', 'aggregators.manage', 'sync.resolve',
+            'loyalty.manage', 'delivery.dispatch', 'riders.manage', 'aggregators.manage', 'sync.resolve', 'sms.manage',
         ],
         'cashier' => [
             'admin.access', 'branches.view', 'menu.view', 'orders.view', 'orders.create',

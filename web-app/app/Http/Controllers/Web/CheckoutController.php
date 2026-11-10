@@ -17,6 +17,7 @@ use App\Models\DeliveryZone;
 use App\Services\CouponService;
 use App\Services\DemoJourney;
 use App\Services\OtpService;
+use App\Services\Sms\SmsTemplates;
 use App\Services\SmsService;
 use App\Services\TurnstileService;
 use Illuminate\Http\RedirectResponse;
@@ -227,7 +228,7 @@ class CheckoutController extends Controller
 
         app(DemoJourney::class)->recordFor($request, DemoEventType::OrderPlaced, $order->invoice_no);
 
-        SendSmsJob::deliver($customer->mobile, __('web.sms_order_confirmed', ['invoice' => $order->invoice_no, 'total' => $order->total]));
+        SendSmsJob::deliver($customer->mobile, SmsTemplates::render('order_confirmed', ['invoice' => $order->invoice_no, 'total' => $order->total], $customer->locale), 'order_confirmed');
 
         if ($validated['payment_method'] !== 'cod' && in_array($validated['payment_method'], ['bkash', 'sslcommerz'], true)) {
             session(['pending_gateway_order' => $order->id]);

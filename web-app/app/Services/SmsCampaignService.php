@@ -6,6 +6,8 @@ namespace App\Services;
 
 use App\Jobs\SendSmsJob;
 use App\Models\Customer;
+use App\Services\Sms\SmsFeatures;
+use App\Services\Sms\SmsTemplates;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -16,6 +18,10 @@ class SmsCampaignService
 {
     public function sendBirthdayOffers(): int
     {
+        if (! SmsFeatures::enabled('birthday')) {
+            return 0;
+        }
+
         $sent = 0;
 
         Customer::query()
@@ -32,7 +38,7 @@ class SmsCampaignService
                     return;
                 }
 
-                SendSmsJob::deliver($customer->mobile, __('web.sms_birthday', ['name' => $customer->name]));
+                SendSmsJob::deliver($customer->mobile, SmsTemplates::render('birthday', ['name' => $customer->name], $customer->locale), 'birthday');
                 Cache::put($key, true, now()->addYear());
                 $sent++;
             });
@@ -42,6 +48,10 @@ class SmsCampaignService
 
     public function sendWinBack(int $inactiveDays = 30): int
     {
+        if (! SmsFeatures::enabled('win_back')) {
+            return 0;
+        }
+
         $sent = 0;
         $cutoff = now()->subDays($inactiveDays);
 
@@ -58,7 +68,7 @@ class SmsCampaignService
                     return;
                 }
 
-                SendSmsJob::deliver($customer->mobile, __('web.sms_winback', ['name' => $customer->name]));
+                SendSmsJob::deliver($customer->mobile, SmsTemplates::render('win_back', ['name' => $customer->name], $customer->locale), 'win_back');
                 Cache::put($key, true, now()->addDays($inactiveDays));
                 $sent++;
             });

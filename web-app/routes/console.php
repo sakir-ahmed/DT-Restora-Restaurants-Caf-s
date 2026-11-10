@@ -3,8 +3,10 @@
 use App\Jobs\SendSmsJob;
 use App\Models\User;
 use App\Services\Accounting\AccountingService;
+use App\Services\DueReminderService;
 use App\Services\LoyaltyService;
 use App\Services\Metrics\MetricsService;
+use App\Services\Sms\SmsTemplates;
 use App\Services\SmsCampaignService;
 use Illuminate\Support\Facades\Schedule;
 
@@ -18,14 +20,17 @@ Schedule::call(function (): void {
 
     foreach (User::query()->whereHas('roles', fn ($query) => $query->whereIn('name', ['owner']))->pluck('mobile') as $mobile) {
         if ($mobile !== null) {
-            SendSmsJob::deliver((string) $mobile, __('web.owner_daily_summary', [
+            SendSmsJob::deliver((string) $mobile, SmsTemplates::render('owner_daily_summary', [
                 'date' => now()->subDay()->toDateString(),
                 'count' => $summary['orders'],
                 'total' => $summary['gross_sales'],
-            ]));
+            ]), 'owner_daily_summary');
         }
     }
 })->dailyAt('21:00');
+
+// Reminder SMS for customers with an open due sale.
+Schedule::call(fn () => app(DueReminderService::class)->send())->dailyAt('11:00')->name('due-reminders')->withoutOverlapping();
 
 // Daily salary allocation so the ledger matches the owner dashboard.
 Schedule::call(fn () => app(AccountingService::class)->postDailySalary(now()))

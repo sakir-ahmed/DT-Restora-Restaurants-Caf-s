@@ -26,6 +26,10 @@ class Setting extends Model
         'established_year',
         'website_enabled',
         'online_delivery_enabled',
+        'sms_provider',
+        'sms_config',
+        'sms_features',
+        'sms_templates',
     ];
 
     protected $casts = [
@@ -40,6 +44,9 @@ class Setting extends Model
         'established_year' => 'integer',
         'website_enabled' => 'boolean',
         'online_delivery_enabled' => 'boolean',
+        'sms_config' => 'encrypted:array',
+        'sms_features' => 'array',
+        'sms_templates' => 'array',
     ];
 
     /**

@@ -126,30 +126,19 @@ use Illuminate\Support\Facades\Log;
 
 class SmsService
 {
-    public function send(string $mobile, string $message): bool
-    {
-        $response = Http::asForm()
-            ->timeout(10)
-            ->post(config('services.bdbulksms.url'), [
-                'to' => $mobile,
-                'message' => $message,
-                'token' => config('services.bdbulksms.token'),
-            ]);
+    // Picks the provider chosen in Settings (SmsProviders::current()), loads its
+    // saved credentials and hands the message to that provider's driver.
+    public function deliver(string $mobile, string $message): SmsResult;
 
-        // Confirm the exact success format in the BdBulkSMS API docs.
-        $sent = $response->successful() && str_starts_with($response->body(), 'Ok');
-
-        $sent
-            ? Log::info('SMS sent.', ['mobile' => $mobile])
-            : Log::error('SMS failed.', ['mobile' => $mobile, 'status' => $response->status()]);
-
-        return $sent;
-    }
+    public function send(string $mobile, string $message): bool;
 }
 ```
 
 - **Never disable SSL verification** (`'verify' => false` is forbidden).
-- Config in `config/services.php`: `bdbulksms.url`, `bdbulksms.token`.
+- The owner picks the provider and enters its credentials in Settings, SMS provider. The choice is in `settings.sms_provider` and the credentials, keyed by provider, in `settings.sms_config` (encrypted). `BDBULKSMS_TOKEN` is only a fallback until a token is saved.
+- SMS module (`/admin/sms`, permission `sms.manage`): history of every message (`sms_logs`) and hand-written promotions. Settings holds the provider, the per-feature switches (`App\Services\Sms\SmsFeatures`, stored in `settings.sms_features`) and the wording of each automatic SMS.
+- Wording: `App\Services\Sms\SmsTemplates` holds a fixed variable list per template ({name} style), a default from `lang/*/` and an optional owner text per language in `settings.sms_templates`. Saved text is validated (known variables, required variables, at most 480 characters and 4 SMS parts after filling) and cut into parts with `SmsText` (GSM 7-bit 160/153, Unicode 70/67); `resources/js/lib/smsText.js` mirrors it for the live counter. Every send point renders through `SmsTemplates::render(key, vars, customerLocale)`.
+- Providers live in `App\Services\Sms\SmsProviders` (name, fields, driver). To add one, add an entry there and a driver class implementing `SmsDriver`; the Settings form is drawn from the declared fields. Current: BD Bulk SMS (`api.bdbulksms.net`).
 - Send SMS through a queued Job so a slow gateway never blocks a request.
 
 ### OtpService (rules)

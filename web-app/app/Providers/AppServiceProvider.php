@@ -6,7 +6,9 @@ namespace App\Providers;
 
 use App\Models\Branch;
 use App\Models\MenuItem;
+use App\Models\Order;
 use App\Models\User;
+use App\Observers\OrderInvoiceSmsObserver;
 use App\Support\Brand;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -37,6 +39,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::before(function ($user, string $ability) {
             return $user instanceof User && $user->hasRole('super-admin') ? true : null;
         });
+
+        // Invoice SMS goes out when a counter or table order becomes paid.
+        Order::observe(OrderInvoiceSmsObserver::class);
 
         // SMS_DEMO would leak verification codes to browsers, so it must never run in production.
         if (config('services.sms.demo') === true && $this->app->isProduction()) {

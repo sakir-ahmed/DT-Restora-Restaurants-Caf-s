@@ -58,7 +58,7 @@ class OtpService
             return true;
         }
 
-        return $this->sms->send($mobile, __('auth.otp_sms', ['code' => $code]));
+        return $this->sms->send($mobile, __('auth.otp_sms', ['code' => $code]), 'otp');
     }
 
     /**
