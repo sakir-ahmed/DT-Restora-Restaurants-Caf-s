@@ -136,24 +136,6 @@ async function remove(unit) {
     });
 }
 
-async function reset() {
-    const result = await confirm({
-        variant: 'warning',
-        level: 'simple',
-        title: t('units.reset_title'),
-        message: t('units.reset_message'),
-        confirmText: t('units.reset'),
-    });
-
-    if (! result.confirmed) {
-        return;
-    }
-
-    router.post(route('admin.settings.units.reset'), {}, {
-        preserveScroll: true,
-        onSuccess: (page) => notify.success(String(page.props.flash?.success ?? t('units.saved'))),
-    });
-}
 </script>
 
 <template>
@@ -161,17 +143,13 @@ async function reset() {
         <div class="rounded-lg border border-border bg-surface p-4">
             <h2 class="mb-1.5 text-[13px] font-semibold text-foreground">{{ t('units.notes_title') }}</h2>
             <ul class="list-disc space-y-1 pl-4 text-xs text-muted">
-                <li v-for="note in ['note_base', 'note_buy', 'note_box', 'note_fixed', 'note_locked', 'note_cost']" :key="note">{{ t('units.' + note) }}</li>
+                <li v-for="note in ['note_base', 'note_buy', 'note_box', 'note_fixed', 'note_locked']" :key="note">{{ t('units.' + note) }}</li>
             </ul>
         </div>
 
         <div class="flex flex-wrap items-center justify-between gap-2">
             <h2 class="text-[13px] font-semibold text-foreground">{{ t('units.title') }}</h2>
             <div class="flex gap-2">
-                <button type="button" class="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 text-[13px] text-foreground hover:bg-background" @click="reset">
-                    <AppIcon name="rotate" size="12" />
-                    {{ t('units.reset') }}
-                </button>
                 <button type="button" class="inline-flex h-7 items-center gap-1.5 rounded-md bg-primary px-2.5 text-[13px] font-medium text-primary-foreground hover:opacity-90" @click="startCreate">
                     <AppIcon name="plus" size="12" />
                     {{ t('units.add') }}

@@ -75,20 +75,6 @@ it('locks the size of a unit that is already used but still lets it be renamed',
     expect(Unit::query()->whereKey($box->id)->exists())->toBeTrue();
 });
 
-it('resets the standard units and removes only the unused custom ones', function (): void {
-    $unused = Unit::query()->create(['name' => 'Packet', 'symbol' => 'pkt', 'type' => 'count', 'base_unit_id' => $this->pcs->id, 'factor' => 6]);
-    $used = Unit::query()->create(['name' => 'Box', 'symbol' => 'box', 'type' => 'count', 'base_unit_id' => $this->pcs->id, 'factor' => 12]);
-    Ingredient::factory()->create(['unit_id' => $used->id]);
-    Unit::query()->where('symbol', 'kg')->update(['factor' => 999, 'name' => 'Changed']);
-
-    $this->actingAs($this->owner, 'staff')->post(route('admin.settings.units.reset'))->assertSessionHas('success');
-
-    expect(Unit::query()->whereKey($unused->id)->exists())->toBeFalse()
-        ->and(Unit::query()->whereKey($used->id)->exists())->toBeTrue()
-        ->and((float) Unit::query()->where('symbol', 'kg')->value('factor'))->toBe(1000.0)
-        ->and(Unit::query()->where('symbol', 'kg')->value('name'))->toBe('Kilogram');
-});
-
 it('needs the settings permission', function (): void {
     $cashier = User::factory()->role('cashier')->create();
 

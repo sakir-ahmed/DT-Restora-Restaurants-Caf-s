@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Unit;
 use App\Support\StandardUnits;
-use Database\Seeders\UnitSeeder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -62,37 +61,6 @@ class UnitController extends Controller
         $unit->delete();
 
         return back()->with('success', __('units.deleted'));
-    }
-
-    /**
-     * Put the standard units back as shipped and remove the owner's units
-     * that nothing uses. Units that are in use stay, and are listed.
-     */
-    public function reset(Request $request): RedirectResponse
-    {
-        $this->authorize('settings.manage');
-
-        (new UnitSeeder)->run();
-
-        $removed = 0;
-        $kept = [];
-
-        Unit::query()->where('is_system', false)->orderBy('id')->get()->each(function (Unit $unit) use (&$removed, &$kept): void {
-            if ($unit->isInUse()) {
-                $kept[] = $unit->name;
-
-                return;
-            }
-
-            $unit->delete();
-            $removed++;
-        });
-
-        activity()->causedBy($request->user('staff'))->log('units.reset');
-
-        $message = __('units.reset_done', ['count' => $removed]);
-
-        return back()->with('success', $kept === [] ? $message : $message.' '.__('units.reset_kept', ['names' => implode(', ', $kept)]));
     }
 
     /**
