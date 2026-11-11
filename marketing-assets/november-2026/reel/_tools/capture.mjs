@@ -75,9 +75,18 @@ for (const [name, path] of Object.entries(admin)) {
 // POS with a few items in the ticket
 if (!only || only.test('admin-desktop/02-pos-cart')) {
     await go('/admin/pos');
-    for (const item of ['French Fry', 'Chicken Fry (1 Pc)', 'Crispy Wings']) {
+    // some items open a chooser (size or add-ons): raise the quantity to 1 and add it to the ticket
+    for (const item of ['Mutton Rezala', 'Mezbani Beef', 'Chicken Fried Rice', 'Chicken Chap', 'Beef Shingara']) {
         await page.getByText(item, { exact: true }).first().click().catch(() => {});
-        await page.waitForTimeout(400);
+        const add = page.getByText('Add to order');
+        const shown = await add.first().waitFor({ state: 'visible', timeout: 3000 }).then(() => true).catch(() => false);
+        if (shown) {
+            const box = page.getByText('Customize item').locator('xpath=ancestor::*[.//*[normalize-space(text())="Add to order"]][1]');
+            await box.getByRole('button', { name: 'Increase' }).first().click().catch(() => {});
+            await page.waitForTimeout(300);
+            await add.first().click().catch(() => {});
+        }
+        await page.waitForTimeout(450);
     }
     await snap('admin-desktop', '02-pos-cart');
 }
@@ -115,6 +124,16 @@ for (const type of ['branch-pl', 'food-cost', 'item-sales', 'channel', 'payment-
     if (only && !only.test(`reports/${type}`)) continue;
     await go(`/admin/reports?type=${type}`);
     await snap('reports', type);
+}
+
+// an order opened from the list: who billed it, when, what was in it
+if (!only || only.test('admin-desktop/03-order-detail')) {
+    await go('/admin/orders');
+    await page.getByRole('button', { name: 'Paid', exact: true }).first().click().catch(() => {});
+    await page.waitForTimeout(2500);
+    await page.locator('tbody tr').filter({ hasText: /Paid/ }).first().click().catch(() => {});
+    await page.waitForTimeout(1800);
+    await snap('admin-desktop', '03-order-detail');
 }
 
 // dashboard, dark

@@ -180,5 +180,31 @@ return (function () {
     // beef and mutton are the costly lines; keep their share believable so food cost shows green, not red
     DB::table('recipe_items')->whereIn('ingredient_id', [$ing['Beef'], $ing['Mutton']])->update(['qty' => DB::raw('ROUND(qty * 0.6)')]);
 
+
+    // ---- activity log: the seed only has journal postings. Add a believable trail of who changed what.
+    DB::table('activity_log')->where('description', 'journal.posted')->update(['created_at' => $now->copy()->subDays(2)]);
+    DB::table('activity_log')->where('description', '!=', 'journal.posted')->update(['created_at' => $now->copy()->subDay()]);  // seed rows go below the new trail
+    $trail = [
+        [3, 'order.voided', 'Order', 'Cancelled after the customer left'], [4, 'discount.applied', 'Order', 'Regular customer, 10 percent'],
+        [2, 'menu.price_changed', 'MenuItem', 'Kacchi Biryani 540 to 560'], [3, 'purchase.received', 'Purchase', 'Beef 40 kg from Karim Wholesale'],
+        [4, 'due.collected', 'Order', 'Collected 670 from Imtiaz Karim'], [2, 'settings.updated', 'Setting', 'VAT and service charge'],
+        [3, 'stock.adjusted', 'StockCount', 'Closed the Sunday night count'], [4, 'order.created', 'Order', 'Dine-in table T4'],
+        [2, 'recipe.updated', 'Recipe', 'Mutton quantity trimmed'], [3, 'void.approved', 'VoidRequest', 'Approved the void request'],
+        [4, 'payment.received', 'Order', 'bKash payment confirmed'], [2, 'staff.updated', 'User', 'New cashier login created'],
+        [3, 'wastage.logged', 'Wastage', 'Milk spoiled, 2 litres'], [4, 'order.created', 'Order', 'Takeaway'], [2, 'coupon.created', 'Coupon', 'WELCOME10'],
+        [3, 'reservation.created', 'Reservation', 'Table for 6, 8 pm'], [4, 'due.collected', 'Order', 'Collected 342 from Raisa Ahmed'], [2, 'menu.item_added', 'MenuItem', 'New dessert added'],
+    ];
+    foreach ($trail as $i => [$user, $what, $subject, $note]) {
+        DB::table('activity_log')->insert([
+            'log_name' => 'default', 'description' => $what, 'subject_type' => 'App\\Models\\'.$subject, 'subject_id' => 1 + $i,
+            'event' => null, 'causer_type' => 'App\\Models\\User', 'causer_id' => $user,
+            'properties' => json_encode(['note' => $note]), 'created_at' => $now->copy()->subMinutes(4 + $i * 9), 'updated_at' => $now,
+        ]);
+    }
+
+    // litre-based ingredients (oil, milk, cream) were seeded as litres but recipes use millilitres, which blocks selling at the POS
+    DB::table('ingredient_stocks')->whereIn('ingredient_id', DB::table('ingredients')->where('unit_id', 4)->pluck('id'))
+        ->update(['stock_qty' => DB::raw('stock_qty * 1000')]);
+
     echo "showcase data added\n";
 })();
