@@ -118,6 +118,11 @@ return [
                 'formula' => 'Sum of completed payments marked as due collection and received in the period.',
                 'note1' => 'Collections are counted on the day the money was received, even if the sale was made earlier.',
             ],
+            'preorders' => [
+                'title' => 'Pre-orders',
+                'what' => 'Bookings that are still waiting for their guests and carry a pre-ordered menu.',
+                'formula' => 'Count of reservations with status booked that have pre-ordered items. They go to the kitchen when the party is seated.',
+            ],
             'dues' => [
                 'title' => 'Dues',
                 'what' => 'A summary of money owed to the restaurant on due sales.',
@@ -165,7 +170,7 @@ return [
             'low_stock' => [
                 'title' => 'Low stock alert',
                 'what' => 'Active ingredients that have run down to their reorder level.',
-                'formula' => 'Current stock quantity is at or below the ingredient reorder level, and the reorder level is above zero. The list shows stock / reorder level.',
+                'formula' => 'Current stock quantity is at or below the ingredient reorder level, and the reorder level is above zero.',
                 'note1' => 'Set the reorder level on the ingredient to include or exclude it.',
             ],
             'wastage_spike' => [
@@ -186,6 +191,8 @@ return [
     'dues_largest' => 'Largest dues',
     'dues_days' => ':count day(s)',
     'dues_collected' => 'Dues collected',
+    'preorders' => 'Pre-orders',
+    'low_stock' => 'Low stock items',
     'empty_title' => 'No data yet',
     'setup' => [
         'title' => 'Setup checklist',

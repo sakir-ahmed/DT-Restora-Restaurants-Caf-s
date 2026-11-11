@@ -9,6 +9,7 @@ use App\Models\Branch;
 use App\Models\Ingredient;
 use App\Models\MenuItem;
 use App\Models\Recipe;
+use App\Models\Reservation;
 use App\Models\User;
 use App\Services\Metrics\MetricsService;
 use Carbon\CarbonImmutable;
@@ -47,8 +48,13 @@ class DashboardController extends Controller
             'expensesByCategory' => $metrics->expensesByCategory($branchId, $from, $to),
             'dues' => $metrics->dues($branchId, $from, $to),
             'branchComparison' => $seesAll ? $metrics->branchComparison($from, $to) : [],
+            'preorders' => Reservation::query()
+                ->when($branchId, fn ($query) => $query->where('branch_id', $branchId))
+                ->where('status', Reservation::BOOKED)
+                ->whereNotNull('preorder')
+                ->count(),
             'alerts' => [
-                'lowStock' => $metrics->lowStock($branchId ?? $this->firstBranchId()),
+                'lowStock' => count($metrics->lowStock($branchId ?? $this->firstBranchId())),
                 'wastageSpike' => $metrics->wastageSpike($branchId ?? $this->firstBranchId()),
             ],
             'setup' => [

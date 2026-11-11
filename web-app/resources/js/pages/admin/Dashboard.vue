@@ -1,5 +1,5 @@
 <script setup>
-import { Link, router } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import {
     ArcElement,
@@ -41,6 +41,7 @@ const props = defineProps({
     branchComparison: { type: Array, default: () => [] },
     expensesByCategory: { type: Array, default: () => [] },
     dues: { type: Object, required: true },
+    preorders: { type: Number, default: 0 },
     alerts: { type: Object, required: true },
     setup: { type: Object, required: true },
 });
@@ -205,7 +206,10 @@ const infoDetails = computed(() => {
             facts: props.branchComparison.map((row) => fact(row.code + ' - ' + row.name, money(row.net_profit))),
         },
         low_stock: {
-            facts: props.alerts.lowStock.map((item) => fact(item.name, Number(item.stock_qty) + ' / ' + Number(item.reorder_level) + ' ' + item.unit_symbol)),
+            facts: [fact(t('dashboard.low_stock'), formatNumber(props.alerts.lowStock), true)],
+        },
+        preorders: {
+            facts: [fact(t('dashboard.preorders'), formatNumber(props.preorders), true)],
         },
         wastage_spike: {
             facts: props.alerts.wastageSpike
@@ -358,10 +362,12 @@ const profitLines = computed(() => ([
             <KpiCard info @info="infoKey = 'expenses'" :label="t('dashboard.expenses')" :value="formatMoney(summary.expenses, { symbol: true })" :change="change('expenses')" />
             <KpiCard info @info="infoKey = 'dues_outstanding'" :label="t('dashboard.dues_outstanding')" :value="formatMoney(dues.outstanding, { symbol: true })" :state="Number(dues.outstanding) > 0 ? 'danger' : 'success'" />
             <KpiCard info @info="infoKey = 'dues_collected'" :label="t('dashboard.dues_collected')" :value="formatMoney(dues.collected, { symbol: true })" />
+            <KpiCard info @info="infoKey = 'low_stock'" :label="t('dashboard.low_stock')" :value="formatNumber(alerts.lowStock)" :state="alerts.lowStock > 0 ? 'danger' : 'success'" />
+            <KpiCard info @info="infoKey = 'preorders'" :label="t('dashboard.preorders')" :value="formatNumber(preorders)" />
         </div>
 
         <!-- Alerts -->
-        <div v-if="alerts.wastageSpike || alerts.lowStock.length" class="mt-4 grid gap-2 lg:grid-cols-2">
+        <div v-if="alerts.wastageSpike" class="mt-4 grid gap-2">
             <div v-if="alerts.wastageSpike" class="flex items-center gap-2 rounded-lg border border-danger/40 bg-danger/5 px-3 py-2 text-[13px]">
                 <AppIcon name="triangle-exclamation" size="16" class="text-danger" />
                 <span class="flex-1">{{ t('dashboard.alerts.wastage_spike') }}
@@ -371,22 +377,6 @@ const profitLines = computed(() => ([
                 <InfoButton @click="infoKey = 'wastage_spike'" />
             </div>
 
-            <div v-if="alerts.lowStock.length" class="rounded-lg border border-danger/50 bg-danger/10 px-3 py-2 text-[13px]" role="alert">
-                <p class="flex items-center gap-2 font-semibold text-danger">
-                    <AppIcon name="triangle-exclamation" size="14" />
-                    <span class="flex-1">{{ t('dashboard.alerts.low_stock_count', { count: alerts.lowStock.length }) }}</span>
-                    <InfoButton @click="infoKey = 'low_stock'" />
-                </p>
-                <ul class="mt-1.5 flex flex-wrap gap-1.5">
-                    <li v-for="item in alerts.lowStock.slice(0, 8)" :key="item.id" class="inline-flex items-center gap-1 rounded-md border border-danger/40 bg-surface px-2 py-0.5 text-xs text-foreground">
-                        <span class="h-1.5 w-1.5 rounded-full bg-danger" />
-                        {{ item.name }}
-                        <span class="font-semibold tabular-nums text-danger">{{ Number(item.stock_qty) }} / {{ Number(item.reorder_level) }} {{ item.unit_symbol }}</span>
-                    </li>
-                    <li v-if="alerts.lowStock.length > 8" class="px-1 text-xs text-muted">+{{ alerts.lowStock.length - 8 }}</li>
-                </ul>
-                <Link :href="route('admin.ingredients.index', { low: 1 })" class="mt-1.5 inline-block text-xs font-medium text-danger underline">{{ t('dashboard.alerts.view_low_stock') }}</Link>
-            </div>
         </div>
 
         <!-- Charts -->
