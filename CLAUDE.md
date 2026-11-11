@@ -16,3 +16,9 @@ This repository holds two applications and shared documentation:
 - Web: run `./vendor/bin/pint`, `./vendor/bin/phpstan` and `php artisan test` before finishing. Flutter: run `flutter analyze` and `flutter test`. `make check` runs all of it.
 - Do not commit `.env`, build output (`flutter-app/build`, `flutter-app/dist`, `web-app/public/build`) or dependency folders.
 - Ask before assuming when something is unclear or contradictory.
+
+## Marketing reels
+
+- Reels live in `marketing-assets/november-2026/reel/`, one folder per reel (R01 is the reference). Follow `marketing-assets/november-2026/reel/REEL-WORKFLOW.md` to make the next one: voice first, relevant full-data screens, callouts, then `_tools/build_video.py`.
+- Never move or archive a voiceover the user supplies. Screenshots must show no demo banner or Demo guide button, no empty states and no bad-looking numbers. Use `web-app/database/marketing.sqlite` on port 8001, never the real database.
+
