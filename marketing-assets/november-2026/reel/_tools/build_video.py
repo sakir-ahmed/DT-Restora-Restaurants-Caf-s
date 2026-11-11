@@ -74,14 +74,31 @@ def segments_from_file(path, n, lines):
         return None
     weights = [len(l) + 3 for l in lines]
     tot = sum(weights)
-    edges, acc, used = [speech_start], 0, set()
+    expected, acc = [], 0
     for k in range(n - 1):
         acc += weights[k]
-        want = speech_start + (speech_end - speech_start) * acc / tot
-        best = min((i for i in range(len(inner)) if i not in used),
-                   key=lambda i: abs((inner[i][0] + inner[i][1]) / 2 - want) - 4 * (inner[i][1] - inner[i][0]))
-        used.add(best)
-        edges.append(best)
+        expected.append(speech_start + (speech_end - speech_start) * acc / tot)
+    mids = [(a + b) / 2 for a, b in inner]
+    m = len(inner)
+    # choose n-1 pauses in order so the cut times stay closest to where the text says (longer pauses cost less)
+    INF = float("inf")
+    cost = [[INF] * m for _ in range(n - 1)]
+    prev = [[-1] * m for _ in range(n - 1)]
+    for j in range(m):
+        cost[0][j] = (mids[j] - expected[0]) ** 2 - 3 * (inner[j][1] - inner[j][0])
+    for k in range(1, n - 1):
+        for j in range(m):
+            for i in range(j):
+                c = cost[k - 1][i] + (mids[j] - expected[k]) ** 2 - 3 * (inner[j][1] - inner[j][0])
+                if c < cost[k][j]:
+                    cost[k][j], prev[k][j] = c, i
+    j = min(range(m), key=lambda x: cost[n - 2][x])
+    edges = [speech_start]
+    chosen = []
+    for k in range(n - 2, -1, -1):
+        chosen.append(j)
+        j = prev[k][j]
+    edges += list(reversed(chosen))
     cuts = sorted(inner[i] for i in edges[1:])
     flat = [speech_start] + [x for c in cuts for x in c] + [speech_end]
     return [(flat[2 * i], flat[2 * i + 1]) for i in range(n)]
@@ -154,6 +171,13 @@ def main(rid):
 
     work = os.path.join(folder, "video", "_work")
     os.makedirs(work, exist_ok=True)
+    # portrait pictures (receipts, phone screens) are centred on a 16:10 backdrop so the camera can move over them
+    for i, sp in enumerate(shots):
+        w, h = (int(x) for x in subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height", "-of", "csv=p=0:s=x", sp], capture_output=True, text=True).stdout.strip().split("x"))
+        if w / h < 1.2:
+            padded = os.path.join(work, f"pad{i}.png")
+            run(["ffmpeg", "-y", "-loglevel", "error", "-i", sp, "-vf", f"scale=-2:900,pad=1440:900:(ow-iw)/2:0:color=0xe9edf5", padded])
+            shots[i] = padded
     scenes = []
     for i, (time, shot_key, on_screen, vo) in enumerate(reel["scenes"]):
         vis = (VISUALS.get(rid) or [None] * 99)[i] or {}
