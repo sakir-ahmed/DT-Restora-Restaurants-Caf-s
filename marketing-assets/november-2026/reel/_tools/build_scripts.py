@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Builds scripts/*.md, voiceover/*.txt, voiceover/ALL.txt and the reel index from reels_data.py.
+"""Builds one folder per reel (R01-slug/script.md, voiceover.txt, screenshots/), ALL-voiceover.txt and reel-index.md from reels_data.py.
 
 Run from anywhere:  python3 marketing-assets/november-2026/reel/_tools/build_scripts.py
 It also checks, and prints warnings for:
-  - a screenshot a script points at that is missing from screenshots/
+  - a screenshot a script points at that is missing from _library/screenshots/
   - a voiceover line that is too long for its scene (about 2.6 words per second)
   - scene times that are not back to back
   - a reel that never says the product name "ডিটি রেস্টোরা" in the voiceover
@@ -17,11 +17,27 @@ sys.path.insert(0, HERE)
 
 from reels_data import BASE_TAGS, BRAND, CTA_SCREEN, CTA_SECONDS, CTA_VO, DEMO, EMAIL, PHONE, REELS  # noqa: E402
 
-SCRIPTS = os.path.join(ROOT, "scripts")
-VOICE = os.path.join(ROOT, "voiceover")
-SHOTS = os.path.join(ROOT, "screenshots")
-os.makedirs(SCRIPTS, exist_ok=True)
-os.makedirs(VOICE, exist_ok=True)
+import shutil  # noqa: E402
+
+SHOTS = os.path.join(ROOT, "_library", "screenshots")
+CTA_SHOT = "website-desktop/01-home.png"
+
+
+def shot_name(n, shot):
+    """01-admin-desktop-02-pos.png: scene number first so the folder sorts in scene order."""
+    return f"{n:02d}-" + shot.replace("/", "-")
+
+
+def copy_shots(reel, folder):
+    target = os.path.join(folder, "screenshots")
+    if os.path.isdir(target):
+        shutil.rmtree(target)
+    os.makedirs(target)
+    for n, (_, shot, _, _) in enumerate(reel["scenes"], 1):
+        src = os.path.join(SHOTS, shot)
+        if os.path.exists(src):
+            shutil.copy2(src, os.path.join(target, shot_name(n, shot)))
+    shutil.copy2(os.path.join(SHOTS, CTA_SHOT), os.path.join(target, "cta-" + CTA_SHOT.replace("/", "-")))
 
 WORDS_PER_SECOND = 2.7
 SPOKEN_BRAND = "ডিটি রেস্টোরা"
@@ -116,10 +132,10 @@ def script_md(reel):
     lines.append("")
     lines.append("| সময় | স্ক্রিনশট | স্ক্রিনে লেখা | ভয়েসওভার |")
     lines.append("| --- | --- | --- | --- |")
-    for time, shot, on_screen, vo in scenes:
-        lines.append(f"| {time} | `screenshots/{shot}` | {on_screen or '-'} | {vo} |")
+    for n, (time, shot, on_screen, vo) in enumerate(scenes, 1):
+        lines.append(f"| {time} | `screenshots/{shot_name(n, shot)}` | {on_screen or '-'} | {vo} |")
     lines.append(
-        f"| {clock(cta_start)}-{clock(total)} (শেষ {to_bn(CTA_SECONDS)} সেকেন্ড) | `screenshots/website-desktop/01-home.png` | "
+        f"| {clock(cta_start)}-{clock(total)} (শেষ {to_bn(CTA_SECONDS)} সেকেন্ড) | `screenshots/cta-website-desktop-01-home.png` | "
         + " / ".join(CTA_SCREEN)
         + f" | {CTA_VO} |"
     )
@@ -174,15 +190,18 @@ all_voice = []
 for reel in REELS:
     check(reel)
     name = f"{reel['id']}-{reel['slug']}"
-    with open(os.path.join(SCRIPTS, name + ".md"), "w", encoding="utf-8") as f:
+    folder = os.path.join(ROOT, name)
+    os.makedirs(folder, exist_ok=True)
+    with open(os.path.join(folder, "script.md"), "w", encoding="utf-8") as f:
         f.write(script_md(reel))
     text = voice_text(reel)
-    with open(os.path.join(VOICE, name + ".txt"), "w", encoding="utf-8") as f:
+    with open(os.path.join(folder, "voiceover.txt"), "w", encoding="utf-8") as f:
         f.write(text)
+    copy_shots(reel, folder)
     all_voice.append(f"===== {reel['id']}: {reel['title']} =====\n{text}")
     index.append((reel, name))
 
-with open(os.path.join(VOICE, "ALL.txt"), "w", encoding="utf-8") as f:
+with open(os.path.join(ROOT, "ALL-voiceover.txt"), "w", encoding="utf-8") as f:
     f.write("\n".join(all_voice))
 
 rows = [
@@ -192,7 +211,7 @@ rows = [
 for reel, name in index:
     rows.append(
         f"| {reel['id']} | {reel['title']} | {reel['area']} | {to_bn(total_seconds(reel))} সেকেন্ড | {reel['hook']} | "
-        f"[scripts/{name}.md](scripts/{name}.md) | [voiceover/{name}.txt](voiceover/{name}.txt) |"
+        f"[{name}/script.md]({name}/script.md) | [{name}/voiceover.txt]({name}/voiceover.txt) |"
     )
 
 with open(os.path.join(ROOT, "reel-index.md"), "w", encoding="utf-8") as f:

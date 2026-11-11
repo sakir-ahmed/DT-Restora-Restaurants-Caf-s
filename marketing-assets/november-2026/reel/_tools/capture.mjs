@@ -1,4 +1,4 @@
-// Captures the product screenshots used by the reels into ../screenshots/*.
+// Captures the product screenshots used by the reels into ../_library/screenshots/*.
 // Needs the app running (default http://localhost:8000) and a staff login:
 //   SHOTS_LOGIN=... SHOTS_PASSWORD=... node marketing-assets/november-2026/reel/_tools/capture.mjs [only-regex]
 import { chromium } from '../../../../web-app/node_modules/playwright/index.mjs';
@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const OUT = join(here, '..', 'screenshots');
+const OUT = join(here, '..', '_library', 'screenshots');
 const BASE = process.env.SHOTS_URL || 'http://localhost:8000';
 const only = process.argv[2] ? new RegExp(process.argv[2]) : null;
 
