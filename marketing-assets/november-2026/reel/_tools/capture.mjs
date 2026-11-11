@@ -11,7 +11,7 @@ const OUT = join(here, '..', '_library', 'screenshots');
 const BASE = process.env.SHOTS_URL || 'http://localhost:8000';
 const only = process.argv[2] ? new RegExp(process.argv[2]) : null;
 
-for (const d of ['admin-desktop', 'admin-desktop-bangla', 'settings', 'invoice-print', 'website-desktop', 'website-mobile', 'admin-mobile']) {
+for (const d of ['reports', 'admin-desktop', 'admin-desktop-bangla', 'settings', 'invoice-print', 'website-desktop', 'website-mobile', 'admin-mobile']) {
     mkdirSync(join(OUT, d), { recursive: true });
 }
 
@@ -20,15 +20,21 @@ const desktop = await browser.newContext({ viewport: { width: 1440, height: 900 
 const page = await desktop.newPage();
 page.setDefaultTimeout(30000);
 
-// The demo banner, the demo guide button and the SMS demo card are not part of the product, so they are hidden in the shots.
+// The demo banner, the Demo guide button (bottom right), its nudge and the SMS demo toast are not part of the product, so they are hidden in every shot.
 const HIDE = '.demo-banner{display:none!important} [style*="--demo-fab"]{display:none!important} [data-sonner-toaster]{display:none!important} :root{--demo-banner-h:0px!important}';
-const settle = async (ms = 1200) => { await page.waitForLoadState('networkidle').catch(() => {}); await page.addStyleTag({ content: HIDE }).catch(() => {}); await page.waitForTimeout(ms); };
+const hideDemoUi = () => {
+    try { sessionStorage.setItem('demo-launcher-hidden', '1'); sessionStorage.setItem('demo-gate-skipped', '1'); localStorage.setItem('demo-seen', '1'); } catch {}
+    const add = () => { const st = document.createElement('style'); st.textContent = window.__HIDE__; (document.head || document.documentElement).appendChild(st); };
+    document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', add) : add();
+};
+for (const ctx of [desktop]) await ctx.addInitScript(`window.__HIDE__=${JSON.stringify(HIDE)};(${hideDemoUi.toString()})()`);
+const settle = async (ms = 1200) => { await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {}); await page.addStyleTag({ content: HIDE }).catch(() => {}); await page.waitForTimeout(ms); };
 const snap = async (dir, name) => {
     if (only && !only.test(`${dir}/${name}`)) return;
     await page.screenshot({ path: join(OUT, dir, `${name}.png`) });
     console.log('shot', `${dir}/${name}`);
 };
-const go = async (path, wait) => { await page.goto(BASE + path); await settle(wait); };
+const go = async (path, wait) => { try { await page.goto(BASE + path, { waitUntil: 'domcontentloaded', timeout: 45000 }); } catch (e) { console.log('slow page', path); } await settle(wait); };
 const light = async () => { await page.evaluate(() => { localStorage.setItem('theme', 'light'); document.documentElement.classList.remove('dark'); }); };
 const click = async (text) => { await page.getByRole('button', { name: text, exact: false }).first().click().catch(() => page.getByText(text).first().click()); await page.waitForTimeout(700); };
 
@@ -40,6 +46,14 @@ await page.keyboard.press('Enter');
 await page.waitForURL(/\/admin/, { timeout: 30000 });
 await settle(1500);
 await light();
+// the owner has no fixed branch; choose one so pages that read the session branch (transfers, ...) have it
+const branchSelect = page.locator('select').first();
+if (await branchSelect.count()) {
+    const names = await branchSelect.locator('option').allTextContents();
+    const home = Math.max(0, names.findIndex((n) => /BR01/.test(n)));
+    await branchSelect.selectOption({ index: home === 0 ? 1 : 0 }).catch(() => {}); await settle(1500);
+    await page.locator('select').first().selectOption({ index: home }).catch(() => {}); await settle(1500);
+}
 
 // ---- admin pages, English
 const admin = {
@@ -82,6 +96,25 @@ if (!only || only.test('admin-desktop/13-purchases-new')) {
     await row.locator('input').nth(1).fill('10').catch(() => {});
     await page.waitForTimeout(600);
     await snap('admin-desktop', '13-purchases-new');
+}
+
+// reel-specific scenes: today's dashboard, the recipe editor (cost and margin), and every report type
+if (!only || only.test('admin-desktop/01-dashboard-today')) {
+    await go('/admin?period=today');
+    await snap('admin-desktop', '01-dashboard-today');
+}
+if (!only || only.test('admin-desktop/12-recipe-edit')) {
+    await go('/admin/recipes');
+    await page.getByPlaceholder('Search').first().fill('Kacchi Biryani').catch(() => {});
+    await page.waitForTimeout(1200);
+    await click('Edit recipe');
+    await page.waitForTimeout(1500);
+    await snap('admin-desktop', '12-recipe-edit');
+}
+for (const type of ['branch-pl', 'food-cost', 'item-sales', 'channel', 'payment-method', 'cashier', 'discount-void', 'delivery', 'loyalty', 'wastage', 'stock-valuation']) {
+    if (only && !only.test(`reports/${type}`)) continue;
+    await go(`/admin/reports?type=${type}`);
+    await snap('reports', type);
 }
 
 // dashboard, dark
@@ -136,11 +169,12 @@ await page.waitForTimeout(800);
 // ---- public website (desktop)
 const site = { '01-home': '/', '02-menu': '/menu', '03-locations': '/locations', '04-contact': '/contact' };
 const publicCtx = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'en-US' });
+await publicCtx.addInitScript(`window.__HIDE__=${JSON.stringify(HIDE)};(${hideDemoUi.toString()})()`);
 const pub = await publicCtx.newPage();
 for (const [name, path] of Object.entries(site)) {
     if (only && !only.test(`website-desktop/${name}`)) continue;
     await pub.goto(BASE + path);
-    await pub.waitForLoadState('networkidle').catch(() => {});
+    await pub.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
     await pub.addStyleTag({ content: HIDE }).catch(() => {});
     await pub.waitForTimeout(1200);
     await pub.screenshot({ path: join(OUT, 'website-desktop', `${name}.png`) });
@@ -149,11 +183,12 @@ for (const [name, path] of Object.entries(site)) {
 
 // ---- phone views (website and admin)
 const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, locale: 'en-US' });
+await phone.addInitScript(`window.__HIDE__=${JSON.stringify(HIDE)};(${hideDemoUi.toString()})()`);
 const mob = await phone.newPage();
 for (const [name, path] of Object.entries({ '01-home': '/', '02-menu': '/menu', '03-contact': '/contact' })) {
     if (only && !only.test(`website-mobile/${name}`)) continue;
     await mob.goto(BASE + path);
-    await mob.waitForLoadState('networkidle').catch(() => {});
+    await mob.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
     await mob.addStyleTag({ content: HIDE }).catch(() => {});
     await mob.waitForTimeout(1200);
     await mob.screenshot({ path: join(OUT, 'website-mobile', `${name}.png`) });
@@ -167,7 +202,7 @@ await mob.waitForURL(/\/admin/, { timeout: 30000 });
 for (const [name, path] of Object.entries({ '01-dashboard': '/admin?period=month', '02-pos': '/admin/pos', '03-orders': '/admin/orders', '04-menu': '/admin/menu' })) {
     if (only && !only.test(`admin-mobile/${name}`)) continue;
     await mob.goto(BASE + path);
-    await mob.waitForLoadState('networkidle').catch(() => {});
+    await mob.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
     await mob.addStyleTag({ content: HIDE }).catch(() => {});
     await mob.waitForTimeout(1500);
     await mob.screenshot({ path: join(OUT, 'admin-mobile', `${name}.png`) });
