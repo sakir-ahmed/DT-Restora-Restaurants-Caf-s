@@ -95,6 +95,7 @@ Add the reel's `video/RNN-draft.mp4`, scripts, screenshots, seeder and capture c
 - **The kitchen page runs out of memory** on the full 33,000-order demo with PHP's default 128 MB. `serve_marketing.sh` raises the limit; the real page may need a product fix.
 - **One PHP worker hangs** on pages that poll. `serve_marketing.sh` starts eight.
 - **`public/hot`:** a stale Vite marker breaks asset loading; the server script moves it aside and restores it on exit.
+- **Product photos missing (icon placeholders):** `web-app/public/storage` can point at another checkout, so every `/storage/demo/*` photo 404s. `serve_marketing.sh` repoints it while serving and restores it on exit. The 104 demo photos ship in `web-app/database/seeders/assets/demo` (credits in `CREDITS.md`); `prepare_marketing_db.sh` also writes PNG copies and points the marketing database at them. Nothing needs downloading.
 - **Percent signs in SMS text:** the seeder uses `str_replace`, not `sprintf`.
 - **Timezones:** the app stores UTC and shows Asia/Dhaka. Build Dhaka times with `Carbon::now('Asia/Dhaka')...->utc()`.
 - **Recipe editor shot:** search for a specific item (`Kacchi Biryani`) before clicking Edit recipe, so it opens with ingredients.
