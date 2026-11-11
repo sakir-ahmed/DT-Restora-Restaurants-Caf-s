@@ -74,6 +74,12 @@ def check(reel):
     spoken = " ".join(vo for _, _, _, vo in reel["scenes"]) + " " + CTA_VO
     if SPOKEN_BRAND not in spoken:
         warnings.append(f"{reel['id']}: product name never spoken")
+    import re
+    for _, _, _, vo in reel["scenes"]:
+        if re.search(r"(দশের|ছয়ের|এক-এর|এক এর|ষাটের|\d-এর) ?মালিক", vo):
+            warnings.append(f"{reel['id']}: unnatural area phrase in voiceover: {vo}")
+        if re.search(r"[A-Za-z]", vo):
+            warnings.append(f"{reel['id']}: Latin letters in voiceover (TTS may misread): {vo}")
     hook_end = scene_span(reel["scenes"][0][0])[1]
     if hook_end > 4:
         warnings.append(f"{reel['id']}: hook scene is {hook_end}s, keep it at 4s or less")
