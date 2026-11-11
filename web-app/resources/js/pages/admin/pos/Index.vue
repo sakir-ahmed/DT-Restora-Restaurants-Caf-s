@@ -24,6 +24,7 @@ const props = defineProps({
     categories: { type: Array, required: true },
     tables: { type: Array, default: () => [] },
     openOrders: { type: Array, default: () => [] },
+    editTarget: { type: Object, default: null },
     branch: { type: Object, required: true },
     openShift: { type: Object, default: null },
     canOverrideDiscount: { type: Boolean, default: false },
@@ -169,6 +170,8 @@ const shiftDialogOpen = ref(false);
 const tablePickerOpen = ref(false);
 const heldListOpen = ref(false);
 const editingOrder = ref(null);
+// A paid sale or one completed on due: only its items and discount change, and its payments stay.
+const dueEditing = computed(() => !! editingOrder.value?.settled);
 const openingCash = ref('0.00');
 const locked = ref(false);
 const pin = ref('');
@@ -1440,6 +1443,12 @@ async function submitOrder(mode = 'send_to_kitchen', reviewed = false) {
         payload.discount = orderDiscount;
     }
 
+    if (dueEditing.value) {
+        saveDueEdit(payload);
+
+        return;
+    }
+
     if (! openShift.value) {
         openShiftDialog();
         notify.info(t('orders.shift_needed'));
@@ -1500,6 +1509,15 @@ async function submitOrder(mode = 'send_to_kitchen', reviewed = false) {
 
             editingOrder.value = null;
 
+            // An edit changes the items only. The order keeps its status and goes nowhere new in the kitchen.
+            if (editing) {
+                notify.success(`${t('orders.order_updated')} ${order?.invoice_no ?? ''}`.trim());
+                startNewOrder();
+                router.visit(route('admin.orders.index'));
+
+                return;
+            }
+
             if (order?.invoice_no) {
                 const sequence = parseInvoiceSequence(branch.value.pos_settings, order.invoice_no, branch.value.code, TERMINAL);
 
@@ -1538,6 +1556,23 @@ async function submitOrder(mode = 'send_to_kitchen', reviewed = false) {
             const first = Object.values(errors)[0];
             notify.error(String(first ?? t('common.error_occurred')));
         },
+    });
+}
+
+function saveDueEdit(payload) {
+    if (! navigator.onLine) {
+        notify.error(t('orders.edit_needs_internet'));
+
+        return;
+    }
+
+    router.put(route(editingOrder.value.is_due ? 'admin.dues.update' : 'admin.orders.update', editingOrder.value.id), payload, {
+        preserveScroll: true,
+        onSuccess: () => {
+            editingOrder.value = null;
+            startNewOrder();
+        },
+        onError: (errors) => notify.error(String(Object.values(errors)[0] ?? t('common.error_occurred'))),
     });
 }
 
@@ -2070,7 +2105,29 @@ onMounted(() => {
     window.addEventListener('invoice-renumbered', onInvoiceRenumbered);
     armIdleLock();
     refreshOfflineCache();
+    // After the layout has mounted, so a toast has somewhere to show.
+    setTimeout(openOrderFromQuery, 300);
 });
+
+// The order screens link here with ?edit=<id> to change an open order.
+function openOrderFromQuery() {
+    const params = new URLSearchParams(window.location.search);
+    const id = Number(params.get('edit'));
+
+    if (! id) {
+        return;
+    }
+
+    window.history.replaceState(window.history.state, '', window.location.pathname);
+
+    const order = (props.editTarget?.id === id ? props.editTarget : null) ?? props.openOrders.find((entry) => entry.id === id);
+
+    if (order) {
+        editOrder(order);
+    } else {
+        notify.error(t('orders.edit_not_found'));
+    }
+}
 
 // After a sync the server may have issued another number because a sale from another
 // terminal already had the one this device printed. Show the number that now counts.
@@ -2861,7 +2918,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                 </div>
 
                 <!-- Payment: one row per payment, + adds another method -->
-                <div class="space-y-1">
+                <div v-if="! dueEditing" class="space-y-1">
                     <div v-for="(line, index) in payLines" :key="index" class="flex items-center gap-1 rounded-md border border-border bg-background px-1.5 py-0.5">
                         <select v-model="line.method" :disabled="laneLocked" :aria-label="t('payments.method')" class="h-6 w-[4.5rem] shrink-0 rounded-md border border-border bg-surface px-0.5 text-xs font-medium text-foreground outline-none focus:border-accent disabled:opacity-50">
                             <option v-for="entry in payMethodList" :key="entry.method" :value="entry.method">{{ localized(entry, 'name') }}</option>
@@ -2937,7 +2994,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                         {{ editingOrder ? t('orders.update_order') : t('orders.send_kitchen') }}
                     </button>
                     <button
-                        v-if="posActions.quick_save.enabled && payMethods.includes('cash')"
+                        v-if="! dueEditing && posActions.quick_save.enabled && payMethods.includes('cash')"
                         type="button"
                         :disabled="cart.length === 0 || !! latestOrder || discountBlocked"
                         class="flex h-7 items-center justify-center gap-1 rounded-md bg-accent text-[13px] font-semibold text-accent-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
@@ -2948,7 +3005,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                         {{ t('orders.quick_save') }}
                     </button>
                     <button
-                        v-if="posActions.confirm_payment.enabled"
+                        v-if="! dueEditing && posActions.confirm_payment.enabled"
                         type="button"
                         :disabled="! canConfirmPayment"
                         class="flex h-7 items-center justify-center gap-1 rounded-md bg-success text-[13px] font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
@@ -2959,7 +3016,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                         {{ confirmPaymentLabel }}
                     </button>
                     <button
-                        v-if="posActions.due_sale.enabled"
+                        v-if="! dueEditing && posActions.due_sale.enabled"
                         type="button"
                         :disabled="! canQuickDue"
                         :title="t('orders.due_sale_title')"

@@ -297,12 +297,13 @@ it('shows expenses by category and due balances on the dashboard', function (): 
     expect($props['expensesByCategory'])->toBe([
         ['category' => 'rent', 'total' => '800.00'],
         ['category' => 'utilities', 'total' => '200.00'],
-    ])->and($props['dues'])->toBe([
-        'outstanding' => '500.00',
-        'open_count' => 1,
-        'new_due' => '600.00',
-        'collected' => '100.00',
-    ]);
+    ])->and($props['dues']['outstanding'])->toBe('500.00')
+        ->and($props['dues']['open_count'])->toBe(1)
+        ->and($props['dues']['new_due'])->toBe('600.00')
+        ->and($props['dues']['collected'])->toBe('100.00')
+        ->and($props['dues']['customers'])->toBe(1)
+        ->and($props['dues']['top'])->toHaveCount(1)
+        ->and($props['dues']['top'][0]['balance'])->toBe(500.0);
 });
 
 it('passes the previous period dates and has explanations in every language', function (): void {

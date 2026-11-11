@@ -8,6 +8,7 @@ use App\Actions\Sales\ApproveOrderVoidAction;
 use App\Actions\Sales\CreateOrderAction;
 use App\Actions\Sales\PayOrderAction;
 use App\Actions\Sales\RequestOrderVoidAction;
+use App\Actions\Sales\ReviseSettledSaleAction;
 use App\Enums\OrderChannel;
 use App\Enums\OrderStatus;
 use App\Enums\OrderType;
@@ -42,7 +43,7 @@ class OrderController extends Controller
 
         $orders = Order::query()
             ->where('branch_id', $branch->id)
-            ->with(['table:id,name', 'waiter:id,name', 'cashier:id,name', 'items:id,order_id,name,quantity,line_total', 'voidRequest', 'payments', 'aggregatorChannel:id,key,name'])
+            ->with(['table:id,name', 'waiter:id,name', 'cashier:id,name', 'customer:id,name,mobile', 'items:id,order_id,name,name_bn,quantity,unit_price,add_ons,add_ons_total,line_total', 'voidRequest', 'payments', 'aggregatorChannel:id,key,name'])
             ->when($request->string('status')->toString(), fn ($query, $status) => $query->where('status', $status))
             ->when($request->string('search')->toString(), function ($query, $search): void {
                 $query->where('invoice_no', 'like', "%{$search}%");
@@ -50,7 +51,9 @@ class OrderController extends Controller
             ->when(! Setting::showsDeletedItems(), fn ($query) => $query->where('status', '!=', OrderStatus::Void->value))
             ->latest()
             ->limit(100)
-            ->get();
+            ->get()
+            ->map(fn (Order $order): array => $order->toArray() + ['next_statuses' => $this->nextKitchenStatuses($order)])
+            ->values();
 
         return Inertia::render('admin/orders/Index', [
             'orders' => $orders,
@@ -58,6 +61,8 @@ class OrderController extends Controller
             'canVoid' => PosSettings::orderDeleteEnabled($branch) && $request->user('staff')?->can('orders.void'),
             'canApproveVoid' => PosSettings::orderDeleteEnabled($branch) && $request->user('staff')?->can('orders.void'),
             'canApprovePayments' => $request->user('staff')?->can('payments.manage'),
+            'canPay' => (bool) $request->user('staff')?->can('orders.create'),
+            'canEdit' => PosSettings::orderEditEnabled($branch) && $request->user('staff')?->can('orders.create'),
         ]);
     }
 
@@ -140,7 +145,7 @@ class OrderController extends Controller
             terminalCode: $request->input('terminal', 'T01'),
         );
 
-        broadcast(new OrderCreated($branch->id, [
+        $this->broadcastSafely(fn () => broadcast(new OrderCreated($branch->id, [
             'order_id' => $order->id,
             'invoice_no' => $order->invoice_no,
             'order_type' => $order->order_type->value,
@@ -149,7 +154,7 @@ class OrderController extends Controller
                 'name' => $item->name,
                 'quantity' => $item->quantity,
             ])->all(),
-        ]))->toOthers();
+        ]))->toOthers());
 
         return back()->with('success', __('orders.created', ['invoice' => $order->invoice_no]))->with('order', [
             'id' => $order->id,
@@ -162,12 +167,23 @@ class OrderController extends Controller
     }
 
     /**
-     * Change the items, table or discount of an order that is not paid yet.
+     * Change the items, table or discount of an order. One that is already paid goes through the
+     * settled-sale revision, which keeps its payments and fixes the books.
      */
-    public function update(CreateOrderRequest $request, Order $order, CreateOrderAction $action): RedirectResponse
+    public function update(CreateOrderRequest $request, Order $order, CreateOrderAction $action, ReviseSettledSaleAction $revisePaid): RedirectResponse
     {
         $user = $request->user('staff');
         abort_unless($user->canAccessBranch($order->branch_id), 404);
+
+        if ($order->status === OrderStatus::Paid) {
+            $discount = $request->has('discount.type')
+                ? ['type' => (string) $request->input('discount.type'), 'value' => (float) $request->input('discount.value')]
+                : null;
+
+            $order = $revisePaid->execute($order, $request->validated('items'), $discount, $request->validated('note'), $user);
+
+            return redirect()->route('admin.orders.index')->with('success', __('orders.revised', ['invoice' => $order->invoice_no]));
+        }
 
         // Revising replaces the order, which would leave the booking money on the old one.
         if ($order->payments()->where('is_advance', true)->exists()) {
@@ -197,14 +213,21 @@ class OrderController extends Controller
             customer: $customer,
             discount: $discount,
             note: $request->validated('note'),
+            deliveryFee: (float) $order->delivery_fee,
+            deliveryZoneId: $order->delivery_zone_id,
+            deliveryAddress: $order->delivery_address,
             revising: $order,
         );
+
+        if ($order->aggregator_channel_id !== null && (float) $order->commission_amount > 0) {
+            $order->update(['commission_amount' => $order->aggregatorChannel->commissionFor((float) $order->total)]);
+        }
 
         activity()->performedOn($order)->causedBy($user)->log('order.revised');
 
         $this->pushToPlatform($order, null, cart: true);
 
-        broadcast(new OrderCreated($order->branch_id, [
+        $this->broadcastSafely(fn () => broadcast(new OrderCreated($order->branch_id, [
             'order_id' => $order->id,
             'invoice_no' => $order->invoice_no,
             'order_type' => $order->order_type->value,
@@ -213,7 +236,7 @@ class OrderController extends Controller
                 'name' => $item->name,
                 'quantity' => $item->quantity,
             ])->all(),
-        ]))->toOthers();
+        ]))->toOthers());
 
         return back()->with('success', __('orders.revised', ['invoice' => $order->invoice_no]))->with('order', [
             'id' => $order->id,
@@ -306,23 +329,80 @@ class OrderController extends Controller
         ]);
 
         $next = OrderStatus::from($validated['status']);
-        $current = $order->status;
+        $current = $order->kitchen_status ?? $order->status;
 
-        if ($next !== OrderStatus::Paid && ! $current->canTransitionTo($next)) {
-            return back()->with('error', __('orders.invalid_status'));
+        if ($next === OrderStatus::Paid) {
+            // Paid is reached by taking payment, so it leaves the kitchen step alone.
+            $order->update(['status' => $next->value]);
+        } else {
+            if (! $this->canMoveKitchenStatus($order, $next)) {
+                return back()->with('error', __('orders.invalid_status'));
+            }
+
+            // An order still open carries the step as its status too. A paid one stays paid.
+            $order->update($order->status->isKitchenActive()
+                ? ['status' => $next->value, 'kitchen_status' => $next->value]
+                : ['kitchen_status' => $next->value]);
+
+            activity()->performedOn($order)->causedBy($request->user('staff'))
+                ->withProperties(['from' => $current->value, 'to' => $next->value])
+                ->log('order.status_changed');
         }
-
-        $order->update(['status' => $next->value]);
 
         $this->pushToPlatform($order, $next === OrderStatus::Ready ? 'ready' : null);
 
-        broadcast(new OrderStatusChanged($order->branch_id, [
+        $this->broadcastSafely(fn () => broadcast(new OrderStatusChanged($order->branch_id, [
             'order_id' => $order->id,
             'invoice_no' => $order->invoice_no,
             'status' => $next->value,
-        ]));
+        ])));
 
         return back()->with('success', __('orders.status_updated'));
+    }
+
+    /**
+     * The kitchen steps an order can be moved to: any other step, forward or back, whether or not
+     * it is paid. Paying and deleting are separate actions, so they are not offered.
+     * An order from a delivery platform only moves forward, because the platform was already told.
+     *
+     * @return array<int, string>
+     */
+    private function nextKitchenStatuses(Order $order): array
+    {
+        return collect([OrderStatus::Pending, OrderStatus::Preparing, OrderStatus::Ready, OrderStatus::Served])
+            ->filter(fn (OrderStatus $next): bool => $this->canMoveKitchenStatus($order, $next))
+            ->map(fn (OrderStatus $next): string => $next->value)
+            ->values()
+            ->all();
+    }
+
+    private function canMoveKitchenStatus(Order $order, OrderStatus $next): bool
+    {
+        $steps = [OrderStatus::Pending, OrderStatus::Preparing, OrderStatus::Ready, OrderStatus::Served];
+        $current = $order->kitchen_status ?? OrderStatus::Pending;
+
+        // A deleted order is out of the kitchen. A paid one is not: paying first is allowed.
+        if ($order->status === OrderStatus::Void || ! in_array($next, $steps, true) || $next === $current) {
+            return false;
+        }
+
+        $goesBack = array_search($next, $steps, true) < array_search($current, $steps, true);
+
+        return ! ($goesBack && $order->aggregator_channel_id !== null);
+    }
+
+    /**
+     * Live screens (kitchen, other POS terminals) hear about an order through the socket server.
+     * The order is already saved by now, so a socket server that is down must not turn the save
+     * into an error. It is reported instead.
+     */
+    private function broadcastSafely(\Closure $send): void
+    {
+        try {
+            $send();
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
     }
 
     /**

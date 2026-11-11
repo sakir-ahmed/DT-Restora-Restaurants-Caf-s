@@ -181,6 +181,10 @@ return [
     'dues_open_count' => 'Open due sales',
     'dues_outstanding' => 'Dues outstanding',
     'dues_new' => 'Put on due in period',
+    'dues_customers' => 'Customers who owe',
+    'dues_oldest' => 'Oldest due',
+    'dues_largest' => 'Largest dues',
+    'dues_days' => ':count day(s)',
     'dues_collected' => 'Dues collected',
     'empty_title' => 'No data yet',
     'setup' => [

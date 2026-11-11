@@ -188,7 +188,7 @@ class StaffApiController extends Controller
 
         $next = OrderStatus::from($validated['status']);
         abort_unless($order->status->canTransitionTo($next), 422, __('orders.invalid_status'));
-        $order->update(['status' => $next]);
+        $order->update(['status' => $next, 'kitchen_status' => $next]);
 
         return $this->success($this->orderPayload($order->fresh()));
     }

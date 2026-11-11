@@ -122,6 +122,37 @@ class LoyaltyService
     }
 
     /**
+     * Take back the points this order still holds (earned, less anything already taken back), so
+     * a revised order can earn again on its new figures without counting twice.
+     */
+    public function takeBackEarned(Order $order): void
+    {
+        if ($order->customer_id === null) {
+            return;
+        }
+
+        DB::transaction(function () use ($order): void {
+            $held = (int) LoyaltyEntry::query()
+                ->where('order_id', $order->id)
+                ->whereIn('type', [LoyaltyEntry::TYPE_EARNED, LoyaltyEntry::TYPE_ADJUSTED])
+                ->lockForUpdate()
+                ->sum('points');
+
+            if ($held <= 0) {
+                return;
+            }
+
+            $this->append(
+                customer: Customer::query()->whereKey($order->customer_id)->lockForUpdate()->firstOrFail(),
+                type: LoyaltyEntry::TYPE_ADJUSTED,
+                points: -$held,
+                orderId: $order->id,
+                note: __('loyalty.reversal_note', ['invoice' => $order->invoice_no]),
+            );
+        });
+    }
+
+    /**
      * Manual adjustment, permission and reason required.
      */
     public function adjust(Customer $customer, int $points, string $reason, User $staff): LoyaltyEntry

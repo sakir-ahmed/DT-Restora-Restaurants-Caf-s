@@ -319,6 +319,7 @@ Route::prefix('admin')
         Route::post('orders/{order}/pay', [OrderController::class, 'pay'])->name('orders.pay')->middleware('permission:orders.create');
         Route::post('orders/{order}/due', [OrderController::class, 'due'])->name('orders.due')->middleware('permission:orders.create');
         Route::get('dues', [DueController::class, 'index'])->name('dues.index')->middleware('permission:orders.view');
+        Route::put('dues/{order}', [DueController::class, 'update'])->name('dues.update')->middleware('permission:orders.create');
         Route::post('dues/{order}/collect', [DueController::class, 'collect'])->name('dues.collect')->middleware('permission:orders.create');
         Route::post('orders/{order}/gateway-payment', [PaymentController::class, 'startGateway'])->name('payments.gateway')->middleware('permission:orders.create');
         Route::post('orders/{order}/split', [PaymentController::class, 'split'])->name('payments.split')->middleware('permission:orders.create');

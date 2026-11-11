@@ -2,6 +2,7 @@
 import { router, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
+import OrderDetailPanel from '@/components/admin/OrderDetailPanel.vue';
 import DataTable from '@/components/ui-kit/DataTable.vue';
 import DateText from '@/components/ui-kit/DateText.vue';
 import FormField from '@/components/ui-kit/FormField.vue';
@@ -16,12 +17,21 @@ import { localized } from '@/lib/site';
 import { formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { notify } from '@/lib/notify';
+import { printUrl } from '@/lib/print';
 
 const props = defineProps({
     orders: { type: Array, required: true },
     methods: { type: Array, default: () => [] },
     canCollect: { type: Boolean, default: false },
     canDelete: { type: Boolean, default: false },
+    canEdit: { type: Boolean, default: false },
+});
+
+const selectedId = ref(null);
+const selected = computed(() => {
+    const order = props.orders.find((entry) => entry.id === selectedId.value);
+
+    return order ? { ...order, is_due: ! order.deleted, created_at: order.sold_at, order_status: order.deleted ? 'void' : (order.kitchen_status ?? 'served'), payment_status: order.deleted ? 'deleted' : 'due' } : null;
 });
 
 const collecting = ref(null);
@@ -78,6 +88,7 @@ async function removeDue(order) {
                 return;
             }
 
+            selectedId.value = null;
             notify.success(t('orders.deleted'));
         },
         onError: (errors) => notify.error(String(Object.values(errors)[0] ?? t('common.error_occurred'))),
@@ -90,7 +101,16 @@ function methodLabel(code) {
     return entry ? localized(entry, 'name') : code;
 }
 
+function printReceipt(order) {
+    printUrl(route('admin.orders.receipt', order.id));
+}
+
+function editOrder(order) {
+    router.get(route('admin.pos.index'), { edit: order.id });
+}
+
 function openCollect(order) {
+    selectedId.value = null;
     collecting.value = order;
     form.defaults({ method: props.methods[0]?.method ?? 'cash', amount: order.balance.toFixed(2), reference: '' }).reset();
     form.clearErrors();
@@ -128,6 +148,8 @@ function submit() {
             searchable
             :search-placeholder="t('dues.search')"
             :empty-title="t('dues.empty')"
+            clickable
+            @row-click="(row) => selectedId = row.id"
         >
             <template #cell(customer_label)="{ row }">
                 <span class="block truncate font-medium">{{ row.customer?.name }}</span>
@@ -161,6 +183,19 @@ function submit() {
                 </div>
             </template>
         </DataTable>
+
+        <OrderDetailPanel
+            :order="selected"
+            :methods="methods"
+            :can-collect="canCollect"
+            :can-edit="canEdit"
+            :can-delete="canDelete"
+            @close="selectedId = null"
+            @collect="openCollect"
+            @edit="editOrder"
+            @print="printReceipt"
+            @delete="removeDue"
+        />
 
         <SlideOver :open="!! collecting" :title="t('dues.collect_title')" @close="collecting = null">
             <form v-if="collecting" novalidate class="space-y-3" @submit.prevent="submit">

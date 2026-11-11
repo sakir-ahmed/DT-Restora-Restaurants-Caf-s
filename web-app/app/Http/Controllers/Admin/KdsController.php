@@ -22,10 +22,14 @@ class KdsController extends Controller
 
         $orders = Order::query()
             ->where('branch_id', $branch->id)
-            ->whereIn('status', [OrderStatus::Pending->value, OrderStatus::Preparing->value, OrderStatus::Ready->value])
+            ->where('status', '!=', OrderStatus::Void->value)
+            ->whereIn('kitchen_status', [OrderStatus::Pending->value, OrderStatus::Preparing->value, OrderStatus::Ready->value])
             ->with(['items:id,order_id,name,name_bn,quantity,add_ons', 'table:id,name', 'waiter:id,name', 'aggregatorChannel:id,key,name'])
             ->oldest()
-            ->get();
+            ->get()
+            // The kitchen board goes by the kitchen step, whether or not the bill is paid yet.
+            ->map(fn (Order $order): array => ['status' => $order->kitchen_status?->value] + $order->toArray())
+            ->values();
 
         return Inertia::render('admin/kds/Index', [
             'orders' => $orders,

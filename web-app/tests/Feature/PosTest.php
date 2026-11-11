@@ -10,7 +10,11 @@ use App\Actions\Sales\PayOrderAction;
 use App\Actions\Sales\RequestOrderVoidAction;
 use App\Enums\OrderStatus;
 use App\Enums\OrderType;
+use App\Models\AggregatorChannel;
 use App\Models\Branch;
+use App\Models\Coupon;
+use App\Models\CouponRedemption;
+use App\Models\Customer;
 use App\Models\Ingredient;
 use App\Models\IngredientStock;
 use App\Models\MenuCategory;
@@ -403,9 +407,9 @@ it('changes the items of an unpaid order and keeps stock and the invoice consist
         ->and($stock())->toBe(9700.0);
 });
 
-it('refuses to change an order that is already paid', function (): void {
+it('refuses to change a deleted order', function (): void {
     $order = createPosOrder($this);
-    $order->update(['status' => OrderStatus::Paid->value]);
+    $order->update(['status' => OrderStatus::Void->value]);
 
     $this->actingAs($this->cashier, 'staff')->put("/admin/orders/{$order->id}", [
         'order_type' => 'takeaway',
@@ -576,4 +580,289 @@ it('shows a demo invoice preview for a walk-in sale and records a skip outside t
     $skipped = SmsLog::query()->where('feature', 'invoice')->latest('id')->first();
 
     expect($skipped->status)->toBe('skipped')->and($skipped->response)->toBe(__('sms.no_mobile_reason'));
+});
+
+it('still saves an order edit when the live socket server is down', function (): void {
+    $order = createPosOrder($this);
+
+    config([
+        'broadcasting.default' => 'reverb',
+        'broadcasting.connections.reverb.options.host' => '127.0.0.1',
+        'broadcasting.connections.reverb.options.port' => 1,
+        'broadcasting.connections.reverb.options.scheme' => 'http',
+        'broadcasting.connections.reverb.options.useTLS' => false,
+    ]);
+
+    $this->actingAs($this->cashier, 'staff')
+        ->put(route('admin.orders.update', $order), [
+            'order_type' => 'takeaway',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 3]],
+        ])
+        ->assertSessionHasNoErrors()
+        ->assertStatus(302);
+
+    expect($order->fresh()->items->first()->quantity)->toBe(3);
+});
+
+it('lists every other kitchen step for an order, paid or not, and none for a deleted one', function (): void {
+    $open = createPosOrder($this);
+    $open->update(['status' => OrderStatus::Ready->value, 'kitchen_status' => OrderStatus::Ready->value]);
+
+    $paidFirst = createPosOrder($this);
+    $paidFirst->update(['status' => OrderStatus::Paid->value, 'kitchen_status' => OrderStatus::Preparing->value]);
+
+    $deleted = createPosOrder($this);
+    $deleted->update(['status' => OrderStatus::Void->value]);
+
+    $this->actingAs($this->manager, 'staff')
+        ->get(route('admin.orders.index'))
+        ->assertInertia(fn ($page) => $page
+            ->where('orders', fn ($orders) => collect($orders)->firstWhere('id', $open->id)['next_statuses'] === ['pending', 'preparing', 'served']
+                && collect($orders)->firstWhere('id', $paidFirst->id)['next_statuses'] === ['pending', 'ready', 'served']
+                && ! isset(collect($orders)->firstWhere('id', $deleted->id)['next_statuses'][0])));
+});
+
+it('keeps the kitchen status of an order when its items are edited', function (): void {
+    $order = createPosOrder($this);
+    $order->update(['status' => OrderStatus::Served->value]);
+
+    $this->actingAs($this->cashier, 'staff')
+        ->put(route('admin.orders.update', $order), [
+            'order_type' => 'takeaway',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 2]],
+        ])
+        ->assertSessionHasNoErrors();
+
+    expect($order->fresh()->status)->toBe(OrderStatus::Served);
+});
+
+it('moves an order back to an earlier kitchen step, but not a delivery platform order or a deleted one', function (): void {
+    $order = createPosOrder($this);
+    $order->update(['status' => OrderStatus::Served->value, 'kitchen_status' => OrderStatus::Served->value]);
+
+    $this->actingAs($this->cashier, 'staff')
+        ->patch(route('admin.orders.status', $order), ['status' => 'ready'])
+        ->assertSessionHas('success');
+
+    expect($order->fresh()->status)->toBe(OrderStatus::Ready)
+        ->and($order->fresh()->kitchen_status)->toBe(OrderStatus::Ready);
+
+    $deleted = createPosOrder($this);
+    $deleted->update(['status' => OrderStatus::Void->value]);
+
+    $this->actingAs($this->cashier, 'staff')
+        ->patch(route('admin.orders.status', $deleted), ['status' => 'served'])
+        ->assertSessionHas('error');
+
+    $channel = AggregatorChannel::query()->create([
+        'key' => 'foodpanda',
+        'name' => 'Foodpanda',
+        'commission_percent' => '25.00',
+        'webhook_secret' => 'secret-token',
+        'is_active' => true,
+    ]);
+
+    $platform = createPosOrder($this);
+    $platform->update(['status' => OrderStatus::Served->value, 'kitchen_status' => OrderStatus::Served->value, 'aggregator_channel_id' => $channel->id]);
+
+    $this->actingAs($this->cashier, 'staff')
+        ->patch(route('admin.orders.status', $platform), ['status' => 'ready'])
+        ->assertSessionHas('error');
+
+    expect($platform->fresh()->kitchen_status)->toBe(OrderStatus::Served);
+});
+
+it('keeps the kitchen step when an order is paid first, and lets the kitchen carry on', function (): void {
+    $order = createPosOrder($this);
+
+    app(PayOrderAction::class)->executeCash($order, 5000, $this->cashier);
+
+    $order->refresh();
+
+    expect($order->status)->toBe(OrderStatus::Paid)
+        ->and($order->kitchen_status)->toBe(OrderStatus::Pending);
+
+    $this->actingAs($this->manager, 'staff')
+        ->get(route('admin.kds.index'))
+        ->assertInertia(fn ($page) => $page->where('orders.0.id', $order->id)->where('orders.0.status', 'pending'));
+
+    $this->actingAs($this->cashier, 'staff')
+        ->patch(route('admin.orders.status', $order), ['status' => 'served'])
+        ->assertSessionHas('success');
+
+    $order->refresh();
+
+    expect($order->status)->toBe(OrderStatus::Paid)
+        ->and($order->kitchen_status)->toBe(OrderStatus::Served);
+
+    $this->actingAs($this->manager, 'staff')
+        ->get(route('admin.kds.index'))
+        ->assertInertia(fn ($page) => $page->has('orders', 0));
+});
+
+function ingredientStock($test): float
+{
+    return (float) IngredientStock::query()->where('ingredient_id', $test->ingredient->id)->value('stock_qty');
+}
+
+it('moves stock only when items change or the order is deleted, never on a kitchen step', function (): void {
+    $order = createPosOrder($this);
+
+    // 2 servings of 100 g from 10 000 g.
+    expect(ingredientStock($this))->toBe(9800.0);
+
+    foreach (['preparing', 'ready', 'served', 'ready', 'pending'] as $step) {
+        $this->actingAs($this->cashier, 'staff')->patch(route('admin.orders.status', $order), ['status' => $step])->assertSessionHas('success');
+    }
+
+    expect(ingredientStock($this))->toBe(9800.0);
+
+    $this->actingAs($this->cashier, 'staff')
+        ->put(route('admin.orders.update', $order), [
+            'order_type' => 'takeaway',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 5]],
+        ])
+        ->assertSessionHasNoErrors();
+
+    expect(ingredientStock($this))->toBe(9500.0);
+
+    $this->actingAs($this->cashier, 'staff')
+        ->put(route('admin.orders.update', $order), [
+            'order_type' => 'takeaway',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        ])
+        ->assertSessionHasNoErrors();
+
+    expect(ingredientStock($this))->toBe(9900.0);
+
+    $this->actingAs($this->manager, 'staff')
+        ->post(route('admin.orders.delete', $order), ['reason_code' => 'wrong_item'])
+        ->assertSessionHasNoErrors();
+
+    expect($order->fresh()->status)->toBe(OrderStatus::Void)
+        ->and(ingredientStock($this))->toBe(10000.0);
+});
+
+it('changes stock when a paid sale is edited and gives it all back when it is deleted', function (): void {
+    $customer = Customer::query()->create(['name' => 'Rahim', 'mobile' => '01711111111', 'is_active' => true]);
+
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::Takeaway,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 2]],
+        cashier: $this->cashier,
+        customer: $customer,
+        shift: $this->shift,
+    );
+
+    app(PayOrderAction::class)->executeCash($order, 5000, $this->cashier);
+
+    expect(ingredientStock($this))->toBe(9800.0);
+
+    $this->actingAs($this->cashier, 'staff')
+        ->put(route('admin.orders.update', $order), [
+            'order_type' => 'takeaway',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 4]],
+        ])
+        ->assertSessionHasNoErrors();
+
+    expect(ingredientStock($this))->toBe(9600.0)
+        ->and($order->fresh()->is_due)->toBeTrue();
+
+    $this->actingAs($this->manager, 'staff')
+        ->post(route('admin.orders.delete', $order), ['reason_code' => 'wrong_item'])
+        ->assertSessionHasNoErrors();
+
+    expect(ingredientStock($this))->toBe(10000.0);
+});
+
+it('edits a delivery platform order and works its commission out again', function (): void {
+    $channel = AggregatorChannel::query()->create([
+        'key' => 'foodpanda',
+        'name' => 'Foodpanda',
+        'commission_percent' => '20.00',
+        'webhook_secret' => 'secret-token',
+        'is_active' => true,
+    ]);
+
+    $order = createPosOrder($this);
+    $order->forceFill([
+        'aggregator_channel_id' => $channel->id,
+        'aggregator_order_id' => 'FP-1',
+        'commission_amount' => $channel->commissionFor((float) $order->total),
+    ])->save();
+
+    $this->actingAs($this->cashier, 'staff')
+        ->put(route('admin.orders.update', $order), [
+            'order_type' => 'takeaway',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 4]],
+        ])
+        ->assertSessionHasNoErrors();
+
+    $order->refresh();
+
+    expect((float) $order->commission_amount)->toBe(round((float) $order->total * 0.2, 2));
+
+    // The POS can open it for editing even though it is not in the open orders list.
+    $this->actingAs($this->cashier, 'staff')
+        ->get(route('admin.pos.index', ['edit' => $order->id]))
+        ->assertInertia(fn ($page) => $page->where('editTarget.id', $order->id));
+});
+
+it('keeps a coupon on an edited bill and counts its use once', function (): void {
+    $coupon = Coupon::query()->create([
+        'code' => 'SAVE10',
+        'type' => 'percent',
+        'value' => 10,
+        'is_active' => true,
+    ]);
+
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::Takeaway,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 2]],
+        cashier: $this->cashier,
+        shift: $this->shift,
+        couponCode: 'SAVE10',
+    );
+
+    expect($order->coupon_id)->toBe($coupon->id)
+        ->and((float) $order->discount_amount)->toBe(40.0);
+
+    $this->actingAs($this->cashier, 'staff')
+        ->put(route('admin.orders.update', $order), [
+            'order_type' => 'takeaway',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 3]],
+        ])
+        ->assertSessionHasNoErrors();
+
+    $order->refresh();
+
+    expect($order->coupon_id)->toBe($coupon->id)
+        ->and((float) $order->discount_amount)->toBe(60.0)
+        ->and(CouponRedemption::query()->where('order_id', $order->id)->count())->toBe(1);
+});
+
+it('keeps the delivery fee and address of a delivery order when its items are edited', function (): void {
+    $order = app(CreateOrderAction::class)->execute(
+        branch: $this->branch,
+        type: OrderType::Delivery,
+        lines: [['menu_item_id' => $this->item->id, 'quantity' => 2]],
+        cashier: $this->cashier,
+        shift: $this->shift,
+        deliveryFee: 60,
+        deliveryAddress: 'Road 3, House 10, Dhaka',
+    );
+
+    $this->actingAs($this->cashier, 'staff')
+        ->put(route('admin.orders.update', $order), [
+            'order_type' => 'delivery',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 3]],
+        ])
+        ->assertSessionHasNoErrors();
+
+    $order->refresh();
+
+    expect((float) $order->delivery_fee)->toBe(60.0)
+        ->and($order->delivery_address)->toBe('Road 3, House 10, Dhaka');
 });

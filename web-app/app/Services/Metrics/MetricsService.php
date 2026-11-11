@@ -127,7 +127,7 @@ class MetricsService
      * Money owed on due sales (all time, as it stays owed until collected), plus what was
      * put on due and what was collected within the period.
      *
-     * @return array{outstanding: string, open_count: int, new_due: string, collected: string}
+     * @return array{customers: int, oldest_days: int, top: array<int, array<string, mixed>>, outstanding: string, open_count: int, new_due: string, collected: string}
      */
     public function dues(?int $branchId, CarbonInterface $from, CarbonInterface $to): array
     {
@@ -160,7 +160,25 @@ class MetricsService
                 ->select('id'))
             ->sum('amount');
 
+        // The biggest balances still to collect, so the owner sees who owes the most and for how long.
+        $open = (clone $dueOrders)
+            ->with('customer:id,name,mobile')
+            ->withSum(['payments as received' => fn ($payments) => $payments->where('status', Payment::STATUS_COMPLETED)], 'amount')
+            ->get()
+            ->map(fn (Order $order): array => [
+                'id' => $order->id,
+                'invoice_no' => $order->invoice_no,
+                'customer' => $order->customer?->name,
+                'mobile' => $order->customer?->mobile,
+                'balance' => max(0.0, round((float) $order->total - (float) ($order->received ?? 0), 2)),
+                'days' => (int) ($order->paid_at ?? $order->created_at)->startOfDay()->diffInDays(now()->startOfDay()),
+            ])
+            ->filter(fn (array $row): bool => $row['balance'] > 0);
+
         return [
+            'customers' => $open->pluck('mobile')->unique()->count(),
+            'oldest_days' => (int) ($open->max('days') ?? 0),
+            'top' => $open->sortByDesc('balance')->take(5)->values()->all(),
             'outstanding' => number_format(max(0.0, $outstanding), 2, '.', ''),
             'open_count' => (clone $dueOrders)->count(),
             'new_due' => number_format(max(0.0, $newDue), 2, '.', ''),

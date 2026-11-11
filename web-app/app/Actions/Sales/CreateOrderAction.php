@@ -9,6 +9,8 @@ use App\Enums\OrderStatus;
 use App\Enums\OrderType;
 use App\Exceptions\InsufficientStockException;
 use App\Models\Branch;
+use App\Models\Coupon;
+use App\Models\CouponRedemption;
 use App\Models\Customer;
 use App\Models\Ingredient;
 use App\Models\IngredientStock;
@@ -67,6 +69,7 @@ class CreateOrderAction
         ?string $couponCode = null,
         ?string $invoiceNo = null,
         ?Order $revising = null,
+        bool $revisingSettled = false,
     ): Order {
         if ($clientId !== null && $revising === null) {
             $existing = Order::query()->where('client_id', $clientId)->first();
@@ -78,15 +81,24 @@ class CreateOrderAction
 
         $lines = collect($lines);
 
-        return DB::transaction(function () use ($branch, $type, $lines, $cashier, $waiter, $tableId, $customer, $discount, $note, $channel, $clientId, $shift, $terminalCode, $deliveryFee, $deliveryZoneId, $deliveryAddress, $scheduledFor, $couponCode, $invoiceNo, $revising): Order {
+        return DB::transaction(function () use ($branch, $type, $lines, $cashier, $waiter, $tableId, $customer, $discount, $note, $channel, $clientId, $shift, $terminalCode, $deliveryFee, $deliveryZoneId, $deliveryAddress, $scheduledFor, $couponCode, $invoiceNo, $revising, $revisingSettled): Order {
             $branch = Branch::query()->whereKey($branch->id)->lockForUpdate()->firstOrFail();
+
+            $keptCoupon = false;
 
             if ($revising !== null) {
                 if (! PosSettings::orderEditEnabled($branch)) {
                     throw ValidationException::withMessages(['order' => __('orders.edit_disabled')]);
                 }
 
-                $revising = $this->releaseForRevision($revising, $tableId, $type);
+                $revising = $this->releaseForRevision($revising, $tableId, $type, $revisingSettled);
+
+                // The coupon stays on the revised bill if it still applies; its old use is cleared so it counts once.
+                if ($couponCode === null && $revising->coupon_id !== null) {
+                    $couponCode = Coupon::query()->whereKey($revising->coupon_id)->value('code');
+                    $keptCoupon = $couponCode !== null;
+                    CouponRedemption::query()->where('order_id', $revising->id)->delete();
+                }
             }
 
             // Percent discounts above the limit need the override permission.
@@ -120,14 +132,21 @@ class CreateOrderAction
             $couponDiscount = 0.0;
 
             if ($couponCode !== null && $couponCode !== '') {
-                $result = app(CouponService::class)->validate(
-                    $couponCode,
-                    round(max(0, $billBase - $manualDiscount), 2),
-                    ['channel' => $channel->value, 'branch_id' => $branch->id, 'customer_id' => $customer?->id],
-                );
+                try {
+                    $result = app(CouponService::class)->validate(
+                        $couponCode,
+                        round(max(0, $billBase - $manualDiscount), 2),
+                        ['channel' => $channel->value, 'branch_id' => $branch->id, 'customer_id' => $customer?->id],
+                    );
 
-                $coupon = $result['coupon'];
-                $couponDiscount = $result['discount'];
+                    $coupon = $result['coupon'];
+                    $couponDiscount = $result['discount'];
+                } catch (ValidationException $exception) {
+                    // A coupon kept from the old bill that no longer fits the new items is dropped, not an error.
+                    if (! $keptCoupon) {
+                        throw $exception;
+                    }
+                }
             }
 
             $discountBeforeCoupon = round($lineDiscounts + $manualDiscount, 2);
@@ -202,6 +221,7 @@ class CreateOrderAction
                     'cashier_id' => $cashier?->id,
                     'shift_id' => $shift?->id,
                     'status' => OrderStatus::Pending->value,
+                    'kitchen_status' => OrderStatus::Pending->value,
                     'client_id' => $clientId,
                     'tracking_token' => bin2hex(random_bytes(20)),
                 ]);
@@ -228,7 +248,7 @@ class CreateOrderAction
 
             $reservation = null;
 
-            if ($type === OrderType::DineIn && $tableId !== null) {
+            if (! $revisingSettled && $type === OrderType::DineIn && $tableId !== null) {
                 RestaurantTable::query()->whereKey($tableId)->update(['status' => 'occupied']);
                 $reservation = Reservation::seatAt($tableId);
             }
@@ -358,11 +378,15 @@ class CreateOrderAction
      * Prepare an unpaid order for a new set of lines: give its stock back,
      * drop the old lines and free (or move) its table.
      */
-    private function releaseForRevision(Order $order, ?int $newTableId, OrderType $type): Order
+    private function releaseForRevision(Order $order, ?int $newTableId, OrderType $type, bool $revisingSettled = false): Order
     {
         $order = Order::query()->whereKey($order->id)->lockForUpdate()->with('items')->firstOrFail();
 
-        if (! $order->status->isKitchenActive() || $order->payments()->exists()) {
+        $revisable = $revisingSettled
+            ? $order->status === OrderStatus::Paid
+            : $order->status->isKitchenActive() && ! $order->payments()->exists();
+
+        if (! $revisable) {
             throw ValidationException::withMessages([
                 'order' => __('orders.invalid_status'),
             ]);
@@ -396,6 +420,10 @@ class CreateOrderAction
 
         $order->items()->delete();
         $order->unsetRelation('items');
+
+        if ($revisingSettled) {
+            return $order;
+        }
 
         $keepsTable = $type === OrderType::DineIn && $newTableId === $order->restaurant_table_id;
 

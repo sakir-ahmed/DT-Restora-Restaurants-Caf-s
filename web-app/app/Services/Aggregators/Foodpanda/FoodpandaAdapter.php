@@ -358,7 +358,7 @@ class FoodpandaAdapter implements AggregatorChannelContract
         }
 
         if ($status === 'DELIVERED' && $order->status->canTransitionTo(OrderStatus::Served) && $order->status !== OrderStatus::Served) {
-            $order->update(['status' => OrderStatus::Served->value]);
+            $order->update(['status' => OrderStatus::Served->value, 'kitchen_status' => OrderStatus::Served->value]);
         }
 
         activity()->performedOn($order)->withProperties(['platform_status' => $status])->log('aggregator.status');

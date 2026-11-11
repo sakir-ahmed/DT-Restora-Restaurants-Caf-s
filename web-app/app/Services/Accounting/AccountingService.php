@@ -121,13 +121,20 @@ class AccountingService
             $lines[] = $this->line('receivable', credit: (float) $order->commission_amount);
         }
 
-        foreach ($order->payments()->where('status', 'completed')->get() as $payment) {
+        // Money collected later on a due sale has its own entries, so only what came in with the sale counts here.
+        $received = 0.0;
+
+        foreach ($order->payments()->where('status', 'completed')->where('is_due_collection', false)->get() as $payment) {
             $lines[] = $this->line($this->paymentAccount((string) $payment->method), debit: (float) $payment->amount);
+            $received += (float) $payment->amount;
         }
 
         // A sale completed on due books the unpaid part as money owed to the restaurant.
-        if ($order->is_due && $order->balanceDue() > 0) {
-            $lines[] = $this->line('receivable', debit: $order->balanceDue());
+        $collected = $order->payments()->where('status', 'completed')->where('is_due_collection', true)->exists();
+        $owed = round((float) $order->total - $received, 2);
+
+        if (($order->is_due || $collected) && $owed > 0) {
+            $lines[] = $this->line('receivable', debit: $owed);
         }
 
         $this->poster->execute(

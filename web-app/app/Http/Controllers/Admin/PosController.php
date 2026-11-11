@@ -76,6 +76,7 @@ class PosController extends Controller
                     'balance' => max(0, round((float) $order->total - (float) ($order->advance_paid ?? 0), 2)),
                 ])
                 ->values(),
+            'editTarget' => $this->orderForEdit($request, $branch),
             'branch' => [
                 ...$branch->only(['id', 'name', 'name_bn', 'code', 'phone', 'address', 'vat_percent', 'vat_inclusive', 'service_charge_percent', 'receipt_footer']),
                 'pos_settings' => PosSettings::for($branch),
@@ -341,5 +342,46 @@ class PosController extends Controller
         $branch = Branch::query()->find($user->branch_id ?? (int) session('branch_id', 0));
 
         return $branch ?? Branch::query()->orderBy('id')->firstOrFail();
+    }
+
+    /**
+     * The order named by ?edit=<id>, in the shape the POS loads an order for editing. It is sent
+     * on its own, so it opens even when it is not among the open orders listed on the screen
+     * (an older order, a paid or due sale, or one that came from a delivery platform).
+     *
+     * @return array<string, mixed>|null
+     */
+    private function orderForEdit(Request $request, Branch $branch): ?array
+    {
+        $id = (int) $request->integer('edit');
+
+        if ($id === 0) {
+            return null;
+        }
+
+        $order = Order::query()
+            ->where('branch_id', $branch->id)
+            ->where('status', '!=', OrderStatus::Void->value)
+            ->withSum(['payments as advance_paid' => fn (Builder $payments) => $payments->where('is_advance', true)->where('status', 'completed')], 'amount')
+            ->with(['items:id,order_id,menu_item_id,variant_id,name,quantity,add_ons', 'customer:id,mobile'])
+            ->find($id);
+
+        if ($order === null) {
+            return null;
+        }
+
+        $paid = $order->amountPaid();
+        $settled = $order->status === OrderStatus::Paid;
+
+        return $order->only(['id', 'invoice_no', 'order_type', 'restaurant_table_id', 'customer_id', 'status', 'discount_type', 'discount_value', 'total'])
+            + [
+                'items' => $order->items,
+                'customer' => $order->customer,
+                'is_due' => (bool) $order->is_due,
+                'settled' => $settled,
+                'paid' => $paid,
+                'advance' => (float) ($order->advance_paid ?? 0),
+                'balance' => max(0, round((float) $order->total - $paid, 2)),
+            ];
     }
 }

@@ -26,4 +26,8 @@ return [
     'occupied' => 'Occupied',
     'reserved' => 'Reserved',
     'deleted' => 'Deleted',
+    'unpaid' => 'Unpaid',
+    'partial' => 'Part paid',
+    'due' => 'Due',
+    'completed' => 'Completed',
 ];

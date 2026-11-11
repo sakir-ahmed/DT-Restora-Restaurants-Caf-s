@@ -178,6 +178,7 @@ const infoDetails = computed(() => {
                 fact(t('dashboard.dues_outstanding'), money(props.dues.outstanding), true),
                 fact(t('dashboard.dues_new'), money(props.dues.new_due)),
                 fact(t('dashboard.dues_collected'), money(props.dues.collected)),
+                fact(t('dashboard.dues_customers'), formatNumber(props.dues.customers)),
             ],
         },
         sales_trend: {
@@ -469,7 +470,28 @@ const profitLines = computed(() => ([
                         <span class="text-muted">{{ t('dashboard.dues_collected') }}</span>
                         <MoneyText :value="dues.collected" />
                     </li>
+                    <li class="flex items-center justify-between">
+                        <span class="text-muted">{{ t('dashboard.dues_customers') }}</span>
+                        <span class="tabular-nums">{{ formatNumber(dues.customers) }}</span>
+                    </li>
+                    <li v-if="dues.oldest_days > 0" class="flex items-center justify-between">
+                        <span class="text-muted">{{ t('dashboard.dues_oldest') }}</span>
+                        <span class="tabular-nums">{{ t('dashboard.dues_days', { count: dues.oldest_days }) }}</span>
+                    </li>
                 </ul>
+
+                <div v-if="dues.top.length" class="mt-3 border-t border-border pt-2">
+                    <h4 class="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">{{ t('dashboard.dues_largest') }}</h4>
+                    <ul class="divide-y divide-border text-[13px]">
+                        <li v-for="due in dues.top" :key="due.id" class="flex items-center justify-between gap-2 py-1">
+                            <div class="min-w-0">
+                                <p class="truncate font-medium">{{ due.customer || due.invoice_no }}</p>
+                                <p class="truncate text-xs text-muted">{{ due.invoice_no }} / {{ due.days === 0 ? t('dashboard.alerts.today') : t('dashboard.dues_days', { count: due.days }) }}</p>
+                            </div>
+                            <MoneyText :value="due.balance" class="shrink-0 font-semibold text-danger" />
+                        </li>
+                    </ul>
+                </div>
             </section>
 
             <section class="rounded-lg border border-border bg-surface p-3">

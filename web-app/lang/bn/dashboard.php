@@ -181,6 +181,10 @@ return [
     'dues_open_count' => 'বাকি থাকা বিক্রয়',
     'dues_outstanding' => 'মোট বাকি',
     'dues_new' => 'এই সময়ে বাকিতে দেওয়া',
+    'dues_customers' => 'বাকি আছে এমন গ্রাহক',
+    'dues_oldest' => 'সবচেয়ে পুরোনো বাকি',
+    'dues_largest' => 'বড় বাকিগুলো',
+    'dues_days' => ':count দিন',
     'dues_collected' => 'বাকি আদায়',
     'empty_title' => 'এখনো কোনো তথ্য নেই',
     'setup' => [

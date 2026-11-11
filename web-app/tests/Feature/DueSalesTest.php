@@ -12,6 +12,9 @@ use App\Models\Customer;
 use App\Models\Ingredient;
 use App\Models\IngredientStock;
 use App\Models\Journal;
+use App\Models\JournalLine;
+use App\Models\LoyaltyEntry;
+use App\Models\LoyaltySetting;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\Order;
@@ -244,4 +247,194 @@ it('suggests past customers by mobile or name for the POS auto-fill', function (
     $this->actingAs($this->cashier, 'staff')->getJson('/admin/pos/customers?q=K')->assertExactJson([]);
 
     $this->actingAs($this->kitchen, 'staff')->getJson('/admin/pos/customers?q=Karim')->assertForbidden();
+});
+
+function receivableBalance(): float
+{
+    return round((float) JournalLine::query()
+        ->whereHas('account', fn ($query) => $query->where('subtype', 'receivable'))
+        ->get()
+        ->sum(fn ($line) => (float) $line->debit - (float) $line->credit), 2);
+}
+
+it('revises a due sale: new items, new balance, payments and books follow', function (): void {
+    $order = dueOrder($this, $this->customer);
+    app(PayOrderAction::class)->executeDue($order, [['method' => 'cash', 'amount' => 100]], $this->cashier);
+    app(CollectDueAction::class)->execute($order, 'cash', 50, null, $this->cashier);
+
+    expect(receivableBalance())->toBe(250.0);
+
+    $this->actingAs($this->cashier, 'staff')
+        ->put(route('admin.dues.update', $order), [
+            'order_type' => 'takeaway',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 3]],
+        ])
+        ->assertRedirect(route('admin.dues.index'));
+
+    $order->refresh();
+
+    expect((float) $order->total)->toBe(600.0)
+        ->and($order->is_due)->toBeTrue()
+        ->and($order->items)->toHaveCount(1)
+        ->and($order->items->first()->quantity)->toBe(3)
+        ->and($order->balanceDue())->toBe(450.0)
+        ->and(Payment::query()->where('order_id', $order->id)->count())->toBe(2)
+        ->and(receivableBalance())->toBe(450.0);
+
+    Journal::query()->with('lines')->get()->each(function (Journal $journal): void {
+        expect(round((float) $journal->lines->sum('debit'), 2))->toBe(round((float) $journal->lines->sum('credit'), 2));
+    });
+
+    app(CollectDueAction::class)->execute($order, 'cash', 450, null, $this->cashier);
+
+    expect($order->fresh()->is_due)->toBeFalse()
+        ->and(receivableBalance())->toBe(0.0);
+});
+
+it('settles a due sale whose new total equals what was already received', function (): void {
+    $order = dueOrder($this, $this->customer);
+    app(PayOrderAction::class)->executeDue($order, [['method' => 'cash', 'amount' => 200]], $this->cashier);
+
+    $this->actingAs($this->cashier, 'staff')
+        ->put(route('admin.dues.update', $order), [
+            'order_type' => 'takeaway',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        ])
+        ->assertRedirect(route('admin.dues.index'));
+
+    expect($order->fresh()->is_due)->toBeFalse()
+        ->and(receivableBalance())->toBe(0.0);
+});
+
+it('refuses to revise a due sale below what was already received', function (): void {
+    $order = dueOrder($this, $this->customer);
+    app(PayOrderAction::class)->executeDue($order, [['method' => 'cash', 'amount' => 300]], $this->cashier);
+
+    $this->actingAs($this->cashier, 'staff')
+        ->put(route('admin.dues.update', $order), [
+            'order_type' => 'takeaway',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        ])
+        ->assertSessionHasErrors('items');
+
+    expect((float) $order->fresh()->total)->toBe(400.0)
+        ->and($order->fresh()->items->first()->quantity)->toBe(2)
+        ->and(receivableBalance())->toBe(100.0);
+});
+
+it('does not revise a sale that is not paid yet through the dues route', function (): void {
+    $order = dueOrder($this, $this->customer);
+
+    $this->actingAs($this->cashier, 'staff')
+        ->put(route('admin.dues.update', $order), [
+            'order_type' => 'takeaway',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        ])
+        ->assertSessionHasErrors('order');
+});
+
+it('offers a due sale to the POS for editing with its paid and balance', function (): void {
+    $order = dueOrder($this, $this->customer);
+    app(PayOrderAction::class)->executeDue($order, [['method' => 'cash', 'amount' => 100]], $this->cashier);
+
+    $this->actingAs($this->cashier, 'staff')
+        ->get(route('admin.pos.index', ['edit' => $order->id]))
+        ->assertInertia(fn ($page) => $page
+            ->where('editTarget.id', $order->id)
+            ->where('editTarget.paid', 100)
+            ->where('editTarget.balance', 300));
+});
+
+it('edits a fully paid sale: more items turn the difference into a due, books stay balanced', function (): void {
+    $order = dueOrder($this, $this->customer);
+    app(PayOrderAction::class)->executeCash($order, 400, $this->cashier);
+
+    expect(receivableBalance())->toBe(0.0);
+
+    $this->actingAs($this->cashier, 'staff')
+        ->put(route('admin.orders.update', $order), [
+            'order_type' => 'takeaway',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 3]],
+        ])
+        ->assertRedirect(route('admin.orders.index'))
+        ->assertSessionHasNoErrors();
+
+    $order->refresh();
+
+    expect((float) $order->total)->toBe(600.0)
+        ->and($order->status)->toBe(OrderStatus::Paid)
+        ->and($order->is_due)->toBeTrue()
+        ->and($order->balanceDue())->toBe(200.0)
+        ->and(receivableBalance())->toBe(200.0);
+
+    Journal::query()->with('lines')->get()->each(function (Journal $journal): void {
+        expect(round((float) $journal->lines->sum('debit'), 2))->toBe(round((float) $journal->lines->sum('credit'), 2));
+    });
+});
+
+it('edits a fully paid sale to the same total without creating a due', function (): void {
+    $order = dueOrder($this, $this->customer);
+    app(PayOrderAction::class)->executeCash($order, 400, $this->cashier);
+
+    $this->actingAs($this->cashier, 'staff')
+        ->put(route('admin.orders.update', $order), [
+            'order_type' => 'takeaway',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 2]],
+            'note' => 'same bill',
+        ])
+        ->assertSessionHasNoErrors();
+
+    expect($order->fresh()->is_due)->toBeFalse()
+        ->and($order->fresh()->note)->toBe('same bill')
+        ->and(receivableBalance())->toBe(0.0);
+});
+
+it('refuses to cut a paid sale below what was received, and a rise needs a customer', function (): void {
+    $order = dueOrder($this, $this->customer);
+    app(PayOrderAction::class)->executeCash($order, 400, $this->cashier);
+
+    $this->actingAs($this->cashier, 'staff')
+        ->put(route('admin.orders.update', $order), [
+            'order_type' => 'takeaway',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]],
+        ])
+        ->assertSessionHasErrors('items');
+
+    expect((float) $order->fresh()->total)->toBe(400.0);
+
+    $walkIn = dueOrder($this);
+    app(PayOrderAction::class)->executeCash($walkIn, 400, $this->cashier);
+
+    $this->actingAs($this->cashier, 'staff')
+        ->put(route('admin.orders.update', $walkIn), [
+            'order_type' => 'takeaway',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 3]],
+        ])
+        ->assertSessionHasErrors('items');
+
+    expect((float) $walkIn->fresh()->total)->toBe(400.0)
+        ->and($walkIn->fresh()->is_due)->toBeFalse();
+});
+
+it('does not count loyalty points twice when a paid sale is edited again', function (): void {
+    LoyaltySetting::query()->update(['is_enabled' => true, 'earn_rate' => 10]);
+
+    $order = dueOrder($this, $this->customer);
+    app(PayOrderAction::class)->executeCash($order, 400, $this->cashier);
+
+    $balance = fn (): int => (int) LoyaltyEntry::query()->where('customer_id', $this->customer->id)->sum('points');
+    $first = $balance();
+
+    expect($first)->toBeGreaterThan(0);
+
+    foreach ([2, 2] as $quantity) {
+        $this->actingAs($this->cashier, 'staff')
+            ->put(route('admin.orders.update', $order), [
+                'order_type' => 'takeaway',
+                'items' => [['menu_item_id' => $this->item->id, 'quantity' => $quantity]],
+            ])
+            ->assertSessionHasNoErrors();
+    }
+
+    expect($balance())->toBe($first);
 });

@@ -26,4 +26,8 @@ return [
     'occupied' => 'ব্যস্ত',
     'reserved' => 'সংরক্ষিত',
     'deleted' => 'মুছে ফেলা',
+    'unpaid' => 'অপরিশোধিত',
+    'partial' => 'আংশিক পরিশোধ',
+    'due' => 'বাকি',
+    'completed' => 'সম্পন্ন',
 ];

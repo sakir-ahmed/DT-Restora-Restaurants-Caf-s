@@ -1,7 +1,8 @@
 <script setup>
 import { router } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
+import OrderDetailPanel from '@/components/admin/OrderDetailPanel.vue';
 import DataTable from '@/components/ui-kit/DataTable.vue';
 import DateText from '@/components/ui-kit/DateText.vue';
 import MoneyText from '@/components/ui-kit/MoneyText.vue';
@@ -20,7 +21,11 @@ const props = defineProps({
     canVoid: { type: Boolean, default: false },
     canApproveVoid: { type: Boolean, default: false },
     canApprovePayments: { type: Boolean, default: false },
+    canPay: { type: Boolean, default: false },
+    canEdit: { type: Boolean, default: false },
 });
+
+const selectedId = ref(null);
 
 const confirm = useConfirm();
 
@@ -32,12 +37,47 @@ const columns = computed(() => [
     { key: 'table_name', label: t('receipt.table'), align: 'left' },
     { key: 'items_count', label: t('inventory.items_label'), type: 'number', minWidth: '64px' },
     { key: 'total_display', label: t('inventory.total'), type: 'money', sortable: true, minWidth: '96px' },
-    { key: 'status', label: t('common.status'), minWidth: '104px' },
+    { key: 'order_status', label: t('orders.order_status'), minWidth: '104px' },
+    { key: 'payment_status', label: t('orders.payment_status'), minWidth: '104px' },
     { key: 'actions', label: '', align: 'right', type: 'component', width: '80px' },
 ]);
 
+function receivedAmount(order) {
+    return (order.payments ?? [])
+        .filter((payment) => payment.status === 'completed')
+        .reduce((sum, payment) => sum + Number(payment.amount), 0);
+}
+
+// Where the kitchen has the order. It is kept apart from payment, so an order paid first still shows its kitchen step.
+function orderStatusOf(order) {
+    if (order.status === 'void') {
+        return 'void';
+    }
+
+    return order.kitchen_status ?? (order.status === 'paid' ? 'served' : order.status);
+}
+
+// Whether the money is in: deleted, due (balance to collect), paid, part paid by booking money, or unpaid.
+function paymentStatusOf(order) {
+    if (order.status === 'void') {
+        return 'deleted';
+    }
+
+    if (order.is_due) {
+        return 'due';
+    }
+
+    if (order.status === 'paid') {
+        return 'paid';
+    }
+
+    return receivedAmount(order) > 0 ? 'partial' : 'unpaid';
+}
+
 const rows = computed(() => props.orders.map((order) => ({
     ...order,
+    order_status: orderStatusOf(order),
+    payment_status: paymentStatusOf(order),
     table_name: order.table?.name,
     items_count: order.items?.length ?? 0,
     total_display: formatMoney(order.total),
@@ -47,11 +87,33 @@ const rows = computed(() => props.orders.map((order) => ({
     has_pending_void: order.void_request?.status === 'pending',
 })));
 
+const selected = computed(() => {
+    const order = props.orders.find((entry) => entry.id === selectedId.value);
+
+    if (! order) {
+        return null;
+    }
+
+    const paid = receivedAmount(order);
+
+    return {
+        ...order,
+        order_status: orderStatusOf(order),
+        payment_status: paymentStatusOf(order),
+        table_name: order.table?.name,
+        cashier_name: order.cashier?.name,
+        deleted: order.status === 'void',
+        paid,
+        balance: order.status === 'void' || (order.status === 'paid' && ! order.is_due) ? 0 : Math.max(0, Number(order.total) - paid),
+    };
+});
+
 const statusFilters = [
     { value: '', label: t('common.status') },
     { value: 'pending', label: t('status.pending') },
     { value: 'preparing', label: t('status.preparing') },
     { value: 'ready', label: t('status.ready') },
+    { value: 'served', label: t('status.served') },
     { value: 'paid', label: t('status.paid') },
     { value: 'void', label: t('status.void') },
 ];
@@ -83,7 +145,10 @@ async function deleteOrder(order) {
         note: result.note ?? null,
     }, {
         preserveState: true,
-        onSuccess: () => notify.success(t('orders.deleted')),
+        onSuccess: () => {
+            selectedId.value = null;
+            notify.success(t('orders.deleted'));
+        },
         onError: (errors) => notify.error(String(Object.values(errors)[0] ?? t('common.error_occurred'))),
     });
 }
@@ -99,12 +164,106 @@ function printReceipt(order) {
     printUrl(route('admin.orders.receipt', order.id));
 }
 
-function pay(order) {
+const KITCHEN_STEPS = ['pending', 'preparing', 'ready', 'served'];
+
+async function changeStatus(order, status) {
+    // Going back is allowed, but it is asked about first: the kitchen and the table see the order change.
+    if (KITCHEN_STEPS.indexOf(status) < KITCHEN_STEPS.indexOf(order.order_status)) {
+        const result = await confirm({
+            variant: 'warning',
+            level: 'simple',
+            title: t('orders.move_back_title', { invoice: order.invoice_no, status: t('status.' + status) }),
+            message: t('orders.move_back_message'),
+            confirmText: t('orders.move_back', { status: t('status.' + status) }),
+            facts: [
+                { label: t('orders.order_status'), value: t('status.' + order.order_status) + ' > ' + t('status.' + status) },
+            ],
+        });
+
+        if (! result.confirmed) {
+            return;
+        }
+    }
+
+    router.patch(route('admin.orders.status', order.id), { status }, {
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: (page) => {
+            if (! page.props.flash?.error) {
+                notify.success(t('orders.status_updated'));
+            }
+        },
+        onError: (errors) => notify.error(String(Object.values(errors)[0] ?? t('common.error_occurred'))),
+    });
+}
+
+function editOrder(order) {
+    router.get(route('admin.pos.index'), { edit: order.id });
+}
+
+async function pay(order) {
+    const result = await confirm({
+        variant: 'info',
+        level: 'simple',
+        title: t('orders.pay_confirm_title', { invoice: order.invoice_no }),
+        message: t('orders.pay_confirm_message'),
+        confirmText: t('orders.pay'),
+        facts: [
+            { label: t('inventory.invoice_no'), value: order.invoice_no },
+            { label: t('inventory.total'), value: formatMoney(order.total) },
+        ],
+    });
+
+    if (! result.confirmed) {
+        return;
+    }
+
     router.post(route('admin.orders.pay', order.id), {
         tendered: order.total,
     }, {
         preserveState: true,
-        onSuccess: () => notify.success(t('orders.paid_success')),
+        onSuccess: (page) => {
+            if (page.props.flash?.error) {
+                notify.error(String(page.props.flash.error));
+
+                return;
+            }
+
+            notify.success(t('orders.paid_success'));
+        },
+        onError: (errors) => notify.error(String(Object.values(errors)[0] ?? t('common.error_occurred'))),
+    });
+}
+
+async function putOnDue(order) {
+    const result = await confirm({
+        variant: 'warning',
+        level: 'simple',
+        title: t('orders.due_confirm_title', { invoice: order.invoice_no }),
+        message: t('orders.due_confirm_message'),
+        confirmText: t('orders.put_on_due'),
+        facts: [
+            { label: t('dues.customer'), value: [order.customer?.name, order.customer?.mobile].filter(Boolean).join(' ') },
+            { label: t('inventory.total'), value: formatMoney(order.total) },
+        ],
+    });
+
+    if (! result.confirmed) {
+        return;
+    }
+
+    router.post(route('admin.orders.due', order.id), { lines: [] }, {
+        preserveState: true,
+        onSuccess: (page) => {
+            if (page.props.flash?.error) {
+                notify.error(String(page.props.flash.error));
+
+                return;
+            }
+
+            notify.success(t('orders.due_recorded', { due: formatMoney(order.total) }));
+        },
+        onError: (errors) => notify.error(String(Object.values(errors)[0] ?? t('common.error_occurred'))),
     });
 }
 </script>
@@ -136,7 +295,7 @@ function pay(order) {
             </button>
         </div>
 
-        <DataTable :columns="columns" :rows="rows" :clickable="false" :empty-title="t('orders.no_orders')">
+        <DataTable :columns="columns" :rows="rows" :empty-title="t('orders.no_orders')" clickable @row-click="(row) => selectedId = row.id">
             <template #cell(created_at)="{ value }">
                 <DateText :value="value" relative />
             </template>
@@ -147,9 +306,12 @@ function pay(order) {
             <template #cell(total_display)="{ row }">
                 <MoneyText :value="row.total" :negative-danger="true" />
             </template>
-            <template #cell(status)="{ row }">
+            <template #cell(order_status)="{ row }">
+                <StatusBadge :status="row.order_status" />
+            </template>
+            <template #cell(payment_status)="{ row }">
                 <div class="flex items-center gap-1">
-                    <StatusBadge :status="row.raw_status" />
+                    <StatusBadge :status="row.payment_status" />
                     <span v-if="row.has_pending_void" class="text-warning" :title="t('orders.void_pending')">
                         <AppIcon name="triangle-exclamation" size="12" />
                     </span>
@@ -161,7 +323,7 @@ function pay(order) {
                         v-if="row.raw_status !== 'paid' && row.raw_status !== 'void'"
                         type="button"
                         class="flex h-6 items-center gap-1 rounded border border-success/50 px-1.5 text-[11px] text-success hover:bg-success/10"
-                        @click="pay(row)"
+                        @click.stop="pay(row)"
                     >
                         <AppIcon name="money-bill-wave" size="10" />
                         {{ t('orders.pay') }}
@@ -170,7 +332,7 @@ function pay(order) {
                         type="button"
                         class="flex h-6 w-6 items-center justify-center rounded text-muted hover:bg-background hover:text-foreground"
                         :aria-label="t('receipt.print')"
-                        @click="printReceipt(row)"
+                        @click.stop="printReceipt(row)"
                     >
                         <AppIcon name="print" size="12" />
                     </button>
@@ -178,7 +340,7 @@ function pay(order) {
                         v-if="canApprovePayments && (row.payments ?? []).some((p) => p.status === 'pending_verification')"
                         type="button"
                         class="flex h-6 items-center gap-1 rounded border border-warning/60 px-1.5 text-[11px] text-warning hover:bg-warning/10"
-                        @click="approvePayment((row.payments ?? []).find((p) => p.status === 'pending_verification'))"
+                        @click.stop="approvePayment((row.payments ?? []).find((p) => p.status === 'pending_verification'))"
                     >
                         <AppIcon name="user-shield" size="10" />
                         {{ t('payments.verify') }}
@@ -189,13 +351,30 @@ function pay(order) {
                         class="flex h-6 w-6 items-center justify-center rounded text-muted hover:bg-danger/10 hover:text-danger"
                         :aria-label="t('orders.delete_order')"
                         :title="t('orders.delete_order')"
-                        @click="deleteOrder(row)"
+                        @click.stop="deleteOrder(row)"
                     >
                         <AppIcon name="circle-xmark" size="12" />
                     </button>
                 </div>
             </template>
         </DataTable>
+
+        <OrderDetailPanel
+            :order="selected"
+            :can-pay="canPay"
+            :can-edit="canEdit"
+            :can-delete="canVoid"
+            :can-approve-payments="canApprovePayments"
+            :can-change-status="canPay"
+            @close="selectedId = null"
+            @pay="pay"
+            @edit="editOrder"
+            @print="printReceipt"
+            @delete="deleteOrder"
+            @approve="approvePayment"
+            @status="changeStatus"
+            @due="putOnDue"
+        />
     </div>
 </template>
 
