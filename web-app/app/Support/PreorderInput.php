@@ -28,10 +28,13 @@ final class PreorderInput
             'items.*.add_ons.*.qty' => ['nullable', 'integer', 'min:1', 'max:9'],
             'customer_name' => ['nullable', 'string', 'max:80'],
             'customer_mobile' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-\s()]*$/'],
+            'address' => ['nullable', 'string', 'max:300'],
             'party_size' => ['nullable', 'integer', 'min:1', 'max:500'],
             // An exact moment with its UTC offset, sent by the browser.
             'expected_at' => ['nullable', 'date'],
             'note' => ['nullable', 'string', 'max:300'],
+            // Staff note money the guest handed over; the public link cannot claim a payment.
+            'advance_amount' => $withTable ? ['nullable', 'numeric', 'min:0', 'max:10000000'] : ['prohibited'],
             'restaurant_table_id' => $withTable
                 ? ['nullable', 'integer', Rule::exists('restaurant_tables', 'id')->where('branch_id', $branchId)->where('is_active', true)]
                 : ['prohibited'],
@@ -49,6 +52,8 @@ final class PreorderInput
         return [
             'customer_name' => $text('customer_name'),
             'customer_mobile' => $text('customer_mobile'),
+            'address' => $text('address'),
+            'advance_amount' => filled($validated['advance_amount'] ?? null) ? round((float) $validated['advance_amount'], 2) : 0.0,
             'party_size' => filled($validated['party_size'] ?? null) ? (int) $validated['party_size'] : null,
             'expected_at' => filled($validated['expected_at'] ?? null) ? Carbon::parse($validated['expected_at']) : null,
             'restaurant_table_id' => filled($validated['restaurant_table_id'] ?? null) ? (int) $validated['restaurant_table_id'] : null,

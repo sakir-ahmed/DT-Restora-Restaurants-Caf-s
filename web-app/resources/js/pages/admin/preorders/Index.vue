@@ -96,6 +96,7 @@ export default { layout: AdminLayout };
             :branch="branch"
             :categories="categories"
             :tables="tables"
+            allow-advance
             :share-url="shareUrl"
             :post-url="route('admin.preorders.store')"
             :placed="placed"
@@ -117,6 +118,7 @@ export default { layout: AdminLayout };
 
                     <p class="text-[13px] leading-snug text-foreground">{{ summary(entry) }}</p>
 
+                    <p v-if="entry.address" class="flex items-start gap-1.5 text-xs text-muted"><AppIcon name="location-dot" size="11" class="mt-0.5 shrink-0" />{{ entry.address }}</p>
                     <p v-if="entry.note" class="text-xs text-muted">{{ entry.note }}</p>
 
                     <dl class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
@@ -128,7 +130,10 @@ export default { layout: AdminLayout };
                     </dl>
 
                     <div class="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2">
-                        <span class="text-sm font-semibold tabular-nums text-foreground">{{ formatMoney(entry.total, { decimals: 0 }) }}</span>
+                        <span class="leading-tight">
+                            <span class="block text-sm font-semibold tabular-nums text-foreground">{{ formatMoney(entry.total, { decimals: 0 }) }}</span>
+                            <span v-if="Number(entry.advance_amount) > 0" class="block text-[11px] text-muted">{{ t('preorders.advance_received') }} {{ formatMoney(entry.advance_amount, { decimals: 0 }) }} - {{ t('preorders.balance_due') }} {{ formatMoney(entry.balance_due, { decimals: 0 }) }}</span>
+                        </span>
                         <div class="flex flex-wrap items-center gap-1.5">
                             <a :href="entry.print_url" target="_blank" rel="noopener" class="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 text-[13px] text-foreground hover:bg-background">
                                 <AppIcon name="print" size="12" /> {{ t('preorders.print') }}

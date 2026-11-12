@@ -172,3 +172,55 @@ it('keeps pre-orders of other branches out of the list', function (): void {
 
     expect($response->viewData('page')['props']['preorders'])->toHaveCount(0);
 });
+
+it('keeps an address and an advance payment and shows the balance on the slip', function (): void {
+    Queue::fake();
+
+    $this->actingAs($this->manager, 'staff')->post(route('admin.preorders.store'), preorderPayload($this->item, [
+        'address' => 'House 4, Road 2, Dhanmondi',
+        'advance_amount' => 150,
+    ]))->assertRedirect();
+
+    $preorder = Preorder::query()->firstOrFail();
+
+    expect($preorder->address)->toBe('House 4, Road 2, Dhanmondi')
+        ->and((float) $preorder->advance_amount)->toBe(150.0)
+        ->and($preorder->balanceDue())->toBe(250.0);
+
+    $this->actingAs($this->manager, 'staff')->get(route('admin.preorders.print', $preorder))
+        ->assertOk()
+        ->assertSee('House 4, Road 2, Dhanmondi')
+        ->assertSee('150.00')
+        ->assertSee('250.00');
+});
+
+it('refuses an advance larger than the pre-order total', function (): void {
+    $this->actingAs($this->manager, 'staff')
+        ->post(route('admin.preorders.store'), preorderPayload($this->item, ['advance_amount' => 500]))
+        ->assertSessionHasErrors('advance_amount');
+
+    expect(Preorder::query()->count())->toBe(0);
+});
+
+it('lets a guest on the public link give an address but not claim an advance', function (): void {
+    $this->post(route('web.preorder.store', ['branchCode' => 'br01']), preorderPayload($this->item, ['advance_amount' => 100]))
+        ->assertSessionHasErrors('advance_amount');
+
+    $this->post(route('web.preorder.store', ['branchCode' => 'br01']), preorderPayload($this->item, ['address' => 'Mirpur 10']))
+        ->assertSessionHasNoErrors();
+
+    expect(Preorder::query()->firstOrFail()->address)->toBe('Mirpur 10');
+});
+
+it('sends the waiting pre-orders with their date and time to the dashboard list', function (): void {
+    Preorder::query()->create(['branch_id' => $this->branch->id, 'items' => [['quantity' => 2]], 'total' => 400, 'customer_name' => 'Rina', 'expected_at' => now()->addDay()]);
+    Preorder::query()->create(['branch_id' => $this->branch->id, 'items' => [], 'total' => 0, 'status' => Preorder::CANCELLED]);
+
+    $this->actingAs($this->manager, 'staff')->get('/admin')->assertInertia(fn ($page) => $page
+        ->where('preorders', 1)
+        ->has('waitingPreorders', 1)
+        ->where('waitingPreorders.0.name', 'Rina')
+        ->where('waitingPreorders.0.kind', 'menu_book')
+        ->where('waitingPreorders.0.planned', true)
+        ->where('waitingPreorders.0.items', 2));
+});

@@ -20,10 +20,11 @@ import DateRangePicker from '@/components/ui-kit/DateRangePicker.vue';
 import InfoButton from '@/components/ui-kit/InfoButton.vue';
 import InfoModal from '@/components/ui-kit/InfoModal.vue';
 import KpiCard from '@/components/ui-kit/KpiCard.vue';
+import ListModal from '@/components/ui-kit/ListModal.vue';
 import PageHeader from '@/components/ui-kit/PageHeader.vue';
 import MoneyText from '@/components/ui-kit/MoneyText.vue';
 import { t } from '@/lib/i18n';
-import { formatMoney, formatNumber } from '@/lib/format';
+import { formatDateTime, formatMoney, formatNumber } from '@/lib/format';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Tooltip, Legend, Filler);
 
@@ -42,6 +43,8 @@ const props = defineProps({
     expensesByCategory: { type: Array, default: () => [] },
     dues: { type: Object, required: true },
     preorders: { type: Number, default: 0 },
+    lowStockItems: { type: Array, default: () => [] },
+    waitingPreorders: { type: Array, default: () => [] },
     alerts: { type: Object, required: true },
     setup: { type: Object, required: true },
 });
@@ -68,6 +71,7 @@ function setRange({ from, to, preset }) {
 }
 
 const infoKey = ref(null);
+const listOpen = ref(null); // low_stock | preorders
 
 const money = (value) => formatMoney(value, { symbol: true });
 
@@ -352,7 +356,7 @@ const profitLines = computed(() => ([
         </PageHeader>
 
         <!-- KPI row -->
-        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+        <div class="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-2.5 2xl:grid-cols-6">
             <KpiCard info @info="infoKey = 'gross_sales'" :label="t('dashboard.gross_sales')" :value="formatMoney(summary.gross_sales, { symbol: true })" :change="change('gross_sales')" :sparkline="salesByDay.map((row) => Number(row.total))" />
             <KpiCard info @info="infoKey = 'net_sales'" :label="t('dashboard.net_sales')" :value="formatMoney(summary.net_sales, { symbol: true })" :change="change('net_sales')" />
             <KpiCard info @info="infoKey = 'food_cost'" :label="t('dashboard.food_cost')" :value="foodCostPercent + '%'" :state="Number(foodCostPercent) > 40 ? 'danger' : 'success'" />
@@ -362,12 +366,12 @@ const profitLines = computed(() => ([
             <KpiCard info @info="infoKey = 'expenses'" :label="t('dashboard.expenses')" :value="formatMoney(summary.expenses, { symbol: true })" :change="change('expenses')" />
             <KpiCard info @info="infoKey = 'dues_outstanding'" :label="t('dashboard.dues_outstanding')" :value="formatMoney(dues.outstanding, { symbol: true })" :state="Number(dues.outstanding) > 0 ? 'danger' : 'success'" />
             <KpiCard info @info="infoKey = 'dues_collected'" :label="t('dashboard.dues_collected')" :value="formatMoney(dues.collected, { symbol: true })" />
-            <KpiCard info @info="infoKey = 'low_stock'" :label="t('dashboard.low_stock')" :value="formatNumber(alerts.lowStock)" :state="alerts.lowStock > 0 ? 'danger' : 'success'" />
-            <KpiCard info @info="infoKey = 'preorders'" :label="t('dashboard.preorders')" :value="formatNumber(preorders)" />
+            <KpiCard v-if="alerts.lowStock > 0" action info tone="danger" state="danger" :label="t('dashboard.low_stock')" :value="formatNumber(alerts.lowStock)" @click="listOpen = 'low_stock'" @info="infoKey = 'low_stock'" />
+            <KpiCard v-if="preorders > 0" action info :label="t('dashboard.preorders')" :value="formatNumber(preorders)" @click="listOpen = 'preorders'" @info="infoKey = 'preorders'" />
         </div>
 
         <!-- Alerts -->
-        <div v-if="alerts.wastageSpike" class="mt-4 grid gap-2">
+        <div v-if="alerts.wastageSpike" class="mt-3 grid gap-2">
             <div v-if="alerts.wastageSpike" class="flex items-center gap-2 rounded-lg border border-danger/40 bg-danger/5 px-3 py-2 text-[13px]">
                 <AppIcon name="triangle-exclamation" size="16" class="text-danger" />
                 <span class="flex-1">{{ t('dashboard.alerts.wastage_spike') }}
@@ -380,7 +384,7 @@ const profitLines = computed(() => ([
         </div>
 
         <!-- Charts -->
-        <div class="mt-4 grid gap-3 lg:grid-cols-2">
+        <div class="mt-3 grid gap-2.5 lg:grid-cols-2">
             <ChartCard
                 info
                 :title="t('dashboard.sales_trend')"
@@ -561,6 +565,43 @@ const profitLines = computed(() => ([
             :notes="infoContent?.notes ?? []"
             @close="infoKey = null"
         />
+
+        <!-- Low stock: which ingredients are running out -->
+        <ListModal :open="listOpen === 'low_stock'" icon="triangle-exclamation" tone="danger" :title="t('dashboard.low_stock_list.title')" :description="t('dashboard.low_stock_list.hint')" @close="listOpen = null">
+            <ul class="divide-y divide-border">
+                <li v-for="item in lowStockItems" :key="item.id" class="flex items-center justify-between gap-3 py-2">
+                    <span class="min-w-0 truncate font-medium text-foreground">{{ item.name }}</span>
+                    <span class="shrink-0 text-right leading-tight">
+                        <span class="block font-semibold tabular-nums text-danger">{{ item.stock_qty }} {{ item.unit_symbol }}</span>
+                        <span class="block text-[11px] text-muted">{{ t('dashboard.low_stock_list.reorder_at') }} {{ item.reorder_level }}</span>
+                    </span>
+                </li>
+            </ul>
+            <template #footer>
+                <a :href="route('admin.ingredients.index')" class="text-xs font-medium text-primary hover:underline">{{ t('dashboard.low_stock_list.open') }}</a>
+            </template>
+        </ListModal>
+
+        <!-- Pre-orders still waiting -->
+        <ListModal :open="listOpen === 'preorders'" icon="bag-shopping" :title="t('dashboard.preorder_list.title')" :description="t('dashboard.preorder_list.hint')" @close="listOpen = null">
+            <ul class="divide-y divide-border">
+                <li v-for="entry in waitingPreorders" :key="entry.kind + entry.no" class="flex items-start justify-between gap-3 py-2">
+                    <div class="min-w-0">
+                        <p class="truncate font-medium text-foreground">{{ entry.name || t('dashboard.preorder_list.guest') }}</p>
+                        <p class="truncate text-xs text-muted">
+                            <span class="font-mono tabular-nums">{{ entry.no }}</span>
+                            - {{ entry.kind === 'booking' ? t('dashboard.preorder_list.booking') : t('dashboard.preorder_list.menu_book') }}
+                            - {{ t('dashboard.preorder_list.items', { count: entry.items }) }}
+                        </p>
+                        <p class="text-xs tabular-nums text-foreground">{{ entry.planned ? t('dashboard.preorder_list.planned') : t('dashboard.preorder_list.taken') }}: {{ formatDateTime(entry.at) }}</p>
+                    </div>
+                    <MoneyText :value="entry.total" class="shrink-0 font-semibold" />
+                </li>
+            </ul>
+            <template #footer>
+                <a :href="route('admin.preorders.index')" class="text-xs font-medium text-primary hover:underline">{{ t('dashboard.preorder_list.open') }}</a>
+            </template>
+        </ListModal>
 
         <!-- Fresh install setup checklist -->
         <section v-if="isFreshInstall" class="mt-4 rounded-lg border border-border bg-surface p-4">

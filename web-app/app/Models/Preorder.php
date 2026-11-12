@@ -31,14 +31,15 @@ class Preorder extends Model
     public const SOURCE_PUBLIC = 'public';
 
     protected $fillable = [
-        'branch_id', 'order_no', 'token', 'source', 'customer_name', 'customer_mobile', 'party_size',
-        'expected_at', 'restaurant_table_id', 'note', 'items', 'total', 'status', 'sms_sent_at', 'created_by',
+        'branch_id', 'order_no', 'token', 'source', 'customer_name', 'customer_mobile', 'address', 'party_size',
+        'expected_at', 'restaurant_table_id', 'note', 'items', 'total', 'advance_amount', 'status', 'sms_sent_at', 'created_by',
     ];
 
     protected $attributes = [
         'status' => self::PENDING,
         'source' => self::SOURCE_STAFF,
         'total' => 0,
+        'advance_amount' => 0,
     ];
 
     protected $casts = [
@@ -46,6 +47,7 @@ class Preorder extends Model
         'expected_at' => 'datetime',
         'items' => 'array',
         'total' => 'decimal:2',
+        'advance_amount' => 'decimal:2',
         'sms_sent_at' => 'datetime',
     ];
 
@@ -85,6 +87,12 @@ class Preorder extends Model
     public function table(): BelongsTo
     {
         return $this->belongsTo(RestaurantTable::class, 'restaurant_table_id')->withoutGlobalScopes();
+    }
+
+    /** What is still to pay when the guest arrives. */
+    public function balanceDue(): float
+    {
+        return max(0.0, round((float) $this->total - (float) $this->advance_amount, 2));
     }
 
     public function itemCount(): int

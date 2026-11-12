@@ -35,6 +35,8 @@ class DashboardController extends Controller
         $summary = $metrics->summary($branchId, $from, $to);
         $previous = $metrics->summary($branchId, $prevFrom, $prevTo);
 
+        $lowStock = $metrics->lowStock($branchId ?? $this->firstBranchId());
+
         return Inertia::render('admin/Dashboard', [
             'period' => $period,
             'from' => $from->toDateString(),
@@ -59,8 +61,10 @@ class DashboardController extends Controller
                     ->where('status', Reservation::BOOKED)
                     ->whereNotNull('preorder')
                     ->count(),
+            'lowStockItems' => array_slice($lowStock, 0, 50),
+            'waitingPreorders' => $this->waitingPreorders($branchId),
             'alerts' => [
-                'lowStock' => count($metrics->lowStock($branchId ?? $this->firstBranchId())),
+                'lowStock' => count($lowStock),
                 'wastageSpike' => $metrics->wastageSpike($branchId ?? $this->firstBranchId()),
             ],
             'setup' => [
@@ -71,6 +75,50 @@ class DashboardController extends Controller
                 'users' => User::count(),
             ],
         ]);
+    }
+
+    /**
+     * The pre-orders still waiting, soonest first: menu-book pre-orders and bookings that carry a
+     * pre-ordered menu. A short list for the dashboard card.
+     *
+     * @return array<int, array{kind: string, no: string, name: ?string, at: ?string, total: string, items: int}>
+     */
+    private function waitingPreorders(?int $branchId): array
+    {
+        $menuBook = Preorder::query()
+            ->when($branchId, fn ($query) => $query->where('branch_id', $branchId))
+            ->where('status', Preorder::PENDING)
+            ->latest('id')
+            ->limit(50)
+            ->get()
+            ->map(fn (Preorder $preorder): array => [
+                'kind' => 'menu_book',
+                'no' => $preorder->order_no,
+                'name' => $preorder->customer_name,
+                'at' => ($preorder->expected_at ?? $preorder->created_at)->toIso8601String(),
+                'planned' => $preorder->expected_at !== null,
+                'total' => (string) $preorder->total,
+                'items' => $preorder->itemCount(),
+            ]);
+
+        $bookings = Reservation::query()
+            ->when($branchId, fn ($query) => $query->where('branch_id', $branchId))
+            ->where('status', Reservation::BOOKED)
+            ->whereNotNull('preorder')
+            ->orderBy('starts_at')
+            ->limit(50)
+            ->get()
+            ->map(fn (Reservation $reservation): array => [
+                'kind' => 'booking',
+                'no' => $reservation->booking_no,
+                'name' => $reservation->guest_name,
+                'at' => $reservation->starts_at->toIso8601String(),
+                'planned' => true,
+                'total' => (string) $reservation->preorder_total,
+                'items' => (int) collect($reservation->preorder)->sum('quantity'),
+            ]);
+
+        return $menuBook->concat($bookings)->sortBy('at')->take(30)->values()->all();
     }
 
     /**

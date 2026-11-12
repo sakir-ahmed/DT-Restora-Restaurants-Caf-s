@@ -95,6 +95,12 @@
                 <td class="right">{{ $preorder->customer_mobile }}</td>
             </tr>
         @endif
+        @if ($preorder->address)
+            <tr>
+                <td>{{ __('preorders.address') }}</td>
+                <td class="right">{{ $preorder->address }}</td>
+            </tr>
+        @endif
         @if ($preorder->party_size)
             <tr>
                 <td>{{ __('preorders.party_size') }}</td>
@@ -139,6 +145,16 @@
             <td class="bold">{{ __('preorders.slip_total') }}</td>
             <td class="right bold">{{ $money($preorder->total) }}</td>
         </tr>
+        @if ((float) $preorder->advance_amount > 0)
+            <tr>
+                <td>{{ __('preorders.advance_received') }}</td>
+                <td class="right">- {{ $money($preorder->advance_amount) }}</td>
+            </tr>
+            <tr>
+                <td class="bold">{{ __('preorders.balance_due') }}</td>
+                <td class="right bold">{{ $money($preorder->balanceDue()) }}</td>
+            </tr>
+        @endif
     </table>
 
     <div class="hr"></div>

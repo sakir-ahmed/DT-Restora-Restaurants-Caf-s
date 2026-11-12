@@ -19,6 +19,8 @@ const props = defineProps({
     categories: { type: Array, required: true },
     // Staff can attach a table; the public link cannot.
     tables: { type: Array, default: () => [] },
+    // Staff can note an advance payment; a guest on the public link cannot.
+    allowAdvance: { type: Boolean, default: false },
     postUrl: { type: String, required: true },
     shareUrl: { type: String, required: true },
     placed: { type: Object, default: null },
@@ -43,7 +45,8 @@ const done = ref(props.placed);
 const cart = ref([]);
 const selected = ref(null);
 const choice = ref({ variantId: null, addOns: {}, quantity: 1 });
-const guest = ref({ name: '', mobile: '', whenLocal: '', partySize: '', tableId: '', note: '' });
+const blankGuest = () => ({ name: '', mobile: '', address: '', whenLocal: '', partySize: '', tableId: '', advance: '', note: '' });
+const guest = ref(blankGuest());
 const shareBusy = ref(false);
 // The basket has two steps: check the items, then the optional details.
 const step = ref('items');
@@ -293,6 +296,9 @@ const vatAmount = computed(() => {
 });
 const total = computed(() => Math.round(props.branch.vat_inclusive ? subtotal.value + serviceCharge.value : subtotal.value + serviceCharge.value + vatAmount.value));
 
+const advanceAmount = computed(() => Math.max(0, Number(guest.value.advance) || 0));
+const balanceDue = computed(() => Math.max(0, total.value - advanceAmount.value));
+
 function changeQuantity(line, delta) {
     line.quantity = Math.min(50, line.quantity + delta);
 
@@ -326,9 +332,11 @@ function placeOrder() {
         })),
         customer_name: guest.value.name.trim() || null,
         customer_mobile: guest.value.mobile.trim() || null,
+        address: guest.value.address.trim() || null,
         party_size: guest.value.partySize || null,
         expected_at: guest.value.whenLocal ? new Date(guest.value.whenLocal).toISOString() : null,
         restaurant_table_id: guest.value.tableId || null,
+        advance_amount: props.allowAdvance && guest.value.advance !== '' ? guest.value.advance : null,
         note: guest.value.note.trim() || null,
     }, {
         preserveScroll: true,
@@ -346,7 +354,7 @@ watch(() => props.placed, (placed) => {
         done.value = placed;
         step.value = 'items';
         cart.value = [];
-        guest.value = { name: '', mobile: '', whenLocal: '', partySize: '', tableId: '', note: '' };
+        guest.value = blankGuest();
         opened.value = true;
         cartOpen.value = true;
         emit('placed', placed);
@@ -599,6 +607,10 @@ onBeforeUnmount(() => {
                         </li>
                     </ul>
                     <p class="pb-total-row"><span>{{ t('preorders.total') }}</span><strong class="tabular-nums">{{ formatMoney(done.total, { decimals: 0 }) }}</strong></p>
+                    <template v-if="Number(done.advance_amount) > 0">
+                        <p class="pb-total-row pb-total-sub"><span>{{ t('preorders.advance_received') }}</span><span class="tabular-nums">- {{ formatMoney(done.advance_amount, { decimals: 0 }) }}</span></p>
+                        <p class="pb-total-row"><span>{{ t('preorders.balance_due') }}</span><strong class="tabular-nums">{{ formatMoney(done.balance_due, { decimals: 0 }) }}</strong></p>
+                    </template>
                     <p v-if="done.sms_sent" class="pb-note-ok"><AppIcon name="mobile-screen" size="13" /> {{ t('preorders.sms_sent_line') }}</p>
                     <div class="pb-actions">
                         <a :href="done.print_url" target="_blank" rel="noopener" class="pb-primary pb-primary-link"><AppIcon name="print" size="15" /> {{ t('preorders.print_copy') }}</a>
@@ -653,6 +665,10 @@ onBeforeUnmount(() => {
                                 <small v-if="errors.customer_mobile" class="pb-error">{{ errors.customer_mobile }}</small>
                                 <small v-else class="pb-hint pb-hint-top">{{ t('preorders.mobile_hint') }}</small>
                             </label>
+                            <label class="pb-field">
+                                <span>{{ t('preorders.address') }}</span>
+                                <input v-model="guest.address" type="text" maxlength="300" autocomplete="street-address" enterkeyhint="next" class="pb-input" :placeholder="t('preorders.address_placeholder')">
+                            </label>
                             <div class="pb-pair">
                                 <label class="pb-field">
                                     <span>{{ t('preorders.when') }}</span>
@@ -663,19 +679,28 @@ onBeforeUnmount(() => {
                                     <input v-model="guest.partySize" type="number" min="1" max="500" inputmode="numeric" class="pb-input">
                                 </label>
                             </div>
-                            <label v-if="tables.length" class="pb-field">
-                                <span>{{ t('preorders.table') }}</span>
-                                <select v-model="guest.tableId" class="pb-input">
-                                    <option value="">{{ t('preorders.no_table') }}</option>
-                                    <option v-for="table in tables" :key="table.id" :value="table.id">{{ table.name }}<template v-if="table.area"> - {{ table.area }}</template></option>
-                                </select>
-                            </label>
+                            <div v-if="tables.length || allowAdvance" class="pb-pair pb-pair-wide" :class="tables.length && allowAdvance ? '' : 'pb-pair-single'">
+                                <label v-if="tables.length" class="pb-field">
+                                    <span>{{ t('preorders.table') }}</span>
+                                    <select v-model="guest.tableId" class="pb-input">
+                                        <option value="">{{ t('preorders.no_table') }}</option>
+                                        <option v-for="table in tables" :key="table.id" :value="table.id">{{ table.name }}<template v-if="table.area"> - {{ table.area }}</template></option>
+                                    </select>
+                                </label>
+                                <label v-if="allowAdvance" class="pb-field">
+                                    <span>{{ t('preorders.advance') }}</span>
+                                    <input v-model="guest.advance" type="number" min="0" step="1" inputmode="decimal" class="pb-input" placeholder="0" :aria-invalid="errors.advance_amount ? 'true' : 'false'">
+                                </label>
+                            </div>
+                            <small v-if="allowAdvance && errors.advance_amount" class="pb-error pb-pair-note">{{ errors.advance_amount }}</small>
+                            <small v-else-if="allowAdvance && advanceAmount > 0" class="pb-hint pb-hint-top pb-pair-note">{{ t('preorders.balance_due') }}: <strong class="tabular-nums">{{ formatMoney(balanceDue, { decimals: 0 }) }}</strong></small>
+                            <small v-else-if="allowAdvance" class="pb-hint pb-hint-top pb-pair-note">{{ t('preorders.advance_hint') }}</small>
                             <label class="pb-field">
                                 <span>{{ t('preorders.note') }}</span>
                                 <textarea v-model="guest.note" rows="2" maxlength="300" class="pb-input pb-textarea" :placeholder="t('preorders.note_placeholder')" />
                             </label>
 
-                            <p v-if="firstError() && ! errors.customer_mobile" class="pb-error pb-error-box" role="alert">{{ firstError() }}</p>
+                            <p v-if="firstError() && ! errors.customer_mobile && ! errors.advance_amount" class="pb-error pb-error-box" role="alert">{{ firstError() }}</p>
                         </fieldset>
                     </div>
 
@@ -1106,10 +1131,16 @@ onBeforeUnmount(() => {
 .pb-totals dt, .pb-totals dd { margin: 0; }
 .pb-grand { padding-top: 0.45rem; border-top: 1px solid var(--paper-edge); font-size: 1.05rem; font-weight: 700; }
 .pb-total-row { display: flex; justify-content: space-between; gap: 1rem; margin: 0.6rem 0 0; font-size: 1.05rem; }
+.pb-total-sub { margin-top: 0.25rem; font-size: 0.88rem; color: var(--ink-soft); }
 .pb-fields { margin: 1rem 0 0; padding: 0; border: 0; display: grid; gap: 0.75rem; min-width: 0; }
 .pb-fields legend { padding: 0; }
 .pb-field { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; font-size: 0.8rem; font-weight: 600; color: var(--ink); }
-.pb-pair { display: grid; grid-template-columns: minmax(0, 1fr) 6.5rem; gap: 0.6rem; }
+.pb-pair { display: grid; grid-template-columns: minmax(0, 1fr) 6rem; align-items: end; gap: 0.6rem; }
+.pb-pair-wide { grid-template-columns: minmax(0, 1fr) 7rem; }
+.pb-pair-single { grid-template-columns: minmax(0, 1fr); }
+.pb-pair-single .pb-field:only-child { max-width: 11rem; }
+.pb-pair-note { margin-top: -0.35rem; }
+.pb-pair .pb-field > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pb-input {
     width: 100%; min-height: 2.75rem; padding: 0.55rem 0.75rem; border: 1px solid var(--paper-edge); border-radius: 0.6rem; background: #fff; color: var(--ink);
     font-size: 1rem; font-weight: 400; box-sizing: border-box;

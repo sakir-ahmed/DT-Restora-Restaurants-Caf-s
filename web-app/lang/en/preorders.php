@@ -33,6 +33,14 @@ return [
     'print' => 'Print copy',
     'sms_was_sent' => 'SMS sent',
 
+    'address' => 'Address',
+    'address_placeholder' => 'House, road, area (optional)',
+    'advance' => 'Advance',
+    'advance_hint' => 'Money received now. It is taken off the final bill.',
+    'advance_too_high' => 'The advance cannot be more than the pre-order total.',
+    'advance_received' => 'Advance received',
+    'balance_due' => 'Balance to pay',
+
     // Menu book
     'menu_word' => 'Menu',
     'welcome' => 'Welcome',
@@ -65,7 +73,7 @@ return [
     'mobile' => 'Mobile number',
     'mobile_hint' => 'We text you a copy of the pre-order when this is filled in.',
     'when' => 'Date and time of your visit',
-    'party_size' => 'Number of guests',
+    'party_size' => 'Guests',
     'table' => 'Table',
     'no_table' => 'No table',
     'note' => 'Anything we should know?',

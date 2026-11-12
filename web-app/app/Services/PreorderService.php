@@ -11,6 +11,7 @@ use App\Services\Sms\SmsFeatures;
 use App\Services\Sms\SmsTemplates;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Number;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Takes a pre-order from the menu book: prices it from the current menu, keeps it, and texts the
@@ -22,23 +23,30 @@ class PreorderService
 
     /**
      * @param  array<int, array<string, mixed>>  $lines
-     * @param  array{customer_name?: ?string, customer_mobile?: ?string, party_size?: ?int, expected_at?: ?Carbon, restaurant_table_id?: ?int, note?: ?string}  $details
+     * @param  array{customer_name?: ?string, customer_mobile?: ?string, address?: ?string, advance_amount?: float, party_size?: ?int, expected_at?: ?Carbon, restaurant_table_id?: ?int, note?: ?string}  $details
      */
     public function place(Branch $branch, array $lines, array $details, string $source, ?int $userId = null): Preorder
     {
         $priced = $this->pricing->priceLines($branch, $lines);
+        $advance = (float) ($details['advance_amount'] ?? 0);
+
+        if ($advance > $priced['total']) {
+            throw ValidationException::withMessages(['advance_amount' => __('preorders.advance_too_high')]);
+        }
 
         $preorder = Preorder::query()->create([
             'branch_id' => $branch->id,
             'source' => $source,
             'customer_name' => $details['customer_name'] ?? null,
             'customer_mobile' => $details['customer_mobile'] ?? null,
+            'address' => $details['address'] ?? null,
             'party_size' => $details['party_size'] ?? null,
             'expected_at' => $details['expected_at'] ?? null,
             'restaurant_table_id' => $details['restaurant_table_id'] ?? null,
             'note' => $details['note'] ?? null,
             'items' => $priced['lines'],
             'total' => $priced['total'],
+            'advance_amount' => $advance,
             'created_by' => $userId,
         ]);
 
