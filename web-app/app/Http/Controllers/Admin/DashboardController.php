@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Ingredient;
 use App\Models\MenuItem;
+use App\Models\Preorder;
 use App\Models\Recipe;
 use App\Models\Reservation;
 use App\Models\User;
@@ -48,11 +49,16 @@ class DashboardController extends Controller
             'expensesByCategory' => $metrics->expensesByCategory($branchId, $from, $to),
             'dues' => $metrics->dues($branchId, $from, $to),
             'branchComparison' => $seesAll ? $metrics->branchComparison($from, $to) : [],
-            'preorders' => Reservation::query()
+            // Menu-book pre-orders still waiting, plus bookings that carry a pre-ordered menu.
+            'preorders' => Preorder::query()
                 ->when($branchId, fn ($query) => $query->where('branch_id', $branchId))
-                ->where('status', Reservation::BOOKED)
-                ->whereNotNull('preorder')
-                ->count(),
+                ->where('status', Preorder::PENDING)
+                ->count()
+                + Reservation::query()
+                    ->when($branchId, fn ($query) => $query->where('branch_id', $branchId))
+                    ->where('status', Reservation::BOOKED)
+                    ->whereNotNull('preorder')
+                    ->count(),
             'alerts' => [
                 'lowStock' => count($metrics->lowStock($branchId ?? $this->firstBranchId())),
                 'wastageSpike' => $metrics->wastageSpike($branchId ?? $this->firstBranchId()),

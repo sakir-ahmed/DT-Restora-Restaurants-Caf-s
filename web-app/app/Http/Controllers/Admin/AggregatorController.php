@@ -39,6 +39,7 @@ class AggregatorController extends Controller
             ->map(fn (AggregatorChannel $channel): array => $channel->toArray() + [
                 'fields' => PartnerCatalog::fields($channel->key),
                 'has_api' => PartnerCatalog::hasApi($channel->key),
+                'portal_url' => config("aggregators.partners.{$channel->key}.portal_url"),
                 'logo' => config("aggregators.partners.{$channel->key}.logo") ? asset(config("aggregators.partners.{$channel->key}.logo")) : null,
             ]);
 

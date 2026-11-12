@@ -149,5 +149,5 @@ it('keeps history and promotion in the SMS module, behind its own permission', f
     $this->actingAs($cashier, 'staff')->post(route('admin.sms.promotion'), ['message' => 'x', 'audience' => 'all'])->assertForbidden();
 
     $this->actingAs($this->owner, 'staff')->get(route('admin.settings.index'))
-        ->assertInertia(fn ($page) => $page->has('smsFeatures', 10)->has('smsTemplates', 10)->missing('smsHistory'));
+        ->assertInertia(fn ($page) => $page->has('smsFeatures', 11)->has('smsTemplates', 11)->missing('smsHistory'));
 });

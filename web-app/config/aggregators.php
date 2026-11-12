@@ -38,6 +38,7 @@ return [
             'logo' => 'images/partners/pathao_food.png',
             'commission' => '20.00',
             'api' => false,
+            'portal_url' => 'https://pathao.com/food-partner-registration/',
             'fields' => ['webhook_secret'],
         ],
         'foodi' => [

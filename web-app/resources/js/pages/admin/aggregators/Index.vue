@@ -355,6 +355,21 @@ function decide(order, decision) {
                     </FormField>
                 </div>
 
+                <section v-if="editingChannel && ! editingChannel.has_api" class="space-y-1.5 rounded-md border border-border bg-background p-2.5 text-xs">
+                    <h3 class="font-semibold uppercase tracking-wider text-muted">{{ t('aggregators.no_api_title') }}</h3>
+                    <p class="text-muted">{{ t('aggregators.no_api_hint', { name: editingChannel.name }) }}</p>
+                    <ul class="list-disc space-y-0.5 pl-4 text-foreground">
+                        <li>{{ t('aggregators.no_api_collect_secret') }}</li>
+                        <li>{{ t('aggregators.no_api_collect_sample') }}</li>
+                        <li>{{ t('aggregators.no_api_collect_outlet') }}</li>
+                        <li>{{ t('aggregators.no_api_collect_commission') }}</li>
+                    </ul>
+                    <a v-if="editingChannel.portal_url" :href="editingChannel.portal_url" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-primary hover:underline">
+                        <AppIcon name="arrow-up-right-from-square" size="11" />
+                        {{ t('aggregators.partner_portal') }}
+                    </a>
+                </section>
+
                 <section v-if="hasApiFields" class="space-y-3 border-t border-border pt-3">
                     <div>
                         <h3 class="text-xs font-semibold uppercase tracking-wider text-muted">{{ t('aggregators.platform_api') }}</h3>

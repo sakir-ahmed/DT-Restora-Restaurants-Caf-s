@@ -120,8 +120,8 @@ return [
             ],
             'preorders' => [
                 'title' => 'Pre-orders',
-                'what' => 'Bookings that are still waiting for their guests and carry a pre-ordered menu.',
-                'formula' => 'Count of reservations with status booked that have pre-ordered items. They go to the kitchen when the party is seated.',
+                'what' => 'Pre-orders still waiting to be served: taken from the menu book, or attached to a table booking.',
+                'formula' => 'Count of pending menu-book pre-orders plus bookings with status booked that have pre-ordered items. Booking pre-orders go to the kitchen when the party is seated.',
             ],
             'dues' => [
                 'title' => 'Dues',

@@ -32,6 +32,7 @@ final class SmsTemplates
         'delivery_delivered' => ['feature' => 'delivery_status', 'lang' => 'delivery.sms_status.delivered', 'vars' => ['invoice' => 'BR01-0042'], 'required' => ['invoice']],
         'delivery_failed' => ['feature' => 'delivery_status', 'lang' => 'delivery.sms_status.failed', 'vars' => ['invoice' => 'BR01-0042'], 'required' => ['invoice']],
         'reservation_confirmed' => ['feature' => 'reservation_confirmed', 'lang' => 'reservations.sms_confirmed', 'vars' => ['booking' => 'RS-1024', 'branch' => 'Arman\'s Kitchen', 'tables' => 'T4, T5', 'when' => 'Fri 14 Nov, 8:00 PM'], 'required' => ['booking']],
+        'preorder_confirmed' => ['feature' => 'preorder_confirmed', 'lang' => 'preorders.sms_confirmed', 'vars' => ['order' => 'PRE-1112-K7QD', 'branch' => 'Arman\'s Kitchen', 'items' => '2 x Burger, 1 x Cola', 'total' => '850.00', 'when' => 'Fri 14 Nov, 8:00 PM'], 'required' => ['order']],
         'due_reminder' => ['feature' => 'due_reminder', 'lang' => 'sms.due_reminder', 'vars' => ['name' => 'Rahim', 'balance' => '500.00', 'invoice' => 'BR01-0042', 'branch' => 'Arman\'s Kitchen'], 'required' => ['balance']],
         'birthday' => ['feature' => 'birthday', 'lang' => 'web.sms_birthday', 'vars' => ['name' => 'Rahim'], 'required' => []],
         'win_back' => ['feature' => 'win_back', 'lang' => 'web.sms_winback', 'vars' => ['name' => 'Rahim'], 'required' => []],

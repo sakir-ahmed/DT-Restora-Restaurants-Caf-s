@@ -7,6 +7,7 @@ return [
     'dashboard' => 'ড্যাশবোর্ড',
     'pos' => 'পিওএস',
     'reservations' => 'রিজার্ভেশন',
+    'preorders' => 'প্রি-অর্ডার',
     'tables' => 'টেবিল',
     'orders' => 'অর্ডার',
     'dues' => 'বাকি',

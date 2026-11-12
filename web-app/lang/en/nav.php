@@ -7,6 +7,7 @@ return [
     'dashboard' => 'Dashboard',
     'pos' => 'POS',
     'reservations' => 'Reservations',
+    'preorders' => 'Pre-order',
     'tables' => 'Tables',
     'orders' => 'Orders',
     'dues' => 'Dues',

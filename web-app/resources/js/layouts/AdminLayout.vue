@@ -64,6 +64,7 @@ const nav = computed(() => {
                 { label: t('nav.dues'), href: '/admin/dues', icon: 'hand-holding-dollar', permission: 'orders.view' },
                 { label: t('nav.kds'), href: '/admin/kds', icon: 'utensils', permission: 'kds.access' },
                 { label: t('nav.reservations'), href: '/admin/reservations', icon: 'calendar-days', permission: 'reservations.view' },
+                { label: t('nav.preorders'), href: '/admin/preorders', icon: 'bag-shopping', permission: 'preorders.view' },
                 { label: t('nav.tables'), href: '/admin/tables', icon: 'bell-concierge', permission: 'tables.view' },
             ],
         },

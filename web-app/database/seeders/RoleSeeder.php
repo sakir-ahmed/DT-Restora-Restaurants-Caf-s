@@ -25,6 +25,8 @@ class RoleSeeder extends Seeder
         'tables.manage',
         'reservations.view',
         'reservations.manage',
+        'preorders.view',
+        'preorders.manage',
         'media.view',
         'media.manage',
         'careers.manage',
@@ -74,7 +76,7 @@ class RoleSeeder extends Seeder
     private const ROLE_PERMISSIONS = [
         'owner' => '*',
         'branch-manager' => [
-            'admin.access', 'branches.view', 'menu.view', 'menu.manage', 'tables.view', 'tables.manage', 'reservations.view', 'reservations.manage', 'media.view', 'media.manage', 'staff.view',
+            'admin.access', 'branches.view', 'menu.view', 'menu.manage', 'tables.view', 'tables.manage', 'reservations.view', 'reservations.manage', 'preorders.view', 'preorders.manage', 'media.view', 'media.manage', 'staff.view',
             'orders.view', 'orders.create', 'orders.void', 'discounts.override',
             'inventory.view', 'inventory.manage', 'stock.adjust', 'purchases.manage',
             'recipes.manage', 'wastage.log', 'wastage.approve', 'transfers.manage',
@@ -86,11 +88,11 @@ class RoleSeeder extends Seeder
         'cashier' => [
             'admin.access', 'branches.view', 'menu.view', 'orders.view', 'orders.create',
             'pos.access', 'shifts.manage', 'customers.view', 'loyalty.manage', 'dashboard.view',
-            'reservations.view', 'reservations.manage',
+            'reservations.view', 'reservations.manage', 'preorders.view', 'preorders.manage',
         ],
         'waiter' => [
             'admin.access', 'branches.view', 'menu.view', 'orders.view', 'orders.create',
-            'dashboard.view', 'reservations.view', 'reservations.manage',
+            'dashboard.view', 'reservations.view', 'reservations.manage', 'preorders.view', 'preorders.manage',
         ],
         'kitchen-manager' => [
             'admin.access', 'branches.view', 'menu.view', 'orders.view', 'kds.access',

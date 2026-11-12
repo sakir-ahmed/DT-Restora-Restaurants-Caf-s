@@ -78,6 +78,13 @@ return [
     'disable' => 'Disable',
     'webhook_url' => 'Webhook URL',
     'webhook_url_helper' => 'Enter this address in the partner portal.',
+    'no_api_title' => 'No public API',
+    'no_api_hint' => ':name does not publish a partner API we can connect to, so orders are entered with Manual order. For automatic orders, ask your :name account manager whether they can send orders to the webhook URL above, and collect the details below.',
+    'no_api_collect_secret' => 'The webhook secret or signing key they give you.',
+    'no_api_collect_sample' => 'A sample order message (JSON) they send.',
+    'no_api_collect_outlet' => 'Your outlet or restaurant ID for each branch.',
+    'no_api_collect_commission' => 'The commission percent from your contract.',
+    'partner_portal' => 'Open partner page',
     'copy' => 'Copy',
     'copied' => 'Copied',
 ];

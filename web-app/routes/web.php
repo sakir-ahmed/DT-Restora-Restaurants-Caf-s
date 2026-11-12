@@ -30,6 +30,7 @@ use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\PayrollController;
 use App\Http\Controllers\Admin\PosController;
+use App\Http\Controllers\Admin\PreorderController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\ReceiptController;
@@ -71,6 +72,7 @@ use App\Http\Controllers\Web\ItemController;
 use App\Http\Controllers\Web\LegalController;
 use App\Http\Controllers\Web\LocationController;
 use App\Http\Controllers\Web\MenuController;
+use App\Http\Controllers\Web\PreorderMenuController;
 use App\Http\Controllers\Web\PwaController;
 use App\Http\Controllers\Web\RobotsController;
 use App\Http\Controllers\Web\SitemapController;
@@ -104,6 +106,11 @@ Route::post('/checkout', [CheckoutController::class, 'place'])->name('web.checko
 Route::post('/coupons/validate', [CheckoutController::class, 'validateCoupon'])->name('web.coupons.validate')->middleware('throttle:20,1');
 Route::get('/track/{token}', [TrackController::class, 'show'])->name('web.track');
 Route::get('/pay/{order}/{gateway}', [WebPaymentController::class, 'start'])->name('web.payment.start');
+
+// Shareable menu book with pre-ordering. The slip link carries a random token for one pre-order.
+Route::get('/preorder/slip/{token}', [PreorderMenuController::class, 'slip'])->where('token', '[A-Za-z0-9]{32}')->name('web.preorder.slip');
+Route::get('/preorder/{branchCode}', [PreorderMenuController::class, 'show'])->name('web.preorder');
+Route::post('/preorder/{branchCode}', [PreorderMenuController::class, 'store'])->middleware('throttle:20,1')->name('web.preorder.store');
 
 // QR table ordering: the code holds a secret token for one table. A new token makes older codes stop working.
 Route::get('/t/{token}', [TableMenuController::class, 'show'])->where('token', '[A-Za-z0-9]{32}')->name('web.table');
@@ -228,6 +235,10 @@ Route::prefix('admin')
         Route::get('tables/qr-sheet', [RestaurantTableController::class, 'qrSheet'])->name('tables.qr-sheet')->middleware('permission:tables.view');
         Route::post('tables/qr/regenerate-all', [RestaurantTableController::class, 'regenerateAllQr'])->name('tables.qr.regenerate-all')->middleware('permission:tables.manage');
         Route::post('tables/{table}/qr', [RestaurantTableController::class, 'regenerateQr'])->name('tables.qr.regenerate')->middleware('permission:tables.manage');
+        Route::get('preorders', [PreorderController::class, 'index'])->name('preorders.index')->middleware('permission:preorders.view');
+        Route::post('preorders', [PreorderController::class, 'store'])->name('preorders.store')->middleware('permission:preorders.manage');
+        Route::get('preorders/{preorder}/print', [PreorderController::class, 'print'])->name('preorders.print')->middleware('permission:preorders.view');
+        Route::post('preorders/{preorder}/{action}', [PreorderController::class, 'transition'])->where('action', 'complete|cancel')->name('preorders.transition')->middleware('permission:preorders.manage');
         Route::get('reservations', [ReservationController::class, 'index'])->name('reservations.index')->middleware('permission:reservations.view');
         Route::post('reservations', [ReservationController::class, 'store'])->name('reservations.store')->middleware('permission:reservations.manage');
         Route::put('reservations/{reservation}', [ReservationController::class, 'update'])->name('reservations.update')->middleware('permission:reservations.manage');
