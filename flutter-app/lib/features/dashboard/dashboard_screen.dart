@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../core/api_client.dart';
 import '../../core/app_state.dart';
 import '../../core/theme.dart';
 import '../../ui/widgets.dart';
+import '../../ui/tr_text.dart';
 
 /// Full-page dashboard: today's numbers, the month's sales as an animated
 /// chart and low-stock alerts. Kept off the home page so the home list

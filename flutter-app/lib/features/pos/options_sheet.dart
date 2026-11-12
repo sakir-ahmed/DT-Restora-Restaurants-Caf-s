@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../core/app_state.dart';
 import '../../core/theme.dart';
 import '../../ui/food_image.dart';
 import '../../ui/widgets.dart';
+import '../../ui/tr_text.dart';
 
 /// One order line chosen in the options sheet: a size (or none), how many,
 /// and the add-ons for each unit. Each add-on map holds `id`, `name`,

@@ -8,6 +8,7 @@ use App\Actions\Sales\ApproveOrderVoidAction;
 use App\Actions\Sales\CollectDueAction;
 use App\Actions\Sales\PayOrderAction;
 use App\Actions\Sales\RequestOrderVoidAction;
+use App\Enums\OrderChannel;
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Api\Concerns\InteractsWithApi;
 use App\Http\Controllers\Api\Controller;
@@ -41,6 +42,45 @@ class SalesApiController extends Controller
         'complete' => Preorder::COMPLETED,
         'cancel' => Preorder::CANCELLED,
     ];
+
+    /**
+     * Website, QR and delivery platform orders that arrived after the given order id, so the app can
+     * chime like the web POS. Works without websockets.
+     */
+    public function incomingOrders(Request $request, string $branch): JsonResponse
+    {
+        $user = $this->staffUser($request);
+        $this->permit($user, 'orders.create');
+        $branchModel = $this->branchOrFail($request, $branch);
+        $after = (int) $request->integer('after');
+
+        $query = Order::query()
+            ->where('branch_id', $branchModel->id)
+            ->where('channel', '!=', OrderChannel::Pos->value);
+
+        if ($after === 0) {
+            return $this->success(['last_id' => (int) $query->max('id'), 'orders' => []]);
+        }
+
+        $orders = $query->where('id', '>', $after)
+            ->where('status', OrderStatus::Pending->value)
+            ->with(['aggregatorChannel:id,key,name', 'table:id,name'])
+            ->orderBy('id')
+            ->limit(20)
+            ->get();
+
+        return $this->success([
+            'last_id' => (int) max($after, $orders->max('id') ?? 0),
+            'orders' => $orders->map(fn (Order $order): array => [
+                'id' => $order->id,
+                'invoice_no' => $order->invoice_no,
+                'channel' => $order->channel->value,
+                'total' => (string) $order->total,
+                'aggregator' => $order->aggregatorChannel?->name,
+                'table' => $order->table?->name,
+            ])->all(),
+        ]);
+    }
 
     public function dues(Request $request, string $branch): JsonResponse
     {

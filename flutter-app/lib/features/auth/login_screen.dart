@@ -1,9 +1,12 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../core/api_client.dart';
 import '../../core/app_state.dart';
 import '../../core/theme.dart';
 import '../../ui/widgets.dart';
+import '../../ui/tr_text.dart';
+import '../customer/customer_app.dart';
+import '../../core/l10n.dart';
 
 /// Staff sign-in. The demo accounts mirror the web app's demo login.
 class LoginScreen extends StatefulWidget {
@@ -100,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
               controller: _login,
               autocorrect: false,
               textInputAction: TextInputAction.next,
-              decoration: const InputDecoration(labelText: 'Username, email or mobile'),
+              decoration: InputDecoration(labelText: tr('Username, email or mobile')),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -108,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
               obscureText: !_showPassword,
               onSubmitted: (_) => _submit(),
               decoration: InputDecoration(
-                labelText: 'Password',
+                labelText: tr('Password'),
                 suffixIcon: IconButton(
                   icon: Icon(_showPassword ? Icons.visibility_off : Icons.visibility),
                   onPressed: () => setState(() => _showPassword = !_showPassword),
@@ -128,6 +131,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                   : const Text('Sign in'),
             ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: _busy ? null : () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CustomerApp())),
+              icon: const Icon(Icons.restaurant_menu),
+              label: const Text('Order food as a customer'),
+            ),
+            if (AppScope.of(context).isDemo) ...[
             const SizedBox(height: 28),
             Row(children: [
               const Expanded(child: Divider()),
@@ -159,6 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   onTap: () => _submit(a.username, demoPassword),
                 ),
               ),
+            ],
           ],
         ),
       ),

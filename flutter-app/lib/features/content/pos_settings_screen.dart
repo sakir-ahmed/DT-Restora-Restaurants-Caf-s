@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../core/offline_orders.dart';
 import '../../core/theme.dart';
 import '../../ui/widgets.dart';
+import '../../ui/tr_text.dart';
+import '../../core/l10n.dart';
 
 const _layouts = ['classic', 'compact', 'bold'];
 
@@ -127,7 +129,7 @@ class _PosSettingsScreenState extends State<PosSettingsScreen> {
           const SectionTitle('Invoice'),
           DropdownButtonFormField<String>(
             initialValue: '${_pos['invoice_layout'] ?? 'classic'}',
-            decoration: const InputDecoration(labelText: 'Receipt layout'),
+            decoration: InputDecoration(labelText: tr('Receipt layout')),
             items: [for (final l in _layouts) DropdownMenuItem(value: l, child: Text(titleCase(l)))],
             onChanged: (v) => setState(() => _pos['invoice_layout'] = v),
           ),

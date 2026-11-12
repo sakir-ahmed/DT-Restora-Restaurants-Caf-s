@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../core/local_db.dart';
 import '../../core/theme.dart';
 import '../../ui/widgets.dart';
+import '../../ui/tr_text.dart';
 
 const _conflictText = {
   'NEGATIVE_STOCK': 'Not enough stock for this order',

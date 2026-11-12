@@ -10,6 +10,7 @@ use App\Actions\Sales\CloseShiftAction;
 use App\Actions\Sales\CreateOrderAction;
 use App\Actions\Sales\OpenShiftAction;
 use App\Actions\Sales\PayOrderAction;
+use App\Actions\Sales\ReviseSettledSaleAction;
 use App\Enums\OrderStatus;
 use App\Enums\OrderType;
 use App\Exceptions\InsufficientStockException;
@@ -221,6 +222,19 @@ class SyncService
     private function applyOrderEdit(User $user, array $payload): void
     {
         $order = $this->orderForPayment($payload);
+
+        // A paid order is revised in place, keeping its payments and fixing the books, like the web panel does.
+        if ($order->status === OrderStatus::Paid) {
+            app(ReviseSettledSaleAction::class)->execute(
+                $order,
+                $this->snapshotLines((array) ($payload['items'] ?? [])),
+                $this->discountFrom($payload),
+                isset($payload['note']) ? (string) $payload['note'] : null,
+                $user,
+            );
+
+            return;
+        }
 
         if ($order->payments()->where('is_advance', true)->exists()) {
             throw ValidationException::withMessages(['order' => __('orders.advance_locked')]);

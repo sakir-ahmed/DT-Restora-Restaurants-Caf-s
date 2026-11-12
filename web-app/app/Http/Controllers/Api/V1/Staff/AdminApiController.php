@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Concerns\InteractsWithApi;
 use App\Http\Controllers\Api\Controller;
 use App\Models\AggregatorChannel;
 use App\Models\BankStatementLine;
+use App\Models\Branch;
 use App\Models\FiscalYear;
 use App\Models\Journal;
 use App\Models\Order;
@@ -99,6 +100,34 @@ class AdminApiController extends Controller
         activity()->performedOn($user)->causedBy($user)->log('staff.password_changed');
 
         return $this->success(null, __('profile.password_changed'));
+    }
+
+    /**
+     * Where the app connects for live kitchen and order updates (Reverb speaks the Pusher protocol), and
+     * the private channels this person may join. Empty when websockets are not set up on the server.
+     */
+    public function realtime(Request $request): JsonResponse
+    {
+        $user = $this->staffUser($request);
+        $key = (string) config('reverb.apps.apps.0.key');
+        $options = (array) config('reverb.apps.apps.0.options', []);
+
+        $enabled = $key !== '' && filled($options['host'] ?? null) && config('broadcasting.default', env('BROADCAST_CONNECTION')) === 'reverb';
+
+        $branchIds = $user->branch_id !== null ? [$user->branch_id] : Branch::query()->pluck('id')->all();
+
+        return $this->success([
+            'enabled' => $enabled,
+            'key' => $enabled ? $key : null,
+            'host' => $enabled ? $options['host'] : null,
+            'port' => $enabled ? (int) ($options['port'] ?? 443) : null,
+            'scheme' => $enabled ? ($options['scheme'] ?? 'https') : null,
+            'auth_endpoint' => url('/api/v1/broadcasting/auth'),
+            'channels' => $enabled ? collect($branchIds)->flatMap(fn (int $id): array => [
+                'private-branch.'.$id.'.kitchen',
+                'private-branch.'.$id.'.alerts',
+            ])->all() : [],
+        ]);
     }
 
     public function fiscalYears(Request $request): JsonResponse

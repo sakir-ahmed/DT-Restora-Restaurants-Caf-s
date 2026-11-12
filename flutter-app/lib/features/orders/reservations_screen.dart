@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../core/theme.dart';
 import '../../ui/widgets.dart';
+import '../../ui/tr_text.dart';
+import '../../core/l10n.dart';
 
 const _reservationActions = {
   'booked': ['seated', 'no_show', 'cancelled'],
@@ -74,7 +76,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
                     setSheet(() => picked = DateTime(date.year, date.month, date.day, time.hour, time.minute));
                   },
                   child: InputDecorator(
-                    decoration: const InputDecoration(labelText: 'Date and time'),
+                    decoration: InputDecoration(labelText: tr('Date and time')),
                     child: Text(fmtDate(picked.toIso8601String())),
                   ),
                 ),

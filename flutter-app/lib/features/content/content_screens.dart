@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:image_picker/image_picker.dart';
 import 'package:printing/printing.dart';
 
@@ -8,6 +8,8 @@ import '../../ui/food_image.dart';
 import '../../ui/widgets.dart';
 import 'pos_settings_screen.dart';
 import 'record_form.dart';
+import '../../ui/tr_text.dart';
+import '../../core/l10n.dart';
 
 Future<void> _openForm(
   BuildContext context,
@@ -504,7 +506,7 @@ class _MediaScreenState extends State<MediaScreen> {
             children: [
               DropdownButtonFormField<String>(
                 initialValue: owner,
-                decoration: const InputDecoration(labelText: 'Gallery'),
+                decoration: InputDecoration(labelText: tr('Gallery')),
                 items: [
                   if (data['can_use_general'] == true) const DropdownMenuItem(value: 'general', child: Text('General gallery')),
                   for (final b in branches) DropdownMenuItem(value: 'branch:${b['id']}', child: Text('${b['name']}')),

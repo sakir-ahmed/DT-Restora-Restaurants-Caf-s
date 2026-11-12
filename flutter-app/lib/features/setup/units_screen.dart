@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../core/theme.dart';
 import '../../core/units.dart';
 import '../../ui/widgets.dart';
+import '../../ui/tr_text.dart';
 
 /// Units of measure and conversions, like the web Settings tab: the standard
 /// units are fixed, custom units (box, large box) are described as

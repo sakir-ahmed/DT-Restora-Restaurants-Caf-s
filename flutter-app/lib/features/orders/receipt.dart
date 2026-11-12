@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -11,6 +11,8 @@ import '../../core/pdf_shaper.dart';
 import '../../core/theme.dart';
 import '../../ui/widgets.dart';
 import '../pos/pos_screen.dart';
+import 'invoice_pdf.dart';
+import '../../ui/tr_text.dart';
 
 /// One printed row: a plain text line, or a label and value pair.
 class ReceiptRow {
@@ -329,11 +331,6 @@ class KitchenTokenData {
   }
 }
 
-const _receiptFormat = PdfPageFormat(
-  80 * PdfPageFormat.mm,
-  double.infinity,
-  marginAll: 5 * PdfPageFormat.mm,
-);
 const _tokenFormat = PdfPageFormat(
   58 * PdfPageFormat.mm,
   double.infinity,
@@ -453,6 +450,9 @@ class _ReceiptBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final bangla = AppScope.of(context).locale == 'bn';
     final data = ReceiptData(order, branch, bangla: bangla);
+    // The branch's invoice style and paper size, the same choice the web invoice uses.
+    final choice = invoiceChoice(branch);
+    Future<Uint8List> invoicePdf() => buildInvoicePdf(data, layout: choice.layout, paper: choice.paper);
     final kitchen = KitchenTokenData(order, bangla: bangla);
 
     Future<void> printPdf(
@@ -507,9 +507,9 @@ class _ReceiptBody extends StatelessWidget {
                     Expanded(
                       child: FilledButton.icon(
                         onPressed: () =>
-                            printPdf(data.toPdf, _receiptFormat, data.invoice),
+                            printPdf(invoicePdf, invoiceFormat(choice.paper), data.invoice),
                         icon: const Icon(Icons.print),
-                        label: const Text('Print receipt'),
+                        label: Text('Print receipt (${choice.layout}, ${choice.paper})'),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -535,7 +535,7 @@ class _ReceiptBody extends StatelessWidget {
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () async => Printing.sharePdf(
-                          bytes: await data.toPdf(),
+                          bytes: await invoicePdf(),
                           filename: '${data.invoice}.pdf',
                         ),
                         icon: const Icon(Icons.share),

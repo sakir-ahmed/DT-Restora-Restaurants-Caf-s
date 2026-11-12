@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\OrderChannel;
 use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\MenuCategory;
@@ -141,5 +142,20 @@ it('adds dues and waiting pre-orders to the dashboard and payment methods to the
     expect($data)->toHaveKeys(['dues', 'preorders_waiting']);
 
     $reference = $this->withToken($this->token)->getJson($this->base.'/reference')->assertOk()->json('data');
-    expect($reference)->toHaveKeys(['payment_methods', 'void_reasons', 'order_edit_enabled', 'order_delete_enabled']);
+    expect($reference)->toHaveKeys(['payment_methods', 'void_reasons', 'order_edit_enabled', 'order_delete_enabled', 'pos_lock']);
+});
+
+it('reports website orders that arrived after a given order for the incoming alert', function (): void {
+    $this->withToken($this->token)->getJson($this->base.'/orders/incoming')->assertOk()->assertJsonPath('data.orders', []);
+
+    $id = createApiOrder($this);
+
+    // A POS order is not "incoming": only website, QR and platform orders are.
+    $this->withToken($this->token)->getJson($this->base.'/orders/incoming?after=0')->assertOk()->assertJsonPath('data.last_id', 0);
+
+    $created = Order::query()->find($id);
+    $created->update(['channel' => OrderChannel::Website->value]);
+
+    $first = $this->withToken($this->token)->getJson($this->base.'/orders/incoming?after=0')->assertOk()->json('data');
+    expect($first['last_id'])->toBe($id)->and($first['orders'])->toBe([]);
 });

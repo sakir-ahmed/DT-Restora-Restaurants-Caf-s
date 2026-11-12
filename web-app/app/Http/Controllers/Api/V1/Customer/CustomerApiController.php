@@ -123,6 +123,25 @@ class CustomerApiController extends Controller
         return $this->success($categories);
     }
 
+    /** The areas a branch delivers to, with fee, minimum order and time, so the app can offer them at checkout. */
+    public function deliveryZones(string $branch): JsonResponse
+    {
+        $branchModel = ctype_digit($branch)
+            ? Branch::query()->findOrFail($branch)
+            : Branch::query()->where('code', $branch)->firstOrFail();
+
+        if (! ($branchModel->online_delivery_enabled ?? true)) {
+            return $this->success([]);
+        }
+
+        return $this->success(DeliveryZone::query()
+            ->where('branch_id', $branchModel->id)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get(['id', 'name', 'name_bn', 'fee', 'fee_type', 'min_order', 'eta_minutes']));
+    }
+
     public function quote(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -149,7 +168,11 @@ class CustomerApiController extends Controller
                 'order_type' => ['required', 'in:dine_in,takeaway,delivery'],
                 'items' => ['required', 'array', 'min:1'],
                 'items.*.menu_item_id' => ['required', 'integer'],
+                'items.*.variant_id' => ['nullable', 'integer'],
                 'items.*.quantity' => ['required', 'integer', 'min:1'],
+                'items.*.add_ons' => ['nullable', 'array'],
+                'items.*.add_ons.*.id' => ['required', 'integer'],
+                'items.*.add_ons.*.qty' => ['nullable', 'integer', 'min:1'],
                 'delivery_zone_id' => ['nullable', 'integer'],
                 'delivery_address' => ['nullable', 'string', 'max:500'],
                 'coupon_code' => ['nullable', 'string'],

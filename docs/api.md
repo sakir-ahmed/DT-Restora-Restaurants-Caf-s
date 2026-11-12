@@ -119,6 +119,60 @@ All branch routes are prefixed `/api/v1/branches/{branch}`.
 
 Recipe lines accept an optional `unit_id`; `qty` is in that unit and the server stores it in base units.
 
+### Inventory operations (`/branches/{branch}`)
+
+Deletes are `POST .../delete` with `reason_code` (`entry_mistake`, `duplicate_entry`, `wrong_amount`, `other`; the list is `delete_reasons` in the reference payload) and optional `note`. The record is kept as deleted and stock and the books are put back; it is refused when the goods were already used.
+
+| Method | Path | Permission | Notes |
+| ------ | ---- | ---------- | ----- |
+| PUT | `/purchases/{purchase}` | `purchases.manage` | Same body as create. A draft is replaced; a received purchase is corrected safely (stock, average cost and ledger reversed and re-posted) |
+| POST | `/purchases/{purchase}/receive`, `/purchases/{purchase}/delete` | `purchases.manage` | |
+| POST | `/wastage/{wastage}/delete` | `wastage.log` | |
+| GET | `/stock-counts` | `inventory.view` | `counts`, and `open` with items (`system_qty` and `counted_qty` in base units, `unit_factor` to convert) |
+| POST | `/stock-counts` | `inventory.manage` | Start a count (one open count per branch) |
+| PUT | `/stock-counts/{count}/items` | `inventory.manage` | `counted`: map of item id to counted quantity in base units |
+| POST | `/stock-counts/{count}/close`, `/stock-counts/{count}/delete` | `inventory.manage` | |
+| GET | `/stock-transfers` | `transfers.manage` | Transfers sent or received by the branch |
+| POST | `/api/v1/stock-transfers/{transfer}/delete` | `transfers.manage` | |
+| DELETE | `/api/v1/ingredients/{ingredient}` | `inventory.manage` | Switches the ingredient off |
+| GET / POST / PUT / DELETE | `/api/v1/ingredient-categories[/{category}]` | `inventory.view` / `inventory.manage` | Delete is refused while ingredients use the category |
+| GET / POST / PUT / DELETE | `/menu-categories[/{category}]` | `menu.view` / `menu.manage` | Includes switched-off categories with `items_count`; delete refused while dishes use one |
+| DELETE | `/menu-items/{item}` | `menu.manage` | |
+| POST | `/api/v1/media/{media}/replace`, `/api/v1/media/{media}/feature` | `media.manage` | Replace the file of a photo (multipart `image`); make a dish photo the featured one |
+
+### People
+
+| Method | Path | Permission | Notes |
+| ------ | ---- | ---------- | ----- |
+| GET | `/api/v1/customers/{customer}` | `customers.view` | Points, order count and the latest 30 orders |
+| DELETE | `/api/v1/coupons/{coupon}` | `coupons.manage` | Switches the coupon off; the list carries `redemptions_count` |
+| GET | `/staff` | `staff.view` | `employees`, `users` with roles, `roles`, `pay_bases` |
+| PUT / DELETE | `/employees/{employee}` | `employees.manage` | Update (pay basis, rate or salary, device id) or switch off; `POST /employees/{employee}/photo` uploads or removes the photo |
+| POST / PUT / DELETE | `/users[/{account}]` | `staff.manage` | System sign-in accounts with `roles`; DELETE switches off (not yourself) |
+| GET / POST | `/attendance` | `attendance.manage` | Day board (`?date=`) with devices; POST records a day by hand (present with clock in and out, or absent) |
+| POST / PUT | `/attendance/devices[/{device}]`, POST `/attendance/devices/{device}/token` | `attendance.manage` | The device token is returned once, on create and on rotate |
+| GET / POST | `/payroll/advances` | `payroll.manage` | Salary advances of a period (`from`, `to`) and record one |
+| POST | `/payroll/advances/{advance}/delete` | `payroll.manage` | With a delete reason |
+| GET | `/payroll/slips/{employee}?from=&to=` | `payroll.manage` | PDF salary slip |
+
+### Profile, accounting extras, aggregators, live updates
+
+| Method | Path | Notes |
+| ------ | ---- | ----- |
+| GET / POST | `/api/v1/profile` | Own profile; POST updates name, email, username, mobile, `locale`, and `avatar` (multipart) |
+| PUT | `/api/v1/profile/password` | `current_password`, `password`, `password_confirmation` |
+| GET / POST | `/api/v1/accounting/fiscal-years`, `/api/v1/accounting/fiscal-years/{year}/lock` | `accounting.view` / `periods.lock` |
+| GET / POST | `/api/v1/accounting/bank-statements`, `POST .../{line}/match` | `journals.post` to add and match (`journal_id` must be a posted journal with the same movement) |
+| GET | `/api/v1/aggregators/overview` | Channels, latest platform orders, commission totals |
+| POST | `/api/v1/aggregators/channels/{channel}/toggle`, `connection-test`, `outlet-status`, `import-orders` | `aggregators.manage` |
+| GET / POST | `/api/v1/aggregators/channels/{channel}/payouts` | List and record a payout |
+| GET | `/branches/{branch}/orders/incoming?after=` | Website, QR and platform orders after an order id (poll for the alert chime) |
+| GET | `/api/v1/realtime` | Where to connect for live updates: `enabled`, `key`, `host`, `port`, `scheme`, `auth_endpoint` and the private `channels` of the user. `enabled` is false when Reverb is not set up |
+| POST | `/api/v1/broadcasting/auth` | Signs a private channel for a token user (`socket_id`, `channel_name`) |
+| GET | `/api/v1/customer/branches/{branch}/delivery-zones` | Active delivery areas with fee, minimum order and time, empty when delivery is off. Customer orders now keep `variant_id` and `add_ons` per item |
+
+The sync `order_edit` item now also revises a paid order in place (payments kept, books fixed), as the web panel does; a new total below what was received is returned as a conflict.
+
 `GET /api/v1/dashboard` also returns `dues` (same shape as the web dashboard: `outstanding`, `open_count`, `top`) and `preorders_waiting`. Order payloads carry `is_due` and `customer_name`.
 
 ### Inventory & Recipes

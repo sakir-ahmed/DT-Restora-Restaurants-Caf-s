@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart';
 import 'package:printing/printing.dart';
 
@@ -7,6 +7,8 @@ import '../../core/app_state.dart';
 import '../../core/sounds.dart';
 import '../../core/theme.dart';
 import '../../ui/widgets.dart';
+import '../../ui/tr_text.dart';
+import '../../core/l10n.dart';
 
 /// The day's attendance board: punch staff in and out, like the web page.
 class AttendanceScreen extends StatefulWidget {
@@ -71,7 +73,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
           DropdownButtonFormField<int>(
             initialValue: employee,
             isExpanded: true,
-            decoration: const InputDecoration(labelText: 'Employee'),
+            decoration: InputDecoration(labelText: tr('Employee')),
             items: [for (final e in employees) DropdownMenuItem(value: (e['id'] as num).toInt(), child: Text('${e['name']}'))],
             onChanged: (v) => set(() => employee = v),
           ),
@@ -595,7 +597,7 @@ class _SalaryAdvancesScreenState extends State<SalaryAdvancesScreen> {
           DropdownButtonFormField<int>(
             initialValue: employee,
             isExpanded: true,
-            decoration: const InputDecoration(labelText: 'Employee'),
+            decoration: InputDecoration(labelText: tr('Employee')),
             items: [for (final e in employees) DropdownMenuItem(value: (e['id'] as num).toInt(), child: Text('${e['name']}'))],
             onChanged: (v) => set(() => employee = v),
           ),
@@ -636,7 +638,7 @@ class _SalaryAdvancesScreenState extends State<SalaryAdvancesScreen> {
         builder: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           DropdownButtonFormField<String>(
             initialValue: reason,
-            decoration: const InputDecoration(labelText: 'Reason'),
+            decoration: InputDecoration(labelText: tr('Reason')),
             items: [for (final r in const ['entry_mistake', 'duplicate_entry', 'wrong_amount', 'other']) DropdownMenuItem(value: r, child: Text(titleCase(r)))],
             onChanged: (v) => set(() => reason = v!),
           ),

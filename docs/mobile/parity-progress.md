@@ -55,6 +55,23 @@ Status words: **Todo**, **Doing**, **Done**, **Blocked**.
 
 Later parts (orders delete and reprint, tables, reservations, menu categories, staff, accounting, rider OTP, customer app) are in the plan's phases 2 to 7 and are added here as they are scheduled.
 
+## Batch 3 (2026-11-13): the rest of the web admin in the app
+
+| Part | What | Status | Checked |
+| --- | --- | --- | --- |
+| P21 | Inventory operations: purchase view, edit or correct, receive, delete; stock count start, count, close, delete; wastage and transfer delete with reasons; transfers list with approve and receive; ingredient categories; ingredient switch off; unit pickers on wastage and transfers | Done | `InventoryApiTest` 7 passed; `dart analyze` clean |
+| P22 | Menu: categories manager, delete dish, dish photos and videos from the dish form, replace photo, featured photo, prices on the Menu screen | Done | `MenuApiTest` 4 passed |
+| P23 | People: customer detail with orders, staff (employees with photo, system users with roles), attendance by hand and fingerprint devices (token shown once), payroll advances and PDF salary slip, coupon switch off and usage | Done | `PeopleApiTest` 7 passed |
+| P24 | Accounts: profile and password, fiscal year lock, bank statement lines and matching, aggregator payouts, connection test, import, outlet open and close | Done | `AdminApiTest` 6 passed |
+| P25 | Invoice renderer: the 6 styles and 4 paper sizes from the branch setting, test print from Settings, pre-order print and share (PDF, link, QR poster), table QR image | Done | `dart analyze` clean; `test/l10n_test.dart` covers the choice logic; not compared with the web print on a device |
+| P26 | Orders: a queued edit of a paid order now revises it in place (server sync fixed) | Done | `OfflineSyncTest` 20 passed |
+| P27 | Rider live location (foreground, every 15 seconds), OTP delivery code (already there) | Done | not run on a device; location permission added for Android and iOS |
+| P28 | Live updates over Reverb (Pusher protocol client with channel auth for staff tokens), incoming order chime by 15 second poll, idle PIN lock with the web's `pos_pin_minutes` and `pos_lock_enabled` | Done | `AdminApiTest` and `SalesApiTest`; the websocket client has not been run against a live Reverb server |
+| P29 | Bangla interface: `tr()` with 2,400 phrases generated from the web language files plus the app's own, a `Text` that translates, labels and hints, language follows Settings | Done for fixed wording | Long help sentences and some messages with names or numbers in them are still English |
+| P30 | Customer mode (sign in by mobile code, menu, basket, takeaway or delivery, coupon, online payment, tracking, addresses, points) opened from the login screen | Done | `ApiContractTest` 9 passed (delivery areas, size and add-ons kept) |
+
+Not possible from this repository alone: staff push notifications (the web has none for staff, and the app has no Firebase project or key), Bluetooth thermal printers (the system print dialog is used), secure token storage (`flutter_secure_storage` does not resolve with `wakelock_plus` today), and the golden tests and integration tests of the plan, which need a normal terminal.
+
 ## Web features added after the plan was written (gap list, 2026-11-13)
 
 | Web feature | In the app now |

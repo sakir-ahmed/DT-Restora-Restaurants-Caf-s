@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../ui/widgets.dart';
+import '../../ui/tr_text.dart';
 
 enum FieldKind { text, multiline, number, phone, email, date, select, toggle }
 

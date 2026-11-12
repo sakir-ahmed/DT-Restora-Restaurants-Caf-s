@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/api_client.dart';
@@ -14,6 +14,8 @@ import '../../ui/widgets.dart';
 import '../orders/payment_sheet.dart';
 import '../orders/receipt.dart';
 import 'options_sheet.dart';
+import '../../ui/tr_text.dart';
+import '../../core/l10n.dart';
 
 /// Whole taka without decimals, e.g. `BDT 560`, for compact price tags.
 String _short(double v) =>
@@ -1770,7 +1772,7 @@ class _PosScreenState extends State<PosScreen> {
                     controller: _search,
                     onChanged: (v) => setState(() => _query = v.trim()),
                     decoration: InputDecoration(
-                      hintText: 'Search food and drinks',
+                      hintText: tr('Search food and drinks'),
                       prefixIcon: const Icon(Icons.search),
                       isDense: true,
                       suffixIcon: _query.isEmpty

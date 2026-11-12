@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../core/api_client.dart';
 import '../../core/app_state.dart';
@@ -7,6 +7,8 @@ import '../../core/units.dart';
 import '../../ui/food_image.dart';
 import '../../ui/widgets.dart';
 import 'menu_manage_screen.dart';
+import '../../ui/tr_text.dart';
+import '../../core/l10n.dart';
 
 const wastageReasons = ['spoiled', 'dropped', 'complimentary', 'over_production', 'kitchen_mistake', 'other'];
 
@@ -42,7 +44,7 @@ Future<Map<String, dynamic>?> askDeleteReason(BuildContext context, String title
         DropdownButtonFormField<String>(
           initialValue: reason,
           isExpanded: true,
-          decoration: const InputDecoration(labelText: 'Reason'),
+          decoration: InputDecoration(labelText: tr('Reason')),
           items: [for (final r in const ['entry_mistake', 'duplicate_entry', 'wrong_amount', 'other']) DropdownMenuItem(value: r, child: Text(titleCase(r)))],
           onChanged: (v) => set(() => reason = v!),
         ),
@@ -130,7 +132,7 @@ class StockScreen extends StatelessWidget {
           DropdownButtonFormField<int>(
             initialValue: unitId,
             isExpanded: true,
-            decoration: const InputDecoration(labelText: 'Unit'),
+            decoration: InputDecoration(labelText: tr('Unit')),
             items: [
               for (final u in units)
                 DropdownMenuItem(value: (u['id'] as num).toInt(), child: Text('${u['name']} (${u['symbol'] ?? ''})')),
@@ -142,7 +144,7 @@ class StockScreen extends StatelessWidget {
             DropdownButtonFormField<int?>(
               initialValue: categoryId,
               isExpanded: true,
-              decoration: const InputDecoration(labelText: 'Category'),
+              decoration: InputDecoration(labelText: tr('Category')),
               items: [
                 const DropdownMenuItem<int?>(value: null, child: Text('No category')),
                 for (final c in categories) DropdownMenuItem<int?>(value: (c['id'] as num).toInt(), child: Text('${c['name']}')),
@@ -398,7 +400,7 @@ Widget _unitPicker({
       DropdownButtonFormField<int>(
         initialValue: chosen.id,
         isExpanded: true,
-        decoration: const InputDecoration(labelText: 'Unit'),
+        decoration: InputDecoration(labelText: tr('Unit')),
         items: [for (final u in choices) DropdownMenuItem(value: u.id, child: Text(unitLabel(u, units), overflow: TextOverflow.ellipsis))],
         onChanged: choices.length < 2 ? null : onChanged,
       ),
@@ -557,7 +559,7 @@ class _LogWastageViewState extends State<_LogWastageView> {
             DropdownButtonFormField<int>(
               initialValue: _ingredient,
               isExpanded: true,
-              decoration: const InputDecoration(labelText: 'Ingredient'),
+              decoration: InputDecoration(labelText: tr('Ingredient')),
               items: [
                 for (final i in ingredients)
                   DropdownMenuItem(value: (i['id'] as num).toInt(), child: Text('${i['name']} (${i['unit_symbol'] ?? ''})')),
@@ -578,7 +580,7 @@ class _LogWastageViewState extends State<_LogWastageView> {
             ),
             DropdownButtonFormField<String>(
               initialValue: _reason,
-              decoration: const InputDecoration(labelText: 'Reason'),
+              decoration: InputDecoration(labelText: tr('Reason')),
               items: [for (final r in wastageReasons) DropdownMenuItem(value: r, child: Text(titleCase(r)))],
               onChanged: (v) => setState(() => _reason = v!),
             ),
@@ -809,7 +811,7 @@ class _PurchaseFormState extends State<_PurchaseForm> {
             child: TextField(
               controller: line.qty,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(labelText: 'Qty', isDense: true),
+              decoration: InputDecoration(labelText: tr('Qty'), isDense: true),
               onChanged: (_) => setState(() {}),
             ),
           ),
@@ -819,7 +821,7 @@ class _PurchaseFormState extends State<_PurchaseForm> {
             child: DropdownButtonFormField<int>(
               isExpanded: true,
               initialValue: chosen?.id,
-              decoration: const InputDecoration(labelText: 'Unit', isDense: true),
+              decoration: InputDecoration(labelText: tr('Unit'), isDense: true),
               items: [for (final u in choices) DropdownMenuItem(value: u.id, child: Text(unitLabel(u, units), overflow: TextOverflow.ellipsis))],
               onChanged: choices.length < 2 ? null : (v) => setState(() => line.unitId = v),
             ),
@@ -861,7 +863,7 @@ class _PurchaseFormState extends State<_PurchaseForm> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       DropdownButtonFormField<int>(
         initialValue: _supplier,
-        decoration: const InputDecoration(labelText: 'Supplier'),
+        decoration: InputDecoration(labelText: tr('Supplier')),
         items: [for (final s in asRows(ref['suppliers'])) DropdownMenuItem(value: (s['id'] as num).toInt(), child: Text('${s['name']}'))],
         onChanged: (v) => setState(() => _supplier = v),
       ),
@@ -872,7 +874,7 @@ class _PurchaseFormState extends State<_PurchaseForm> {
         // A new key after every pick clears the field, so the same ingredient can be added again.
         key: ValueKey(_lines.length),
         initialValue: null,
-        decoration: const InputDecoration(labelText: 'Add ingredient'),
+        decoration: InputDecoration(labelText: tr('Add ingredient')),
         items: [for (final i in ingredients) DropdownMenuItem(value: (i['id'] as num).toInt(), child: Text('${i['name']}'))],
         onChanged: (v) {
           if (v != null) {
@@ -1152,7 +1154,7 @@ class _TransfersScreenState extends State<TransfersScreen> {
               const SectionTitle('Send stock to another branch'),
               DropdownButtonFormField<int>(
                 initialValue: _toBranch,
-                decoration: const InputDecoration(labelText: 'To branch'),
+                decoration: InputDecoration(labelText: tr('To branch')),
                 items: [for (final b in branches) DropdownMenuItem(value: (b['id'] as num).toInt(), child: Text('${b['name']}'))],
                 onChanged: (v) => setState(() => _toBranch = v),
               ),
@@ -1160,7 +1162,7 @@ class _TransfersScreenState extends State<TransfersScreen> {
               DropdownButtonFormField<int>(
                 initialValue: _ingredient,
                 isExpanded: true,
-                decoration: const InputDecoration(labelText: 'Ingredient'),
+                decoration: InputDecoration(labelText: tr('Ingredient')),
                 items: [
                   for (final i in asRows(ref['ingredients']))
                     DropdownMenuItem(value: (i['id'] as num).toInt(), child: Text('${i['name']} (${i['unit_symbol'] ?? ''})')),
@@ -1468,7 +1470,7 @@ class _RecipeFormScreenState extends State<RecipeFormScreen> {
                 DropdownButtonFormField<int>(
                   initialValue: _menuItem,
                   isExpanded: true,
-                  decoration: const InputDecoration(labelText: 'Menu item'),
+                  decoration: InputDecoration(labelText: tr('Menu item')),
                   items: [
                     for (final i in menuItems)
                       DropdownMenuItem(value: (i['id'] as num).toInt(), child: Text(localized(app, i))),
@@ -1530,7 +1532,7 @@ class _RecipeFormScreenState extends State<RecipeFormScreen> {
             child: DropdownButtonFormField<int>(
               initialValue: line.ingredient,
               isExpanded: true,
-              decoration: const InputDecoration(labelText: 'Ingredient', isDense: true),
+              decoration: InputDecoration(labelText: tr('Ingredient'), isDense: true),
               items: [
                 for (final x in ingredients)
                   DropdownMenuItem(value: (x['id'] as num).toInt(), child: Text('${x['name']}', overflow: TextOverflow.ellipsis)),
@@ -1557,7 +1559,7 @@ class _RecipeFormScreenState extends State<RecipeFormScreen> {
               controller: line.qty,
               onChanged: (_) => setState(() {}),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(labelText: 'Qty', isDense: true),
+              decoration: InputDecoration(labelText: tr('Qty'), isDense: true),
             ),
           ),
           const SizedBox(width: 8),
@@ -1566,7 +1568,7 @@ class _RecipeFormScreenState extends State<RecipeFormScreen> {
             child: DropdownButtonFormField<int>(
               initialValue: chosen?.id,
               isExpanded: true,
-              decoration: const InputDecoration(labelText: 'Unit', isDense: true),
+              decoration: InputDecoration(labelText: tr('Unit'), isDense: true),
               items: [for (final u in choices) DropdownMenuItem(value: u.id, child: Text(unitLabel(u, units), overflow: TextOverflow.ellipsis))],
               onChanged: choices.length < 2 ? null : (v) => setState(() => line.unitId = v),
             ),

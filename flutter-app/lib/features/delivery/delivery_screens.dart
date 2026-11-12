@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
+import '../../core/rider_location.dart';
 import '../../core/theme.dart';
 import '../../ui/widgets.dart';
 import '../inventory/inventory_screens.dart';
+import '../../ui/tr_text.dart';
 
 /// Manager's dispatch board: delivery orders and rider assignment.
 class DispatchScreen extends StatelessWidget {
@@ -97,8 +99,37 @@ class DispatchScreen extends StatelessWidget {
 }
 
 /// The rider's own deliveries and the cash they owe.
-class RiderScreen extends StatelessWidget {
+class RiderScreen extends StatefulWidget {
   const RiderScreen({super.key});
+
+  @override
+  State<RiderScreen> createState() => _RiderScreenState();
+}
+
+class _RiderScreenState extends State<RiderScreen> {
+  RiderLocationSender? _sender;
+  String? _locationNote;
+
+  @override
+  void dispose() {
+    _sender?.stop();
+    super.dispose();
+  }
+
+  /// Share the position while any delivery is picked up or on the way; stop when none is.
+  void _syncTracking(List<Map<String, dynamic>> rows) {
+    final active = rows.any((d) => d['status'] == 'picked_up' || d['status'] == 'on_the_way');
+    _sender ??= RiderLocationSender(AppScope.read(context).api);
+    if (active && !_sender!.running) {
+      _sender!.start().then((ok) {
+        if (!ok && mounted) {
+          setState(() => _locationNote = 'Turn on location so customers can follow the delivery.');
+        }
+      });
+    } else if (!active && _sender!.running) {
+      _sender!.stop();
+    }
+  }
 
   static const _next = {'assigned': 'picked_up', 'picked_up': 'on_the_way', 'on_the_way': 'delivered'};
 
@@ -169,9 +200,12 @@ class RiderScreen extends StatelessWidget {
           DataView<List<Map<String, dynamic>>>(
             path: '/rider/deliveries',
             transform: asRows,
-            builder: (context, rows, raw, reload) => rows.isEmpty
+            builder: (context, rows, raw, reload) {
+              WidgetsBinding.instance.addPostFrameCallback((_) => _syncTracking(rows));
+              return rows.isEmpty
                 ? ListView(children: const [SizedBox(height: 120), EmptyState('No deliveries assigned.')])
                 : ListView(padding: const EdgeInsets.all(12), children: [
+                    if (_locationNote != null) Padding(padding: const EdgeInsets.only(bottom: 8), child: Text(_locationNote!, style: const TextStyle(color: Brand.warning, fontSize: 12))),
                     for (final d in rows)
                       Card(
                         child: Padding(
@@ -208,7 +242,8 @@ class RiderScreen extends StatelessWidget {
                           ]),
                         ),
                       ),
-                  ]),
+                  ]);
+            },
           ),
           DataView<Map<String, dynamic>>(
             path: '/rider/cod-summary',

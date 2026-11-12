@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Branch;
 use App\Models\Customer;
+use App\Models\DeliveryZone;
 use App\Models\DeviceToken;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
@@ -178,4 +179,27 @@ it('prices add-ons chosen on a staff order and returns them', function (): void 
     expect($line['line_total'])->toBe('460.00')
         ->and($line['add_ons'][0]['name'])->toBe('Extra cheese')
         ->and($line['add_ons'][0]['qty'])->toBe(1);
+});
+
+it('lists the delivery areas of a branch for the customer app', function (): void {
+    DeliveryZone::query()->create(['branch_id' => $this->branch->id, 'name' => 'Gulshan', 'fee' => 70, 'fee_type' => 'fixed', 'min_order' => 300, 'is_active' => true]);
+    DeliveryZone::query()->create(['branch_id' => $this->branch->id, 'name' => 'Closed area', 'fee' => 70, 'fee_type' => 'fixed', 'min_order' => 0, 'is_active' => false]);
+
+    $zones = $this->getJson('/api/v1/customer/branches/'.$this->branch->id.'/delivery-zones')->assertOk()->json('data');
+
+    expect($zones)->toHaveCount(1)->and($zones[0]['name'])->toBe('Gulshan');
+});
+
+it('keeps the size and add-ons a customer picked on the order', function (): void {
+    $customer = Customer::query()->create(['name' => 'Rahim', 'mobile' => '01712345678', 'is_active' => true]);
+    $token = $customer->createToken('customer-otp', ['customer'])->plainTextToken;
+    $addOn = MenuItemAddOn::query()->create(['menu_item_id' => $this->item->id, 'name' => 'Extra cheese', 'price' => '30.00', 'is_active' => true]);
+
+    $order = $this->withToken($token)->withHeader('Idempotency-Key', 'cust-1')->postJson('/api/v1/customer/orders', [
+        'branch_id' => $this->branch->id,
+        'order_type' => 'takeaway',
+        'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1, 'add_ons' => [['id' => $addOn->id, 'qty' => 1]]]],
+    ])->assertCreated();
+
+    expect((float) $order->json('data.total'))->toBe(230.0);
 });

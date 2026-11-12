@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../core/theme.dart';
 import '../../ui/generic_view.dart';
 import '../../ui/widgets.dart';
+import '../../ui/tr_text.dart';
 
 const reportTypes = {
   'sales': 'Sales by day',

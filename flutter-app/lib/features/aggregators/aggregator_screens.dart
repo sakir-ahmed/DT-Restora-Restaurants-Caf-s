@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../core/theme.dart';
 import '../../ui/widgets.dart';
+import '../../ui/tr_text.dart';
 
 /// Delivery-app channels (Foodpanda, Foodi, ...): commission, status,
 /// menu sync, and accept or reject for incoming platform orders.
@@ -84,6 +85,10 @@ class AggregatorsScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (_) => ManualAggregatorOrderScreen(channel: ch)),
                 ),
                 child: const Text('Manual order'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AggregatorToolsScreen(channel: ch))),
+                child: const Text('Payouts and tools'),
               ),
             ]),
           ]),
@@ -195,6 +200,127 @@ class _ManualAggregatorOrderScreenState extends State<ManualAggregatorOrderScree
         const SizedBox(height: 12),
         FilledButton(onPressed: _busy ? null : _save, child: const Text('Create order')),
       ]),
+    );
+  }
+}
+
+/// Payouts, connection test, order import and outlet open/closed for one delivery app.
+class AggregatorToolsScreen extends StatefulWidget {
+  const AggregatorToolsScreen({super.key, required this.channel});
+
+  final Map<String, dynamic> channel;
+
+  @override
+  State<AggregatorToolsScreen> createState() => _AggregatorToolsScreenState();
+}
+
+class _AggregatorToolsScreenState extends State<AggregatorToolsScreen> {
+  final _key = GlobalKey<DataViewState<List<Map<String, dynamic>>>>();
+
+  Future<void> _call(String path, {Map<String, dynamic>? body, String fallback = 'Done.'}) async {
+    final app = AppScope.read(context);
+    String? message;
+    final ok = await guarded(context, () async {
+      final res = await app.api.send('POST', path, body: body);
+      message = res.message;
+    });
+    if (ok && mounted) {
+      snack(context, message ?? fallback);
+      await _key.currentState?.reload();
+    }
+  }
+
+  Future<void> _outlet() async {
+    final app = AppScope.read(context);
+    var status = 'OPEN';
+    final go = await showForm<bool>(
+      context,
+      title: 'Outlet status',
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Wrap(spacing: 8, runSpacing: 8, children: [
+            for (final s in const ['OPEN', 'CLOSED_TODAY'])
+              ChoiceChip(label: Text(titleCase(s)), selected: status == s, onSelected: (_) => set(() => status = s)),
+          ]),
+          const SizedBox(height: 12),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Update on the platform')),
+        ]),
+      ),
+    );
+    if (go == true && mounted) {
+      await _call('/aggregators/channels/${widget.channel['id']}/outlet-status', body: {'branch_id': app.branchId, 'status': status});
+    }
+  }
+
+  Future<void> _payout() async {
+    final received = TextEditingController();
+    var from = DateTime.now().subtract(const Duration(days: 7));
+    var to = DateTime.now();
+    final go = await showForm<bool>(
+      context,
+      title: 'Record a payout',
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          OutlinedButton(
+            onPressed: () async {
+              final r = await showDateRangePicker(context: ctx, firstDate: DateTime(2024), lastDate: DateTime.now(), initialDateRange: DateTimeRange(start: from, end: to));
+              if (r != null) {
+                set(() {
+                  from = r.start;
+                  to = r.end;
+                });
+              }
+            },
+            child: Text('${fmtDay(from.toIso8601String())} to ${fmtDay(to.toIso8601String())}'),
+          ),
+          const SizedBox(height: 12),
+          field(received, 'Amount received', type: const TextInputType.numberWithOptions(decimal: true)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Save payout')),
+        ]),
+      ),
+    );
+    final amount = double.tryParse(received.text.trim());
+    received.dispose();
+    if (go != true || amount == null || !mounted) {
+      return;
+    }
+    await _call('/aggregators/channels/${widget.channel['id']}/payouts', body: {
+      'period_from': from.toIso8601String().substring(0, 10),
+      'period_to': to.toIso8601String().substring(0, 10),
+      'received_amount': amount,
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ch = widget.channel;
+    final id = ch['id'];
+    return Scaffold(
+      appBar: AppBar(title: Text('${ch['name']}')),
+      body: DataView<List<Map<String, dynamic>>>(
+        key: _key,
+        path: '/aggregators/channels/$id/payouts',
+        transform: asRows,
+        builder: (context, rows, raw, reload) => ListView(physics: const AlwaysScrollableScrollPhysics(), padding: const EdgeInsets.all(12), children: [
+          Wrap(spacing: 8, runSpacing: 8, children: [
+            OutlinedButton(onPressed: () => _call('/aggregators/channels/$id/connection-test'), child: const Text('Test connection')),
+            OutlinedButton(onPressed: () => _call('/aggregators/channels/$id/import-orders'), child: const Text('Import recent orders')),
+            OutlinedButton(onPressed: _outlet, child: const Text('Open or close outlet')),
+            FilledButton(onPressed: _payout, child: const Text('Record payout')),
+          ]),
+          const SectionTitle('Payouts'),
+          if (rows.isEmpty) const EmptyState('No payouts recorded.'),
+          for (final p in rows)
+            Card(
+              child: ListTile(
+                dense: true,
+                title: Text('${fmtDay(p['period_from'])} to ${fmtDay(p['period_to'])}'),
+                subtitle: Text('Expected ${fmtMoney(p['expected_amount'])}  -  Received ${fmtMoney(p['received_amount'])}'),
+                trailing: StatusChip('${p['status']}' == 'reconciled' ? 'approved' : 'pending'),
+              ),
+            ),
+        ]),
+      ),
     );
   }
 }

@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../core/api_client.dart';
 import '../../core/theme.dart';
 import '../../ui/widgets.dart';
 import '../inventory/inventory_screens.dart';
+import '../../ui/tr_text.dart';
 
 /// Cashier cash shift. Opening and closing both work offline.
 class ShiftScreen extends StatefulWidget {

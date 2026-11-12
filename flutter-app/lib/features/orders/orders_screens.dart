@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart';
 
 import '../../core/api_client.dart';
@@ -12,6 +12,8 @@ import '../../ui/widgets.dart';
 import '../pos/pos_screen.dart';
 import 'payment_sheet.dart';
 import 'receipt.dart';
+import '../../ui/tr_text.dart';
+import '../../core/l10n.dart';
 
 const voidReasons = {
   'wrong_item': 'Wrong item was ordered',
@@ -65,7 +67,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
             controller: _searchController,
             onSubmitted: (v) => setState(() => _search = v.trim()),
             decoration: InputDecoration(
-              hintText: 'Search invoice, customer name or mobile',
+              hintText: tr('Search invoice, customer name or mobile'),
               prefixIcon: const Icon(Icons.search),
               isDense: true,
               suffixIcon: _search.isEmpty
@@ -447,7 +449,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           DropdownButtonFormField<String>(
             initialValue: reason,
             isExpanded: true,
-            decoration: const InputDecoration(labelText: 'Reason'),
+            decoration: InputDecoration(labelText: tr('Reason')),
             items: [for (final e in voidReasons.entries) DropdownMenuItem(value: e.key, child: Text(e.value))],
             onChanged: (v) => set(() => reason = v!),
           ),
@@ -503,7 +505,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           DropdownButtonFormField<String>(
             initialValue: reason,
             isExpanded: true,
-            decoration: const InputDecoration(labelText: 'Reason'),
+            decoration: InputDecoration(labelText: tr('Reason')),
             items: [for (final e in voidReasons.entries) DropdownMenuItem(value: e.key, child: Text(e.value))],
             onChanged: (v) => set(() => reason = v!),
           ),
@@ -760,6 +762,7 @@ class _KitchenScreenState extends State<KitchenScreen> {
   /// Pending ticket ids seen on the previous poll, to spot brand-new ones.
   final _knownPending = <Object>{};
 
+  late final AppState _app;
   Timer? _poll;
   Timer? _ticker;
   bool _loading = true;
@@ -771,14 +774,20 @@ class _KitchenScreenState extends State<KitchenScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _refresh());
     _poll = Timer.periodic(const Duration(seconds: 5), (_) => _refresh(silent: true));
+    _app = AppScope.read(context);
+    _app.liveTick.addListener(_onLive);
     // One tick per second keeps the elapsed-time badges counting live.
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() {});
     });
   }
 
+  /// The server says an order is new or changed: refresh now instead of waiting for the poll.
+  void _onLive() => _refresh(silent: true);
+
   @override
   void dispose() {
+    _app.liveTick.removeListener(_onLive);
     _poll?.cancel();
     _ticker?.cancel();
     super.dispose();

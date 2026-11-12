@@ -78,3 +78,11 @@ it('keeps accounting and aggregator admin to permitted roles', function (): void
 
     $this->withToken($token)->getJson('/api/v1/aggregators/overview')->assertForbidden();
 });
+
+it('tells the app where live updates connect, or that they are off', function (): void {
+    $data = $this->withToken($this->token)->getJson('/api/v1/realtime')->assertOk()->json('data');
+
+    expect($data)->toHaveKeys(['enabled', 'auth_endpoint', 'channels'])
+        ->and($data['enabled'])->toBeFalse()
+        ->and($data['channels'])->toBe([]);
+});

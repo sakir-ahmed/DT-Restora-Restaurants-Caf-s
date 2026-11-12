@@ -1,10 +1,12 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../core/api_client.dart';
 import '../../core/theme.dart';
 import '../content/content_screens.dart';
 import '../../ui/food_image.dart';
 import '../../ui/widgets.dart';
+import '../../ui/tr_text.dart';
+import '../../core/l10n.dart';
 
 /// One editable variant (size) row.
 class _VariantRow {
@@ -191,7 +193,7 @@ class _MenuItemFormScreenState extends State<MenuItemFormScreen> {
           DropdownButtonFormField<int>(
             initialValue: _category,
             isExpanded: true,
-            decoration: const InputDecoration(labelText: 'Category'),
+            decoration: InputDecoration(labelText: tr('Category')),
             items: [
               for (final c in widget.categories)
                 DropdownMenuItem(value: (c['id'] as num).toInt(), child: Text(localized(app, c))),

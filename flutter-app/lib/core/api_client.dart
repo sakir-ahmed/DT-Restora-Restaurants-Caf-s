@@ -49,9 +49,11 @@ class ApiResult {
 /// Responses use `{"success": true, "data": ...}`; errors use
 /// `{"success": false, "error": {"code", "message", "details"}}`.
 class ApiClient {
-  ApiClient({http.Client? httpClient}) : _http = httpClient ?? http.Client();
+  ApiClient({http.Client? httpClient, this.tokenKey = 'auth_token'}) : _http = httpClient ?? http.Client();
 
-  static const _tokenKey = 'auth_token';
+  /// Where the sign-in token is kept. The customer side of the app uses its own key, so a customer
+  /// and a staff sign-in never mix.
+  final String tokenKey;
   static const _baseKey = 'api_base_url';
 
   final http.Client _http;
@@ -65,22 +67,25 @@ class ApiClient {
 
   bool get hasToken => _token != null;
 
+  /// The bearer token, for the live-updates channel sign-in (the only call made outside this client).
+  String get tokenForRealtime => _token ?? '';
+
   Future<void> restore() async {
     final prefs = await SharedPreferences.getInstance();
-    _token = prefs.getString(_tokenKey);
+    _token = prefs.getString(tokenKey);
     baseUrl = prefs.getString(_baseKey) ?? AppConfig.apiBaseUrl;
   }
 
   Future<void> saveToken(String token) async {
     _token = token;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_tokenKey, token);
+    await prefs.setString(tokenKey, token);
   }
 
   Future<void> clearToken() async {
     _token = null;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_tokenKey);
+    await prefs.remove(tokenKey);
   }
 
   Future<void> setBaseUrl(String url) async {

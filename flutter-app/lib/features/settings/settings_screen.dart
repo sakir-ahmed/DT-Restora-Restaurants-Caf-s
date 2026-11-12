@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../core/app_state.dart';
 import '../../core/config.dart';
@@ -6,6 +6,7 @@ import '../../core/sounds.dart';
 import '../../core/theme.dart';
 import '../../ui/widgets.dart';
 import '../splash/splash_screen.dart';
+import '../../ui/tr_text.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});

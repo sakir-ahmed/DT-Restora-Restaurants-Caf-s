@@ -1,9 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:image_picker/image_picker.dart';
 
 import '../../core/theme.dart';
 import '../../ui/food_image.dart';
 import '../../ui/widgets.dart';
+import '../../ui/tr_text.dart';
+import '../../core/l10n.dart';
 
 /// Employees (pay, device id, photo) and system users (sign-in accounts with roles), like the web Staff page.
 class StaffScreen extends StatefulWidget {
@@ -41,7 +43,7 @@ class _StaffScreenState extends State<StaffScreen> {
           field(device, 'Fingerprint device user id (optional)'),
           DropdownButtonFormField<String>(
             initialValue: basis,
-            decoration: const InputDecoration(labelText: 'Pay basis'),
+            decoration: InputDecoration(labelText: tr('Pay basis')),
             items: const [
               DropdownMenuItem(value: 'monthly', child: Text('Monthly salary')),
               DropdownMenuItem(value: 'daily', child: Text('Daily rate')),

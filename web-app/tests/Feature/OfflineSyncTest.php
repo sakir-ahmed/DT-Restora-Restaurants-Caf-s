@@ -532,6 +532,40 @@ it('revises a synced order and moves its status from queued offline edits', func
     expect($order->refresh()->status->value)->toBe('preparing');
 });
 
+it('revises a paid order from a queued offline edit', function (): void {
+    pushItem($this, ['client_id' => '01H-PAID-EDIT', 'payload' => [
+        'branch_id' => $this->branch->id,
+        'order_type' => 'takeaway',
+        'terminal' => 'T02',
+        'items' => [['menu_item_id' => $this->item->id, 'quantity' => 2]],
+    ]]);
+
+    $token = $this->cashier->createToken('pos', ['staff'])->plainTextToken;
+    $order = Order::query()->where('client_id', '01H-PAID-EDIT')->first();
+
+    $this->withToken($token)->postJson('/api/v1/sync/push', ['items' => [[
+        'client_id' => '01H-PAID-PAY',
+        'type' => 'payment',
+        'payload' => ['order_client_id' => '01H-PAID-EDIT', 'method' => 'cash', 'amount' => (float) $order->total, 'tendered' => (float) $order->total],
+    ]]])->assertOk()->assertJsonPath('data.results.0.status', SyncItem::STATUS_ACCEPTED);
+
+    expect($order->refresh()->status->value)->toBe('paid');
+
+    $this->withToken($token)->postJson('/api/v1/sync/push', ['items' => [[
+        'client_id' => '01H-PAID-EDIT-1',
+        'type' => 'order_edit',
+        'payload' => [
+            'order_client_id' => '01H-PAID-EDIT',
+            'order_type' => 'takeaway',
+            'note' => 'Corrected after payment',
+            'items' => [['menu_item_id' => $this->item->id, 'quantity' => 2]],
+        ],
+    ]]])->assertOk()->assertJsonPath('data.results.0.status', SyncItem::STATUS_ACCEPTED);
+
+    expect($order->refresh()->items()->sum('quantity'))->toBe(2)
+        ->and($order->note)->toBe('Corrected after payment');
+});
+
 it('reports a conflict for an invalid queued status change', function (): void {
     pushItem($this, ['client_id' => '01H-BAD-STATUS', 'payload' => [
         'branch_id' => $this->branch->id,

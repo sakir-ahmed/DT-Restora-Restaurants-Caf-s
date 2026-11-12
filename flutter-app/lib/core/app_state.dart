@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api_client.dart';
 import 'local_db.dart';
+import '../ui/tr_text.dart';
+import 'l10n.dart';
 
 /// A GET result that may come from the device cache when offline.
 class Cached<T> {
@@ -58,6 +60,9 @@ String newClientId() {
 final rootMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 class AppState extends ChangeNotifier {
+  /// Bumped when the server reports a new or changed order, so open lists can refresh at once.
+  final ValueNotifier<int> liveTick = ValueNotifier(0);
+
   AppState({required this.api, required this.db});
 
   final ApiClient api;
@@ -77,6 +82,9 @@ class AppState extends ChangeNotifier {
   /// until the device has been set up.
   String appName = 'DT Restora';
   bool configured = false;
+
+  /// True when the app was set up for the demo server; only then the login screen lists the demo accounts.
+  bool isDemo = false;
 
   /// Selected brand palette key (see theme.dart); blue is the default.
   String brandKey = 'blue';
@@ -117,8 +125,11 @@ class AppState extends ChangeNotifier {
         ThemeMode.system;
     appName = prefs.getString('app_name') ?? 'DT Restora';
     configured = prefs.getBool('app_configured') ?? false;
+    // Installs from before the choice existed stay in demo mode, as they were.
+    isDemo = prefs.getBool('app_demo') ?? true;
     brandKey = prefs.getString('brand_key') ?? 'blue';
     locale = prefs.getString('menu_locale') ?? 'en';
+    Tr.language = locale;
     await api.restore();
     api.language = locale;
     _unauthSub = api.onUnauthorized.listen((_) => logout(silent: true));
@@ -205,6 +216,7 @@ class AppState extends ChangeNotifier {
 
   Future<void> setLocale(String code) async {
     locale = code;
+    Tr.language = code;
     api.language = code;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
@@ -216,10 +228,13 @@ class AppState extends ChangeNotifier {
   Future<void> completeSetup({
     required String name,
     required String baseUrl,
+    bool demo = false,
   }) async {
     await api.setBaseUrl(baseUrl);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('app_configured', true);
+    await prefs.setBool('app_demo', demo);
+    isDemo = demo;
     await prefs.setString('app_name', name);
     appName = name;
     configured = true;

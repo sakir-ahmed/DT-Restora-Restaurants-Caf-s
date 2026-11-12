@@ -1,10 +1,12 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../core/theme.dart';
 import '../../ui/widgets.dart';
+import '../settings/profile_screen.dart';
 import '../settings/settings_screen.dart';
 import '../sync/sync_screen.dart';
 import 'home_screen.dart';
+import '../../ui/tr_text.dart';
 
 /// Left navigation drawer mirroring the web admin's sidebar: module groups
 /// with colour-coded icons, then account and app actions at the bottom.
@@ -128,6 +130,13 @@ class AppDrawer extends StatelessWidget {
                       )
                     : null,
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SyncScreen())),
+              ),
+              ListTile(
+                dense: true,
+                visualDensity: VisualDensity.compact,
+                leading: const Icon(Icons.person_outline, size: 20),
+                title: const Text('My profile', style: TextStyle(fontSize: 13.5)),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen())),
               ),
               ListTile(
                 dense: true,

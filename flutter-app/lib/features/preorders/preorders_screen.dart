@@ -1,10 +1,18 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 import '../../core/api_client.dart';
 import '../../core/app_state.dart';
+import '../../core/pdf_fonts.dart';
 import '../../core/theme.dart';
 import '../../ui/widgets.dart';
+import '../orders/invoice_pdf.dart';
+import '../orders/receipt.dart';
+import '../../ui/tr_text.dart';
+import '../../core/l10n.dart';
 
 /// Menu-book pre-orders: no table or time slot is held and every guest
 /// detail is optional. Mirrors the web Pre-order page (list, new, serve,
@@ -35,6 +43,34 @@ class _PreordersScreenState extends State<PreordersScreen> {
     if (ok) {
       await reload();
     }
+  }
+
+  /// A one page poster with the menu book link and its QR code, to print or send to guests.
+  Future<void> _poster(BuildContext context, String link) async {
+    final app = AppScope.read(context);
+    final branch = '${(app.bootstrap?['branch'] as Map?)?['name'] ?? ''}';
+    await guarded(context, () async {
+      final doc = pw.Document(theme: await PdfFonts.theme());
+      doc.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (_) => pw.Center(
+            child: pw.Column(mainAxisAlignment: pw.MainAxisAlignment.center, children: [
+              pw.Text(branch, style: pw.TextStyle(fontSize: 30, fontWeight: pw.FontWeight.bold)),
+              pw.SizedBox(height: 8),
+              pw.Text('Pre-order from our menu book', style: const pw.TextStyle(fontSize: 18)),
+              pw.SizedBox(height: 28),
+              pw.BarcodeWidget(barcode: pw.Barcode.qrCode(), data: link, width: 260, height: 260),
+              pw.SizedBox(height: 20),
+              pw.Text('Scan the code, pick your dishes and send your pre-order.', style: const pw.TextStyle(fontSize: 14)),
+              pw.SizedBox(height: 8),
+              pw.Text(link, style: const pw.TextStyle(fontSize: 12)),
+            ]),
+          ),
+        ),
+      );
+      await Printing.sharePdf(bytes: await doc.save(), filename: 'preorder-menu-book.pdf');
+    });
   }
 
   Future<void> _create(Future<void> Function() reload) async {
@@ -89,16 +125,23 @@ class _PreordersScreenState extends State<PreordersScreen> {
                     leading: const Icon(Icons.link),
                     title: const Text('Share the menu book'),
                     subtitle: Text(share, maxLines: 1, overflow: TextOverflow.ellipsis),
-                    trailing: IconButton(
-                      tooltip: 'Copy link',
-                      icon: const Icon(Icons.copy, size: 18),
-                      onPressed: () async {
-                        await Clipboard.setData(ClipboardData(text: share));
-                        if (context.mounted) {
-                          snack(context, 'Link copied.');
-                        }
-                      },
-                    ),
+                    trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                      IconButton(
+                        tooltip: 'Copy link',
+                        icon: const Icon(Icons.copy, size: 18),
+                        onPressed: () async {
+                          await Clipboard.setData(ClipboardData(text: share));
+                          if (context.mounted) {
+                            snack(context, 'Link copied.');
+                          }
+                        },
+                      ),
+                      IconButton(
+                        tooltip: 'Share a poster with the QR code',
+                        icon: const Icon(Icons.qr_code_2, size: 20),
+                        onPressed: () => _poster(context, share),
+                      ),
+                    ]),
                   ),
                 ),
               if (rows.isEmpty)
@@ -128,6 +171,33 @@ class _PreorderCard extends StatelessWidget {
   final bool canManage;
   final VoidCallback onComplete;
   final VoidCallback onCancel;
+
+  /// The guest copy as a slip in the branch's invoice style: print it or share it as a PDF.
+  Future<void> _slip(BuildContext context, {required bool print}) async {
+    final app = AppScope.read(context);
+    final branch = Map<String, dynamic>.from((app.bootstrap?['branch'] as Map?) ?? {});
+    final order = {
+      'invoice_no': p['order_no'],
+      'created_at': p['created_at'],
+      'order_type': 'pre-order',
+      'table': p['table'],
+      'items': asRows(p['items']),
+      'subtotal': p['total'],
+      'total': p['total'],
+      'payments': [
+        if (toNum(p['advance_amount']) > 0) {'method': 'Advance paid', 'amount': p['advance_amount']},
+      ],
+    };
+    final data = ReceiptData(order, branch, bangla: app.locale == 'bn');
+    final choice = invoiceChoice(branch);
+    await guarded(context, () async {
+      if (print) {
+        await Printing.layoutPdf(name: '${p['order_no']}', format: invoiceFormat(choice.paper), onLayout: (_) => buildInvoicePdf(data, layout: choice.layout, paper: choice.paper));
+      } else {
+        await Printing.sharePdf(bytes: await buildInvoicePdf(data, layout: choice.layout, paper: choice.paper), filename: '${p['order_no']}.pdf');
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -170,6 +240,30 @@ class _PreorderCard extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
               ),
             ),
+          ]),
+          const SizedBox(height: 6),
+          Row(children: [
+            TextButton.icon(
+              onPressed: () => _slip(context, print: true),
+              icon: const Icon(Icons.print_outlined, size: 18),
+              label: const Text('Print'),
+            ),
+            TextButton.icon(
+              onPressed: () => _slip(context, print: false),
+              icon: const Icon(Icons.share_outlined, size: 18),
+              label: const Text('Share PDF'),
+            ),
+            if (p['slip_url'] != null)
+              TextButton.icon(
+                onPressed: () async {
+                  await Clipboard.setData(ClipboardData(text: '${p['slip_url']}'));
+                  if (context.mounted) {
+                    snack(context, 'Guest link copied.');
+                  }
+                },
+                icon: const Icon(Icons.link, size: 18),
+                label: const Text('Copy link'),
+              ),
           ]),
           if (canManage && status == 'pending') ...[
             const SizedBox(height: 8),
@@ -440,7 +534,7 @@ class _NewPreorderScreenState extends State<NewPreorderScreen> {
       children: [
         TextField(
           onChanged: (v) => setState(() => _search = v),
-          decoration: const InputDecoration(hintText: 'Search dishes', prefixIcon: Icon(Icons.search), isDense: true),
+          decoration: InputDecoration(hintText: tr('Search dishes'), prefixIcon: Icon(Icons.search), isDense: true),
         ),
         for (final c in _categories) ...[
           if (asRows(c['items']).any((i) => term.isEmpty || '${i['name']}'.toLowerCase().contains(term))) SectionTitle(localized(app, c)),
@@ -529,7 +623,7 @@ class _NewPreorderScreenState extends State<NewPreorderScreen> {
           child: DropdownButtonFormField<int?>(
             initialValue: _tableId,
             isExpanded: true,
-            decoration: const InputDecoration(labelText: 'Table'),
+            decoration: InputDecoration(labelText: tr('Table')),
             items: [
               const DropdownMenuItem<int?>(value: null, child: Text('No table')),
               for (final t in _tables) DropdownMenuItem<int?>(value: (t['id'] as num).toInt(), child: Text('${t['name']}')),

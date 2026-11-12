@@ -41,6 +41,7 @@ use App\Models\Recipe;
 use App\Models\Reservation;
 use App\Models\RestaurantTable;
 use App\Models\Rider;
+use App\Models\Setting;
 use App\Models\Shift;
 use App\Models\StaffAttendance;
 use App\Models\StockTransfer;
@@ -1027,6 +1028,11 @@ class StaffApiController extends Controller
             $data['delete_reasons'] = DeleteReasons::CODES;
             $data['order_edit_enabled'] = PosSettings::orderEditEnabled($branchModel);
             $data['order_delete_enabled'] = PosSettings::orderDeleteEnabled($branchModel);
+            // Idle lock like the web POS: after this many idle minutes the app asks for the device PIN.
+            $data['pos_lock'] = [
+                'enabled' => (bool) Setting::current()->pos_lock_enabled,
+                'minutes' => (int) Setting::current()->pos_pin_minutes,
+            ];
         }
 
         if ($user->can('shifts.manage')) {

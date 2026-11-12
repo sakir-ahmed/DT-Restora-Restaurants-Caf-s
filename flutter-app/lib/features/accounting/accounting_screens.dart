@@ -1,9 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../core/theme.dart';
 import '../../ui/generic_view.dart';
 import '../../ui/widgets.dart';
 import '../reports/reports_screen.dart';
+import '../../ui/tr_text.dart';
+import '../../core/l10n.dart';
 
 const statements = {
   'trial-balance': 'Trial balance',
@@ -20,13 +22,13 @@ class AccountingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final app = AppScope.of(context);
     return DefaultTabController(
-      length: 5,
+      length: 7,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Accounting'),
           bottom: const TabBar(
             isScrollable: true,
-            tabs: [Tab(text: 'Statements'), Tab(text: 'Journals'), Tab(text: 'Vouchers'), Tab(text: 'Payables'), Tab(text: 'Accounts')],
+            tabs: [Tab(text: 'Statements'), Tab(text: 'Journals'), Tab(text: 'Vouchers'), Tab(text: 'Payables'), Tab(text: 'Accounts'), Tab(text: 'Bank'), Tab(text: 'Year lock')],
           ),
         ),
         body: TabBarView(children: [
@@ -56,6 +58,8 @@ class AccountingScreen extends StatelessWidget {
             ),
           ),
           _Accounts(),
+          _BankStatements(canPost: app.can('journals.post')),
+          _FiscalYears(canLock: app.can('periods.lock')),
         ]),
       ),
     );
@@ -158,7 +162,7 @@ class _VouchersState extends State<_Vouchers> {
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
             initialValue: payFrom,
-            decoration: const InputDecoration(labelText: 'Pay from'),
+            decoration: InputDecoration(labelText: tr('Pay from')),
             items: const [
               DropdownMenuItem(value: '1100', child: Text('Cash in hand')),
               DropdownMenuItem(value: '1110', child: Text('Bank')),
@@ -251,6 +255,168 @@ class _Accounts extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+/// Bank and wallet statement lines to match against posted journals.
+class _BankStatements extends StatefulWidget {
+  const _BankStatements({required this.canPost});
+
+  final bool canPost;
+
+  @override
+  State<_BankStatements> createState() => _BankStatementsState();
+}
+
+class _BankStatementsState extends State<_BankStatements> {
+  final _key = GlobalKey<DataViewState<List<Map<String, dynamic>>>>();
+
+  Future<void> _add() async {
+    final app = AppScope.read(context);
+    var account = '1110';
+    final amount = TextEditingController();
+    final description = TextEditingController();
+    final go = await showForm<bool>(
+      context,
+      title: 'Statement line',
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          DropdownButtonFormField<String>(
+            initialValue: account,
+            decoration: const InputDecoration(labelText: 'Account code'),
+            items: [for (final c in const ['1100', '1110', '1120', '1130']) DropdownMenuItem(value: c, child: Text(c))],
+            onChanged: (v) => set(() => account = v!),
+          ),
+          const SizedBox(height: 12),
+          field(amount, 'Amount (negative for money out)', type: const TextInputType.numberWithOptions(decimal: true, signed: true)),
+          field(description, 'Description (optional)'),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Save')),
+        ]),
+      ),
+    );
+    final value = double.tryParse(amount.text.trim());
+    final text = description.text.trim();
+    amount.dispose();
+    description.dispose();
+    if (go != true || value == null || value == 0 || !mounted) {
+      return;
+    }
+    final ok = await guarded(context, () async {
+      await app.api.post('/accounting/bank-statements', body: {
+        'account_code': account,
+        'occurred_on': DateTime.now().toIso8601String().substring(0, 10),
+        'amount': value,
+        if (text.isNotEmpty) 'description': text,
+      });
+    });
+    if (ok) {
+      await _key.currentState?.reload();
+    }
+  }
+
+  Future<void> _match(Map<String, dynamic> line) async {
+    final app = AppScope.read(context);
+    final journal = TextEditingController();
+    final go = await showForm<bool>(
+      context,
+      title: 'Match to a journal',
+      builder: (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Text('${fmtMoney(line['amount'])} on ${line['account_code']}', style: const TextStyle(fontWeight: FontWeight.w700)),
+        const SizedBox(height: 8),
+        field(journal, 'Journal number', type: TextInputType.number),
+        FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Match')),
+      ]),
+    );
+    final id = int.tryParse(journal.text.trim());
+    journal.dispose();
+    if (go != true || id == null || !mounted) {
+      return;
+    }
+    final ok = await guarded(context, () async => app.api.post('/accounting/bank-statements/${line['id']}/match', body: {'journal_id': id}));
+    if (ok) {
+      await _key.currentState?.reload();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(children: [
+      DataView<List<Map<String, dynamic>>>(
+        key: _key,
+        path: '/accounting/bank-statements',
+        transform: asRows,
+        builder: (context, rows, raw, reload) => ListView(physics: const AlwaysScrollableScrollPhysics(), padding: const EdgeInsets.fromLTRB(12, 12, 12, 96), children: [
+          if (rows.isEmpty) const Padding(padding: EdgeInsets.only(top: 60), child: EmptyState('No statement lines yet.')),
+          for (final l in rows)
+            Card(
+              child: ListTile(
+                dense: true,
+                title: Text('${fmtMoney(l['amount'])}  -  ${l['account_code']}'),
+                subtitle: Text('${fmtDay(l['occurred_on'])}${l['description'] == null ? '' : '  -  ${l['description']}'}'),
+                trailing: l['matched'] == true
+                    ? const StatusChip('approved')
+                    : widget.canPost
+                        ? TextButton(onPressed: () => _match(l), child: const Text('Match'))
+                        : null,
+              ),
+            ),
+        ]),
+      ),
+      if (widget.canPost)
+        Positioned(right: 16, bottom: 16, child: FloatingActionButton.extended(heroTag: 'bank', onPressed: _add, icon: const Icon(Icons.add), label: const Text('Line'))),
+    ]);
+  }
+}
+
+/// Fiscal years and locking one so nothing can be posted into it any more.
+class _FiscalYears extends StatefulWidget {
+  const _FiscalYears({required this.canLock});
+
+  final bool canLock;
+
+  @override
+  State<_FiscalYears> createState() => _FiscalYearsState();
+}
+
+class _FiscalYearsState extends State<_FiscalYears> {
+  final _key = GlobalKey<DataViewState<List<Map<String, dynamic>>>>();
+
+  @override
+  Widget build(BuildContext context) {
+    final app = AppScope.of(context);
+    return DataView<List<Map<String, dynamic>>>(
+      key: _key,
+      path: '/accounting/fiscal-years',
+      transform: asRows,
+      builder: (context, rows, raw, reload) => ListView(physics: const AlwaysScrollableScrollPhysics(), padding: const EdgeInsets.all(12), children: [
+        if (rows.isEmpty) const Padding(padding: EdgeInsets.only(top: 60), child: EmptyState('No fiscal years yet.')),
+        for (final y in rows)
+          Card(
+            child: ListTile(
+              leading: Icon(y['is_locked'] == true ? Icons.lock : Icons.lock_open, color: y['is_locked'] == true ? Brand.danger : Brand.success),
+              title: Text('${y['name']}'),
+              subtitle: Text('${fmtDay(y['starts_at'])} to ${fmtDay(y['ends_at'])}'),
+              trailing: y['is_locked'] == true || !widget.canLock
+                  ? null
+                  : TextButton(
+                      onPressed: () async {
+                        if (!await confirm(context, 'Lock ${y['name']}?', body: 'Nothing can be posted into this year afterwards.', action: 'Lock year')) {
+                          return;
+                        }
+                        if (!context.mounted) {
+                          return;
+                        }
+                        final ok = await guarded(context, () async => app.api.post('/accounting/fiscal-years/${y['id']}/lock'));
+                        if (ok) {
+                          await reload();
+                        }
+                      },
+                      child: const Text('Lock'),
+                    ),
+            ),
+          ),
+      ]),
     );
   }
 }

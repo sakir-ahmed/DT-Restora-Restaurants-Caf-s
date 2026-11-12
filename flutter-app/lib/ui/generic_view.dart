@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../core/theme.dart';
 import 'widgets.dart';
+import 'tr_text.dart';
 
 /// Renders any JSON report (maps, lists of rows, nested sections) as
 /// readable cards, so every report type works without its own layout.

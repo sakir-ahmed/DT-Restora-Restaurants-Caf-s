@@ -1,12 +1,13 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../core/api_client.dart';
 import '../../core/app_state.dart';
 import '../../core/sounds.dart';
 import '../../core/theme.dart';
 import '../../ui/widgets.dart';
+import '../../ui/tr_text.dart';
 
 const paymentMethods = ['cash', 'bkash', 'nagad', 'card'];
 

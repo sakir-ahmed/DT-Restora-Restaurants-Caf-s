@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart';
 
 import '../../core/config.dart';
 import '../../ui/widgets.dart';
+import '../../ui/tr_text.dart';
 
 /// Branded opening screen, kept deliberately minimal: the logo mark, the
 /// app name, and a quiet three-dot loader. Runs once, fades out and hands

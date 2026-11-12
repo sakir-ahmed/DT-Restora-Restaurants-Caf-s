@@ -11,6 +11,7 @@ import 'core/sounds.dart';
 import 'core/theme.dart';
 import 'features/auth/login_screen.dart';
 import 'features/home/home_screen.dart';
+import 'features/home/session_host.dart';
 import 'features/setup/setup_screen.dart';
 import 'features/splash/splash_screen.dart';
 import 'ui/widgets.dart';
@@ -99,7 +100,7 @@ class _Root extends StatelessWidget {
     final page = !app.configured
         ? const SetupScreen()
         : app.isLoggedIn
-            ? const HomeScreen()
+            ? const SessionHost(child: HomeScreen())
             : const LoginScreen();
     return _ConfirmExit(child: page);
   }

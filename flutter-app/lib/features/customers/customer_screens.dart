@@ -1,9 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../core/app_state.dart';
 import '../../core/sounds.dart';
 import '../../core/theme.dart';
 import '../../ui/widgets.dart';
+import '../../ui/tr_text.dart';
+import '../../core/l10n.dart';
 
 class CustomersScreen extends StatefulWidget {
   const CustomersScreen({super.key});
@@ -63,7 +65,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
         keyboardType: TextInputType.phone,
         onSubmitted: (v) => setState(() => _mobile = v.trim()),
         decoration: InputDecoration(
-          hintText: 'Find by mobile number',
+          hintText: tr('Find by mobile number'),
           prefixIcon: const Icon(Icons.search),
           isDense: true,
           suffixIcon: _mobile.isEmpty

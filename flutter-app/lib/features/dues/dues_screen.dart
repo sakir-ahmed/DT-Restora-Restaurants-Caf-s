@@ -1,9 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../core/app_state.dart';
 import '../../core/theme.dart';
 import '../../ui/widgets.dart';
 import '../orders/orders_screens.dart';
+import '../../ui/tr_text.dart';
+import '../../core/l10n.dart';
 
 /// Due sales: what customers still owe, with partial collection. Mirrors the
 /// web Dues page; needs a connection because a collection posts money.
@@ -49,8 +51,8 @@ class _DuesScreenState extends State<DuesScreen> {
               const SizedBox(height: 10),
               TextField(
                 onChanged: (v) => setState(() => _search = v),
-                decoration: const InputDecoration(
-                  hintText: 'Search invoice, name or mobile',
+                decoration: InputDecoration(
+                  hintText: tr('Search invoice, name or mobile'),
                   prefixIcon: Icon(Icons.search),
                   isDense: true,
                 ),

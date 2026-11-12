@@ -1,11 +1,13 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:intl/intl.dart';
 
 import '../core/api_client.dart';
 import '../core/app_state.dart';
 import '../core/config.dart';
+import '../core/l10n.dart';
 import '../core/sounds.dart';
 import '../core/theme.dart';
+import 'tr_text.dart';
 
 class AppScope extends InheritedNotifier<AppState> {
   const AppScope({super.key, required AppState state, required super.child})
@@ -40,12 +42,13 @@ String fmtDay(Object? v) {
   return d == null ? '' : DateFormat('d MMM yyyy').format(d);
 }
 
-String titleCase(String s) => s
+/// "on_the_way" as "On The Way", in Bangla when that is the chosen language and the wording is known.
+String titleCase(String s) => tr(s
     .replaceAll('_', ' ')
     .replaceAll('-', ' ')
     .split(' ')
     .map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1)}')
-    .join(' ');
+    .join(' '));
 
 /// `name` or `name_bn` depending on the app language.
 String localized(AppState app, Map m, [String key = 'name']) {
@@ -74,7 +77,7 @@ void snack(
     ..hideCurrentSnackBar()
     ..showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(tr(message)),
         duration: Duration(seconds: actionLabel == null ? 4 : 8),
         backgroundColor: error ? Theme.of(context).colorScheme.error : null,
         action: actionLabel == null
@@ -638,6 +641,6 @@ Widget field(
     keyboardType: type,
     obscureText: obscure,
     maxLines: maxLines,
-    decoration: InputDecoration(labelText: label, hintText: hint, isDense: dense),
+    decoration: InputDecoration(labelText: tr(label), hintText: hint == null ? null : tr(hint), isDense: dense),
   ),
 );

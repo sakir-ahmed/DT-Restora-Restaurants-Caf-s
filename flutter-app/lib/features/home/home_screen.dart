@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../core/theme.dart';
 import '../../ui/widgets.dart';
@@ -25,6 +25,7 @@ import '../staff/hr_screens.dart';
 import '../staff/staff_screens.dart';
 import '../sync/sync_screen.dart';
 import 'app_drawer.dart';
+import '../../ui/tr_text.dart';
 
 /// One screen per tile. Groups mirror the web admin's sidebar: Sales,
 /// Inventory, People, Finance.

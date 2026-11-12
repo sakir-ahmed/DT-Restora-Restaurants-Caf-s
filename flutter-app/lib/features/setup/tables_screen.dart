@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../core/theme.dart';
 import '../../ui/widgets.dart';
+import '../../ui/tr_text.dart';
 
 /// Floor plan: tables with their live state, and for managers add, edit,
 /// remove and the table QR link (the same link the web prints on cards).
@@ -88,6 +90,14 @@ class _TablesScreenState extends State<TablesScreen> {
       context,
       title: 'Table ${table['name']} QR link',
       builder: (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Center(
+          child: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(8),
+            child: QrImageView(data: link, size: 200, backgroundColor: Colors.white),
+          ),
+        ),
+        const SizedBox(height: 8),
         SelectableText(link),
         const SizedBox(height: 12),
         FilledButton.icon(

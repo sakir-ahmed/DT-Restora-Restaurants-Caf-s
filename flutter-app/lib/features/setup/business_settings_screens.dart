@@ -1,7 +1,12 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:printing/printing.dart';
 
 import '../../core/theme.dart';
 import '../../ui/widgets.dart';
+import '../orders/invoice_pdf.dart';
+import '../orders/receipt.dart';
+import '../../ui/tr_text.dart';
+import '../../core/l10n.dart';
 
 /// Hub for the settings the web admin keeps under Settings. Branch pages say
 /// they apply to this branch only; the rest are shared by all branches.
@@ -459,8 +464,47 @@ class _InvoiceFormState extends State<_InvoiceForm> {
           for (final p in widget.papers) ChoiceChip(label: Text(p.toUpperCase()), selected: _paper == p, onSelected: (_) => setState(() => _paper = p)),
         ]),
         const SizedBox(height: 20),
+        OutlinedButton.icon(
+          onPressed: _preview,
+          icon: const Icon(Icons.print_outlined),
+          label: const Text('Preview and test print'),
+        ),
+        const SizedBox(height: 8),
         FilledButton(onPressed: _busy ? null : _save, child: Text(_busy ? 'Saving...' : 'Save')),
       ]);
+
+  /// Draws a sample invoice in the chosen style and paper size, to look at or send to a printer.
+  Future<void> _preview() async {
+    final app = AppScope.read(context);
+    final branch = Map<String, dynamic>.from((app.bootstrap?['branch'] as Map?) ?? {});
+    final sample = {
+      'invoice_no': 'SAMPLE-0001',
+      'created_at': DateTime.now().toIso8601String(),
+      'order_type': 'dine_in',
+      'table': 'T1',
+      'cashier': app.userName,
+      'subtotal': '470.00',
+      'discount_amount': '20.00',
+      'vat_amount': '22.50',
+      'total': '472.50',
+      'items': [
+        {'name': 'Chicken Biryani', 'quantity': 2, 'unit_price': '180.00', 'line_total': '360.00'},
+        {'name': 'Borhani', 'quantity': 1, 'unit_price': '60.00', 'line_total': '60.00'},
+        {'name': 'Mineral Water', 'quantity': 1, 'unit_price': '50.00', 'line_total': '50.00'},
+      ],
+      'payments': [
+        {'method': 'cash', 'amount': '500.00', 'change_due': '27.50'},
+      ],
+    };
+    final data = ReceiptData(sample, branch);
+    await guarded(context, () async {
+      await Printing.layoutPdf(
+        name: 'Invoice preview',
+        format: invoiceFormat(_paper),
+        onLayout: (_) => buildInvoicePdf(data, layout: _layout, paper: _paper),
+      );
+    });
+  }
 }
 
 class DeliveryAreasScreen extends StatefulWidget {
@@ -838,7 +882,7 @@ class _SmsModuleScreenState extends State<SmsModuleScreen> {
               TextField(
                 keyboardType: TextInputType.phone,
                 onSubmitted: (v) => setState(() => _q = v.trim()),
-                decoration: const InputDecoration(hintText: 'Find by mobile number', prefixIcon: Icon(Icons.search), isDense: true),
+                decoration: InputDecoration(hintText: tr('Find by mobile number'), prefixIcon: Icon(Icons.search), isDense: true),
               ),
               const SizedBox(height: 8),
               SingleChildScrollView(

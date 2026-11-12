@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../../core/theme.dart';
 import '../../ui/widgets.dart';
+import '../../ui/tr_text.dart';
+import '../../core/l10n.dart';
 
 /// Expenses: the web admin's expense book, with the same categories. Each
 /// new expense is posted to the accounts by the server.
@@ -153,7 +155,7 @@ class _ExpenseFormState extends State<_ExpenseForm> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       DropdownButtonFormField<String>(
         initialValue: _category,
-        decoration: const InputDecoration(labelText: 'Category'),
+        decoration: InputDecoration(labelText: tr('Category')),
         items: [
           for (final c in _expenseCategories) DropdownMenuItem(value: c, child: Text(titleCase(c))),
         ],

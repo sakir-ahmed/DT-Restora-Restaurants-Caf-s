@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\V1\Staff\SettingsApiController;
 use App\Http\Controllers\Api\V1\Staff\SetupApiController;
 use App\Http\Controllers\Api\V1\Staff\StaffApiController;
 use App\Http\Controllers\Api\V1\Sync\SyncController;
+use Illuminate\Broadcasting\BroadcastController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -62,6 +63,7 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
     Route::prefix('customer')->name('customer.')->group(function (): void {
         Route::get('/branches', [CustomerApiController::class, 'branches'])->name('branches');
         Route::get('/branches/{branch}/menu', [CustomerApiController::class, 'menu'])->name('menu');
+        Route::get('/branches/{branch}/delivery-zones', [CustomerApiController::class, 'deliveryZones'])->name('delivery-zones');
         Route::post('/delivery/quote', [CustomerApiController::class, 'quote'])->name('quote');
 
         Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function (): void {
@@ -105,6 +107,8 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
         Route::post('/stock-transfers/{transfer}/delete', [InventoryApiController::class, 'deleteTransfer'])->name('transfers.delete');
         Route::get('/customers/{customer}', [PeopleApiController::class, 'customer'])->name('customers.show');
         Route::delete('/coupons/{coupon}', [PeopleApiController::class, 'destroyCoupon'])->name('coupons.destroy');
+        Route::get('/realtime', [AdminApiController::class, 'realtime'])->name('realtime');
+        Route::post('/broadcasting/auth', [BroadcastController::class, 'authenticate'])->name('broadcasting.auth');
         Route::get('/profile', [AdminApiController::class, 'profile'])->name('profile.show');
         Route::post('/profile', [AdminApiController::class, 'updateProfile'])->name('profile.update');
         Route::put('/profile/password', [AdminApiController::class, 'updatePassword'])->name('profile.password');
@@ -238,6 +242,7 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
             Route::put('/tables/{table}', [SetupApiController::class, 'updateTable'])->name('tables.update');
             Route::delete('/tables/{table}', [SetupApiController::class, 'destroyTable'])->name('tables.destroy');
             Route::post('/tables/{table}/qr', [SetupApiController::class, 'regenerateTableQr'])->name('tables.qr');
+            Route::get('/orders/incoming', [SalesApiController::class, 'incomingOrders'])->name('orders.incoming');
             Route::get('/dues', [SalesApiController::class, 'dues'])->name('dues.index');
             Route::post('/dues/{order}/collect', [SalesApiController::class, 'collectDue'])->name('dues.collect');
             Route::post('/orders/{order}/due', [SalesApiController::class, 'dueSale'])->name('orders.due');
