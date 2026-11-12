@@ -54,14 +54,54 @@ class _PaymentFormState extends State<_PaymentForm> {
   final List<_PayLine> _lines = [];
   bool _busy = false;
 
+  /// Due mode: the customer pays later, so money received now is optional.
+  bool _due = false;
+  final _dueMobile = TextEditingController();
+  final _dueName = TextEditingController();
+  final _dueReceived = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     _lines.add(_PayLine('cash', widget.total.toStringAsFixed(2)));
   }
 
+  Future<void> _putOnDue() async {
+    final mobile = _dueMobile.text.trim();
+    final received = double.tryParse(_dueReceived.text.trim()) ?? 0;
+    if (received >= widget.total - 0.009) {
+      snack(context, 'The amount received now must be less than the bill. Use Take payment instead.', error: true);
+      return;
+    }
+    final app = AppScope.read(context);
+    setState(() => _busy = true);
+    final ok = await guarded(context, () async {
+      await app.api.post(
+        '/branches/${app.branchId}/orders/${widget.orderId}/due',
+        idempotencyKey: newClientId(),
+        body: {
+          if (mobile.isNotEmpty) 'customer_mobile': mobile,
+          if (_dueName.text.trim().isNotEmpty) 'customer_name': _dueName.text.trim(),
+          if (received > 0) 'lines': [{'method': 'cash', 'amount': received}],
+        },
+      );
+    });
+    if (!mounted) {
+      return;
+    }
+    if (ok) {
+      SoundFx.play('order_paid');
+      Navigator.pop(context, 'Put on due. Collect the balance from the Dues list.');
+    } else {
+      setState(() => _busy = false);
+    }
+  }
+
   @override
   void dispose() {
+    _dueMobile.dispose();
+    _dueName.dispose();
+    _dueReceived.dispose();
     for (final l in _lines) {
       l.amount.dispose();
       l.reference.dispose();
@@ -227,6 +267,16 @@ class _PaymentFormState extends State<_PaymentForm> {
           ]),
       ]),
       const SizedBox(height: 12),
+      if (_due) ...[
+        Text('The customer pays the rest later from the Dues list. A mobile number is needed unless the order already has a customer.',
+            style: TextStyle(color: context.muted, fontSize: 12)),
+        const SizedBox(height: 10),
+        field(_dueMobile, 'Customer mobile', type: TextInputType.phone),
+        field(_dueName, 'Customer name (optional)'),
+        field(_dueReceived, 'Cash received now (optional)', type: const TextInputType.numberWithOptions(decimal: true)),
+        FilledButton(onPressed: _busy ? null : _putOnDue, child: Text(_busy ? 'Saving...' : 'Put on due')),
+        TextButton(onPressed: _busy ? null : () => setState(() => _due = false), child: const Text('Back to payment')),
+      ] else ...[
       for (var i = 0; i < _lines.length; i++)
         _lineCard(context, _lines[i], i),
       TextButton.icon(
@@ -261,6 +311,12 @@ class _PaymentFormState extends State<_PaymentForm> {
           padding: const EdgeInsets.only(top: 8),
           child: Text(problem, textAlign: TextAlign.center, style: TextStyle(color: Brand.warning, fontSize: 12)),
         ),
+      TextButton.icon(
+        onPressed: _busy ? null : () => setState(() => _due = true),
+        icon: const Icon(Icons.account_balance_wallet_outlined, size: 16),
+        label: const Text('Put on due (pay later)'),
+      ),
+      ],
     ]);
   }
 

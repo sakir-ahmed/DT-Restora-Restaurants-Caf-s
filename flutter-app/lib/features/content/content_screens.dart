@@ -365,7 +365,10 @@ class LettersScreen extends StatelessWidget {
 /// uploaded from the web admin; here you can add video links, rename, hide,
 /// re-order and delete.
 class MediaScreen extends StatefulWidget {
-  const MediaScreen({super.key});
+  const MediaScreen({super.key, this.initialOwner});
+
+  /// Opens a specific gallery, for example `item:12` for one dish.
+  final String? initialOwner;
 
   @override
   State<MediaScreen> createState() => _MediaScreenState();
@@ -373,8 +376,24 @@ class MediaScreen extends StatefulWidget {
 
 class _MediaScreenState extends State<MediaScreen> {
   final _key = GlobalKey<DataViewState<Map<String, dynamic>>>();
-  String? _owner;
+  late String? _owner = widget.initialOwner;
   String? _currentOwner;
+
+  /// Swap the file of one photo, keeping its place and caption.
+  Future<void> _replace(Map<String, dynamic> media) async {
+    final app = AppScope.read(context);
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery, maxWidth: 2000, imageQuality: 85);
+    if (picked == null || !mounted) {
+      return;
+    }
+    final ok = await guarded(context, () async {
+      await app.api.upload('/media/${media['id']}/replace', fileField: 'image', filePaths: [picked.path]);
+    });
+    if (ok && mounted) {
+      snack(context, 'Photo replaced.');
+      await _key.currentState?.reload();
+    }
+  }
 
   /// Choose between photos from the gallery and a video link.
   Future<void> _addMedia() async {
@@ -489,6 +508,9 @@ class _MediaScreenState extends State<MediaScreen> {
                 items: [
                   if (data['can_use_general'] == true) const DropdownMenuItem(value: 'general', child: Text('General gallery')),
                   for (final b in branches) DropdownMenuItem(value: 'branch:${b['id']}', child: Text('${b['name']}')),
+                  for (final d in asRows(data['items'])) DropdownMenuItem(value: 'item:${d['id']}', child: Text('Dish: ${d['name']}')),
+                  if (owner.startsWith('item:') && asRows(data['items']).every((d) => 'item:${d['id']}' != owner))
+                    DropdownMenuItem(value: owner, child: const Text('This dish')),
                 ],
                 onChanged: (v) {
                   setState(() => _owner = v);
@@ -518,7 +540,7 @@ class _MediaScreenState extends State<MediaScreen> {
                             ? (media[i]['kind'] == 'video' ? 'Video' : 'Photo')
                             : '${media[i]['title_en']}',
                       ),
-                      subtitle: Text(media[i]['kind'] == 'video' ? '${media[i]['provider'] ?? 'video'}' : 'Photo'),
+                      subtitle: Text(media[i]['kind'] == 'video' ? '${media[i]['provider'] ?? 'video'}' : (media[i]['is_featured'] == true ? 'Photo - shown on the menu and POS' : 'Photo')),
                       trailing: media[i]['is_active'] == false ? const StatusChip('hidden') : null,
                       onTap: canManage
                           ? () => _openForm(
@@ -546,6 +568,18 @@ class _MediaScreenState extends State<MediaScreen> {
                     ),
                     if (canManage)
                       Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                        if (media[i]['kind'] != 'video')
+                          IconButton(
+                            tooltip: 'Replace the photo',
+                            icon: const Icon(Icons.swap_horiz, size: 20),
+                            onPressed: () => _replace(media[i]),
+                          ),
+                        if (owner.startsWith('item:') && media[i]['kind'] != 'video')
+                          IconButton(
+                            tooltip: 'Use as the dish photo',
+                            icon: Icon(media[i]['is_featured'] == true ? Icons.star : Icons.star_border, size: 20),
+                            onPressed: () => _call('POST', '/media/${media[i]['id']}/feature'),
+                          ),
                         IconButton(
                           tooltip: 'Move up',
                           icon: const Icon(Icons.arrow_upward, size: 20),

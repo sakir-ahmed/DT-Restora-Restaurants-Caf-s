@@ -54,6 +54,7 @@ use App\Services\CouponService;
 use App\Services\LoyaltyService;
 use App\Services\Metrics\MetricsService;
 use App\Services\PosSettings;
+use App\Support\DeleteReasons;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -322,6 +323,7 @@ class StaffApiController extends Controller
             'lines' => ['required', 'array', 'min:1'],
             'lines.*.ingredient_id' => ['required', 'integer'],
             'lines.*.qty' => ['required', 'numeric', 'gt:0'],
+            'lines.*.unit_id' => ['nullable', 'integer', 'exists:units,id'],
         ]);
 
         $recipe = $action->execute(
@@ -344,6 +346,7 @@ class StaffApiController extends Controller
             'lines' => ['required', 'array', 'min:1'],
             'lines.*.ingredient_id' => ['required', 'integer'],
             'lines.*.qty' => ['required', 'numeric', 'gt:0'],
+            'lines.*.unit_id' => ['nullable', 'integer', 'exists:units,id'],
         ]);
 
         $item = $recipe->menuItem;
@@ -701,7 +704,7 @@ class StaffApiController extends Controller
         $branchModel = $this->branchOrFail($request, $branch);
 
         return $this->success(
-            Purchase::query()->where('branch_id', $branchModel->id)->with('items')->latest('purchased_at')->limit(100)->get()
+            Purchase::query()->where('branch_id', $branchModel->id)->with(['supplier:id,name', 'items.ingredient:id,name', 'items.unit:id,symbol'])->latest('purchased_at')->limit(100)->get()
         );
     }
 
@@ -1021,6 +1024,7 @@ class StaffApiController extends Controller
                 ->values()
                 ->all();
             $data['void_reasons'] = VoidRequest::REASONS;
+            $data['delete_reasons'] = DeleteReasons::CODES;
             $data['order_edit_enabled'] = PosSettings::orderEditEnabled($branchModel);
             $data['order_delete_enabled'] = PosSettings::orderDeleteEnabled($branchModel);
         }
@@ -1160,7 +1164,7 @@ class StaffApiController extends Controller
         $user = $this->staffUser($request);
         $this->permit($user, 'coupons.manage');
 
-        return $this->success(Coupon::query()->latest()->limit(100)->get());
+        return $this->success(Coupon::query()->withCount('redemptions')->latest()->limit(100)->get());
     }
 
     public function storeCoupon(Request $request): JsonResponse

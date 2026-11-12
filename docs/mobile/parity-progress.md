@@ -36,16 +36,16 @@ Status words: **Todo**, **Doing**, **Done**, **Blocked**.
 | P03 | API: `units` in the reference payload carry `type`, `factor`, `is_system`; ingredients carry `unit_type` and `unit_factor`; `docs/api.md` section 10b added | A1.1 | Done | `ApiReferenceTest`: 4 passed; Pint clean |
 | P04 | Purchases: per-line unit picker with size hint, cost per chosen unit, "Adds N to stock" and line total | E4.3 | Done | analyze: no issues; 25 tests passed (11 new unit tests incl. `ingredientUnit`); the 10 l to 10,000 ml example matches the web form. Device check on the emulator (2026-11-11): the form opens, ingredients load, the unit picker shows `kg (1,000 g)`; labels were cut off on a phone, so the line layout was changed (qty and unit on one row, cost on its own row) and the add-ingredient field now clears after each pick. Still to do by hand: save a purchase in a different unit and compare stock with the web |
 | P05a | API: average cost per base unit in the reference payload (`ingredient_costs`, for `recipes.manage`) so the app can show live recipe cost | A1.1 | Done | `ApiReferenceTest`: 6 passed; documented in `docs/api.md` 10b |
-| P05b | Recipes: per-line unit, live cost and margin in the app | E4.4 | Todo | needs P05a |
-| P06 | Wastage and stock transfers: unit picker | E4.5 | Todo | |
+| P05b | Recipes: per-line unit picker, live line cost, total and margin in the app; recipe API now keeps `unit_id` per line (it was being dropped by validation) | E4.4 | Done | `SetupApiTest` recipe unit test; `dart analyze` clean |
+| P06 | Wastage and stock transfers: unit picker with size hint | E4.5 | Done | `dart analyze` clean |
 | P07 | API: dues list and collect; due sale on an order; order delete in one step; order list filters; pre-order list, create, serve and cancel; dashboard dues and waiting pre-orders; payment methods and void reasons in the reference payload | A1.2, A1.4 | Done | `SalesApiTest`: 9 passed (due, collect, over-collect refused, role denied, delete, bad reason, filters, pre-order flow, advance too high, dashboard and reference keys); `ApiContractTest`, `ApiReferenceTest`, `LocalizationTest`, `NoEmojiTest` pass; Pint clean. PHPStan could not run in the AI sandbox (local sockets blocked), run it in a terminal |
 | P08 | Dues module (list, search, collect with partial amounts), Put on due and Delete order on the order page, order list search and Due filter, Pre-order module (list, new with variants and extras, serve, cancel, share link), dashboard dues and pre-orders cards | E2.1, E2.5, new | Doing | `dart analyze`: no issues. `flutter test` and a device run could not be done in the AI sandbox. Still to do: due sale from the POS payment sheet, run on the emulator and compare a due and a pre-order with the web |
-| P09 | API: units CRUD with fixed and in-use rules | A1.5 | Todo | |
-| P10 | Units manager in the app (Settings) | E4.1 | Todo | |
-| P11 | API: settings (general, payment methods, delivery zones, invoice print) | A1.6 | Todo | |
-| P12 | Settings hub in the app with scope notes; payment methods and delivery areas | E8.1 | Todo | |
-| P13 | API: SMS provider, features, templates, history, promotion | A1.7 | Todo | |
-| P14 | SMS settings and SMS module in the app | E8.3 | Todo | |
+| P09 | API: units CRUD with fixed and in-use rules; tables CRUD and QR regenerate | A1.5, E3.3 | Done | `SetupApiTest`: 6 passed |
+| P10 | Units manager and Tables manager (add, edit, remove, QR link) in the app | E4.1, E3.3 | Done | `dart analyze`: no issues; not run on a device |
+| P11 | API: settings (general, payment methods, branch POS and tax, delivery zones, invoice print) | A1.6 | Done | `SettingsApiTest`: 8 passed |
+| P12 | Business settings hub with scope notes: General, Payment methods, POS and billing, Invoice print, Delivery areas | E8.1 | Done | `dart analyze` clean; not run on a device |
+| P13 | API: SMS provider, features, templates, test, history, promotion | A1.7 | Done | `SettingsApiTest`; unnamed throttles share one bucket per user, so the new SMS routes use named buckets |
+| P14 | SMS provider, SMS messages (switches and wording) and SMS module (history, promotion) in the app | E8.3 | Done | `dart analyze` clean; not run on a device |
 | P15 | Localisation foundation (`gen_l10n`, English and Bangla) | E0.3 | Todo | needs a decision on moving existing strings |
 | P16 | Shared widget library with golden tests | E0.5 | Todo | |
 | P17 | Typed models and repository layer for Orders and Reference data | E0.4 | Todo | |
@@ -62,10 +62,10 @@ Later parts (orders delete and reprint, tables, reservations, menu categories, s
 | Pre-order menu book, list, serve, cancel | Done (P08). Not yet: print slip, share as picture, SMS copy status is shown only |
 | Dues list and collect | Done (P08) |
 | Delete order in one step | Done (P08), shown when the branch allows it |
-| Due sale | Done from the order page; POS payment sheet still to do |
+| Due sale | Done: order page and the payment sheet (Put on due) |
 | Dashboard dues, pre-orders, low stock lists with detail | Cards done; detail lists still to do |
 | Order edit for every order, kitchen journey | Not done |
-| Units CRUD, settings, SMS, invoice print styles, payment methods, delivery areas | Not done, need API (P09 to P14, P18) |
+| Units CRUD, settings, SMS, invoice style and paper choice, payment methods, delivery areas | Done (P09 to P14). The app receipt still draws its own 80 mm layout; rendering the 6 styles and 4 papers is P18 |
 
 ## Decisions waiting for the product owner
 

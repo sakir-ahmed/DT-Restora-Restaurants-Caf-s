@@ -89,6 +89,7 @@ return [
     'order_number' => 'Pre-order number',
     'sms_sent_line' => 'A copy was sent to your mobile by SMS.',
     'print_copy' => 'Print copy',
+    'share_copy' => 'Share',
     'another' => 'New pre-order',
     'empty_book' => 'The menu is not ready yet. Please check back soon.',
 

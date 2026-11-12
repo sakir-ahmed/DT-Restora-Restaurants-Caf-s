@@ -88,6 +88,37 @@ All branch routes are prefixed `/api/v1/branches/{branch}`.
 | POST   | `/preorders`                        | `preorders.manage`        | `items` (menu_item_id, variant_id, quantity, add_ons) plus optional `customer_name`, `customer_mobile`, `address`, `party_size`, `expected_at`, `restaurant_table_id`, `advance_amount` (not above the total), `note`. Needs `Idempotency-Key`. |
 | POST   | `/preorders/{preorder}/complete` or `/cancel` | `preorders.manage` | Only a waiting pre-order can change; otherwise 422 |
 
+### Units and tables
+
+| Method | Path | Permission | Notes |
+| ------ | ---- | ---------- | ----- |
+| GET | `/api/v1/units` | `settings.manage` | All units with `type`, `factor`, `is_system`, `in_use` |
+| POST | `/api/v1/units` | `settings.manage` | `name`, `name_bn`, `symbol`, `type`, `qty`, `reference_unit_id`: "1 unit = qty reference units" (same type) |
+| PUT / DELETE | `/api/v1/units/{unit}` | `settings.manage` | Standard units are fixed (403). A unit in use can only be renamed and cannot be deleted (422) |
+| GET | `/branches/{branch}/tables` | `tables.view` | Tables with `state`, `is_active`, `qr_url`; `can_manage` |
+| POST / PUT / DELETE | `/branches/{branch}/tables[/{table}]` | `tables.manage` | `name` (unique per branch), `area`, `seats`, `is_active`. A table with orders is switched off, not deleted |
+| POST | `/branches/{branch}/tables/{table}/qr` | `tables.manage` | New QR secret; the printed code stops working |
+
+### Settings and SMS (`settings.manage`, history and promotion need `sms.manage`)
+
+| Method | Path | Notes |
+| ------ | ---- | ----- |
+| GET / PUT | `/api/v1/settings` | General settings (same fields and rules as the web page), payment methods, SMS provider, features and templates, `layouts`, `papers` |
+| POST / PUT / DELETE | `/api/v1/settings/payment-methods[/{method}]` | `code`, `name`, `name_bn`, `type` (wallet, card, other), `is_active`. Cash and system methods are protected; a method with payments cannot be deleted |
+| PUT | `/api/v1/settings/sms` | `provider` and `fields`. A secret left blank keeps the saved one; secrets are never returned (only `saved`) |
+| PUT | `/api/v1/settings/sms/features` | `features`: map of feature key to boolean. Locked features stay on |
+| PUT | `/api/v1/settings/sms/templates/{template}` | `en` and `bn` wording; blank goes back to the default |
+| POST | `/api/v1/settings/sms/test` | `mobile`; 5 per minute |
+| GET | `/api/v1/sms/history?status=&feature=&q=&per_page=` | History, newest first, with `audiences` counts and `promotion_enabled` |
+| POST | `/api/v1/sms/promotion` | `message` (320), `audience` (all, recent, inactive); 3 per minute |
+| GET | `/branches/{branch}/settings` | Branch POS settings, tax and service charge, invoice layout and paper, delivery switch and `delivery_zones` |
+| PUT | `/branches/{branch}/settings/branch-pos` | `vat_percent`, `service_charge_percent`, `vat_inclusive`, `allow_negative_stock`, `online_ordering_enabled`, `pos` (same shape as read) |
+| PUT | `/branches/{branch}/settings/invoice-print` | `layout`, `paper` |
+| PUT | `/branches/{branch}/settings/delivery-enabled` | `enabled` |
+| POST / PUT / DELETE | `/branches/{branch}/settings/delivery-zones[/{zone}]` | `name`, `name_bn`, `fee`, `fee_type`, `min_order`, `eta_minutes`, `is_active` |
+
+Recipe lines accept an optional `unit_id`; `qty` is in that unit and the server stores it in base units.
+
 `GET /api/v1/dashboard` also returns `dues` (same shape as the web dashboard: `outstanding`, `open_count`, `top`) and `preorders_waiting`. Order payloads carry `is_due` and `customer_name`.
 
 ### Inventory & Recipes

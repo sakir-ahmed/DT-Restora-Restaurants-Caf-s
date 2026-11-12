@@ -17,6 +17,9 @@ import '../pos/pos_screen.dart';
 import '../preorders/preorders_screen.dart';
 import '../reports/reports_screen.dart';
 import '../settings/settings_screen.dart';
+import '../setup/business_settings_screens.dart';
+import '../setup/tables_screen.dart';
+import '../setup/units_screen.dart';
 import '../shifts/shift_screen.dart';
 import '../staff/hr_screens.dart';
 import '../staff/staff_screens.dart';
@@ -71,6 +74,9 @@ final modules = <Module>[
   Module('Loyalty', Icons.stars, 'loyalty.manage', (_) => const LoyaltyScreen(), group: 'People'),
   Module('Activity log', Icons.history, 'activity.view', (_) => const ActivityLogScreen(), group: 'Finance'),
   Module('Letters', Icons.mail_outline, 'letters.manage', (_) => const LettersScreen(), group: 'People'),
+  Module('Units', Icons.straighten, 'settings.manage', (_) => const UnitsScreen(), group: 'Inventory'),
+  Module('SMS', Icons.sms_outlined, 'sms.manage', (_) => const SmsModuleScreen(), group: 'People'),
+  Module('Business settings', Icons.settings_applications_outlined, 'settings.manage', (_) => const BusinessSettingsScreen(), group: 'Finance'),
   Module('Branches', Icons.storefront, 'branches.view', (_) => const BranchesScreen(), group: 'Finance'),
   Module('Blog', Icons.article_outlined, 'blog.manage', (_) => const BlogScreen(), group: 'Website'),
   Module('Careers', Icons.work_outline, 'careers.manage', (_) => const CareersScreen(), group: 'Website'),

@@ -3,9 +3,10 @@ import { router } from '@inertiajs/vue3';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
 import LanguageSwitch from '@/components/ui-kit/LanguageSwitch.vue';
-import { formatMoney } from '@/lib/format';
+import { formatDateTime, formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { makeMenuImage } from '@/lib/menuImage';
+import { makePreorderImage } from '@/lib/preorderImage';
 import { notify } from '@/lib/notify';
 import { localized, photoSrc } from '@/lib/site';
 
@@ -315,6 +316,25 @@ function firstError() {
     return String(Object.values(errors.value)[0] ?? '');
 }
 
+let stepChangedAt = 0;
+
+// "Continue" and "Place pre-order" sit in the same spot, so a double tap on Continue must not
+// place the pre-order before the guest has seen the details step.
+function submitStep() {
+    if (step.value === 'items') {
+        step.value = 'details';
+        stepChangedAt = Date.now();
+
+        return;
+    }
+
+    if (Date.now() - stepChangedAt < 700) {
+        return;
+    }
+
+    placeOrder();
+}
+
 function placeOrder() {
     if (sending.value || cart.value.length === 0) {
         return;
@@ -443,6 +463,90 @@ async function shareImage() {
         notify.error(t('preorders.image_failed'));
     } finally {
         shareBusy.value = false;
+    }
+}
+
+// Share the finished pre-order as a picture: the share sheet (WhatsApp and others) when the device
+// supports sharing files, otherwise a download.
+const copyBusy = ref(false);
+
+async function shareCopy() {
+    const placedOrder = done.value;
+
+    if (copyBusy.value || ! placedOrder) {
+        return;
+    }
+
+    copyBusy.value = true;
+
+    try {
+        const details = [];
+
+        if (placedOrder.customer_name) {
+            details.push([t('preorders.slip_guest'), placedOrder.customer_name]);
+        }
+
+        if (placedOrder.customer_mobile) {
+            details.push([t('preorders.mobile'), placedOrder.customer_mobile]);
+        }
+
+        if (placedOrder.address) {
+            details.push([t('preorders.address'), placedOrder.address]);
+        }
+
+        if (placedOrder.expected_at) {
+            details.push([t('preorders.slip_for'), formatDateTime(placedOrder.expected_at)]);
+        }
+
+        if (placedOrder.party_size) {
+            details.push([t('preorders.party_size'), String(placedOrder.party_size)]);
+        }
+
+        if (placedOrder.table) {
+            details.push([t('preorders.table'), placedOrder.table]);
+        }
+
+        const totals = [{ label: t('preorders.total'), value: formatMoney(placedOrder.total), strong: true }];
+
+        if (Number(placedOrder.advance_amount) > 0) {
+            totals.push({ label: t('preorders.advance_received'), value: `- ${formatMoney(placedOrder.advance_amount)}` });
+            totals.push({ label: t('preorders.balance_due'), value: formatMoney(placedOrder.balance_due), strong: true });
+        }
+
+        const blob = await makePreorderImage({
+            branchName: localized(props.branch, 'name'),
+            branchLine: [props.branch.phone, localized(props.branch, 'address')].filter(Boolean).join(' - '),
+            number: placedOrder.order_no,
+            labels: { title: t('preorders.slip_title'), number: t('preorders.order_number') },
+            details,
+            items: placedOrder.items.map((line) => ({
+                name: `${line.quantity} x ${localized(line, 'name')}${line.variant_name ? ` (${localized({ name: line.variant_name, name_bn: line.variant_name_bn }, 'name')})` : ''}`,
+                amount: formatMoney(line.line_total),
+            })),
+            totals,
+            note: placedOrder.note ? `${t('preorders.note')}: ${placedOrder.note}` : '',
+            footer: t('preorders.slip_note'),
+        });
+
+        const file = new File([blob], `${placedOrder.order_no}.png`, { type: 'image/png' });
+
+        if (navigator.canShare?.({ files: [file] })) {
+            try {
+                await navigator.share({ files: [file], title: `${t('preorders.slip_title')} ${placedOrder.order_no}` });
+            } catch {
+                // the person closed the share sheet
+            }
+        } else {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = file.name;
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+        }
+    } catch {
+        notify.error(t('preorders.image_failed'));
+    } finally {
+        copyBusy.value = false;
     }
 }
 
@@ -614,7 +718,8 @@ onBeforeUnmount(() => {
                     <p v-if="done.sms_sent" class="pb-note-ok"><AppIcon name="mobile-screen" size="13" /> {{ t('preorders.sms_sent_line') }}</p>
                     <div class="pb-actions">
                         <a :href="done.print_url" target="_blank" rel="noopener" class="pb-primary pb-primary-link"><AppIcon name="print" size="15" /> {{ t('preorders.print_copy') }}</a>
-                        <button type="button" class="pb-ghost" @click="startAnother">{{ t('preorders.another') }}</button>
+                        <button type="button" class="pb-primary pb-primary-link pb-share-copy" :disabled="copyBusy" @click="shareCopy"><AppIcon name="share-nodes" size="15" /> {{ copyBusy ? t('preorders.making_image') : t('preorders.share_copy') }}</button>
+                        <button type="button" class="pb-ghost pb-actions-wide" @click="startAnother">{{ t('preorders.another') }}</button>
                     </div>
                 </div>
 
@@ -624,7 +729,7 @@ onBeforeUnmount(() => {
                 </div>
 
                 <!-- Lines and details -->
-                <form v-else class="pb-basket-form" @submit.prevent="step === 'items' ? (step = 'details') : placeOrder()">
+                <form v-else class="pb-basket-form" @submit.prevent="submitStep">
                     <div class="pb-basket-body">
                         <template v-if="step === 'items'">
                             <ul class="pb-lines">
@@ -705,11 +810,11 @@ onBeforeUnmount(() => {
                     </div>
 
                     <footer class="pb-sheet-foot">
-                        <button v-if="step === 'items'" type="submit" class="pb-primary">
+                        <button v-if="step === 'items'" key="continue" type="submit" class="pb-primary">
                             <span>{{ t('preorders.continue') }}</span>
                             <span class="tabular-nums">{{ formatMoney(total, { decimals: 0 }) }}</span>
                         </button>
-                        <button v-else type="submit" class="pb-primary" :disabled="sending">
+                        <button v-else key="place" type="submit" class="pb-primary" :disabled="sending">
                             <span>{{ sending ? t('preorders.sending') : t('preorders.place') }}</span>
                             <span class="tabular-nums">{{ formatMoney(total, { decimals: 0 }) }}</span>
                         </button>
@@ -1158,7 +1263,11 @@ onBeforeUnmount(() => {
 .pb-number { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; margin: 0.4rem 0; padding: 0.8rem; border: 1px dashed var(--gold); border-radius: 0.75rem; background: #fff7e0; }
 .pb-number-label { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); }
 .pb-number-value { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.06em; font-variant-numeric: tabular-nums; }
-.pb-actions { display: grid; gap: 0.5rem; margin-top: 0.85rem; }
+.pb-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; margin-top: 0.85rem; }
+.pb-actions-wide { grid-column: 1 / -1; }
+.pb-share-copy { background: #fff; color: var(--ink); border: 1px solid var(--gold); }
+.pb-share-copy:hover { background: #fff7e0; }
+.pb-actions .pb-primary { padding: 0 0.75rem; white-space: nowrap; }
 
 /* ---- contents ---- */
 .pb-contents { margin: 0; padding: 0 1.1rem 1.25rem; list-style: none; overflow-y: auto; }

@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Concerns\InteractsWithApi;
 use App\Http\Controllers\Api\Controller;
 use App\Models\BlogPost;
 use App\Models\Branch;
+use App\Models\DataVersion;
 use App\Models\JobApplication;
 use App\Models\JobOpening;
 use App\Models\Letter;
@@ -19,6 +20,7 @@ use App\Services\PosSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -264,6 +266,12 @@ class ContentApiController extends Controller
                 ->all(),
             'branches' => $branches->map(fn (Branch $branch): array => ['id' => $branch->id, 'name' => $branch->name])->values()->all(),
             'can_use_general' => $user->branch_id === null,
+            'items' => MenuItem::query()
+                ->whereIn('branch_id', $branches->pluck('id'))
+                ->orderBy('name')
+                ->get(['id', 'branch_id', 'name'])
+                ->map(fn ($item): array => ['id' => $item->id, 'name' => $item->name])
+                ->all(),
         ]);
     }
 
@@ -329,6 +337,48 @@ class ContentApiController extends Controller
         }
 
         return $this->success($created, null, 201);
+    }
+
+    /** Swap the picture file of a photo, keeping its place, caption and featured flag. */
+    public function replaceMedia(Request $request, Media $media): JsonResponse
+    {
+        $this->authorizeMedia($request, $media);
+        abort_unless($media->kind === Media::KIND_IMAGE, 422);
+
+        $validated = $request->validate([
+            'image' => ['required', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
+        ]);
+
+        $oldPath = $media->path;
+        $media->update(['path' => $validated['image']->store('media', 'public')]);
+
+        if ($oldPath !== null) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        return $this->success($media->fresh()->toDisplay(app()->getLocale()), __('media.replaced'));
+    }
+
+    /** Make this dish photo the one shown on the menu and POS. One per dish. */
+    public function featureMedia(Request $request, Media $media): JsonResponse
+    {
+        $this->authorizeMedia($request, $media);
+        abort_unless($media->kind === Media::KIND_IMAGE && $media->mediable_type === 'menu_item', 422);
+
+        DB::transaction(function () use ($media): void {
+            Media::query()
+                ->where('mediable_type', $media->mediable_type)
+                ->where('mediable_id', $media->mediable_id)
+                ->where('is_featured', true)
+                ->get()
+                ->each(fn (Media $entry) => $entry->update(['is_featured' => false]));
+
+            $media->update(['is_featured' => true, 'is_active' => true]);
+        });
+
+        DataVersion::bump();
+
+        return $this->success($media->fresh()->toDisplay(app()->getLocale()), __('media.featured_set'));
     }
 
     public function updateMedia(Request $request, Media $media): JsonResponse

@@ -141,8 +141,16 @@ class PreorderController extends Controller
      */
     public static function placed(Preorder $preorder): array
     {
+        $preorder->loadMissing('table');
+
         return [
             'order_no' => $preorder->order_no,
+            'customer_mobile' => $preorder->customer_mobile,
+            'address' => $preorder->address,
+            'party_size' => $preorder->party_size,
+            'expected_at' => $preorder->expected_at?->toIso8601String(),
+            'table' => $preorder->table?->name,
+            'note' => $preorder->note,
             'total' => (string) $preorder->total,
             'advance_amount' => (string) $preorder->advance_amount,
             'balance_due' => number_format($preorder->balanceDue(), 2, '.', ''),

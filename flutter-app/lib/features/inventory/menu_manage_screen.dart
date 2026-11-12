@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../core/api_client.dart';
 import '../../core/theme.dart';
+import '../content/content_screens.dart';
 import '../../ui/food_image.dart';
 import '../../ui/widgets.dart';
 
@@ -154,6 +156,24 @@ class _MenuItemFormScreenState extends State<MenuItemFormScreen> {
     }
   }
 
+  Future<void> _delete() async {
+    final app = AppScope.read(context);
+    if (!await confirm(context, 'Delete ${widget.item!['name']}?', body: 'Old orders keep their lines. The item disappears from the menu and POS.', action: 'Delete')) {
+      return;
+    }
+    if (!mounted) {
+      return;
+    }
+    final ok = await guarded(context, () async {
+      await app.api.delete('/branches/${app.branchId}/menu-items/${widget.item!['id']}');
+      await app.loadBootstrap();
+    });
+    if (ok && mounted) {
+      snack(context, 'Item deleted.');
+      Navigator.pop(context, true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final app = AppScope.of(context);
@@ -196,6 +216,16 @@ class _MenuItemFormScreenState extends State<MenuItemFormScreen> {
             value: _vegetarian,
             onChanged: (v) => setState(() => _vegetarian = v),
           ),
+          if (editing) ...[
+            OutlinedButton.icon(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => MediaScreen(initialOwner: 'item:${widget.item!['id']}')),
+              ),
+              icon: const Icon(Icons.photo_library_outlined),
+              label: const Text('Photos and videos of this dish'),
+            ),
+          ],
           SectionTitle('Sizes (variants)', color: groupColor(context, 'Inventory')),
           for (var i = 0; i < _variants.length; i++)
             Padding(
@@ -265,6 +295,15 @@ class _MenuItemFormScreenState extends State<MenuItemFormScreen> {
               label: const Text('Add add-on'),
             ),
           ),
+          if (editing && app.can('menu.manage')) ...[
+            const SizedBox(height: 16),
+            TextButton.icon(
+              style: TextButton.styleFrom(foregroundColor: Brand.danger),
+              onPressed: _delete,
+              icon: const Icon(Icons.delete_outline),
+              label: const Text('Delete this item'),
+            ),
+          ],
         ]),
       ),
     );
@@ -285,7 +324,15 @@ class _MenuManageScreenState extends State<MenuManageScreen> {
 
   Future<void> _openForm([Map<String, dynamic>? item]) async {
     final app = AppScope.read(context);
-    final categories = asRows(app.bootstrap?['categories']);
+    var categories = asRows(app.bootstrap?['categories']);
+    try {
+      categories = asRows(await app.api.get('/branches/${app.branchId}/menu-categories'));
+    } on ApiException {
+      // Offline: fall back to the downloaded menu.
+    }
+    if (!mounted) {
+      return;
+    }
     final saved = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
@@ -301,7 +348,20 @@ class _MenuManageScreenState extends State<MenuManageScreen> {
   Widget build(BuildContext context) {
     final app = AppScope.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Manage menu')),
+      appBar: AppBar(
+        title: const Text('Manage menu'),
+        actions: [
+          if (app.can('menu.manage'))
+            IconButton(
+              tooltip: 'Categories',
+              icon: const Icon(Icons.category_outlined),
+              onPressed: () async {
+                await Navigator.push(context, MaterialPageRoute(builder: (_) => const MenuCategoriesScreen()));
+                await _key.currentState?.reload();
+              },
+            ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openForm(),
         icon: const Icon(Icons.add),
@@ -353,6 +413,108 @@ class _MenuManageScreenState extends State<MenuManageScreen> {
             ],
           ]);
         },
+      ),
+    );
+  }
+}
+
+/// Menu categories: add, rename, order, switch off and delete (blocked while dishes use one).
+class MenuCategoriesScreen extends StatefulWidget {
+  const MenuCategoriesScreen({super.key});
+
+  @override
+  State<MenuCategoriesScreen> createState() => _MenuCategoriesScreenState();
+}
+
+class _MenuCategoriesScreenState extends State<MenuCategoriesScreen> {
+  final _key = GlobalKey<DataViewState<List<Map<String, dynamic>>>>();
+
+  Future<void> _edit({Map<String, dynamic>? category}) async {
+    final app = AppScope.read(context);
+    final name = TextEditingController(text: '${category?['name'] ?? ''}');
+    final nameBn = TextEditingController(text: '${category?['name_bn'] ?? ''}');
+    final order = TextEditingController(text: '${category?['sort_order'] ?? 0}');
+    var active = category?['is_active'] != false;
+    final go = await showForm<bool>(
+      context,
+      title: category == null ? 'New category' : 'Edit category',
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          field(name, 'Name'),
+          field(nameBn, 'Name in Bangla (optional)'),
+          field(order, 'Order (smaller first)', type: TextInputType.number),
+          SwitchListTile(contentPadding: EdgeInsets.zero, title: const Text('Shown'), value: active, onChanged: (v) => set(() => active = v)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Save')),
+        ]),
+      ),
+    );
+    final body = {
+      'name': name.text.trim(),
+      'name_bn': nameBn.text.trim().isEmpty ? null : nameBn.text.trim(),
+      'sort_order': int.tryParse(order.text.trim()) ?? 0,
+      'is_active': active,
+    };
+    name.dispose();
+    nameBn.dispose();
+    order.dispose();
+    if (go != true || !mounted) {
+      return;
+    }
+    final ok = await guarded(context, () async {
+      if (category == null) {
+        await app.api.post('/branches/${app.branchId}/menu-categories', body: body);
+      } else {
+        await app.api.put('/branches/${app.branchId}/menu-categories/${category['id']}', body: body);
+      }
+      await app.loadBootstrap();
+    });
+    if (ok) {
+      await _key.currentState?.reload();
+    }
+  }
+
+  Future<void> _delete(Map<String, dynamic> c) async {
+    final app = AppScope.read(context);
+    if (!await confirm(context, 'Delete ${c['name']}?', action: 'Delete')) {
+      return;
+    }
+    if (!mounted) {
+      return;
+    }
+    final ok = await guarded(context, () async {
+      await app.api.delete('/branches/${app.branchId}/menu-categories/${c['id']}');
+      await app.loadBootstrap();
+    });
+    if (ok) {
+      await _key.currentState?.reload();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final app = AppScope.of(context);
+    return Scaffold(
+      appBar: AppBar(title: const Text('Menu categories')),
+      floatingActionButton: FloatingActionButton.extended(onPressed: () => _edit(), icon: const Icon(Icons.add), label: const Text('Category')),
+      body: DataView<List<Map<String, dynamic>>>(
+        key: _key,
+        path: '/branches/${app.branchId}/menu-categories',
+        transform: asRows,
+        builder: (context, rows, raw, reload) => rows.isEmpty
+            ? ListView(children: const [SizedBox(height: 120), EmptyState('No categories yet.')])
+            : ListView(physics: const AlwaysScrollableScrollPhysics(), padding: const EdgeInsets.fromLTRB(12, 12, 12, 96), children: [
+                for (final c in rows)
+                  Card(
+                    child: ListTile(
+                      title: Text('${localized(app, c)}${c['is_active'] == false ? '  (hidden)' : ''}'),
+                      subtitle: Text('${c['items_count']} items'),
+                      trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                        IconButton(icon: const Icon(Icons.edit_outlined, size: 20), onPressed: () => _edit(category: c)),
+                        IconButton(icon: const Icon(Icons.delete_outline, size: 20, color: Brand.danger), onPressed: () => _delete(c)),
+                      ]),
+                    ),
+                  ),
+              ]),
       ),
     );
   }
