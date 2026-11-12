@@ -33,21 +33,64 @@ class OrdersScreen extends StatefulWidget {
 
 class _OrdersScreenState extends State<OrdersScreen> {
   String? _status;
+  String _search = '';
+  bool _dueOnly = false;
+  final _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final app = AppScope.of(context);
     return ListModule(
-      key: ValueKey(_status),
+      key: ValueKey('$_status|$_search|$_dueOnly'),
       title: 'Orders',
       path: '/branches/${app.branchId}/orders',
-      query: {'per_page': 50, if (_status != null) 'filter[status]': _status},
+      query: {
+        'per_page': 50,
+        if (_status != null) 'filter[status]': _status,
+        if (_search.isNotEmpty) 'filter[search]': _search,
+        if (_dueOnly) 'filter[due]': 1,
+      },
       extract: _orderRows,
       header: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         const _LocalOrdersSection(),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: TextField(
+            controller: _searchController,
+            onSubmitted: (v) => setState(() => _search = v.trim()),
+            decoration: InputDecoration(
+              hintText: 'Search invoice, customer name or mobile',
+              prefixIcon: const Icon(Icons.search),
+              isDense: true,
+              suffixIcon: _search.isEmpty
+                  ? null
+                  : IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() => _search = '');
+                      },
+                    ),
+            ),
+          ),
+        ),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: FilterChip(
+                label: const Text('Due'),
+                selected: _dueOnly,
+                onSelected: (v) => setState(() => _dueOnly = v),
+              ),
+            ),
             for (final s in [null, 'pending', 'preparing', 'ready', 'served', 'paid', 'void'])
               Padding(
                 padding: const EdgeInsets.only(right: 8),
@@ -182,6 +225,8 @@ class OrderCard extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Expanded(child: Text('${order['invoice_no']}', style: const TextStyle(fontWeight: FontWeight.w700))),
+              if (order['is_due'] == true)
+                const Padding(padding: EdgeInsets.only(right: 6), child: StatusChip('due')),
               StatusChip('${order['status']}'),
             ]),
             const SizedBox(height: 4),
@@ -215,9 +260,25 @@ class OrderDetailScreen extends StatefulWidget {
 class _OrderDetailScreenState extends State<OrderDetailScreen> {
   late Map<String, dynamic> _order = widget.order;
 
+  /// Whether the branch allows deleting orders (a POS setting on the web).
+  bool _deleteEnabled = false;
+
+  Future<void> _loadFlags() async {
+    final app = AppScope.read(context);
+    try {
+      final ref = await app.api.get('/branches/${app.branchId}/reference');
+      if (mounted && ref is Map) {
+        setState(() => _deleteEnabled = ref['order_delete_enabled'] == true);
+      }
+    } on ApiException {
+      // Offline or no access: the delete button stays hidden.
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadFlags());
     // The list payload is lighter than the detail payload; load the full one.
     WidgetsBinding.instance.addPostFrameCallback((_) => guarded(context, _refresh));
   }
@@ -307,6 +368,113 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         snack(context, 'Redeemed $p points. New balance: ${res['balance']}.');
       }
     });
+  }
+
+  /// Puts what is left of this order on due. A due needs a customer, so the
+  /// mobile number is asked for when the order has none.
+  Future<void> _putOnDue() async {
+    final app = AppScope.read(context);
+    final hasCustomer = _order['customer_mobile'] != null;
+    final mobile = TextEditingController();
+    final name = TextEditingController();
+    final received = TextEditingController();
+    final go = await showForm<bool>(
+      context,
+      title: 'Put ${_order['invoice_no']} on due',
+      builder: (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Text('Total ${fmtMoney(_order['total'])}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+        const SizedBox(height: 4),
+        Text('The customer pays the rest later from the Dues list.', style: TextStyle(color: ctx.muted, fontSize: 12)),
+        const SizedBox(height: 12),
+        if (!hasCustomer) ...[
+          field(mobile, 'Customer mobile', type: TextInputType.phone),
+          field(name, 'Customer name (optional)'),
+        ] else
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text('Customer: ${_order['customer_name'] ?? ''} ${_order['customer_mobile']}'),
+          ),
+        field(received, 'Cash received now (optional)', type: const TextInputType.numberWithOptions(decimal: true)),
+        FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Put on due')),
+      ]),
+    );
+    final mobileText = mobile.text.trim();
+    final nameText = name.text.trim();
+    final now = double.tryParse(received.text.trim()) ?? 0;
+    mobile.dispose();
+    name.dispose();
+    received.dispose();
+    if (go != true || !mounted) {
+      return;
+    }
+    if (!hasCustomer && mobileText.isEmpty) {
+      snack(context, 'A due sale needs a customer mobile number.', error: true);
+      return;
+    }
+    final ok = await guarded(context, () async {
+      await app.api.post(
+        '/branches/${app.branchId}/orders/${_order['id']}/due',
+        idempotencyKey: newClientId(),
+        body: {
+          if (mobileText.isNotEmpty) 'customer_mobile': mobileText,
+          if (nameText.isNotEmpty) 'customer_name': nameText,
+          if (now > 0) 'lines': [{'method': 'cash', 'amount': now}],
+        },
+      );
+      await _refresh();
+    });
+    if (ok && mounted) {
+      snack(context, 'Put on due. Collect it from the Dues list.');
+    }
+  }
+
+  /// One-step delete for staff who may void: the reason is recorded, stock
+  /// goes back and the sale is reversed.
+  Future<void> _delete() async {
+    final app = AppScope.read(context);
+    var reason = voidReasons.keys.first;
+    final note = TextEditingController();
+    final go = await showForm<bool>(
+      context,
+      title: 'Delete ${_order['invoice_no']}',
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text(
+            'The order is cancelled at once. Ingredients go back into stock and the sale is reversed. The reason is recorded.',
+            style: TextStyle(fontSize: 13, color: ctx.muted, height: 1.4),
+          ),
+          const SizedBox(height: 14),
+          DropdownButtonFormField<String>(
+            initialValue: reason,
+            isExpanded: true,
+            decoration: const InputDecoration(labelText: 'Reason'),
+            items: [for (final e in voidReasons.entries) DropdownMenuItem(value: e.key, child: Text(e.value))],
+            onChanged: (v) => set(() => reason = v!),
+          ),
+          const SizedBox(height: 12),
+          field(note, 'Note (optional)'),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Brand.danger),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete order'),
+          ),
+        ]),
+      ),
+    );
+    final noteText = note.text.trim();
+    note.dispose();
+    if (go != true || !mounted) {
+      return;
+    }
+    final ok = await guarded(context, () async {
+      await app.api.post('/branches/${app.branchId}/orders/${_order['id']}/delete',
+          body: {'reason_code': reason, if (noteText.isNotEmpty) 'note': noteText});
+      await _refresh();
+    });
+    if (ok && mounted) {
+      SoundFx.play('order_cancelled');
+      snack(context, 'Order deleted and stock restored.');
+    }
   }
 
   Future<void> _void() async {
@@ -481,6 +649,22 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               ),
             ]),
           ),
+          if (_order['is_due'] == true && _order['balance'] != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(color: context.warnBg, borderRadius: BorderRadius.circular(10)),
+                child: Row(children: [
+                  Icon(Icons.account_balance_wallet_outlined, size: 18, color: context.warnFg),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text('On due. Still to collect: ${fmtMoney(_order['balance'])}. Use the Dues list to collect.',
+                        style: TextStyle(color: context.warnFg)),
+                  ),
+                ]),
+              ),
+            ),
           if (asRows(_order['payments']).isNotEmpty) ...[
             const SectionTitle('Payments'),
             Card(
@@ -506,6 +690,14 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             const SizedBox(height: 8),
             FilledButton.tonalIcon(onPressed: _pay, icon: const Icon(Icons.payments), label: const Text('Take payment')),
           ],
+          if (canPay && app.can('orders.create')) ...[
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: _putOnDue,
+              icon: const Icon(Icons.account_balance_wallet_outlined),
+              label: const Text('Put on due (pay later)'),
+            ),
+          ],
           if (status != 'paid' && status != 'void' && app.can('loyalty.manage') && _order['customer'] != null) ...[
             const SizedBox(height: 8),
             OutlinedButton.icon(
@@ -527,7 +719,16 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               style: OutlinedButton.styleFrom(foregroundColor: Brand.danger),
               onPressed: _void,
               icon: const Icon(Icons.cancel_outlined),
-              label: const Text('Cancel order (void)'),
+              label: Text(app.can('orders.void') ? 'Cancel order (request)' : 'Cancel order (void)'),
+            ),
+          ],
+          if (status != 'void' && app.can('orders.void') && _deleteEnabled) ...[
+            const SizedBox(height: 8),
+            FilledButton.icon(
+              style: FilledButton.styleFrom(backgroundColor: Brand.danger),
+              onPressed: _delete,
+              icon: const Icon(Icons.delete_outline),
+              label: const Text('Delete order'),
             ),
           ],
         ]),

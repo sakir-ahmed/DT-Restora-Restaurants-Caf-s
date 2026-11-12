@@ -35,6 +35,7 @@ use App\Models\IngredientStock;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\Order;
+use App\Models\Preorder;
 use App\Models\Purchase;
 use App\Models\Recipe;
 use App\Models\Reservation;
@@ -52,6 +53,7 @@ use App\Services\CostingService;
 use App\Services\CouponService;
 use App\Services\LoyaltyService;
 use App\Services\Metrics\MetricsService;
+use App\Services\PosSettings;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -87,6 +89,14 @@ class StaffApiController extends Controller
             ->where('branch_id', $branchModel->id)
             ->when($request->input('filter.status'), fn ($query, $status) => $query->where('status', $status))
             ->when($request->input('filter.date_from'), fn ($query, $from) => $query->whereDate('created_at', '>=', $from))
+            ->when($request->input('filter.date_to'), fn ($query, $to) => $query->whereDate('created_at', '<=', $to))
+            ->when($request->input('filter.order_type'), fn ($query, $type) => $query->where('order_type', $type))
+            ->when($request->boolean('filter.due'), fn ($query) => $query->where('is_due', true))
+            ->when(filled($request->input('filter.search')), function ($query) use ($request): void {
+                $term = '%'.trim((string) $request->input('filter.search')).'%';
+                $query->where(fn ($inner) => $inner->where('invoice_no', 'like', $term)
+                    ->orWhereHas('customer', fn ($customer) => $customer->where('mobile', 'like', $term)->orWhere('name', 'like', $term)));
+            })
             ->latest()
             ->paginate(min(100, (int) $request->input('per_page', 25)));
 
@@ -837,6 +847,11 @@ class StaffApiController extends Controller
             'summary' => $metrics->summary($branchId, $from, $to),
             'low_stock' => $metrics->lowStock($branchId),
             'wastage_spike' => $metrics->wastageSpike($branchId),
+            'dues' => $metrics->dues($branchId, $from, $to),
+            'preorders_waiting' => Preorder::query()
+                ->when($branchId, fn ($query) => $query->where('branch_id', $branchId))
+                ->where('status', Preorder::PENDING)
+                ->count(),
         ]);
     }
 
@@ -998,6 +1013,16 @@ class StaffApiController extends Controller
                 ->orderBy('name')
                 ->get(['id', 'name', 'area', 'seats', 'status'])
                 ->all();
+        }
+
+        if ($user->can('orders.view') || $user->can('pos.access')) {
+            $data['payment_methods'] = collect(PosSettings::for($branchModel)['payment_methods'])
+                ->filter(fn (array $entry): bool => $entry['enabled'])
+                ->values()
+                ->all();
+            $data['void_reasons'] = VoidRequest::REASONS;
+            $data['order_edit_enabled'] = PosSettings::orderEditEnabled($branchModel);
+            $data['order_delete_enabled'] = PosSettings::orderDeleteEnabled($branchModel);
         }
 
         if ($user->can('shifts.manage')) {

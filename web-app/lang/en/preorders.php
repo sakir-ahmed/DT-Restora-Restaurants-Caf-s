@@ -13,6 +13,7 @@ return [
     // Messages
     'cart_empty' => 'Your pre-order is empty. Open a page and tap an item to add it.',
     'too_many' => 'Too many pre-orders from this device in a short time. Please call the restaurant.',
+    'placed' => 'Pre-order taken.',
     'cannot_change' => 'This pre-order is already closed.',
     'status_completed_done' => 'Pre-order marked as served.',
     'status_cancelled_done' => 'Pre-order cancelled.',

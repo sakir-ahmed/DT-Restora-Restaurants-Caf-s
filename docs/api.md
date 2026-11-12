@@ -74,6 +74,21 @@ All branch routes are prefixed `/api/v1/branches/{branch}`.
 | POST   | `/orders/{order}/payments`         | One or many payment lines. Needs `Idempotency-Key`.                                             |
 | POST   | `/orders/{order}/void-requests`    | Cashier requests a void with reason                                                             |
 | POST   | `/void-requests/{request}/approve` | Manager approval                                                                                |
+| GET    | `/orders?filter[search]=&filter[due]=1&filter[order_type]=&filter[date_to]=` | Extra filters: invoice, customer name or mobile; due sales only; type; end date |
+| POST   | `/orders/{order}/delete`           | Delete in one step (`orders.void`): `reason_code` (see `void_reasons`) and optional `note`. Stock is restored and the sale reversed. |
+| POST   | `/orders/{order}/due`              | Put what is left on due: optional `lines` (money received now), `customer_mobile` and `customer_name` when the order has no customer. Needs `Idempotency-Key`. |
+
+### Dues and pre-orders (`/api/v1/branches/{branch}`)
+
+| Method | Path                                | Permission                | Notes |
+| ------ | ----------------------------------- | ------------------------- | ----- |
+| GET    | `/dues`                             | `orders.view`             | Open due sales with `balance`, `paid`, `collections`; `outstanding` total; `methods` that can collect a due (enabled, not manual wallets) |
+| POST   | `/dues/{order}/collect`             | `orders.create`           | `method`, `amount` (not above the balance), optional `reference`. Needs `Idempotency-Key`. |
+| GET    | `/preorders?filter[status]=`        | `preorders.view`          | Menu-book pre-orders (latest 200), `share_url`, `can_manage` |
+| POST   | `/preorders`                        | `preorders.manage`        | `items` (menu_item_id, variant_id, quantity, add_ons) plus optional `customer_name`, `customer_mobile`, `address`, `party_size`, `expected_at`, `restaurant_table_id`, `advance_amount` (not above the total), `note`. Needs `Idempotency-Key`. |
+| POST   | `/preorders/{preorder}/complete` or `/cancel` | `preorders.manage` | Only a waiting pre-order can change; otherwise 422 |
+
+`GET /api/v1/dashboard` also returns `dues` (same shape as the web dashboard: `outstanding`, `open_count`, `top`) and `preorders_waiting`. Order payloads carry `is_due` and `customer_name`.
 
 ### Inventory & Recipes
 
@@ -246,6 +261,8 @@ Lists the staff app needs to build forms. Each block is included only when the u
 | `is_system` | `true` for the fixed standard units; custom units (box, large box) are `false` |
 
 **`ingredients`** also carry `unit_type` and `unit_factor` (the ingredient's own unit), so the app can show stock in that unit and convert a quantity entered in another unit of the same type: `base = qty * unit.factor`, `shown = base / ingredient.unit_factor`. Example: 10 l of an ingredient kept in ml is `10 * 1 / 0.001 = 10,000 ml`. The server converts on receipt with the same rule.
+
+**`payment_methods`**, **`void_reasons`**, **`order_edit_enabled`**, **`order_delete_enabled`** (with `orders.view` or `pos.access`): the branch's enabled payment methods (`method`, `name`, `name_bn`, `type`), the allowed void reason codes and the two branch POS switches that decide whether the app shows order edit and delete.
 
 **`ingredient_costs`** (only with `recipes.manage`): map of ingredient id to the branch's average purchase cost **per base unit** (g, l, pcs), as a decimal string. Price a recipe line as `qty * unit.factor * cost`.
 

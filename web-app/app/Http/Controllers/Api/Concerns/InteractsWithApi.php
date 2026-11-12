@@ -113,6 +113,8 @@ trait InteractsWithApi
             'cashier' => $order->cashier?->name,
             'note' => $order->note,
             'void_status' => $order->voidRequest?->status,
+            'is_due' => (bool) $order->is_due,
+            'customer_name' => $order->customer?->name,
             'items' => $order->items->map(fn ($item) => [
                 'menu_item_id' => $item->menu_item_id,
                 'variant_id' => $item->variant_id,

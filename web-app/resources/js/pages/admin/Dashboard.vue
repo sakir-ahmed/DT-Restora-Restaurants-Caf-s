@@ -176,7 +176,6 @@ const infoDetails = computed(() => {
                 fact(t('dashboard.dues_outstanding'), money(props.dues.outstanding), true),
             ],
         },
-        dues_collected: { facts: [fact(t('dashboard.dues_collected'), money(props.dues.collected), true)] },
         dues: {
             facts: [
                 fact(t('dashboard.dues_open_count'), formatNumber(props.dues.open_count)),
@@ -365,7 +364,6 @@ const profitLines = computed(() => ([
             <KpiCard info @info="infoKey = 'orders'" :label="t('dashboard.orders')" :value="formatNumber(summary.orders)" :change="change('orders')" />
             <KpiCard info @info="infoKey = 'expenses'" :label="t('dashboard.expenses')" :value="formatMoney(summary.expenses, { symbol: true })" :change="change('expenses')" />
             <KpiCard info @info="infoKey = 'dues_outstanding'" :label="t('dashboard.dues_outstanding')" :value="formatMoney(dues.outstanding, { symbol: true })" :state="Number(dues.outstanding) > 0 ? 'danger' : 'success'" />
-            <KpiCard info @info="infoKey = 'dues_collected'" :label="t('dashboard.dues_collected')" :value="formatMoney(dues.collected, { symbol: true })" />
             <KpiCard v-if="alerts.lowStock > 0" action info tone="danger" state="danger" :label="t('dashboard.low_stock')" :value="formatNumber(alerts.lowStock)" @click="listOpen = 'low_stock'" @info="infoKey = 'low_stock'" />
             <KpiCard v-if="preorders > 0" action info :label="t('dashboard.preorders')" :value="formatNumber(preorders)" @click="listOpen = 'preorders'" @info="infoKey = 'preorders'" />
         </div>

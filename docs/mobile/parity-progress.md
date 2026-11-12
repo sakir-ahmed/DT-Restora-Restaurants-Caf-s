@@ -38,8 +38,8 @@ Status words: **Todo**, **Doing**, **Done**, **Blocked**.
 | P05a | API: average cost per base unit in the reference payload (`ingredient_costs`, for `recipes.manage`) so the app can show live recipe cost | A1.1 | Done | `ApiReferenceTest`: 6 passed; documented in `docs/api.md` 10b |
 | P05b | Recipes: per-line unit, live cost and margin in the app | E4.4 | Todo | needs P05a |
 | P06 | Wastage and stock transfers: unit picker | E4.5 | Todo | |
-| P07 | API: dues list and collect; due sale on create | A1.4 | Todo | |
-| P08 | Dues module in the app (list, detail, collect) and due sale in POS | E2.1 | Todo | |
+| P07 | API: dues list and collect; due sale on an order; order delete in one step; order list filters; pre-order list, create, serve and cancel; dashboard dues and waiting pre-orders; payment methods and void reasons in the reference payload | A1.2, A1.4 | Done | `SalesApiTest`: 9 passed (due, collect, over-collect refused, role denied, delete, bad reason, filters, pre-order flow, advance too high, dashboard and reference keys); `ApiContractTest`, `ApiReferenceTest`, `LocalizationTest`, `NoEmojiTest` pass; Pint clean. PHPStan could not run in the AI sandbox (local sockets blocked), run it in a terminal |
+| P08 | Dues module (list, search, collect with partial amounts), Put on due and Delete order on the order page, order list search and Due filter, Pre-order module (list, new with variants and extras, serve, cancel, share link), dashboard dues and pre-orders cards | E2.1, E2.5, new | Doing | `dart analyze`: no issues. `flutter test` and a device run could not be done in the AI sandbox. Still to do: due sale from the POS payment sheet, run on the emulator and compare a due and a pre-order with the web |
 | P09 | API: units CRUD with fixed and in-use rules | A1.5 | Todo | |
 | P10 | Units manager in the app (Settings) | E4.1 | Todo | |
 | P11 | API: settings (general, payment methods, delivery zones, invoice print) | A1.6 | Todo | |
@@ -54,6 +54,18 @@ Status words: **Todo**, **Doing**, **Done**, **Blocked**.
 | P20 | Push notifications | E3.2 | Todo | needs A1.9 |
 
 Later parts (orders delete and reprint, tables, reservations, menu categories, staff, accounting, rider OTP, customer app) are in the plan's phases 2 to 7 and are added here as they are scheduled.
+
+## Web features added after the plan was written (gap list, 2026-11-13)
+
+| Web feature | In the app now |
+| --- | --- |
+| Pre-order menu book, list, serve, cancel | Done (P08). Not yet: print slip, share as picture, SMS copy status is shown only |
+| Dues list and collect | Done (P08) |
+| Delete order in one step | Done (P08), shown when the branch allows it |
+| Due sale | Done from the order page; POS payment sheet still to do |
+| Dashboard dues, pre-orders, low stock lists with detail | Cards done; detail lists still to do |
+| Order edit for every order, kitchen journey | Not done |
+| Units CRUD, settings, SMS, invoice print styles, payment methods, delivery areas | Not done, need API (P09 to P14, P18) |
 
 ## Decisions waiting for the product owner
 

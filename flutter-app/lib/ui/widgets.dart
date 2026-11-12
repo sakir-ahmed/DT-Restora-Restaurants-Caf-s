@@ -155,6 +155,7 @@ Color statusColor(String status) {
     case 'on_the_way':
     case 'picked_up':
     case 'pending':
+    case 'due':
     case 'draft':
       return Brand.warning;
     default:

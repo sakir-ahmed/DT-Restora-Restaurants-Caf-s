@@ -109,6 +109,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _body(BuildContext context, Cached<dynamic> today, Cached<dynamic>? month) {
     final summary = Map<String, dynamic>.from((today.data as Map)['summary'] as Map);
     final lowStock = asRows((today.data as Map)['low_stock']);
+    final dues = (today.data as Map)['dues'] is Map ? Map<String, dynamic>.from((today.data as Map)['dues'] as Map) : null;
+    final waitingPreorders = ((today.data as Map)['preorders_waiting'] as num?)?.toInt() ?? 0;
     final days = asRows(month?.data);
     final net = toNum(summary['net_profit']);
 
@@ -133,6 +135,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Metric('Net profit', fmtMoney(net), icon: net < 0 ? Icons.trending_down : Icons.trending_up, negative: net < 0),
             ],
           ),
+          if (dues != null && toNum(dues['outstanding']) > 0 || waitingPreorders > 0) ...[
+            const SizedBox(height: 8),
+            GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              childAspectRatio: 1.9,
+              children: [
+                if (dues != null && toNum(dues['outstanding']) > 0)
+                  Metric('Dues to collect', fmtMoney(dues['outstanding']), icon: Icons.account_balance_wallet_outlined, negative: true),
+                if (waitingPreorders > 0) Metric('Pre-orders waiting', '$waitingPreorders', icon: Icons.menu_book),
+              ],
+            ),
+          ],
           if (days.isNotEmpty) ...[
             const SectionTitle('Sales this month'),
             _MonthBarChart(days: days),

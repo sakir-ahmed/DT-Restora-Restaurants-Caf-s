@@ -9,10 +9,12 @@ import '../content/content_screens.dart';
 import '../customers/customer_screens.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../delivery/delivery_screens.dart';
+import '../dues/dues_screen.dart';
 import '../inventory/inventory_screens.dart';
 import '../orders/orders_screens.dart';
 import '../orders/reservations_screen.dart';
 import '../pos/pos_screen.dart';
+import '../preorders/preorders_screen.dart';
 import '../reports/reports_screen.dart';
 import '../settings/settings_screen.dart';
 import '../shifts/shift_screen.dart';
@@ -42,6 +44,8 @@ final modules = <Module>[
   Module('Dashboard', Icons.dashboard_customize, 'dashboard.view', (_) => const DashboardScreen()),
   Module('POS', Icons.point_of_sale, 'pos.access', (_) => const PosScreen(), hero: true),
   Module('Orders', Icons.receipt_long, 'orders.view', (_) => const OrdersScreen()),
+  Module('Dues', Icons.account_balance_wallet_outlined, 'orders.view', (_) => const DuesScreen()),
+  Module('Pre-order', Icons.menu_book, 'preorders.view', (_) => const PreordersScreen()),
   Module('Reservations', Icons.event_available, 'reservations.view', (_) => const ReservationsScreen()),
   Module('Kitchen', Icons.soup_kitchen, 'kds.access', (_) => const KitchenScreen()),
   Module('Cash shift', Icons.savings, 'shifts.manage', (_) => const ShiftScreen()),
