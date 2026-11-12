@@ -365,7 +365,7 @@ const profitLines = computed(() => ([
             <KpiCard info @info="infoKey = 'expenses'" :label="t('dashboard.expenses')" :value="formatMoney(summary.expenses, { symbol: true })" :change="change('expenses')" />
             <KpiCard info @info="infoKey = 'dues_outstanding'" :label="t('dashboard.dues_outstanding')" :value="formatMoney(dues.outstanding, { symbol: true })" :state="Number(dues.outstanding) > 0 ? 'danger' : 'success'" />
             <KpiCard v-if="alerts.lowStock > 0" action info tone="danger" state="danger" :label="t('dashboard.low_stock')" :value="formatNumber(alerts.lowStock)" @click="listOpen = 'low_stock'" @info="infoKey = 'low_stock'" />
-            <KpiCard v-if="preorders > 0" action info :label="t('dashboard.preorders')" :value="formatNumber(preorders)" @click="listOpen = 'preorders'" @info="infoKey = 'preorders'" />
+            <KpiCard v-if="preorders > 0" action info tone="success" :label="t('dashboard.preorders')" :value="formatNumber(preorders)" @click="listOpen = 'preorders'" @info="infoKey = 'preorders'" />
         </div>
 
         <!-- Alerts -->

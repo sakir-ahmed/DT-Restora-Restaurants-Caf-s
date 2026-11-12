@@ -82,9 +82,68 @@ class _CustomersScreenState extends State<CustomersScreen> {
           leading: CircleAvatar(backgroundColor: context.pageBg, child: Icon(Icons.person, color: context.brand)),
           title: Text('${c['name']}'),
           subtitle: Text('${c['mobile']}'),
-          trailing: app.can('loyalty.manage') ? const Icon(Icons.stars, color: Brand.warning) : null,
-          onTap: app.can('loyalty.manage') ? () => _adjust(c) : null,
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => CustomerDetailScreen(customer: c, onAdjust: app.can('loyalty.manage') ? () => _adjust(c) : null)),
+          ),
         ),
+      ),
+    );
+  }
+}
+
+/// One customer: contact, loyalty points and the latest orders.
+class CustomerDetailScreen extends StatelessWidget {
+  const CustomerDetailScreen({super.key, required this.customer, this.onAdjust});
+
+  final Map<String, dynamic> customer;
+  final Future<void> Function()? onAdjust;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('${customer['name']}')),
+      body: DataView<Map<String, dynamic>>(
+        path: '/customers/${customer['id']}',
+        transform: (raw) => Map<String, dynamic>.from(raw as Map),
+        builder: (context, c, raw, reload) {
+          final orders = asRows(c['orders']);
+          return ListView(physics: const AlwaysScrollableScrollPhysics(), padding: const EdgeInsets.all(12), children: [
+            Row(children: [
+              Expanded(child: Metric('Points', '${c['points']}', icon: Icons.stars)),
+              const SizedBox(width: 8),
+              Expanded(child: Metric('Orders', '${c['orders_count']}', icon: Icons.receipt_long)),
+            ]),
+            Card(
+              child: Column(children: [
+                ListTile(dense: true, leading: const Icon(Icons.phone), title: Text('${c['mobile']}')),
+                if (c['email'] != null) ListTile(dense: true, leading: const Icon(Icons.email_outlined), title: Text('${c['email']}')),
+                if (onAdjust != null)
+                  ListTile(
+                    dense: true,
+                    leading: const Icon(Icons.stars, color: Brand.warning),
+                    title: const Text('Adjust loyalty points'),
+                    onTap: () async {
+                      await onAdjust!();
+                      await reload();
+                    },
+                  ),
+              ]),
+            ),
+            const SectionTitle('Recent orders'),
+            if (orders.isEmpty) const EmptyState('No orders yet.'),
+            for (final o in orders)
+              Card(
+                child: ListTile(
+                  dense: true,
+                  title: Text('${o['invoice_no']}  -  ${fmtMoney(o['total'])}'),
+                  subtitle: Text('${titleCase('${o['order_type']}')}  -  ${fmtDate(o['created_at'])}'),
+                  trailing: StatusChip('${o['status']}'),
+                ),
+              ),
+          ]);
+        },
       ),
     );
   }
@@ -149,8 +208,21 @@ class CouponsScreen extends StatelessWidget {
           title: Text('${c['code']}', style: const TextStyle(fontWeight: FontWeight.w700)),
           subtitle: Text(
             '${c['type'] == 'percent' ? '${toNum(c['value']).toStringAsFixed(0)}% off' : '${fmtMoney(c['value'])} off'}'
-            '${toNum(c['min_order']) > 0 ? '  -  min ${fmtMoney(c['min_order'])}' : ''}',
+            '${toNum(c['min_order']) > 0 ? '  -  min ${fmtMoney(c['min_order'])}' : ''}'
+            '${c['redemptions_count'] == null ? '' : '  -  used ${c['redemptions_count']} times'}'
+            '${c['ends_at'] == null ? '' : '  -  until ${fmtDay(c['ends_at'])}'}',
           ),
+          onLongPress: () async {
+            if (await confirm(context, 'Switch off ${c['code']}?', body: 'Past orders keep the discount.', action: 'Switch off')) {
+              if (!context.mounted) {
+                return;
+              }
+              final ok = await guarded(context, () async => app.api.delete('/coupons/${c['id']}'));
+              if (ok) {
+                await reload();
+              }
+            }
+          },
           trailing: Switch(
             value: c['is_active'] == true,
             onChanged: (v) async {

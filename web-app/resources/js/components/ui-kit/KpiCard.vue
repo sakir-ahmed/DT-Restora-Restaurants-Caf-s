@@ -15,7 +15,7 @@ const props = defineProps({
     sparkline: { type: Array, default: () => [] },
     info: { type: Boolean, default: false }, // show the "how is this calculated" button
     action: { type: Boolean, default: false }, // the whole card opens something when pressed
-    tone: { type: String, default: null }, // danger: show the value in red
+    tone: { type: String, default: null }, // danger: red card; success: green card
 });
 
 const emit = defineEmits(['click', 'info']);
@@ -47,7 +47,7 @@ const points = computed(() => {
         class="flex w-full min-w-0 flex-col gap-0.5 rounded-lg border bg-surface p-2.5 text-left transition-shadow md:p-3"
         :class="[
             icon || action ? 'cursor-pointer hover:shadow-md focus-visible:ring-2 focus-visible:ring-accent' : '',
-            tone === 'danger' ? 'border-danger/50 bg-danger/5' : 'border-border',
+            tone === 'danger' ? 'border-danger/50 bg-danger/5' : tone === 'success' ? 'border-success/50 bg-success/5' : 'border-border',
         ]"
         :type="icon ? 'button' : undefined"
         :role="action && ! icon ? 'button' : undefined"
@@ -56,7 +56,7 @@ const points = computed(() => {
         @keydown.enter.self="action && emit('click')"
     >
         <div class="flex items-center justify-between gap-2">
-            <span class="truncate text-[11px] font-medium uppercase tracking-wider md:text-xs" :class="[$page.props.locale === 'bn' ? 'normal-case tracking-normal' : '', tone === 'danger' ? 'text-danger' : 'text-muted']">{{ label }}</span>
+            <span class="truncate text-[11px] font-medium uppercase tracking-wider md:text-xs" :class="[$page.props.locale === 'bn' ? 'normal-case tracking-normal' : '', tone === 'danger' ? 'text-danger' : tone === 'success' ? 'text-success' : 'text-muted']">{{ label }}</span>
 
             <div class="flex items-center gap-1">
                 <span
@@ -72,7 +72,7 @@ const points = computed(() => {
         </div>
 
         <div v-if="loading" class="h-7 w-24 animate-pulse rounded bg-border/60" />
-        <span v-else class="truncate text-xl font-bold tracking-tight tabular-nums md:text-[22px]" :class="tone === 'danger' ? 'text-danger' : 'text-foreground'">{{ value }}</span>
+        <span v-else class="truncate text-xl font-bold tracking-tight tabular-nums md:text-[22px]" :class="tone === 'danger' ? 'text-danger' : tone === 'success' ? 'text-success' : 'text-foreground'">{{ value }}</span>
 
         <div v-if="(change !== null && change !== '') || points" class="flex items-end justify-between gap-2">
             <span
