@@ -372,9 +372,6 @@ class _PayrollScreenState extends State<PayrollScreen> {
                     separatorBuilder: (_, _) => const SizedBox(height: 8),
                     itemBuilder: (context, i) {
                       final r = rows[i];
-                      final numbers = r.entries
-                          .where((e) => e.value is num && e.key != 'id')
-                          .map((e) => MapEntry(titleCase(e.key), toNum(e.value)));
                       return Card(
                         child: Padding(
                           padding: const EdgeInsets.all(12),
@@ -398,12 +395,15 @@ class _PayrollScreenState extends State<PayrollScreen> {
                               ),
                             ),
                             Wrap(
-                              spacing: 12,
+                              spacing: 16,
                               runSpacing: 4,
                               children: [
-                                for (final n in numbers)
-                                  Text('${n.key}: ${n.value % 1 == 0 ? n.value.toInt() : n.value.toStringAsFixed(2)}',
-                                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
+                                for (final f in const [('basis', 'Basis'), ('rate', 'Rate'), ('days', 'Days'), ('hours', 'Hours'), ('gross', 'Gross'), ('advances', 'Advances'), ('net', 'Net pay')])
+                                  if (r[f.$1] != null)
+                                    Text(
+                                      '${f.$2}: ${f.$1 == 'basis' ? titleCase('${r[f.$1]}') : (['rate', 'gross', 'advances', 'net'].contains(f.$1) ? fmtMoney(r[f.$1]) : '${r[f.$1]}')}',
+                                      style: TextStyle(fontSize: 12.5, fontWeight: f.$1 == 'net' ? FontWeight.w800 : FontWeight.w600),
+                                    ),
                               ],
                             ),
                           ]),

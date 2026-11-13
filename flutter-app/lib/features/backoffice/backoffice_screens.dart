@@ -29,11 +29,16 @@ class ExpensesScreen extends StatelessWidget {
             '${fmtDay(e['expense_date'])}'
             '${(e['description'] ?? '').toString().isEmpty ? '' : '  -  ${e['description']}'}',
           ),
-          trailing: Text(
-            fmtMoney(e['amount']),
-            style: const TextStyle(fontWeight: FontWeight.w700),
-          ),
-          onLongPress: () async {
+          trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+            Text(
+              fmtMoney(e['amount']),
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+            IconButton(
+              tooltip: 'Delete expense',
+              visualDensity: VisualDensity.compact,
+              icon: const Icon(Icons.delete_outline, size: 20, color: Brand.danger),
+              onPressed: () async {
             if (await confirm(
               context,
               'Delete this expense?',
@@ -52,13 +57,8 @@ class ExpensesScreen extends StatelessWidget {
               }
             }
           },
-        ),
-      ),
-      header: Padding(
-        padding: const EdgeInsets.only(bottom: 4),
-        child: Text(
-          'Press and hold an expense to delete it.',
-          style: TextStyle(fontSize: 12, color: context.muted),
+            ),
+          ]),
         ),
       ),
       fab: (reload) => FloatingActionButton.extended(
@@ -536,7 +536,7 @@ class ActivityLogScreen extends StatelessWidget {
             backgroundColor: context.pageBg,
             child: Icon(Icons.history, color: context.brand, size: 18),
           ),
-          title: Text('${a['description']}'),
+          title: Text(titleCase('${a['description']}'.replaceAll('.', ' '))),
           subtitle: Text([
             if (a['causer'] != null) a['causer'],
             if (a['subject_type'] != null) titleCase('${a['subject_type']}'),

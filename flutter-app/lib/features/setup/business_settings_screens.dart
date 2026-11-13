@@ -26,7 +26,7 @@ class BusinessSettingsScreen extends StatelessWidget {
       (Icons.message_outlined, 'SMS messages', 'Switch each message on or off and edit its wording', const SmsMessagesScreen()),
     ];
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: const Text('Business settings')),
       body: ListView(padding: const EdgeInsets.all(12), children: [
         Text('Branch: ${(app.bootstrap?['branch'] as Map?)?['name'] ?? ''}', style: TextStyle(color: context.muted, fontSize: 12)),
         const SizedBox(height: 8),

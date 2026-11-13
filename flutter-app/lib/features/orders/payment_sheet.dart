@@ -11,8 +11,6 @@ import '../../ui/tr_text.dart';
 
 const paymentMethods = ['cash', 'bkash', 'nagad', 'card'];
 
-bool _needsReference(String method) => method == 'bkash' || method == 'nagad';
-
 /// Collect payment for an order, web-admin style: one or more lines, each
 /// with a method, an amount and — for wallets — a transaction reference.
 /// Supports split bills, quick cash amounts and change. Online it posts to
@@ -55,6 +53,15 @@ class _PaymentFormState extends State<_PaymentForm> {
   final List<_PayLine> _lines = [];
   bool _busy = false;
 
+  /// The payment methods this branch accepts (Settings, POS and billing), with their names. Falls back to the
+  /// four built-in ones when the list is not available, for example offline on a fresh install.
+  List<({String code, String name, String type})> _methods = const [
+    (code: 'cash', name: 'Cash', type: 'cash'),
+    (code: 'bkash', name: 'Bkash', type: 'wallet'),
+    (code: 'nagad', name: 'Nagad', type: 'wallet'),
+    (code: 'card', name: 'Card', type: 'card'),
+  ];
+
   /// Due mode: the customer pays later, so money received now is optional.
   bool _due = false;
   final _dueMobile = TextEditingController();
@@ -65,7 +72,31 @@ class _PaymentFormState extends State<_PaymentForm> {
   void initState() {
     super.initState();
     _lines.add(_PayLine('cash', widget.total.toStringAsFixed(2)));
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadMethods());
   }
+
+  Future<void> _loadMethods() async {
+    final app = AppScope.read(context);
+    try {
+      final res = await app.cachedGet('/branches/${app.branchId}/reference');
+      final list = ((res.data as Map)['payment_methods'] as List?)?.whereType<Map>().toList() ?? const [];
+      if (list.isNotEmpty && mounted) {
+        setState(() {
+          _methods = [
+            for (final m in list) (code: '${m['method']}', name: localized(app, m), type: '${m['type']}'),
+          ];
+          if (!_methods.any((m) => m.code == _lines.first.method)) {
+            _lines.first.method = _methods.first.code;
+          }
+        });
+      }
+    } on ApiException {
+      // Keep the built-in methods.
+    }
+  }
+
+  bool _needsReference(String method) =>
+      _methods.any((m) => m.code == method && m.type == 'wallet') || method == 'bkash' || method == 'nagad';
 
   Future<void> _putOnDue() async {
     final mobile = _dueMobile.text.trim();
@@ -136,7 +167,7 @@ class _PaymentFormState extends State<_PaymentForm> {
         }
       }
       final used = _lines.map((l) => l.method).toSet();
-      final method = paymentMethods.firstWhere((m) => !used.contains(m), orElse: () => 'cash');
+      final method = _methods.map((m) => m.code).firstWhere((m) => !used.contains(m), orElse: () => _methods.first.code);
       final remaining = _remaining > 0.009 ? max(0, _remaining).toStringAsFixed(2) : '';
       _lines.add(_PayLine(method, remaining));
     });
@@ -347,12 +378,12 @@ class _PaymentFormState extends State<_PaymentForm> {
               ),
           ]),
           Wrap(spacing: 6, runSpacing: 6, children: [
-            for (final m in paymentMethods)
+            for (final m in _methods)
               ChoiceChip(
-                label: Text(titleCase(m)),
+                label: Text(m.name),
                 visualDensity: VisualDensity.compact,
-                selected: line.method == m,
-                onSelected: _busy ? null : (_) => _setMethod(line, m),
+                selected: line.method == m.code,
+                onSelected: _busy ? null : (_) => _setMethod(line, m.code),
               ),
           ]),
           const SizedBox(height: 10),

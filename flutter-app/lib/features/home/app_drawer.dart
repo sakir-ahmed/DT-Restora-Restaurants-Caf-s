@@ -145,15 +145,6 @@ class AppDrawer extends StatelessWidget {
                 title: const Text('Settings', style: TextStyle(fontSize: 13.5)),
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
               ),
-              SwitchListTile(
-                dense: true,
-                visualDensity: VisualDensity.compact,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                secondary: Icon(context.isDark ? Icons.dark_mode : Icons.light_mode, size: 20),
-                title: const Text('Dark mode', style: TextStyle(fontSize: 13.5)),
-                value: context.isDark,
-                onChanged: (_) => app.setThemeMode(context.isDark ? ThemeMode.light : ThemeMode.dark),
-              ),
               ListTile(
                 dense: true,
                 visualDensity: VisualDensity.compact,

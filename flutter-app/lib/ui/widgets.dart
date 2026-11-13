@@ -77,6 +77,8 @@ void snack(
     ..hideCurrentSnackBar()
     ..showSnackBar(
       SnackBar(
+        // A snackbar with an action stays on screen until dismissed unless told otherwise.
+        persist: false,
         content: Text(tr(message)),
         duration: Duration(seconds: actionLabel == null ? 4 : 8),
         backgroundColor: error ? Theme.of(context).colorScheme.error : null,
@@ -591,7 +593,11 @@ Future<T?> showForm<T>(
   required String title,
   required WidgetBuilder builder,
 }) {
-  return showModalBottomSheet<T>(
+  return _showFormSheet<T>(context, title, builder);
+}
+
+Future<T?> _showFormSheet<T>(BuildContext context, String title, WidgetBuilder builder) async {
+  final result = await showModalBottomSheet<T>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
@@ -624,6 +630,10 @@ Future<T?> showForm<T>(
       ),
     ),
   );
+  // Callers dispose their text controllers right after this returns. The sheet is still sliding away, so wait
+  // for it, or a controller is used after it was disposed.
+  await Future<void>.delayed(const Duration(milliseconds: 350));
+  return result;
 }
 
 Widget field(

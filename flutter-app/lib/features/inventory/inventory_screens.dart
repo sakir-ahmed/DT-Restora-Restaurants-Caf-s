@@ -245,7 +245,7 @@ class StockScreen extends StatelessWidget {
                     leading: Icon(low ? Icons.warning_amber : Icons.inventory_2,
                         color: low ? Brand.warning : context.brand),
                     title: Text('${r['name']}'),
-                    subtitle: Text('Avg cost ${fmtMoney(r['avg_cost'])}${low ? '  -  Low stock' : ''}'),
+                    subtitle: Text('Avg cost ${fmtMoney(toNum(r['avg_cost']) * (toNum(meta?['unit_factor']) == 0 ? 1 : toNum(meta?['unit_factor'])))} / ${meta?['unit_symbol'] ?? 'unit'}${low ? '  -  Low stock' : ''}'),
                     trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                       Text('${formatQuantity(shown)} ${meta?['unit_symbol'] ?? ''}',
                           style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -549,9 +549,8 @@ class _LogWastageViewState extends State<_LogWastageView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Log wastage')),
-      body: _RefLoader(
+    // The Wastage screen already has the header and the tabs, so this is only the form.
+    return _RefLoader(
         require: const ['ingredients'],
         builder: (context, ref) {
           final ingredients = asRows(ref['ingredients']);
@@ -589,7 +588,6 @@ class _LogWastageViewState extends State<_LogWastageView> {
             FilledButton(onPressed: _busy ? null : () => _submit(ref), child: const Text('Log wastage')),
           ]);
         },
-      ),
     );
   }
 }

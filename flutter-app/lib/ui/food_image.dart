@@ -21,11 +21,14 @@ String? foodImageUrl(AppState app, Map item) {
 /// Photo with a branded placeholder. Images are cached on disk, so photos
 /// seen once still show when the device is offline.
 class FoodImage extends StatelessWidget {
-  const FoodImage({super.key, required this.url, this.fit = BoxFit.cover, this.iconSize = 32});
+  const FoodImage({super.key, required this.url, this.fit = BoxFit.cover, this.iconSize = 32, this.icon = Icons.restaurant});
 
   final String? url;
   final BoxFit fit;
   final double iconSize;
+
+  /// Shown when there is no photo or it cannot be loaded.
+  final IconData icon;
 
   Widget _placeholder(BuildContext context) => Container(
         decoration: BoxDecoration(
@@ -37,7 +40,7 @@ class FoodImage extends StatelessWidget {
                 : const [Color(0xFFE6EEF9), Color(0xFFD3E2F6)],
           ),
         ),
-        child: Center(child: Icon(Icons.restaurant, size: iconSize, color: context.brand.withValues(alpha: 0.45))),
+        child: Center(child: Icon(icon, size: iconSize, color: context.brand.withValues(alpha: 0.45))),
       );
 
   @override

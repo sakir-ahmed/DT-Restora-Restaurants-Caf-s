@@ -393,6 +393,7 @@ class AppState extends ChangeNotifier {
     if (result['invoice_changed'] == true && invoice != null) {
       rootMessengerKey.currentState?.showSnackBar(
         SnackBar(
+          persist: false,
           content: Text(
             'An offline invoice was renumbered to $invoice. Reprint the receipt if the customer needs it.',
           ),

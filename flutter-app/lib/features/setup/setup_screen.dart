@@ -109,18 +109,6 @@ class _SetupScreenState extends State<SetupScreen> {
                   field(_name, 'App name', hint: 'e.g. Arman\'s Kitchen'),
                   field(_url, 'Server address (API base URL)',
                       hint: 'https://your-server.com/api/v1', type: TextInputType.url),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: context.brand.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      'Android emulator: http://10.0.2.2:8000/api/v1\nPhone on the same Wi-Fi: http://<computer-ip>:8000/api/v1',
-                      style: TextStyle(fontSize: 12, color: context.muted, height: 1.5),
-                    ),
-                  ),
                 ]),
               ),
             ),

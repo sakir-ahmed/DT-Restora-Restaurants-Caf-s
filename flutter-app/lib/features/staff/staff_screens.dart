@@ -199,10 +199,13 @@ class _StaffScreenState extends State<StaffScreen> {
                   for (final e in asRows(data['employees']))
                     Card(
                       child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: context.pageBg,
-                          backgroundImage: e['photo_url'] == null ? null : NetworkImage(foodImageUrl(app, {'cover_url': e['photo_url']}) ?? ''),
-                          child: e['photo_url'] == null ? Icon(Icons.person, color: context.brand) : null,
+                        leading: SizedBox(
+                          width: 40,
+                          height: 40,
+                          child: ClipOval(
+                            // A photo that is missing or broken falls back to the placeholder icon.
+                            child: FoodImage(url: e['photo_url'] == null ? null : foodImageUrl(app, {'cover_url': e['photo_url']}), iconSize: 20, icon: Icons.person),
+                          ),
                         ),
                         title: Text(localized(app, e)),
                         subtitle: Text('${e['designation']}${e['mobile'] == null ? '' : '  -  ${e['mobile']}'}'),
