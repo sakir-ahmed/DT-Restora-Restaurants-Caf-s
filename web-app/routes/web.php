@@ -224,6 +224,7 @@ Route::prefix('admin')
         Route::delete('media/{media}', [AdminMediaController::class, 'destroy'])->name('media.destroy')->middleware('permission:media.manage');
 
         Route::get('menu', [AdminMenuController::class, 'index'])->name('menu.index')->middleware('permission:menu.view');
+        Route::post('menu/qr-sms', [AdminMenuController::class, 'sendLink'])->name('menu.qr-sms')->middleware(['permission:menu.view', 'throttle:10,1']);
         Route::post('menu/categories', [AdminMenuController::class, 'storeCategory'])->name('menu.categories.store')->middleware('permission:menu.manage');
         Route::put('menu/categories/{category}', [AdminMenuController::class, 'updateCategory'])->name('menu.categories.update')->middleware('permission:menu.manage');
         Route::delete('menu/categories/{category}', [AdminMenuController::class, 'destroyCategory'])->name('menu.categories.destroy')->middleware('permission:menu.manage');
@@ -422,3 +423,7 @@ Route::prefix('admin')
         Route::get('reports', [ReportController::class, 'index'])->name('reports.index')->middleware('permission:reports.view');
         Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export')->middleware('permission:reports.view');
     });
+
+// Public branch menu, the address behind the QR code printed in the hard copy menu book (for example /br01/menu).
+// Kept last so it never shadows a fixed route such as /admin/menu.
+Route::get('/{branchCode}/menu', [PreorderMenuController::class, 'branchMenu'])->where('branchCode', '[A-Za-z0-9]+')->name('web.branch-menu');

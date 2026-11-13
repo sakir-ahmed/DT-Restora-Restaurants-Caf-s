@@ -28,8 +28,20 @@ class PreorderMenuController extends Controller
 {
     public function show(string $branchCode): Response
     {
-        $branch = $this->branch($branchCode);
+        return $this->book($this->branch($branchCode), 'web.preorder');
+    }
 
+    /**
+     * The branch menu at /{branch}/menu. This is the address printed as a QR code in the hard copy
+     * menu book, so it shows the same public menu book and takes orders the same way.
+     */
+    public function branchMenu(string $branchCode): Response
+    {
+        return $this->book($this->branch($branchCode), 'web.branch-menu');
+    }
+
+    private function book(Branch $branch, string $shareRoute): Response
+    {
         $categories = MenuCategory::query()
             ->where('branch_id', $branch->id)
             ->active()
@@ -42,7 +54,7 @@ class PreorderMenuController extends Controller
         return Inertia::render('web/PreorderBook', [
             'branch' => $branch->only(['id', 'name', 'name_bn', 'code', 'address', 'address_bn', 'phone', 'vat_percent', 'vat_inclusive', 'service_charge_percent']),
             'categories' => $categories->toArray(),
-            'shareUrl' => route('web.preorder', ['branchCode' => strtolower($branch->code)]),
+            'shareUrl' => route($shareRoute, ['branchCode' => strtolower($branch->code)]),
             'placed' => session()->pull('preorder_placed'),
         ]);
     }

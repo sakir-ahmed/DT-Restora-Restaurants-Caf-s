@@ -102,7 +102,7 @@ Staff and customer apps send `Authorization: Bearer <token>`. Order and payment 
 
 ## Update
 
-Put the site in maintenance mode, pull the new code, install dependencies, build assets, migrate, and restart the workers (or run `web-app/deploy.sh`, which does all of this):
+Put the site in maintenance mode, pull the new code, install dependencies, build assets, migrate, and restart the workers (or run `web-app/deploy.sh`, which does all of this. It first shows the branch the server is on and the branches it can update from, and asks which one to deploy; `./deploy.sh --list` only shows them, `-b <branch>` or `-y` skips the question):
 
 ```bash
 cd web-app

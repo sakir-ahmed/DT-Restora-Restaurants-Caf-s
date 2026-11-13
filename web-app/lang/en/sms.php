@@ -7,6 +7,7 @@ return [
     'demo_reason' => 'Demo mode: shown on screen, not sent.',
     'otp_hidden' => '[Verification code hidden]',
     'invoice' => 'Thank you for dining at :branch. Invoice :invoice, total Tk :total.',
+    'menu_link' => 'See the :branch menu and order here: :url',
     'due_reminder' => 'Dear :name, Tk :balance is still due on invoice :invoice at :branch. Please pay at your earliest.',
     'groups' => [
         'customer' => 'Messages to customers',
@@ -20,6 +21,7 @@ return [
         'delivery_status' => ['name' => 'Delivery updates', 'desc' => 'Sent when the rider picks up, delivers or fails a delivery.'],
         'reservation_confirmed' => ['name' => 'Table booking confirmation', 'desc' => 'Sent when a table reservation is confirmed.'],
         'preorder_confirmed' => ['name' => 'Pre-order confirmation', 'desc' => 'Sent with the item list and total when a pre-order is placed, if the guest gave a mobile number.'],
+        'menu_link' => ['name' => 'Menu link', 'desc' => 'Sent when staff text the public menu link of a branch to a guest.'],
         'due_reminder' => ['name' => 'Due payment reminder', 'desc' => 'Sent every 7 days to customers who still owe on a due sale, from the day after the sale.'],
         'birthday' => ['name' => 'Birthday offer', 'desc' => 'Sent once a year on the customer\'s birthday.'],
         'win_back' => ['name' => 'Win-back message', 'desc' => 'Sent to customers who have not ordered for 30 days.'],
@@ -86,6 +88,7 @@ return [
         'delivery_failed' => 'Delivery: failed',
         'reservation_confirmed' => 'Table booking confirmation',
         'preorder_confirmed' => 'Pre-order confirmation',
+        'menu_link' => 'Menu link',
         'due_reminder' => 'Due payment reminder',
         'birthday' => 'Birthday offer',
         'win_back' => 'Win-back message',

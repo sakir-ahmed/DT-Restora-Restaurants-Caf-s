@@ -8,6 +8,7 @@ import PageHeader from '@/components/ui-kit/PageHeader.vue';
 import QuantityStepper from '@/components/ui-kit/QuantityStepper.vue';
 import SkeletonRows from '@/components/ui-kit/SkeletonRows.vue';
 import MediaManager from '@/components/admin/MediaManager.vue';
+import MenuQr from '@/components/admin/MenuQr.vue';
 import SlideOver from '@/components/ui-kit/SlideOver.vue';
 import StatusBadge from '@/components/ui-kit/StatusBadge.vue';
 import SwitchField from '@/components/ui-kit/SwitchField.vue';
@@ -18,6 +19,7 @@ import { notify } from '@/lib/notify';
 
 const props = defineProps({
     categories: { type: Array, required: true },
+    menuQr: { type: Object, required: true },
     canManage: { type: Boolean, default: false },
     canViewMedia: { type: Boolean, default: false },
     canManageMedia: { type: Boolean, default: false },
@@ -26,6 +28,7 @@ const props = defineProps({
 const confirm = useConfirm();
 
 const loading = ref(false);
+const qrOpen = ref(false);
 const search = ref('');
 const activeCategory = ref(null);
 
@@ -209,6 +212,14 @@ function reload() {
         <PageHeader :title="t('menu.title')" :description="t('menu.subtitle')">
             <template #actions>
                 <button
+                    type="button"
+                    class="inline-flex h-7 items-center gap-1.5 rounded-md border border-primary/50 bg-primary/5 px-2.5 text-[13px] font-medium text-foreground hover:bg-primary/10"
+                    @click="qrOpen = true"
+                >
+                    <AppIcon name="qrcode" size="12" />
+                    {{ t('menu.qr_button') }}
+                </button>
+                <button
                     v-if="canManage"
                     type="button"
                     class="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 text-[13px] font-medium text-foreground hover:bg-background"
@@ -331,6 +342,10 @@ function reload() {
         </div>
 
         <!-- Category dialog -->
+        <SlideOver :open="qrOpen" :title="t('menu.qr_title')" @close="qrOpen = false">
+            <MenuQr :menu-qr="menuQr" />
+        </SlideOver>
+
         <SlideOver :open="categoryOpen" :title="editingCategoryId === null ? t('menu.add_category') : t('menu.edit_category')" @close="categoryOpen = false">
             <form novalidate class="space-y-3" @submit.prevent="saveCategory">
                 <FormField :label="t('menu.category_name')" required :error="categoryForm.errors.name">

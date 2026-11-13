@@ -26,6 +26,7 @@ final class SmsFeatures
         'delivery_status' => ['group' => 'customer', 'default' => true, 'locked' => false],
         'reservation_confirmed' => ['group' => 'customer', 'default' => true, 'locked' => false],
         'preorder_confirmed' => ['group' => 'customer', 'default' => true, 'locked' => false],
+        'menu_link' => ['group' => 'customer', 'default' => true, 'locked' => false],
         'due_reminder' => ['group' => 'customer', 'default' => false, 'locked' => false],
         'birthday' => ['group' => 'customer', 'default' => true, 'locked' => false],
         'win_back' => ['group' => 'customer', 'default' => true, 'locked' => false],

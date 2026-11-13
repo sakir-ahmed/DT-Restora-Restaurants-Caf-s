@@ -7,14 +7,17 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\MenuCategoryRequest;
 use App\Http\Requests\Admin\MenuItemRequest;
+use App\Jobs\SendSmsJob;
 use App\Models\Branch;
 use App\Models\DataVersion;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
+use App\Services\Sms\SmsTemplates;
 use App\Support\DeletionGuard;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -39,10 +42,57 @@ class MenuController extends Controller
 
         return Inertia::render('admin/menu/Index', [
             'categories' => $categories,
+            'menuQr' => [
+                'name' => $branch->name,
+                'name_bn' => $branch->name_bn,
+                'code' => $branch->code,
+                'phone' => $branch->phone,
+                'address' => $branch->address,
+                'address_bn' => $branch->address_bn,
+                'city' => $branch->city,
+                'city_bn' => $branch->city_bn,
+                'url' => $this->publicUrl($branch),
+                'sms_text' => $this->smsText($branch),
+            ],
             'canManage' => $request->user('staff')?->can('menu.manage'),
             'canViewMedia' => (bool) $request->user('staff')?->can('media.view'),
             'canManageMedia' => (bool) $request->user('staff')?->can('media.manage'),
         ]);
+    }
+
+    /**
+     * Text the public menu link of the current branch to a guest.
+     */
+    public function sendLink(Request $request): RedirectResponse
+    {
+        $this->authorize('menu.view');
+
+        $branch = $this->currentBranch($request);
+        $mobile = normalize_bd_mobile((string) $request->validate(['mobile' => ['required', 'string', 'max:20']])['mobile']);
+
+        if (! preg_match('/^8801\d{9}$/', $mobile)) {
+            throw ValidationException::withMessages(['mobile' => __('menu.qr_sms_invalid')]);
+        }
+
+        SendSmsJob::deliver($mobile, $this->smsText($branch), 'menu_link', $request->user('staff')?->id);
+
+        return back()->with('success', __('menu.qr_sms_sent'));
+    }
+
+    /**
+     * The exact text a guest receives, shown read-only beside the send button.
+     */
+    private function smsText(Branch $branch): string
+    {
+        return SmsTemplates::render('menu_link', [
+            'branch' => $branch->name,
+            'url' => $this->publicUrl($branch),
+        ]);
+    }
+
+    private function publicUrl(Branch $branch): string
+    {
+        return route('web.branch-menu', ['branchCode' => strtolower($branch->code)]);
     }
 
     public function storeCategory(MenuCategoryRequest $request): RedirectResponse

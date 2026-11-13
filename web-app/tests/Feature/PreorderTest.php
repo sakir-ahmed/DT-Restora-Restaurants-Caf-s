@@ -224,3 +224,36 @@ it('sends the waiting pre-orders with their date and time to the dashboard list'
         ->where('waitingPreorders.0.planned', true)
         ->where('waitingPreorders.0.items', 2));
 });
+
+it('serves the public branch menu at the short branch address used by the printed QR code', function (): void {
+    $this->get('/br01/menu')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('web/PreorderBook')
+            ->where('shareUrl', url('/br01/menu'))
+            ->where('branch.code', 'BR01'));
+
+    $this->get('/BR01/menu')->assertOk();
+    $this->get('/nope/menu')->assertNotFound();
+});
+
+it('gives the menu page the public menu link and texts it to a guest', function (): void {
+    Queue::fake();
+
+    $this->actingAs($this->manager, 'staff')
+        ->get(route('admin.menu.index'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('menuQr.url', url('/br01/menu')));
+
+    $this->actingAs($this->manager, 'staff')
+        ->post(route('admin.menu.qr-sms'), ['mobile' => '01712345678'])
+        ->assertRedirect();
+
+    Queue::assertPushed(SendSmsJob::class, fn (SendSmsJob $job): bool => $job->mobile === '8801712345678'
+        && str_contains($job->message, url('/br01/menu'))
+        && $job->feature === 'menu_link');
+
+    $this->actingAs($this->manager, 'staff')
+        ->post(route('admin.menu.qr-sms'), ['mobile' => '12345'])
+        ->assertSessionHasErrors('mobile');
+});

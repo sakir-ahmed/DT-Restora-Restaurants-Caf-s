@@ -5,16 +5,22 @@
 # Follows "Updating the server later" in docs/production/deployment.md:
 # maintenance mode, pull, install, build, migrate, cache, restart workers, bring the site back up.
 #
+# It starts by showing the branch this server is on now and the branches on the remote that it can
+# update from (newest first, with how many new commits each one has). On a terminal it then asks
+# which one to deploy; press Enter to take the default.
+#
 # Usage:
-#   ./deploy.sh                       deploy the branch set in DEPLOY_BRANCH, else production/armanskitchen
-#   ./deploy.sh -b main               deploy another branch
+#   ./deploy.sh                       list the branches, ask which one (Enter = DEPLOY_BRANCH, else production/armanskitchen)
+#   ./deploy.sh -b main               deploy that branch, no question
+#   ./deploy.sh --list                only show the current and available branches, then stop
 #   ./deploy.sh --skip-build          skip npm ci and the asset build (no frontend change)
 #   ./deploy.sh --dry-run             print every step without running anything
-#   ./deploy.sh -y                    do not ask for confirmation
+#   ./deploy.sh -y                    do not ask anything: deploy the default (or -b) branch
 #
 # Optional environment:
 #   DEPLOY_BRANCH      branch to deploy (default production/armanskitchen)
 #   DEPLOY_REMOTE      git remote (default origin)
+#   DEPLOY_BRANCH_LIMIT  how many remote branches to list (default 15)
 #   DEPLOY_RELOAD_CMD  command that reloads PHP-FPM, for example "sudo systemctl reload php8.5-fpm"
 #
 # If a step fails the site is brought back up when nothing risky has run yet. Once migrations
@@ -24,17 +30,21 @@ set -Eeuo pipefail
 
 BRANCH="${DEPLOY_BRANCH:-production/armanskitchen}"
 REMOTE="${DEPLOY_REMOTE:-origin}"
+BRANCH_LIMIT="${DEPLOY_BRANCH_LIMIT:-15}"
+BRANCH_GIVEN=false
+LIST_ONLY=false
 SKIP_BUILD=false
 DRY_RUN=false
 ASSUME_YES=false
 
 usage() {
-    sed -n '3,22p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '3,/^set -E/p' "$0" | sed '$d' | sed 's/^# \{0,1\}//'
 }
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
-        -b|--branch) BRANCH="${2:?--branch needs a name}"; shift 2 ;;
+        -b|--branch) BRANCH="${2:?--branch needs a name}"; BRANCH_GIVEN=true; shift 2 ;;
+        --list) LIST_ONLY=true; shift ;;
         --skip-build) SKIP_BUILD=true; shift ;;
         --dry-run) DRY_RUN=true; shift ;;
         -y|--yes) ASSUME_YES=true; shift ;;
@@ -93,6 +103,102 @@ on_exit() {
     fi
 }
 trap on_exit EXIT
+
+# ---------------------------------------------------------------- branches
+
+# Show where this server is now and which remote branches it can update from, then (on a terminal,
+# when no -b was given) ask which one to deploy. Fetching branch names changes nothing on disk
+# except the remote-tracking refs, so it is also done on a dry run.
+show_branches() {
+    local current commit when subject count i choice name hash age line ahead behind note marker
+    local -a names=() hashes=() ages=() notes=()
+
+    step "Branches"
+
+    current=$(git rev-parse --abbrev-ref HEAD)
+    commit=$(git rev-parse --short HEAD)
+    when=$(git log -1 --format='%cr' HEAD)
+    subject=$(git log -1 --format='%s' HEAD)
+
+    if [ "$current" = "HEAD" ]; then
+        printf '  Current branch:  %s(detached HEAD)%s  %s, %s\n' "$YELLOW" "$RESET" "$commit" "$when"
+    else
+        printf '  Current branch:  %s%s%s  %s, %s\n' "$BOLD" "$current" "$RESET" "$commit" "$when"
+    fi
+    printf '                   %s\n' "$subject"
+
+    if ! git fetch --prune --quiet "$REMOTE" 2>/dev/null; then
+        warn "  Could not reach $REMOTE, so the list below may be out of date."
+    fi
+
+    while IFS='|' read -r name hash age; do
+        [ -n "$name" ] || continue
+        name="${name#"$REMOTE"/}"
+        # origin/HEAD shows up as just "origin" in short form.
+        [ "$name" = "HEAD" ] || [ "$name" = "$REMOTE" ] && continue
+
+        behind=$(git rev-list --count "HEAD..$REMOTE/$name" 2>/dev/null || echo 0)
+        ahead=$(git rev-list --count "$REMOTE/$name..HEAD" 2>/dev/null || echo 0)
+
+        if [ "$behind" -eq 0 ] && [ "$ahead" -eq 0 ]; then
+            note="same code as now"
+        elif [ "$ahead" -eq 0 ]; then
+            note="$behind new commit(s) to deploy"
+        elif [ "$behind" -eq 0 ]; then
+            note="$ahead commit(s) behind what is running now"
+        else
+            note="diverged: $behind new, $ahead not in it"
+        fi
+
+        names+=("$name"); hashes+=("$hash"); ages+=("$age"); notes+=("$note")
+    done < <(git for-each-ref --sort=-committerdate --count="$((BRANCH_LIMIT + 1))" --format='%(refname:short)|%(objectname:short)|%(committerdate:relative)' "refs/remotes/$REMOTE" 2>/dev/null)
+
+    printf '\n  Available on %s (newest first, up to %s).  > running now   * default\n' "$REMOTE" "$BRANCH_LIMIT"
+
+    if [ "${#names[@]}" -eq 0 ]; then
+        warn "  No remote branches found."
+    else
+        for i in "${!names[@]}"; do
+            [ "$i" -ge "$BRANCH_LIMIT" ] && break
+            marker=' '
+            [ "${names[$i]}" = "$BRANCH" ] && marker='*'
+            [ "${names[$i]}" = "$current" ] && marker='>'
+            printf '   %2d) %s %-34s %s  %-15s %s\n' "$((i + 1))" "$marker" "${names[$i]}" "${hashes[$i]}" "${ages[$i]}" "${notes[$i]}"
+        done
+    fi
+
+    if [ "$LIST_ONLY" = true ]; then
+        trap - EXIT
+        exit 0
+    fi
+
+    if [ "$BRANCH_GIVEN" = true ] || [ "$ASSUME_YES" = true ] || [ ! -t 0 ]; then
+        printf '\n  Deploying:       %s\n' "$BRANCH"
+        return
+    fi
+
+    printf '\n'
+    read -r -p "Deploy which branch? Number or name [Enter = $BRANCH]: " choice
+
+    if [ -z "$choice" ]; then
+        return
+    fi
+
+    if [[ "$choice" =~ ^[0-9]+$ ]]; then
+        if [ "$choice" -lt 1 ] || [ "$choice" -gt "${#names[@]}" ] || [ "$choice" -gt "$BRANCH_LIMIT" ]; then
+            fail "No branch number $choice in the list."
+        fi
+
+        BRANCH="${names[$((choice - 1))]}"
+    else
+        BRANCH="$choice"
+    fi
+}
+
+command -v git >/dev/null 2>&1 || fail "git is not installed or not on PATH."
+git rev-parse --is-inside-work-tree >/dev/null 2>&1 || fail "This folder is not a git checkout."
+
+show_branches
 
 # ---------------------------------------------------------------- preflight
 
