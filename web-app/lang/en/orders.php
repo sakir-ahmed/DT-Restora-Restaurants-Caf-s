@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 return [
     'subtitle' => 'POS and open orders.',
+    'preorder_only_item' => ':item is available by pre-order only.',
     'created' => 'Order :invoice created.',
     'paid' => 'Payment complete. Change: :change',
     'paid_success' => 'Payment completed.',

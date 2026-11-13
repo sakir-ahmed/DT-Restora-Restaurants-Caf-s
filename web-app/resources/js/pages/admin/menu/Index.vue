@@ -52,7 +52,7 @@ const filteredCategories = computed(() => {
 // Category dialog
 const categoryOpen = ref(false);
 const editingCategoryId = ref(null);
-const categoryForm = useForm({ name: '', name_bn: '', sort_order: 0, is_active: true });
+const categoryForm = useForm({ name: '', name_bn: '', sort_order: 0, is_active: true, is_preorder_only: false });
 
 function openCategory(category = null) {
     editingCategoryId.value = category?.id ?? null;
@@ -61,6 +61,7 @@ function openCategory(category = null) {
         name_bn: category?.name_bn ?? '',
         sort_order: category?.sort_order ?? 0,
         is_active: category?.is_active ?? true,
+        is_preorder_only: category?.is_preorder_only ?? false,
     }).reset();
     categoryOpen.value = true;
 }
@@ -367,6 +368,8 @@ function reload() {
                 </FormField>
 
                 <SwitchField v-model="categoryForm.is_active" :label="t('branches.is_active')" />
+                <SwitchField v-model="categoryForm.is_preorder_only" :label="t('menu.is_preorder_only')" />
+                <p class="text-xs text-muted">{{ t('menu.is_preorder_only_helper') }}</p>
             </form>
 
             <template #footer>

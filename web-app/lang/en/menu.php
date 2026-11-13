@@ -10,6 +10,8 @@ return [
     'add_category' => 'Add category',
     'edit_category' => 'Edit category',
     'category_name' => 'Category name',
+    'is_preorder_only' => 'Pre-order only',
+    'is_preorder_only_helper' => 'Dishes here are taken as pre-orders only: they show in the menu book after the Saudi Arabian introduction page, and are hidden from the POS, website and table menu.',
     'category_created' => 'Category created.',
     'category_updated' => 'Category updated.',
     'category_deleted' => 'Category deleted.',

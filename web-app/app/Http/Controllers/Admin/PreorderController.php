@@ -11,6 +11,7 @@ use App\Models\Preorder;
 use App\Models\RestaurantTable;
 use App\Services\PosSettings;
 use App\Services\PreorderService;
+use App\Support\MenuBookContact;
 use App\Support\PreorderInput;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -59,6 +60,7 @@ class PreorderController extends Controller
         return Inertia::render('admin/preorders/Index', [
             'branch' => $branch->only(['id', 'name', 'name_bn', 'code', 'address', 'phone', 'vat_percent', 'vat_inclusive', 'service_charge_percent']),
             'categories' => $categories->toArray(),
+            'contact' => MenuBookContact::for($branch),
             'tables' => RestaurantTable::query()
                 ->where('branch_id', $branch->id)
                 ->where('is_active', true)

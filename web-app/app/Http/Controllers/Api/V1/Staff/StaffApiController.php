@@ -72,6 +72,7 @@ class StaffApiController extends Controller
         $branchModel = $this->branchOrFail($request, $branch);
 
         $categories = MenuCategory::query()
+            ->regular()
             ->where('branch_id', $branchModel->id)
             ->active()
             ->ordered()

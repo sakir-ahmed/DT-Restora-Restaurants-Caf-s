@@ -2,6 +2,7 @@
 import { router } from '@inertiajs/vue3';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
+import SocialIcon from '@/components/site/SocialIcon.vue';
 import LanguageSwitch from '@/components/ui-kit/LanguageSwitch.vue';
 import { formatDateTime, formatMoney } from '@/lib/format';
 import { t } from '@/lib/i18n';
@@ -18,6 +19,8 @@ import { localized, photoSrc } from '@/lib/site';
 const props = defineProps({
     branch: { type: Object, required: true },
     categories: { type: Array, required: true },
+    // How to reach the restaurant, for the closing page.
+    contact: { type: Object, default: () => ({}) },
     // Staff can attach a table; the public link cannot.
     tables: { type: Array, default: () => [] },
     // Staff can note an advance payment; a guest on the public link cannot.
@@ -76,18 +79,51 @@ function updateMode() {
 
 // ---- pages: a chapter is a category, split so each page holds a handful of dishes ----
 
+// The regular menu, then the Saudi Arabian introduction page (always) followed by the Saudi dishes, then the closing page.
+const chapters = computed(() => {
+    const regular = props.categories.filter((category) => ! category.is_preorder_only);
+    const saudi = props.categories.filter((category) => category.is_preorder_only);
+
+    return [
+        ...regular.map((category) => ({ key: `c${category.id}`, kind: 'menu', category, label: localized(category, 'name') })),
+        { key: 'saudi', kind: 'saudi', label: t('preorders.saudi_tab') },
+        ...saudi.map((category) => ({ key: `c${category.id}`, kind: 'menu', category, label: localized(category, 'name') })),
+        { key: 'closing', kind: 'closing', label: t('preorders.closing_tab') },
+    ];
+});
+
 const pages = computed(() => {
     const result = [];
 
-    props.categories.forEach((category, chapter) => {
-        const items = category.items ?? [];
+    chapters.value.forEach((entry, chapter) => {
+        if (entry.kind !== 'menu') {
+            result.push({ chapter, kind: entry.kind, first: true });
+
+            return;
+        }
+
+        const items = entry.category.items ?? [];
 
         for (let start = 0; start < items.length; start += perPage.value) {
-            result.push({ chapter, category, first: start === 0, items: items.slice(start, start + perPage.value) });
+            result.push({ chapter, kind: 'menu', category: entry.category, first: start === 0, items: items.slice(start, start + perPage.value) });
         }
     });
 
     return result;
+});
+
+// Contact lines on the closing page; a line with nothing to show is left out.
+const contactLines = computed(() => {
+    const c = props.contact ?? {};
+    const phone = [c.phone, c.whatsapp].filter(Boolean);
+
+    return [
+        { key: 'name', icon: 'location-dot', text: [localized(props.branch, 'name'), localized(props.branch, 'address')].filter(Boolean).join(', ') },
+        { key: 'phone', icon: 'phone', text: phone.length ? `${phone.join(' / ')}${c.whatsapp ? ' (WhatsApp)' : ''}` : '' },
+        { key: 'facebook', network: 'facebook', text: c.facebook ?? '', href: c.facebook },
+        { key: 'youtube', network: 'youtube', text: c.youtube ?? '', href: c.youtube },
+        { key: 'website', icon: 'globe', text: c.website ?? '', href: c.website },
+    ].filter((line) => line.text);
 });
 
 const visiblePages = computed(() => pages.value.slice(pageIndex.value, pageIndex.value + spread.value));
@@ -632,27 +668,56 @@ onBeforeUnmount(() => {
             <main class="pb-stage pb-stage-book" @touchstart.passive="onTouchStart" @touchend.passive="onTouchEnd">
                 <nav class="pb-tabs" :aria-label="t('preorders.chapters')">
                     <button
-                        v-for="(category, chapter) in categories"
-                        :key="category.id"
+                        v-for="(entry, chapter) in chapters"
+                        :key="entry.key"
                         type="button"
                         data-chapter-tab
                         class="pb-tab"
                         :aria-selected="currentChapter === chapter"
                         @click="goToChapter(chapter)"
                     >
-                        {{ localized(category, 'name') }}
+                        {{ entry.label }}
                     </button>
                 </nav>
 
                 <div class="pb-book">
                     <div :key="`${mode}-${pageIndex}-${direction}`" class="pb-spread" :class="`pb-turn-${direction}`">
                         <article v-for="(page, index) in visiblePages" :key="`${page.chapter}-${pageIndex + index}`" class="pb-page-sheet" :class="index === 0 ? 'pb-left' : 'pb-right'">
-                            <header class="pb-page-head">
+                            <!-- Introduction to the Saudi Arabian dishes -->
+                            <div v-if="page.kind === 'saudi'" class="pb-feature">
+                                <span class="pb-emblem pb-emblem-dark"><AppIcon name="utensils" size="22" /></span>
+                                <h2 class="pb-feature-title">{{ t('preorders.saudi_title') }}</h2>
+                                <div class="pb-rule pb-rule-gold" />
+                                <p class="pb-feature-tag">{{ t('preorders.saudi_tagline') }}</p>
+                                <p class="pb-feature-body">{{ t('preorders.saudi_body') }}</p>
+                                <p class="pb-feature-note"><strong>{{ t('preorders.saudi_note_label') }}</strong> {{ t('preorders.saudi_note') }}</p>
+                            </div>
+
+                            <!-- Closing page -->
+                            <div v-else-if="page.kind === 'closing'" class="pb-feature">
+                                <span class="pb-emblem pb-emblem-dark"><AppIcon name="heart" size="22" /></span>
+                                <h2 class="pb-feature-title">{{ t('preorders.closing_title') }}</h2>
+                                <div class="pb-rule pb-rule-gold" />
+                                <p class="pb-feature-body">{{ t('preorders.closing_thanks') }}</p>
+                                <h3 class="pb-feature-sub">{{ t('preorders.catering_title') }}</h3>
+                                <p class="pb-feature-body">{{ t('preorders.catering_body') }}</p>
+                                <h3 class="pb-feature-sub">{{ t('preorders.contact_title') }}</h3>
+                                <ul class="pb-contact">
+                                    <li v-for="line in contactLines" :key="line.key">
+                                        <SocialIcon v-if="line.network" :network="line.network" size="14" />
+                                        <AppIcon v-else :name="line.icon" size="13" />
+                                        <a v-if="line.href" :href="line.href" target="_blank" rel="noopener">{{ line.text }}</a>
+                                        <span v-else>{{ line.text }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <header v-if="page.kind === 'menu'" class="pb-page-head">
                                 <h2 class="pb-chapter" :class="page.first ? '' : 'pb-chapter-cont'">{{ localized(page.category, 'name') }}</h2>
                                 <div class="pb-rule pb-rule-dark" />
                             </header>
 
-                            <ul class="pb-list">
+                            <ul v-if="page.kind === 'menu'" class="pb-list">
                                 <li v-for="item in page.items" :key="item.id">
                                     <div class="pb-item" role="button" tabindex="0" @click="openItem(item)" @keydown.enter.self="openItem(item)" @keydown.space.self.prevent="openItem(item)">
                                         <span class="pb-thumb">
@@ -855,9 +920,9 @@ onBeforeUnmount(() => {
                         <button type="button" class="pb-x" :aria-label="t('preorders.close')" @click="contentsOpen = false"><AppIcon name="xmark" size="14" /></button>
                     </header>
                     <ol class="pb-contents">
-                        <li v-for="(category, chapter) in categories" :key="category.id">
+                        <li v-for="(entry, chapter) in chapters" :key="entry.key">
                             <button type="button" class="pb-contents-row" :class="currentChapter === chapter ? 'pb-contents-current' : ''" @click="goToChapter(chapter)">
-                                <span class="pb-contents-name">{{ localized(category, 'name') }}</span>
+                                <span class="pb-contents-name">{{ entry.label }}</span>
                                 <span class="pb-leader" aria-hidden="true" />
                                 <span class="pb-contents-page">{{ pages.findIndex((page) => page.chapter === chapter) + 1 }}</span>
                             </button>
@@ -1046,6 +1111,20 @@ onBeforeUnmount(() => {
 .pb-cover-title { margin-top: 0.6rem; font-size: 1.9rem; line-height: 1.15; color: #f4ead2; overflow-wrap: anywhere; }
 .pb-tablet .pb-cover-title, .pb-desktop .pb-cover-title, .pb-wide .pb-cover-title { font-size: 2.4rem; }
 .pb-rule { width: 4.5rem; height: 2px; margin: 1.1rem auto; background: var(--gold-light); }
+.pb-emblem-dark { border-color: var(--gold); color: var(--gold); }
+.pb-kicker-dark { color: var(--gold); }
+.pb-rule-gold { background: var(--gold); }
+.pb-feature { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0.5rem 0.25rem 0; gap: 0.2rem; }
+.pb-feature-title { margin: 0.4rem 0 0; font-size: 1.55rem; line-height: 1.25; color: var(--ink); font-weight: 700; }
+.pb-tablet .pb-feature-title, .pb-desktop .pb-feature-title, .pb-wide .pb-feature-title { font-size: 1.85rem; }
+.pb-feature-tag { margin: 0.2rem 0 0.6rem; font-size: 1.05rem; font-style: italic; color: var(--gold); }
+.pb-feature-body { margin: 0.35rem 0 0; max-width: 30rem; font-size: 0.98rem; line-height: 1.75; color: var(--ink); }
+.pb-feature-note { margin: 1rem 0 0; max-width: 30rem; padding: 0.7rem 0.9rem; border: 1px solid var(--gold); border-radius: 0.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--ink); background: rgba(184, 137, 47, 0.1); }
+.pb-feature-sub { margin: 1.1rem 0 0; font-size: 1.1rem; font-weight: 700; color: var(--gold); }
+.pb-contact { margin: 0.5rem 0 0; padding: 0; list-style: none; display: grid; gap: 0.45rem; text-align: left; max-width: 100%; }
+.pb-contact li { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.92rem; line-height: 1.45; color: var(--ink); overflow-wrap: anywhere; }
+.pb-contact li > :first-child { margin-top: 0.2rem; color: var(--gold); flex-shrink: 0; }
+.pb-contact a { color: inherit; text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 3px; }
 .pb-rule-dark { width: 100%; height: 1px; margin: 0.45rem 0 0; background: linear-gradient(90deg, var(--gold), transparent); }
 .pb-menu-word { margin: 0; font-size: 1.35rem; font-style: italic; color: #f4ead2; }
 .pb-cover-line { max-width: 20rem; margin: 0.9rem 0 0; font-size: 0.9rem; line-height: 1.55; color: #d9c9a3; }

@@ -10,6 +10,7 @@ use App\Models\Branch;
 use App\Models\MenuCategory;
 use App\Models\Preorder;
 use App\Services\PreorderService;
+use App\Support\MenuBookContact;
 use App\Support\PreorderInput;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -54,6 +55,7 @@ class PreorderMenuController extends Controller
         return Inertia::render('web/PreorderBook', [
             'branch' => $branch->only(['id', 'name', 'name_bn', 'code', 'address', 'address_bn', 'phone', 'vat_percent', 'vat_inclusive', 'service_charge_percent']),
             'categories' => $categories->toArray(),
+            'contact' => MenuBookContact::for($branch),
             'shareUrl' => route($shareRoute, ['branchCode' => strtolower($branch->code)]),
             'placed' => session()->pull('preorder_placed'),
         ]);

@@ -9,6 +9,7 @@ const props = defineProps({
     categories: { type: Array, required: true },
     shareUrl: { type: String, required: true },
     placed: { type: Object, default: null },
+    contact: { type: Object, default: () => ({}) },
 });
 </script>
 
@@ -23,6 +24,7 @@ const props = defineProps({
     <MenuBook
         :branch="props.branch"
         :categories="props.categories"
+        :contact="props.contact"
         :share-url="props.shareUrl"
         :post-url="route('web.preorder.store', { branchCode: props.branch.code.toLowerCase() })"
         :placed="props.placed"

@@ -114,6 +114,7 @@ class CustomerApiController extends Controller
             : Branch::query()->where('code', $branch)->firstOrFail();
 
         $categories = MenuCategory::query()
+            ->regular()
             ->where('branch_id', $branchModel->id)
             ->active()
             ->ordered()

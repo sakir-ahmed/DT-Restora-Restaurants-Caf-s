@@ -12,6 +12,7 @@ import { localized } from '@/lib/site';
 const props = defineProps({
     branch: { type: Object, required: true },
     categories: { type: Array, required: true },
+    contact: { type: Object, default: () => ({}) },
     tables: { type: Array, default: () => [] },
     preorders: { type: Array, default: () => [] },
     shareUrl: { type: String, required: true },
@@ -95,6 +96,7 @@ export default { layout: AdminLayout };
             embedded
             :branch="branch"
             :categories="categories"
+            :contact="contact"
             :tables="tables"
             allow-advance
             :share-url="shareUrl"

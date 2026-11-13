@@ -44,6 +44,7 @@ class PosController extends Controller
         $user = $request->user('staff');
 
         $categories = MenuCategory::query()
+            ->regular()
             ->where('branch_id', $branch->id)
             ->active()
             ->ordered()

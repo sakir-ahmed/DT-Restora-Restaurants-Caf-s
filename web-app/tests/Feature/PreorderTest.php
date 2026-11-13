@@ -10,6 +10,7 @@ use App\Models\Preorder;
 use App\Models\Reservation;
 use App\Models\RestaurantTable;
 use App\Models\User;
+use Database\Seeders\ArmansKitchenQasrAlMandiSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Queue;
 
@@ -256,4 +257,50 @@ it('gives the menu page the public menu link and texts it to a guest', function 
     $this->actingAs($this->manager, 'staff')
         ->post(route('admin.menu.qr-sms'), ['mobile' => '12345'])
         ->assertSessionHasErrors('mobile');
+});
+
+it('gives the menu book the Saudi flag of each category and the contact lines for the closing page', function (): void {
+    $saudi = MenuCategory::factory()->create(['branch_id' => $this->branch->id, 'is_preorder_only' => true]);
+    MenuItem::factory()->create(['branch_id' => $this->branch->id, 'menu_category_id' => $saudi->id, 'is_available' => true]);
+
+    $this->get(route('web.preorder', ['branchCode' => 'br01']))->assertInertia(fn ($page) => $page
+        ->has('categories', 2)
+        ->where('categories', fn ($categories) => collect($categories)->contains(fn ($row) => $row['id'] === $saudi->id && $row['is_preorder_only'] === true))
+        ->has('contact.website'));
+
+    $this->actingAs($this->manager, 'staff')
+        ->put(route('admin.menu.categories.update', $saudi), ['name' => 'Saudi', 'is_preorder_only' => false, 'is_active' => true, 'sort_order' => 0]);
+
+    expect($saudi->fresh()->is_preorder_only)->toBeFalse();
+});
+
+it('loads the Qasr Al Mandi pre-order menu and keeps it out of ordinary ordering', function (): void {
+    $this->seed(ArmansKitchenQasrAlMandiSeeder::class);
+    $this->seed(ArmansKitchenQasrAlMandiSeeder::class);
+
+    $category = MenuCategory::query()->withoutGlobalScopes()->where('name', 'Qasr Al Mandi')->firstOrFail();
+    $kabsa = MenuItem::query()->withoutGlobalScopes()->where('name', 'Kabsa')->firstOrFail();
+
+    expect($category->is_preorder_only)->toBeTrue()
+        ->and(MenuCategory::query()->withoutGlobalScopes()->where('name', 'Qasr Al Mandi')->count())->toBe(1)
+        ->and($category->items()->count())->toBe(7)
+        ->and($kabsa->variants()->orderBy('sort_order')->pluck('price', 'name')->map(fn ($price) => (int) $price)->all())->toBe(['1:2' => 900, '1:4' => 1700]);
+
+    // The menu book shows it; the POS does not.
+    $this->get(route('web.preorder', ['branchCode' => 'br01']))->assertInertia(fn ($page) => $page
+        ->where('categories', fn ($rows) => collect($rows)->contains(fn ($row) => $row['name'] === 'Qasr Al Mandi')));
+
+    $this->actingAs($this->manager, 'staff')->get(route('admin.pos.index'))->assertInertia(fn ($page) => $page
+        ->where('categories', fn ($rows) => ! collect($rows)->contains(fn ($row) => $row['name'] === 'Qasr Al Mandi')));
+
+    // An ordinary order cannot hold a pre-order-only dish.
+    $this->actingAs($this->manager, 'staff')
+        ->post(route('admin.orders.store'), ['order_type' => 'takeaway', 'items' => [['menu_item_id' => $kabsa->id, 'variant_id' => $kabsa->variants()->first()->id, 'quantity' => 1]]])
+        ->assertSessionHasErrors('items');
+
+    // A pre-order takes it.
+    $this->post(route('web.preorder.store', ['branchCode' => 'br01']), ['items' => [['menu_item_id' => $kabsa->id, 'variant_id' => $kabsa->variants()->first()->id, 'quantity' => 1]]])
+        ->assertSessionHasNoErrors();
+
+    expect(Preorder::query()->firstOrFail()->total)->toBe('900.00');
 });

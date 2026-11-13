@@ -45,6 +45,7 @@ class MenuController extends Controller
             ->firstOrFail();
 
         $categories = MenuCategory::query()
+            ->regular()
             ->where('branch_id', $branch->id)
             ->active()
             ->ordered()

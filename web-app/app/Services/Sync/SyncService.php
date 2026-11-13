@@ -588,6 +588,7 @@ class SyncService
                 'tax_registration_no' => Setting::current()->tax_registration_no,
             ],
             'categories' => MenuCategory::query()
+                ->regular()
                 ->where('branch_id', $branch->id)
                 ->active()
                 ->ordered()

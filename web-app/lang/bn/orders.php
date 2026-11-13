@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 return [
     'subtitle' => 'পিওএস ও চলমান অর্ডার।',
+    'preorder_only_item' => ':item শুধুমাত্র প্রি-অর্ডারে পাওয়া যায়।',
     'created' => 'অর্ডার :invoice তৈরি হয়েছে।',
     'paid' => 'পরিশোধ সম্পন্ন। ফেরত: :change',
     'paid_success' => 'পরিশোধ সম্পন্ন হয়েছে।',

@@ -66,6 +66,7 @@ class HomeController extends Controller
             ->values();
 
         $categories = MenuCategory::query()
+            ->regular()
             ->active()
             ->whereIn('branch_id', $branches->pluck('id'))
             ->orderBy('name')
