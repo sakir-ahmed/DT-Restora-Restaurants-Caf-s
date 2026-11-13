@@ -10,7 +10,7 @@
 # which one to deploy; press Enter to take the default.
 #
 # Usage:
-#   ./deploy.sh                       list the branches, ask which one (Enter = DEPLOY_BRANCH, else production/armanskitchen)
+#   ./deploy.sh                       list the branches, ask which one (Enter = DEPLOY_BRANCH, else the branch now checked out)
 #   ./deploy.sh -b main               deploy that branch, no question
 #   ./deploy.sh --list                only show the current and available branches, then stop
 #   ./deploy.sh --skip-build          skip npm ci and the asset build (no frontend change)
@@ -18,7 +18,7 @@
 #   ./deploy.sh -y                    do not ask anything: deploy the default (or -b) branch
 #
 # Optional environment:
-#   DEPLOY_BRANCH      branch to deploy (default production/armanskitchen)
+#   DEPLOY_BRANCH      branch to deploy (default: the branch now checked out)
 #   DEPLOY_REMOTE      git remote (default origin)
 #   DEPLOY_BRANCH_LIMIT  how many remote branches to list (default 15)
 #   DEPLOY_RELOAD_CMD  command that reloads PHP-FPM, for example "sudo systemctl reload php8.5-fpm"
@@ -28,7 +28,10 @@
 
 set -Eeuo pipefail
 
-BRANCH="${DEPLOY_BRANCH:-production/armanskitchen}"
+# Default to the branch this server is already on, so Enter never switches a server to another client.
+CURRENT_DEFAULT=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
+[ "$CURRENT_DEFAULT" = "HEAD" ] && CURRENT_DEFAULT=""
+BRANCH="${DEPLOY_BRANCH:-${CURRENT_DEFAULT:-main}}"
 REMOTE="${DEPLOY_REMOTE:-origin}"
 BRANCH_LIMIT="${DEPLOY_BRANCH_LIMIT:-15}"
 BRANCH_GIVEN=false
