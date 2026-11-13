@@ -36,7 +36,7 @@ export SMS_DEMO="false"
 
 npx vite build
 rm -f "$db"
-php artisan migrate:fresh --force --seeder=E2ePosSeeder --no-interaction
+php artisan migrate:fresh --force --seeder="Database\\Seeders\\Production\\DtRestora\\E2ePosSeeder" --no-interaction
 php artisan serve --host=127.0.0.1 --port=8099 &
 child=$!
 wait "$child"

@@ -91,7 +91,7 @@ docker compose exec app npm run dev
 
 The service names above (`app`) follow the Docker Compose file created in Phase 0 of the roadmap. Adjust them if yours differ.
 
-Open the app at `http://localhost`. The admin panel is at `/admin`. The seeder creates the root administrator (username `admin`) with a random strong password and prints it once at the end of `php artisan migrate:fresh --seed`. If it is lost, run `php artisan admin:reset-password`. With `IS_DEMO=false` the seeder loads the production data (`ProductionDataSeeder`: the real outlet, menu and gallery, on a fresh install only). With `IS_DEMO=true` it loads the demo data (sample branches, menu, staff and orders) instead.
+Open the app at `http://localhost`. The admin panel is at `/admin`. The seeder creates the root administrator (username `admin`) with a random strong password and prints it once at the end of `php artisan migrate:fresh --seed`. If it is lost, run `php artisan admin:reset-password`. With `IS_DEMO=false` the seeder asks which company the install is for: DT Restora (Demo) or a customer folder in `database/seeders/production/` (its outlet, menu, gallery and brand, on a fresh install only). With `IS_DEMO=true` it loads the DT Restora demo data (sample branches, menu, staff and orders).
 
 
 ### Docker

@@ -8,9 +8,10 @@ declare(strict_types=1);
 |--------------------------------------------------------------------------
 |
 | The repository ships the DT Restora brand. A customer install (IS_DEMO=false)
-| sets its own name and colours here through .env, so nothing customer-specific
-| lives in git. Leave a value empty to keep the DT Restora default. Colours must
-| be hex values such as #1f180e. IS_DEMO=true always shows the DT Restora brand.
+| keeps its brand (name, Bangla name, mark shape, colours) in the settings table,
+| saved by the customer's seeder and cached. The BRAND_* values below are only a
+| fallback for installs that were set up through .env before; a value saved in
+| the settings table always wins. IS_DEMO=true always shows the DT Restora brand.
 |
 | Logo files, wording and seed data live in the git-ignored customer/ folder and
 | public/images/customer (see customer/README.md).
@@ -18,6 +19,12 @@ declare(strict_types=1);
 */
 
 return [
+    // Answers the DatabaseSeeder "which company" question without a terminal: demo, a company slug or skip.
+    'seed_profile' => env('SEED_PROFILE'),
+
+    // Where the company seeders live (default database/seeders/production). phpunit.xml points it at an empty folder.
+    'production_path' => env('BRAND_PRODUCTION_PATH'),
+
     // Where the customer files live. phpunit.xml points them at empty folders so tests never read a real customer.
     'customer_path' => env('BRAND_CUSTOMER_PATH'),
     'customer_images' => env('BRAND_CUSTOMER_IMAGES'),

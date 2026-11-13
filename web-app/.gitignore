@@ -33,8 +33,7 @@ Thumbs.db
 /test-results
 /playwright-report
 
-# Customer-specific content (brand files, wording, seed data, tests). Never committed.
-# See customer/README.md.
-/customer/*
-!/customer/README.md
+# Runtime copies of the selected company's files, written by its seeder
+# (database/seeders/production). Never committed.
+/customer
 /public/images/customer

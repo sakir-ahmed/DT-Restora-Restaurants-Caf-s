@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Support\Brand;
 use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
@@ -30,6 +31,7 @@ class Setting extends Model
         'sms_config',
         'sms_features',
         'sms_templates',
+        'brand',
     ];
 
     protected $casts = [
@@ -47,7 +49,15 @@ class Setting extends Model
         'sms_config' => 'encrypted:array',
         'sms_features' => 'array',
         'sms_templates' => 'array',
+        'brand' => 'array',
     ];
+
+    protected static function booted(): void
+    {
+        // The brand is cached for every request; any change to the row refreshes it.
+        static::saved(fn () => Brand::forgetCache());
+        static::deleted(fn () => Brand::forgetCache());
+    }
 
     /**
      * Whether list pages keep deleted records visible (marked as deleted) or hide them.

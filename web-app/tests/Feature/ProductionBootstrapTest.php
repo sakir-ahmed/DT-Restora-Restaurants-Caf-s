@@ -11,13 +11,12 @@ use Database\Seeders\RoleSeeder;
 use Database\Seeders\RootAdminSeeder;
 use Illuminate\Support\Facades\Hash;
 
-it('seeds bootstrap data and a random admin password, and invents no restaurant when no customer data exists', function (): void {
+it('seeds bootstrap data and a random admin password, and invents no restaurant when no company is chosen', function (): void {
     config(['app.is_demo' => false]);
 
     $this->artisan('db:seed', ['--class' => DatabaseSeeder::class])
         ->expectsOutputToContain('Root administrator created')
-        ->expectsOutputToContain('No customer data found')
-        ->expectsChoice('What now?', 'skip', ['skip' => 'Skip, set everything up later in the admin panel', 'setup' => 'Set up the first branch now'])
+        ->expectsChoice('Which company is this install for?', 'skip', ['demo' => 'DT Restora (Demo)', 'skip' => 'Skip, set everything up later in the admin panel'])
         ->assertSuccessful();
 
     $admin = User::query()->where('username', 'admin')->firstOrFail();
@@ -30,20 +29,6 @@ it('seeds bootstrap data and a random admin password, and invents no restaurant 
         ->and(User::query()->count())->toBe(1);
 });
 
-it('sets up the first branch on request when no customer data exists', function (): void {
-    config(['app.is_demo' => false]);
-
-    $this->artisan('db:seed', ['--class' => DatabaseSeeder::class])
-        ->expectsChoice('What now?', 'setup', ['skip' => 'Skip, set everything up later in the admin panel', 'setup' => 'Set up the first branch now'])
-        ->expectsQuestion('Branch name', 'Hills Table')
-        ->expectsQuestion('Branch code (used on invoices)', 'ht01')
-        ->expectsQuestion('Phone (optional)', '01700000000')
-        ->expectsQuestion('Address (optional)', 'Road 1')
-        ->expectsQuestion('City', 'Sylhet')
-        ->assertSuccessful();
-
-    expect(Branch::query()->where('code', 'HT01')->value('name'))->toBe('Hills Table');
-});
 it('seeds the sample branches only in demo mode', function (): void {
     config(['app.is_demo' => true]);
 

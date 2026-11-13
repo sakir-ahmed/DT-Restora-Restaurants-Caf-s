@@ -103,7 +103,7 @@ Everything is indexed in [`docs/README.md`](docs/README.md). Start with:
 ## Branches and deployment
 
 - `main`: integration branch. It carries only the DT Restora brand; no customer content lives in git.
-- `production/*`: one branch per live customer server, deployed with `web-app/deploy.sh` (see the deployment guide). A customer's name and colours are set in that server's `.env`; their logo, wording and seed data sit in the git-ignored `web-app/customer/` folder (see `web-app/customer/README.md`).
+- `production/*`: one branch per live customer server, deployed with `web-app/deploy.sh` (see the deployment guide). Each customer has a first-setup seeder in `web-app/database/seeders/production/` that holds its brand, branch, menu and files (see the README there). The seeding prompt asks which company the install is for; the brand is stored in the settings table.
 - `production/demo`: the public demo site (`IS_DEMO=true`).
 
 CI runs per app. A change that only touches `flutter-app/` does not run the web app pipeline, and the other way round.

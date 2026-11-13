@@ -9,7 +9,7 @@ use App\Models\MenuItem;
 use App\Models\Order;
 use App\Models\User;
 use Database\Seeders\ChartOfAccountsSeeder;
-use Database\Seeders\DemoAggregatorSeeder;
+use Database\Seeders\Production\DtRestora\AggregatorSeeder;
 use Database\Seeders\RoleSeeder;
 
 beforeEach(function (): void {
@@ -27,14 +27,14 @@ beforeEach(function (): void {
 });
 
 it('seeds platform channels with live orders for the kitchen', function (): void {
-    $this->seed(DemoAggregatorSeeder::class);
+    $this->seed(AggregatorSeeder::class);
 
     expect(Order::query()->where('channel', OrderChannel::Aggregator->value)->count())->toBeGreaterThan(5);
     expect(Order::query()->whereHas('aggregatorChannel', fn ($q) => $q->where('key', 'foodpanda'))->exists())->toBeTrue();
 });
 
 it('lists only new website and platform orders after the given id', function (): void {
-    $this->seed(DemoAggregatorSeeder::class);
+    $this->seed(AggregatorSeeder::class);
 
     $start = $this->actingAs($this->owner, 'staff')->getJson(route('admin.orders.incoming'))->assertOk()->json();
     expect($start['orders'])->toBe([])->and($start['last_id'])->toBeGreaterThan(0);

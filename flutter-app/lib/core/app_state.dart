@@ -20,7 +20,7 @@ class Cached<T> {
   final Map<String, dynamic>? meta;
 }
 
-/// Demo accounts seeded by DemoStaffSeeder (shared password).
+/// Demo accounts seeded by the DT Restora demo StaffSeeder (shared password).
 class DemoAccount {
   const DemoAccount(this.username, this.role, this.hint);
 

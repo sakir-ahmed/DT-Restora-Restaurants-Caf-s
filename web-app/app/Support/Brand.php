@@ -4,31 +4,37 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+use App\Models\Setting;
+use Illuminate\Support\Facades\Cache;
+use Throwable;
+
 /**
  * The look of the site. The repository ships the DT Restora brand and nothing
  * else: its own name, Datatech blue palette, logo and neutral wording.
  *
  * - IS_DEMO=true: always the DT Restora brand.
- * - IS_DEMO=false: a customer install. The name and colours come from .env
- *   (config/brand.php) and the logo files, wording and seed data come from
- *   git-ignored folders that belong to that one customer. Anything the customer
+ * - IS_DEMO=false: a customer install. Its company seeder in
+ *   database/seeders/production saves the brand (name, colours) in the settings
+ *   table, cached, and installs the logo set and wording. Anything the company
  *   did not provide falls back to the DT Restora default, so a fresh install
- *   always looks complete.
+ *   always looks complete. BRAND_* values in .env are only an old fallback.
  *
- * Files:
+ * Runtime files (written by the company seeder, git-ignored):
  * - public/images/default/brand: the DT Restora logo set (tracked)
- * - public/images/customer/brand: the customer logo set (git-ignored)
- * - customer/lang/{locale}: customer wording on top of lang/{locale} (git-ignored)
+ * - public/images/customer/brand: the company logo set
+ * - customer/lang/{locale}: company wording on top of lang/{locale}
  *
- * The customer logo set uses the same file names as the default set, plus the
+ * The company logo set uses the same file names as the default set, plus the
  * optional logo-wordmark.png, apple-touch-icon.png, favicon.png. See
- * customer/README.md.
+ * database/seeders/production/README.md.
  */
 final class Brand
 {
     public const DEMO = 'demo';
 
     public const CUSTOMER = 'customer';
+
+    private const CACHE_KEY = 'brand.settings';
 
     public const DEFAULT_NAME = 'DT Restora';
 
@@ -55,12 +61,12 @@ final class Brand
      */
     public static function hasCustomName(): bool
     {
-        return ! self::isDemo() && self::configured('brand.name') !== null && self::configured('brand.name') !== self::DEFAULT_NAME;
+        return ! self::isDemo() && self::configured('name') !== null && self::configured('name') !== self::DEFAULT_NAME;
     }
 
     public static function name(): string
     {
-        return self::isDemo() ? self::DEFAULT_NAME : (self::configured('brand.name') ?? self::DEFAULT_NAME);
+        return self::isDemo() ? self::DEFAULT_NAME : (self::configured('name') ?? self::DEFAULT_NAME);
     }
 
     /**
@@ -73,7 +79,7 @@ final class Brand
             return self::DEFAULT_NAME_BN;
         }
 
-        return self::configured('brand.name_bn') ?? (self::hasCustomName() ? self::name() : self::DEFAULT_NAME_BN);
+        return self::configured('name_bn') ?? (self::hasCustomName() ? self::name() : self::DEFAULT_NAME_BN);
     }
 
     /**
@@ -112,12 +118,12 @@ final class Brand
 
     public static function themeColor(): string
     {
-        return self::hexOrNull(self::isDemo() ? null : config('brand.theme_color')) ?? self::DEFAULT_THEME_COLOR;
+        return self::hexOrNull(self::isDemo() ? null : self::configured('theme_color')) ?? self::DEFAULT_THEME_COLOR;
     }
 
     public static function backgroundColor(): string
     {
-        return self::hexOrNull(self::isDemo() ? null : config('brand.background_color')) ?? self::DEFAULT_BACKGROUND_COLOR;
+        return self::hexOrNull(self::isDemo() ? null : self::configured('background_color')) ?? self::DEFAULT_BACKGROUND_COLOR;
     }
 
     /**
@@ -125,7 +131,7 @@ final class Brand
      */
     public static function darkAccentColor(): string
     {
-        return self::hexOrNull(self::isDemo() ? null : config('brand.dark.primary')) ?? '#38a8ff';
+        return self::hexOrNull(self::isDemo() ? null : (self::tokens('dark')['primary'] ?? null)) ?? '#38a8ff';
     }
 
     /**
@@ -144,7 +150,7 @@ final class Brand
         foreach (['light' => 'html:root', 'dark' => 'html.dark:root'] as $scheme => $selector) {
             $rules = [];
 
-            foreach ((array) config('brand.'.$scheme, []) as $token => $value) {
+            foreach (self::tokens($scheme) as $token => $value) {
                 $hex = self::hexOrNull($value);
 
                 if ($hex !== null) {
@@ -161,7 +167,7 @@ final class Brand
     }
 
     /**
-     * A path inside the customer folder (git-ignored, see customer/README.md).
+     * A path inside the customer runtime folder (git-ignored, written by the company seeder).
      */
     public static function customerPath(string $relative = ''): string
     {
@@ -185,11 +191,66 @@ final class Brand
         return is_string($value) && preg_match('/^#[0-9a-fA-F]{3,8}$/', $value) === 1 ? $value : null;
     }
 
+    /**
+     * The brand saved in the settings table (see Setting::$brand), cached for all
+     * requests. Empty when nothing is saved or the table is not migrated yet.
+     *
+     * @return array<string, mixed>
+     */
+    public static function settings(): array
+    {
+        try {
+            return Cache::rememberForever(self::CACHE_KEY, fn (): array => (array) (Setting::query()->value('brand') ?? []));
+        } catch (Throwable) {
+            return [];
+        }
+    }
+
+    /**
+     * Drop the cached brand. Setting does this on every save.
+     */
+    public static function forgetCache(): void
+    {
+        Cache::forget(self::CACHE_KEY);
+    }
+
+    /**
+     * Save the brand of this install in the settings table (null clears it back
+     * to the DT Restora default). The cache is refreshed by the model.
+     *
+     * @param  array<string, mixed>|null  $brand
+     */
+    public static function save(?array $brand): void
+    {
+        Setting::current()->update(['brand' => $brand]);
+    }
+
+    /**
+     * A text value: the settings table first, then the legacy BRAND_* .env value.
+     */
     private static function configured(string $key): ?string
     {
-        $value = config($key);
+        foreach ([self::settings()[$key] ?? null, config('brand.'.$key)] as $value) {
+            if (is_string($value) && trim($value) !== '') {
+                return trim($value);
+            }
+        }
 
-        return is_string($value) && trim($value) !== '' ? trim($value) : null;
+        return null;
+    }
+
+    /**
+     * The colour tokens of one scheme: the legacy .env values with the settings
+     * table on top.
+     *
+     * @return array<string, mixed>
+     */
+    private static function tokens(string $scheme): array
+    {
+        return array_filter(
+            array_merge((array) config('brand.'.$scheme, []), (array) (self::settings()[$scheme] ?? [])),
+            fn (mixed $value): bool => is_string($value) && trim($value) !== '',
+        );
     }
 
     /**
@@ -202,11 +263,11 @@ final class Brand
     }
 
     /**
-     * Whether this install has the customer's own seed data (customer/seed).
+     * Whether this install has at least one customer company folder (database/seeders/production).
      */
     public static function hasCustomerSeed(): bool
     {
-        return is_file(self::customerPath('seed/CustomerDataSeeder.php'));
+        return ProductionCompanies::customers() !== [];
     }
 
     /**
@@ -326,7 +387,7 @@ final class Brand
     public static function shared(): array
     {
         $wordmark = ! self::isDemo() && is_file(self::customerImagePath('brand/logo-wordmark.png'));
-        $shape = self::configured('brand.mark_shape');
+        $shape = self::configured('mark_shape');
 
         return [
             'mode' => self::mode(),
@@ -345,15 +406,15 @@ final class Brand
      */
     public static function status(): array
     {
-        $colours = array_filter(array_merge((array) config('brand.light', []), (array) config('brand.dark', [])), fn (mixed $value): bool => self::hexOrNull($value) !== null);
+        $colours = array_filter(array_merge(self::tokens('light'), self::tokens('dark')), fn (mixed $value): bool => self::hexOrNull($value) !== null);
 
         return [
-            ['item' => 'Name', 'ready' => self::hasCustomName(), 'hint' => 'Set BRAND_NAME (and BRAND_NAME_BN) in .env.'],
-            ['item' => 'Colours', 'ready' => $colours !== [], 'hint' => 'Set BRAND_PRIMARY, BRAND_ACCENT and the other BRAND_* values in .env.'],
-            ['item' => 'Logo and icons', 'ready' => is_file(self::customerImagePath('brand/logo-512.png')), 'hint' => 'Put the logo set in public/images/customer/brand (see customer/README.md).'],
-            ['item' => 'Social preview image', 'ready' => is_file(self::customerImagePath('og-default.png')), 'hint' => 'Put public/images/customer/og-default.png (1200x630).'],
-            ['item' => 'Wording', 'ready' => is_dir(self::languageOverridePath()), 'hint' => 'Add customer/lang/en and customer/lang/bn for the website text.'],
-            ['item' => 'Restaurant data', 'ready' => self::hasCustomerSeed(), 'hint' => 'Add customer/seed/CustomerDataSeeder.php for the branch, menu and gallery.'],
+            ['item' => 'Name', 'ready' => self::hasCustomName(), 'hint' => 'Save the brand name in the settings table (a company seeder or Brand::save()).'],
+            ['item' => 'Colours', 'ready' => $colours !== [], 'hint' => 'Save the brand colours in the settings table (a company seeder or Brand::save()).'],
+            ['item' => 'Logo and icons', 'ready' => is_file(self::customerImagePath('brand/logo-512.png')), 'hint' => 'Add a brand folder to the company seeder (see database/seeders/production/README.md).'],
+            ['item' => 'Social preview image', 'ready' => is_file(self::customerImagePath('og-default.png')), 'hint' => 'Add og-default.png (1200x630) to the company folder.'],
+            ['item' => 'Wording', 'ready' => is_dir(self::languageOverridePath()), 'hint' => 'Add a lang folder to the company folder for the website text.'],
+            ['item' => 'Restaurant data', 'ready' => self::hasCustomerSeed(), 'hint' => 'Add a company folder in database/seeders/production (see its README.md).'],
         ];
     }
 

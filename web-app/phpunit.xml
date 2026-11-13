@@ -21,6 +21,7 @@
         <ini name="memory_limit" value="512M"/>
         <env name="APP_ENV" value="testing"/>
         <env name="IS_DEMO" value="false"/>
+        <env name="BRAND_PRODUCTION_PATH" value="storage/framework/testing/no-production"/>
         <env name="BRAND_CUSTOMER_PATH" value="storage/framework/testing/no-customer"/>
         <env name="BRAND_CUSTOMER_IMAGES" value="storage/framework/testing/no-customer-images"/>
         <env name="BRAND_NAME" value=""/>

@@ -258,7 +258,7 @@ Uses UI-kit components only; loading, empty, error and no-permission states; cor
 - Per-feature SMS switches (`SmsFeatures`: otp locked on, order_confirmed, invoice, delivery_status, reservation_confirmed, due_reminder, birthday, win_back, promotion, owner_daily_summary), with a demo mode that shows each SMS as a toast instead of sending (`SMS_DEMO`, ignored in production).
 - Provider pattern: a registry entry (name, fields, driver) plus a driver class; the settings form is generated from the declared fields. The same registry idea is used for payment gateways and delivery aggregators.
 - Environment switches: `IS_DEMO` (banner, daily reset, seeded sample data, demo guide), `BRAND_*` colours, Turnstile and FCM keys, map tile provider, Reverb keys. `.env` is never committed.
-- Demo mode: seeds branches, staff, menu, customers, inventory, sales, operations and aggregator channels; shows a demo banner and a floating demo guide; rebuilds the database daily; production installs seed the real restaurant instead (`ProductionDataSeeder`, only on a fresh install).
+- Demo mode: seeds branches, staff, menu, customers, inventory, sales, operations and aggregator channels; shows a demo banner and a floating demo guide; rebuilds the database daily; production installs ask which company to seed (a folder in `database/seeders/production`, only on a fresh install).
 
 ---
 

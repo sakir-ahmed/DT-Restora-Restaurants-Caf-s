@@ -10,7 +10,7 @@ it('ships the DT Restora brand files and demo source photos', function (): void 
     expect(public_path('images/default/brand/favicon.ico'))->toBeFile()
         ->and(public_path('images/default/brand/logo-512.png'))->toBeFile()
         ->and(public_path('images/default/og-default.png'))->toBeFile()
-        ->and(base_path('database/seeders/assets/demo'))->toBeDirectory();
+        ->and(base_path('database/seeders/production/DtRestora/assets'))->toBeDirectory();
 });
 
 it('seeds the demo branches when IS_DEMO is true', function (): void {

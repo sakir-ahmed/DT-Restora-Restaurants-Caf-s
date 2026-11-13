@@ -22,12 +22,12 @@ afterEach(function (): void {
 });
 
 it('takes the name and colours of a customer install from .env', function (): void {
-    config([
-        'brand.name' => 'Hills Table',
-        'brand.name_bn' => 'হিলস টেবিল',
-        'brand.theme_color' => '#112233',
-        'brand.light.primary' => '#445566',
-        'brand.dark.primary' => '#778899',
+    Brand::save([
+        'name' => 'Hills Table',
+        'name_bn' => 'হিলস টেবিল',
+        'theme_color' => '#112233',
+        'light' => ['primary' => '#445566'],
+        'dark' => ['primary' => '#778899'],
     ]);
 
     expect(Brand::name())->toBe('Hills Table')
@@ -41,19 +41,20 @@ it('takes the name and colours of a customer install from .env', function (): vo
 });
 
 it('shows the English name when a customer has no Bangla name', function (): void {
-    config(['brand.name' => 'Hills Table', 'brand.name_bn' => null]);
+    Brand::save(['name' => 'Hills Table']);
 
     expect(Brand::nameBn())->toBe('Hills Table');
 });
 
 it('ignores bad colour values so no CSS can be injected', function (): void {
-    config(['brand.light.primary' => 'red;}body{display:none', 'brand.light.accent' => '#abc']);
+    Brand::save(['light' => ['primary' => 'red;}body{display:none', 'accent' => '#abc']]);
 
     expect(Brand::paletteCss())->toBe('html:root{--color-accent:#abc}');
 });
 
 it('never applies customer brand values in demo mode', function (): void {
-    config(['app.is_demo' => true, 'brand.name' => 'Hills Table', 'brand.light.primary' => '#445566']);
+    Brand::save(['name' => 'Hills Table', 'light' => ['primary' => '#445566']]);
+    config(['app.is_demo' => true]);
 
     expect(Brand::name())->toBe('DT Restora')
         ->and(Brand::paletteCss())->toBe('')
@@ -80,7 +81,7 @@ it('uses a customer logo set and falls back per file to the DT Restora files', f
 it('reports what a customer install still takes from the defaults', function (): void {
     $this->artisan('brand:status')->expectsOutputToContain('DT Restora default')->assertSuccessful();
 
-    config(['brand.name' => 'Hills Table']);
+    Brand::save(['name' => 'Hills Table']);
 
     $ready = collect(Brand::status())->firstWhere('item', 'Name');
 
