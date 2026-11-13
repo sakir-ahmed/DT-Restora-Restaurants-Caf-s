@@ -74,16 +74,16 @@
     --font-sans: 'Inter', 'Noto Sans Bengali', ui-sans-serif, system-ui, sans-serif;
     --font-display: 'Poppins', 'Noto Sans Bengali', ui-sans-serif, system-ui, sans-serif;
 
-    /* Arman's Kitchen brand: warm cream, espresso black and logo gold. */
-    --color-background: #faf7f1; /* Cream */
+    /* DT Restora brand: Datatech blue on cloud white. Customers override these from .env. */
+    --color-background: #f5f7fa; /* Cloud */
     --color-surface: #ffffff;
-    --color-foreground: #17120b; /* Espresso */
-    --color-muted: #5c5446; /* Warm grey */
-    --color-border: #e6dfd0;
+    --color-foreground: #0a1428; /* Midnight Navy */
+    --color-muted: #4a5568; /* Slate */
+    --color-border: #dfe6f0;
 
-    --color-primary: #1f180e; /* Espresso black */
-    --color-primary-foreground: #f6e7bd; /* Pale gold */
-    --color-accent: #8f6a1a; /* Logo gold, deep enough for white text */
+    --color-primary: #0b63ce; /* Datatech Blue */
+    --color-primary-foreground: #ffffff;
+    --color-accent: #1c6fe0; /* Sky Blue */
     --color-accent-foreground: #ffffff;
     --color-success: oklch(0.596 0.145 163); /* emerald-600 */
     --color-success-foreground: oklch(0.98 0.003 248);
@@ -93,30 +93,6 @@
 }
 
 .dark {
-    --color-background: #0e0b07; /* Night */
-    --color-surface: #17120b;
-    --color-foreground: #f6efe0;
-    --color-muted: #c2b79f; /* Soft sand */
-    --color-border: #34291a;
-    --color-primary: #d9b25c; /* Logo gold */
-    --color-primary-foreground: #17120b;
-    --color-accent: #d9b25c;
-    --color-accent-foreground: #17120b;
-}
-
-/* Demo brand (DT Restora, Datatech blue). The production palette above is the default. */
-html[data-brand='demo']:not(.dark) {
-    --color-background: #f5f7fa; /* Cloud */
-    --color-foreground: #0a1428; /* Midnight Navy */
-    --color-muted: #4a5568; /* Slate */
-    --color-border: #dfe6f0;
-    --color-primary: #0b63ce; /* Datatech Blue */
-    --color-primary-foreground: #ffffff;
-    --color-accent: #1c6fe0; /* Sky Blue */
-    --color-accent-foreground: #ffffff;
-}
-
-html[data-brand='demo'].dark {
     --color-background: #0a1428;
     --color-surface: #101d36;
     --color-foreground: #f5f7fa;

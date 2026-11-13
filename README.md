@@ -102,9 +102,9 @@ Everything is indexed in [`docs/README.md`](docs/README.md). Start with:
 
 ## Branches and deployment
 
-- `main`: integration branch.
-- `production/armanskitchen`: the live Arman's Kitchen site. Deploy it with `web-app/deploy.sh` on the server (see the deployment guide).
-- `production/demo`: the public demo site.
+- `main`: integration branch. It carries only the DT Restora brand; no customer content lives in git.
+- `production/*`: one branch per live customer server, deployed with `web-app/deploy.sh` (see the deployment guide). A customer's name and colours are set in that server's `.env`; their logo, wording and seed data sit in the git-ignored `web-app/customer/` folder (see `web-app/customer/README.md`).
+- `production/demo`: the public demo site (`IS_DEMO=true`).
 
 CI runs per app. A change that only touches `flutter-app/` does not run the web app pipeline, and the other way round.
 

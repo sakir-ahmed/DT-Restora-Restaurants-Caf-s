@@ -12,7 +12,7 @@ const page = usePage();
 const isBrowser = typeof window !== 'undefined';
 
 const seo = computed(() => page.props.seo ?? null);
-const brand = computed(() => page.props.appName ?? "Arman's Kitchen");
+const brand = computed(() => page.props.appName ?? 'DT Restora');
 const fullTitle = computed(() => (seo.value ? pageTitle(seo.value.title, page) : brand.value));
 const robots = computed(() => (seo.value && ! seo.value.noindex ? 'index,follow,max-image-preview:large' : 'noindex,nofollow'));
 </script>

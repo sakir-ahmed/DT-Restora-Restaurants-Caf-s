@@ -1,9 +1,10 @@
 <?php
 
 declare(strict_types=1);
+use App\Support\Brand;
 
 return [
-    'login_title' => 'Sign in to Arman\'s Kitchen',
+    'login_title' => 'Sign in to '.Brand::name(),
     'login_hint' => 'Use your username, email or mobile number.',
     'brand_line' => 'The floor, the kitchen and the books, in one sign-in.',
     'brand_pos' => 'Point of sale and orders',
@@ -27,7 +28,7 @@ return [
     'logout_success' => 'Signed out.',
     'failed' => 'These credentials do not match our records.',
     'throttle' => 'Too many login attempts. Try again in :seconds seconds.',
-    'otp_sms' => 'Your Arman\'s Kitchen verification code is :code. It expires in 5 minutes.',
+    'otp_sms' => 'Your '.Brand::name().' verification code is :code. It expires in 5 minutes.',
     'validation' => [
         'login_required' => 'Enter your username, email or mobile number.',
         'password_required' => 'Enter your password.',

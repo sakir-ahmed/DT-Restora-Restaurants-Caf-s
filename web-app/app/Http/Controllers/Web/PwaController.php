@@ -52,7 +52,7 @@ class PwaController extends Controller
                 'themeColor' => Brand::themeColor(),
                 'backgroundColor' => $background,
                 'textColor' => $isDark ? '#f4efe6' : '#1b2430',
-                'accentColor' => $isDark ? '#d6a84f' : Brand::themeColor(),
+                'accentColor' => $isDark ? Brand::darkAccentColor() : Brand::themeColor(),
                 'accentTextColor' => $isDark ? '#17120b' : '#ffffff',
                 'languages' => ['en', 'bn'],
             ])

@@ -11,10 +11,10 @@ beforeEach(function (): void {
 
 it('prints no palette override until colours are set in the environment', function (): void {
     expect(Brand::paletteCss())->toBe('')
-        ->and(Brand::themeColor())->toBe('#17120b');
+        ->and(Brand::themeColor())->toBe('#0b63ce');
 });
 
-it('overrides the production palette from config for light and dark mode', function (): void {
+it('overrides the default palette from config for light and dark mode', function (): void {
     config([
         'brand.light.primary' => '#123456',
         'brand.light.accent-foreground' => '#fff',

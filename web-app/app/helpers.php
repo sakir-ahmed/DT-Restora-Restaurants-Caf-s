@@ -64,10 +64,10 @@ if (! function_exists('flat_translations')) {
 
         $files = glob($path.'/*.php') ?: [];
 
-        // Demo wording replaces the production text group by group (see App\Support\Brand).
+        // Customer wording replaces the neutral text group by group (see App\Support\Brand).
         $overrides = [];
 
-        if (Brand::isDemo()) {
+        if (! Brand::isDemo()) {
             foreach (glob(Brand::languageOverridePath().'/'.$locale.'/*.php') ?: [] as $file) {
                 $overrides[basename($file, '.php')] = $file;
             }

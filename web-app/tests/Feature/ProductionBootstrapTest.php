@@ -11,23 +11,39 @@ use Database\Seeders\RoleSeeder;
 use Database\Seeders\RootAdminSeeder;
 use Illuminate\Support\Facades\Hash;
 
-it("seeds bootstrap data, the Arman's Kitchen outlet and a random admin password when demo mode is off", function (): void {
+it('seeds bootstrap data and a random admin password, and invents no restaurant when no customer data exists', function (): void {
     config(['app.is_demo' => false]);
 
     $this->artisan('db:seed', ['--class' => DatabaseSeeder::class])
         ->expectsOutputToContain('Root administrator created')
+        ->expectsOutputToContain('No customer data found')
+        ->expectsChoice('What now?', 'skip', ['skip' => 'Skip, set everything up later in the admin panel', 'setup' => 'Set up the first branch now'])
         ->assertSuccessful();
 
     $admin = User::query()->where('username', 'admin')->firstOrFail();
 
     expect($admin->hasRole('super-admin'))->toBeTrue()
         ->and($admin->branch_id)->toBeNull()
-        ->and(Branch::query()->pluck('code')->all())->toBe(['AK01'])
-        ->and(MenuItem::query()->withoutGlobalScopes()->count())->toBe(55)
+        ->and(Branch::query()->count())->toBe(0)
+        ->and(MenuItem::query()->withoutGlobalScopes()->count())->toBe(0)
         ->and(Setting::query()->count())->toBe(1)
         ->and(User::query()->count())->toBe(1);
 });
 
+it('sets up the first branch on request when no customer data exists', function (): void {
+    config(['app.is_demo' => false]);
+
+    $this->artisan('db:seed', ['--class' => DatabaseSeeder::class])
+        ->expectsChoice('What now?', 'setup', ['skip' => 'Skip, set everything up later in the admin panel', 'setup' => 'Set up the first branch now'])
+        ->expectsQuestion('Branch name', 'Hills Table')
+        ->expectsQuestion('Branch code (used on invoices)', 'ht01')
+        ->expectsQuestion('Phone (optional)', '01700000000')
+        ->expectsQuestion('Address (optional)', 'Road 1')
+        ->expectsQuestion('City', 'Sylhet')
+        ->assertSuccessful();
+
+    expect(Branch::query()->where('code', 'HT01')->value('name'))->toBe('Hills Table');
+});
 it('seeds the sample branches only in demo mode', function (): void {
     config(['app.is_demo' => true]);
 
@@ -80,15 +96,4 @@ it('lets the fresh production admin open the back office before any branch exist
 
         expect($status)->toBeLessThan(500, "{$path} returned {$status}");
     }
-});
-
-it('does not overwrite menu edits when the seeder runs again', function (): void {
-    config(['app.is_demo' => false]);
-    $this->seed(DatabaseSeeder::class);
-
-    MenuItem::query()->withoutGlobalScopes()->where('name', 'Student Burger')->update(['base_price' => 99]);
-
-    $this->seed(DatabaseSeeder::class);
-
-    expect((int) MenuItem::query()->withoutGlobalScopes()->where('name', 'Student Burger')->value('base_price'))->toBe(99);
 });

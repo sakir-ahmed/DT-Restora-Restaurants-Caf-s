@@ -21,6 +21,31 @@
         <ini name="memory_limit" value="512M"/>
         <env name="APP_ENV" value="testing"/>
         <env name="IS_DEMO" value="false"/>
+        <env name="BRAND_CUSTOMER_PATH" value="storage/framework/testing/no-customer"/>
+        <env name="BRAND_CUSTOMER_IMAGES" value="storage/framework/testing/no-customer-images"/>
+        <env name="BRAND_NAME" value=""/>
+        <env name="BRAND_NAME_BN" value=""/>
+        <env name="BRAND_MARK_SHAPE" value=""/>
+        <env name="BRAND_THEME_COLOR" value=""/>
+        <env name="BRAND_BACKGROUND_COLOR" value=""/>
+        <env name="BRAND_BACKGROUND" value=""/>
+        <env name="BRAND_SURFACE" value=""/>
+        <env name="BRAND_FOREGROUND" value=""/>
+        <env name="BRAND_MUTED" value=""/>
+        <env name="BRAND_BORDER" value=""/>
+        <env name="BRAND_PRIMARY" value=""/>
+        <env name="BRAND_PRIMARY_FOREGROUND" value=""/>
+        <env name="BRAND_ACCENT" value=""/>
+        <env name="BRAND_ACCENT_FOREGROUND" value=""/>
+        <env name="BRAND_DARK_BACKGROUND" value=""/>
+        <env name="BRAND_DARK_SURFACE" value=""/>
+        <env name="BRAND_DARK_FOREGROUND" value=""/>
+        <env name="BRAND_DARK_MUTED" value=""/>
+        <env name="BRAND_DARK_BORDER" value=""/>
+        <env name="BRAND_DARK_PRIMARY" value=""/>
+        <env name="BRAND_DARK_PRIMARY_FOREGROUND" value=""/>
+        <env name="BRAND_DARK_ACCENT" value=""/>
+        <env name="BRAND_DARK_ACCENT_FOREGROUND" value=""/>
         <env name="SMS_DEMO" value="false"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>

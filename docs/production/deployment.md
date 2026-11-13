@@ -1,4 +1,4 @@
-# Arman's Kitchen deployment (branch production/armanskitchen)
+# Customer deployment (one production branch per customer)
 
 A fresh server can be deployed from this guide. The Laravel app lives in `web-app/` of the repository, so run every command below from that folder. The Flutter app (`flutter-app/`) is not deployed to the server. The application is Laravel with Inertia, a database, a queue worker, a scheduler, and Reverb for live kitchen and rider updates.
 
@@ -14,7 +14,7 @@ A fresh server can be deployed from this guide. The Laravel app lives in `web-ap
 1. Copy the repository onto the server and point the web root at `web-app/public/`.
 2. Copy `.env.example` to `.env`. Set `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL`, and the database credentials.
 3. Set `APP_KEY` with `php artisan key:generate`.
-4. Keep `IS_DEMO=false`. On a fresh database the seeder creates the bootstrap data (roles, chart of accounts, units, payment methods, default settings), the root administrator, and Arman's Kitchen: the outlet, the full printed menu with photos, the Qasr Al Mandi pre-order range and the website gallery.
+4. Keep `IS_DEMO=false`. On a fresh database the seeder creates the bootstrap data (roles, chart of accounts, units, payment methods, default settings), the root administrator, and the customer's own restaurant data when `web-app/customer/seed/CustomerDataSeeder.php` exists (outlet, menu, photos, gallery). Without it the seeder warns and offers to create a first branch or skip. The customer's name and colours come from `BRAND_*` in `.env`, and their logo and wording from the git-ignored `customer/` folder and `public/images/customer`; see `web-app/customer/README.md`. `php artisan brand:status` shows what still uses the DT Restora default.
 5. Install dependencies and build the interface:
 
 ```bash
@@ -41,7 +41,7 @@ php artisan storage:link
 Seeding again is safe: `php artisan db:seed --force` never resets the admin password and does not touch the branch or menu once a branch exists, so edits made in the admin panel are kept. To re-sync the outlet and menu from the catalog on purpose (this overwrites names, prices and photos of the seeded dishes), run:
 
 ```bash
-php artisan db:seed --class=ProductionDataSeeder --force
+php artisan db:seed --class=CustomerDataSeeder --force
 ```
 
 ## Updating the server later
