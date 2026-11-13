@@ -1,5 +1,5 @@
 <script setup>
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
 import LanguageSwitch from '@/components/ui-kit/LanguageSwitch.vue';
@@ -15,6 +15,9 @@ const props = defineProps({
     ordering: { type: Object, default: () => ({ allowed: true, reason: null, until: null, message: null }) },
     placed: { type: Object, default: null },
 });
+
+// The brand's round seal (transparent), when the brand has one; otherwise the plain icon.
+const seal = computed(() => usePage().props.brand?.seal ?? null);
 
 // A reserved table, or one already being served, can be browsed but not ordered from.
 const canOrder = computed(() => props.ordering.allowed !== false);
@@ -362,7 +365,7 @@ watch(currentChapter, () => nextTick(() => document.querySelector('[data-chapter
         <main v-if="! opened" class="tm-stage">
             <section class="tm-cover" aria-labelledby="cover-title">
                 <div class="tm-cover-frame">
-                    <span class="tm-emblem"><AppIcon name="utensils" size="26" /></span>
+                    <span class="tm-emblem" :class="seal ? 'tm-emblem-seal' : ''"><img v-if="seal" :src="seal" :alt="localized(branch, 'name')"><AppIcon v-else name="utensils" size="26" /></span>
                     <p class="tm-kicker">{{ t('tablemenu.welcome') }}</p>
                     <h1 id="cover-title" class="tm-cover-title">{{ localized(branch, 'name') }}</h1>
                     <div class="tm-rule" />
@@ -732,6 +735,20 @@ h3 {
     border: 1px solid var(--gold);
     color: var(--gold-light);
     background: rgba(0, 0, 0, 0.18);
+}
+
+.tm-emblem-seal {
+    width: 6.5rem;
+    height: 6.5rem;
+    border: 0;
+    border-radius: 0;
+    background: none;
+}
+
+.tm-emblem-seal img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .tm-kicker {

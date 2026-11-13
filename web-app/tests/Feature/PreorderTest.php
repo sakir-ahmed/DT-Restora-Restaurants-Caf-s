@@ -10,6 +10,7 @@ use App\Models\Preorder;
 use App\Models\Reservation;
 use App\Models\RestaurantTable;
 use App\Models\User;
+use App\Support\Brand;
 use Database\Seeders\ArmansKitchenQasrAlMandiSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Queue;
@@ -329,4 +330,16 @@ it('keeps a single pre-order only dish out of ordinary ordering while its catego
     $this->actingAs($this->manager, 'staff')
         ->post(route('admin.orders.store'), ['order_type' => 'takeaway', 'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]]])
         ->assertSessionHasNoErrors();
+});
+
+it('shares the transparent brand seal in production mode only', function (): void {
+    config(['app.is_demo' => false]);
+    $production = Brand::shared();
+
+    expect($production['seal'])->toContain('seal.png')
+        ->and(public_path('images/production/brand/seal.png'))->toBeFile();
+
+    config(['app.is_demo' => true]);
+
+    expect(Brand::shared()['seal'])->toBeNull();
 });

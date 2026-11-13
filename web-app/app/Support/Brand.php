@@ -29,6 +29,8 @@ final class Brand
             'emblem' => 'emblem-192.png',
             'logo' => 'emblem-512.png',
             'wordmark' => 'wordmark-gold.png',
+            // The round seal with a transparent background, shown on the menu book and the table menu.
+            'seal' => 'seal.png',
             'appleIcon' => 'apple-touch-icon.png',
             'favicons' => [
                 ['file' => 'favicon.ico', 'type' => 'image/x-icon', 'sizes' => '32x32'],
@@ -48,6 +50,7 @@ final class Brand
             'emblem' => 'logo-mark.svg',
             'logo' => 'logo-512.png',
             'wordmark' => null,
+            'seal' => null,
             'appleIcon' => 'logo-512.png',
             'favicons' => [
                 ['file' => 'favicon.svg', 'type' => 'image/svg+xml', 'sizes' => 'any'],
@@ -242,6 +245,7 @@ final class Brand
             'name' => __('site.brand_name'),
             'emblem' => self::asset($profile['emblem']),
             'wordmark' => $profile['wordmark'] ? self::asset($profile['wordmark']) : null,
+            'seal' => ($profile['seal'] ?? null) ? self::asset($profile['seal']) : null,
             'markShape' => $profile['markShape'],
         ];
     }

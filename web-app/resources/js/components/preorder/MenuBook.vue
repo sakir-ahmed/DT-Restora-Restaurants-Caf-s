@@ -1,5 +1,5 @@
 <script setup>
-import { router } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
 import SocialIcon from '@/components/site/SocialIcon.vue';
@@ -35,6 +35,9 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['placed']);
+
+// The brand's round seal (transparent), when the brand has one; otherwise the plain icon.
+const seal = computed(() => usePage().props.brand?.seal ?? null);
 
 const opened = ref(props.placed !== null);
 const mode = ref('phone'); // phone | tablet | desktop | wide
@@ -649,7 +652,7 @@ onBeforeUnmount(() => {
         <main v-else-if="! opened" class="pb-stage">
             <section class="pb-cover" aria-labelledby="pb-cover-title">
                 <div class="pb-cover-frame">
-                    <span class="pb-emblem"><AppIcon name="utensils" size="26" /></span>
+                    <span class="pb-emblem" :class="seal ? 'pb-emblem-seal' : ''"><img v-if="seal" :src="seal" :alt="localized(branch, 'name')"><AppIcon v-else name="utensils" size="26" /></span>
                     <p class="pb-kicker">{{ t('preorders.welcome') }}</p>
                     <h1 id="pb-cover-title" class="pb-cover-title">{{ localized(branch, 'name') }}</h1>
                     <div class="pb-rule" />
@@ -685,7 +688,7 @@ onBeforeUnmount(() => {
                         <article v-for="(page, index) in visiblePages" :key="`${page.chapter}-${pageIndex + index}`" class="pb-page-sheet" :class="index === 0 ? 'pb-left' : 'pb-right'">
                             <!-- Introduction to the Saudi Arabian dishes -->
                             <div v-if="page.kind === 'saudi'" class="pb-feature">
-                                <span class="pb-emblem pb-emblem-dark"><AppIcon name="utensils" size="22" /></span>
+                                <span class="pb-emblem pb-emblem-dark" :class="seal ? 'pb-emblem-seal' : ''"><img v-if="seal" :src="seal" :alt="localized(branch, 'name')"><AppIcon v-else name="utensils" size="22" /></span>
                                 <h2 class="pb-feature-title">{{ t('preorders.saudi_title') }}</h2>
                                 <div class="pb-rule pb-rule-gold" />
                                 <p class="pb-feature-tag">{{ t('preorders.saudi_tagline') }}</p>
@@ -695,7 +698,7 @@ onBeforeUnmount(() => {
 
                             <!-- Closing page -->
                             <div v-else-if="page.kind === 'closing'" class="pb-feature">
-                                <span class="pb-emblem pb-emblem-dark"><AppIcon name="heart" size="22" /></span>
+                                <span class="pb-emblem pb-emblem-dark" :class="seal ? 'pb-emblem-seal' : ''"><img v-if="seal" :src="seal" :alt="localized(branch, 'name')"><AppIcon v-else name="heart" size="22" /></span>
                                 <h2 class="pb-feature-title">{{ t('preorders.closing_title') }}</h2>
                                 <div class="pb-rule pb-rule-gold" />
                                 <p class="pb-feature-body">{{ t('preorders.closing_thanks') }}</p>
@@ -1112,6 +1115,8 @@ onBeforeUnmount(() => {
 .pb-tablet .pb-cover-title, .pb-desktop .pb-cover-title, .pb-wide .pb-cover-title { font-size: 2.4rem; }
 .pb-rule { width: 4.5rem; height: 2px; margin: 1.1rem auto; background: var(--gold-light); }
 .pb-emblem-dark { border-color: var(--gold); color: var(--gold); }
+.pb-emblem-seal { width: 6.5rem; height: 6.5rem; border: 0; border-radius: 0; }
+.pb-emblem-seal img { width: 100%; height: 100%; object-fit: contain; }
 .pb-kicker-dark { color: var(--gold); }
 .pb-rule-gold { background: var(--gold); }
 .pb-feature { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0.5rem 0.25rem 0; gap: 0.2rem; }
