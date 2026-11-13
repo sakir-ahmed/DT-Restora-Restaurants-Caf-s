@@ -23,7 +23,7 @@ class GalleryController extends Controller
         $locale = app()->getLocale();
 
         $branches = Branch::query()->where('is_active', true)->get()->keyBy('id');
-        $items = MenuItem::query()->available()->whereIn('branch_id', $branches->keys())->get()->keyBy('id');
+        $items = MenuItem::query()->available()->regular()->whereIn('branch_id', $branches->keys())->get()->keyBy('id');
 
         $entries = Media::query()
             ->active()

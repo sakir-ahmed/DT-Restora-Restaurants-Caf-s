@@ -25,7 +25,7 @@ class MenuItem extends Model
     protected $fillable = [
         'branch_id', 'menu_category_id', 'name', 'name_bn',
         'description', 'description_bn', 'photo_path', 'barcode', 'aggregator_sku',
-        'base_price', 'is_available', 'is_vegetarian', 'sort_order',
+        'base_price', 'is_available', 'is_vegetarian', 'is_preorder_only', 'sort_order',
     ];
 
     protected $appends = ['cover_url'];
@@ -36,6 +36,7 @@ class MenuItem extends Model
         'base_price' => 'decimal:2',
         'is_available' => 'boolean',
         'is_vegetarian' => 'boolean',
+        'is_preorder_only' => 'boolean',
         'sort_order' => 'integer',
     ];
 
@@ -97,6 +98,23 @@ class MenuItem extends Model
     public function recipe()
     {
         return $this->hasOne(Recipe::class);
+    }
+
+    /**
+     * Dishes that can be ordered any time: not flagged pre-order only, and not in a pre-order only category.
+     */
+    public function scopeRegular(Builder $builder): Builder
+    {
+        return $builder->where('is_preorder_only', false)
+            ->whereHas('category', fn (Builder $category) => $category->withoutGlobalScopes()->where('is_preorder_only', false));
+    }
+
+    /**
+     * Whether this dish is taken as a pre-order only, by its own flag or its category's.
+     */
+    public function isPreorderOnly(): bool
+    {
+        return $this->is_preorder_only || (bool) $this->category()->withoutGlobalScopes()->value('is_preorder_only');
     }
 
     public function scopeAvailable(Builder $builder): Builder

@@ -28,6 +28,7 @@ class MenuItemRequest extends FormRequest
             'base_price' => ['required', 'numeric', 'min:0'],
             'is_available' => ['boolean'],
             'is_vegetarian' => ['boolean'],
+            'is_preorder_only' => ['boolean'],
             'sort_order' => ['integer', 'min:0'],
             'variants' => ['array'],
             'variants.*.id' => ['nullable', 'integer', 'exists:menu_item_variants,id'],

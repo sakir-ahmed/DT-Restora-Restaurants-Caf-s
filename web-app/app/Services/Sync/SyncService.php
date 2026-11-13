@@ -592,7 +592,7 @@ class SyncService
                 ->where('branch_id', $branch->id)
                 ->active()
                 ->ordered()
-                ->with(['items' => fn ($query) => $query->available()->with(['variants', 'addOns', 'media'])])
+                ->with(['items' => fn ($query) => $query->available()->regular()->with(['variants', 'addOns', 'media'])])
                 ->get(),
             'tables' => RestaurantTable::query()
                 ->where('branch_id', $branch->id)

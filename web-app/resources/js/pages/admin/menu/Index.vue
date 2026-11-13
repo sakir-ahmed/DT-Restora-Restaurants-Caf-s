@@ -110,7 +110,7 @@ const editingItemId = ref(null);
 const emptyItem = () => ({
     menu_category_id: '',
     name: '', name_bn: '', description: '', description_bn: '',
-    barcode: '', base_price: '0.00', is_available: true, is_vegetarian: false,
+    barcode: '', base_price: '0.00', is_available: true, is_vegetarian: false, is_preorder_only: false,
     sort_order: 0,
     variants: [],
     addons: [],
@@ -145,6 +145,7 @@ function openItem(item = null, categoryId = null) {
             base_price: item.base_price,
             is_available: item.is_available,
             is_vegetarian: item.is_vegetarian,
+            is_preorder_only: item.is_preorder_only ?? false,
             sort_order: item.sort_order,
             variants: (item.variants ?? []).map((variant) => ({ ...variant })),
             addons: (item.add_ons ?? []).map((addOn) => ({ ...addOn })),
@@ -441,6 +442,7 @@ function reload() {
                 <div class="flex gap-4">
                     <SwitchField v-model="itemForm.is_available" :label="t('menu.is_available')" />
                     <SwitchField v-model="itemForm.is_vegetarian" :label="t('menu.is_vegetarian')" />
+                    <SwitchField v-model="itemForm.is_preorder_only" :label="t('menu.is_preorder_only')" />
                 </div>
 
                 <!-- Variants -->

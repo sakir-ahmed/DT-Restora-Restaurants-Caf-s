@@ -76,7 +76,7 @@ class StaffApiController extends Controller
             ->where('branch_id', $branchModel->id)
             ->active()
             ->ordered()
-            ->with(['items' => fn ($query) => $query->available()->with(['variants', 'addOns'])])
+            ->with(['items' => fn ($query) => $query->available()->regular()->with(['variants', 'addOns'])])
             ->get();
 
         return $this->success($categories);

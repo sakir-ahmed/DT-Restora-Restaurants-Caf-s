@@ -304,3 +304,29 @@ it('loads the Qasr Al Mandi pre-order menu and keeps it out of ordinary ordering
 
     expect(Preorder::query()->firstOrFail()->total)->toBe('900.00');
 });
+
+it('keeps a single pre-order only dish out of ordinary ordering while its category stays open', function (): void {
+    $only = MenuItem::query()->create([
+        'branch_id' => $this->branch->id,
+        'menu_category_id' => $this->category->id,
+        'name' => 'Special Mandi',
+        'base_price' => 800,
+        'is_available' => true,
+        'is_preorder_only' => true,
+    ]);
+
+    $this->get(route('web.preorder', ['branchCode' => 'br01']))->assertInertia(fn ($page) => $page
+        ->where('categories.0.items', fn ($items) => collect($items)->pluck('name')->contains('Special Mandi')));
+
+    $this->actingAs($this->manager, 'staff')->get(route('admin.pos.index'))->assertInertia(fn ($page) => $page
+        ->where('categories', fn ($rows) => ! collect($rows)->flatMap(fn ($row) => $row['items'])->pluck('name')->contains('Special Mandi')
+            && collect($rows)->flatMap(fn ($row) => $row['items'])->pluck('id')->contains($this->item->id)));
+
+    $this->actingAs($this->manager, 'staff')
+        ->post(route('admin.orders.store'), ['order_type' => 'takeaway', 'items' => [['menu_item_id' => $only->id, 'quantity' => 1]]])
+        ->assertSessionHasErrors('items');
+
+    $this->actingAs($this->manager, 'staff')
+        ->post(route('admin.orders.store'), ['order_type' => 'takeaway', 'items' => [['menu_item_id' => $this->item->id, 'quantity' => 1]]])
+        ->assertSessionHasNoErrors();
+});

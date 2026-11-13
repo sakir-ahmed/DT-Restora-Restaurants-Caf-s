@@ -47,7 +47,7 @@ class LocationController extends Controller
         $branch->load(['zones' => fn ($query) => $query->where('is_active', true)->orderBy('fee')]);
 
         $popular = MenuItem::query()
-            ->available()
+            ->available()->regular()
             ->where('branch_id', $branch->id)
             ->whereHas('category', fn ($query) => $query->where('is_active', true))
             ->with(['category:id,name,name_bn', 'variants', 'media'])

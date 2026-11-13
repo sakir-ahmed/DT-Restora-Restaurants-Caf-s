@@ -59,7 +59,7 @@ class SitemapController extends Controller
         $codes = $branches->pluck('code', 'id');
 
         $items = MenuItem::query()
-            ->available()
+            ->available()->regular()
             ->whereIn('branch_id', $codes->keys())
             ->orderBy('id')
             ->limit(5000)

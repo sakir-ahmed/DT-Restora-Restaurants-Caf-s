@@ -57,7 +57,7 @@ class HomeController extends Controller
         $featured = MenuItem::query()
             ->where('branch_id', $branches->first()?->id)
             ->whereNotNull('photo_path')
-            ->available()
+            ->available()->regular()
             ->whereHas('category', fn ($query) => $query->where('is_active', true))
             ->with(['category:id,name,name_bn', 'variants', 'media'])
             ->get()
@@ -96,7 +96,7 @@ class HomeController extends Controller
                 'years' => ($year = Setting::current()->established_year) ? max(1, now()->year - $year) : null,
                 'categories' => $categories->count(),
                 'branches' => $branches->count(),
-                'dishes' => MenuItem::query()->available()->whereIn('branch_id', $branches->pluck('id'))->count(),
+                'dishes' => MenuItem::query()->available()->regular()->whereIn('branch_id', $branches->pluck('id'))->count(),
                 'areas' => DeliveryZone::query()->where('is_active', true)->whereIn('branch_id', $branches->pluck('id'))->count(),
             ],
             'seo' => $this->seoData($branches),

@@ -294,7 +294,7 @@ class CreateOrderAction
         }
 
         // Pre-order-only dishes are taken through the menu book, never as an ordinary order.
-        if ($item->category()->withoutGlobalScopes()->where('is_preorder_only', true)->exists()) {
+        if ($item->isPreorderOnly()) {
             throw ValidationException::withMessages([
                 'items' => __('orders.preorder_only_item', ['item' => $item->name]),
             ]);

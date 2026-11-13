@@ -27,7 +27,7 @@ class ItemController extends Controller
         $item->load(['variants', 'addOns', 'category:id,name,name_bn']);
 
         $related = MenuItem::query()
-            ->available()
+            ->available()->regular()
             ->where('branch_id', $branch->id)
             ->where('menu_category_id', $item->menu_category_id)
             ->whereKeyNot($item->id)

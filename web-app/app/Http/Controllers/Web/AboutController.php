@@ -26,7 +26,7 @@ class AboutController extends Controller
             'stats' => [
                 'years' => ($year = Setting::current()->established_year) ? max(1, now()->year - $year) : null,
                 'branches' => $branchIds->count(),
-                'dishes' => MenuItem::query()->available()->whereIn('branch_id', $branchIds)->count(),
+                'dishes' => MenuItem::query()->available()->regular()->whereIn('branch_id', $branchIds)->count(),
             ],
             'seo' => $this->seo->page(
                 title: __('site.seo_about_title'),
