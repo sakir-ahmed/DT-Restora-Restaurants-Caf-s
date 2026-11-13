@@ -7,6 +7,7 @@ import { t } from '@/lib/i18n';
 import { notify } from '@/lib/notify';
 import { qrMatrix, qrPath } from '@/lib/qr';
 import { localized } from '@/lib/site';
+import { book } from '../../lib/bookColors.js';
 
 /**
  * The public menu QR code of the current branch. It points to /{branch code}/menu, so a code
@@ -156,14 +157,14 @@ function drawCard(widthPixels) {
     const context = canvas.getContext('2d');
     const serif = 'Georgia, "Noto Serif Bengali", "Times New Roman", serif';
     const sans = '"Helvetica Neue", Arial, "Noto Sans Bengali", sans-serif';
-    const gold = '#b8892f';
-    const ink = '#1a1208';
+    const gold = book.accent;
+    const ink = book.ink;
     const panelX = 55;
 
     context.scale(scale, scale);
     context.textBaseline = 'alphabetic';
 
-    context.fillStyle = '#fbf6ea';
+    context.fillStyle = book.paper;
     context.fillRect(0, 0, CARD_MM.width, CARD_MM.height);
 
     // dark scan panel
@@ -192,7 +193,7 @@ function drawCard(widthPixels) {
     context.fillStyle = gold;
     context.fillRect(left, y - 3.4, 16, 0.3);
 
-    context.fillStyle = '#6d5b45';
+    context.fillStyle = book.inkSoft;
     context.font = `italic 3px ${serif}`;
     context.fillText(t('menu.card_tagline'), left, y + 1.6);
 

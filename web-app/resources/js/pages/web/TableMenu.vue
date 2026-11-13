@@ -346,14 +346,14 @@ watch(currentChapter, () => nextTick(() => document.querySelector('[data-chapter
 
         <header class="tm-top">
             <div class="min-w-0">
-                <p class="truncate font-serif text-sm font-semibold tracking-wide text-[#f4ead2]">{{ localized(branch, 'name') }}</p>
-                <p class="flex items-center gap-1 text-[11px] text-[#d9b25a]">
+                <p class="truncate font-serif text-sm font-semibold tracking-wide text-[var(--book-cover-ink)]">{{ localized(branch, 'name') }}</p>
+                <p class="flex items-center gap-1 text-[11px] text-[var(--book-accent-light)]">
                     <AppIcon name="shield-halved" size="10" />
                     {{ t('tablemenu.secure_note') }}
                 </p>
             </div>
             <div class="flex shrink-0 items-center gap-2">
-                <span class="rounded-full border border-[#b8892f] bg-[#2c1810] px-3 py-1 font-serif text-xs font-semibold text-[#f4ead2]">{{ t('tablemenu.table', { name: table.name }) }}</span>
+                <span class="rounded-full border border-[var(--book-accent)] bg-[var(--book-cover)] px-3 py-1 font-serif text-xs font-semibold text-[var(--book-cover-ink)]">{{ t('tablemenu.table', { name: table.name }) }}</span>
                 <LanguageSwitch />
             </div>
         </header>
@@ -645,21 +645,22 @@ export default { layout: null };
 
 <style scoped>
 .tm-desk {
-    --paper: #fbf6ea;
-    --paper-edge: #e4d6b3;
-    --ink: #2b2118;
-    --ink-soft: #6d5b45;
-    --gold: #b8892f;
-    --gold-light: #d9b25a;
-    --leather: #2c1810;
-    --leather-light: #3b2418;
-    --green: #2f7d4f;
+    --paper: var(--book-paper);
+    --paper-edge: var(--book-paper-edge);
+    --ink: var(--book-ink);
+    --ink-soft: var(--book-ink-soft);
+    --gold: var(--book-accent);
+    --gold-light: var(--book-accent-light);
+    --leather: var(--book-cover);
+    --leather-light: var(--book-cover-soft);
+    --green: var(--book-green);
+    --red: var(--book-red);
     min-height: 100vh;
     min-height: 100dvh;
     display: flex;
     flex-direction: column;
     background:
-        radial-gradient(ellipse at 50% 0%, rgba(184, 137, 47, 0.18), transparent 60%),
+        radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--book-accent) 18%, transparent), transparent 60%),
         linear-gradient(180deg, var(--leather-light), var(--leather));
     color: var(--ink);
     font-family: Georgia, 'Noto Serif Bengali', 'Times New Roman', serif;
@@ -677,7 +678,7 @@ h3 {
     justify-content: space-between;
     gap: 0.75rem;
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid rgba(184, 137, 47, 0.35);
+    border-bottom: 1px solid color-mix(in srgb, var(--book-accent) 35%, transparent);
 }
 
 .tm-stage {
@@ -708,9 +709,9 @@ h3 {
     gap: 0.5rem;
     padding: 2.5rem 1.5rem 2rem;
     border-radius: 1rem;
-    background: linear-gradient(145deg, #5a3622, #34200f);
+    background: linear-gradient(145deg, var(--book-cover-soft), var(--book-cover-deep));
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-    color: #f4ead2;
+    color: var(--book-cover-ink);
 }
 
 .tm-cover-frame::before {
@@ -760,7 +761,7 @@ h3 {
     max-width: 18rem;
     font-size: 0.9rem;
     line-height: 1.5;
-    color: rgba(244, 234, 210, 0.78);
+    color: color-mix(in srgb, var(--book-cover-ink) 78%, transparent);
 }
 
 .tm-ribbon {
@@ -770,7 +771,7 @@ h3 {
     border-bottom: 1px solid var(--gold);
     font-size: 0.95rem;
     letter-spacing: 0.08em;
-    color: #f4ead2;
+    color: var(--book-cover-ink);
 }
 
 .tm-open {
@@ -782,7 +783,7 @@ h3 {
     padding: 0 1.6rem;
     border-radius: 9999px;
     background: linear-gradient(180deg, var(--gold-light), var(--gold));
-    color: #2c1810;
+    color: var(--book-cover);
     font-weight: 700;
     letter-spacing: 0.04em;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
@@ -813,11 +814,11 @@ h3 {
     padding: 0.65rem 0.9rem;
     border: 1px solid var(--gold);
     border-radius: 0.7rem;
-    background: rgba(184, 137, 47, 0.14);
+    background: color-mix(in srgb, var(--book-accent) 14%, transparent);
     text-align: left;
     font-size: 0.82rem;
     line-height: 1.45;
-    color: #f4ead2;
+    color: var(--book-cover-ink);
 }
 
 .tm-closed svg {
@@ -856,9 +857,9 @@ h3 {
     flex-shrink: 0;
     padding: 0.35rem 0.9rem;
     border-radius: 0.5rem 0.5rem 0 0;
-    border: 1px solid rgba(184, 137, 47, 0.5);
+    border: 1px solid color-mix(in srgb, var(--book-accent) 50%, transparent);
     background: rgba(0, 0, 0, 0.25);
-    color: #e8d9b5;
+    color: var(--book-cover-ink);
     font-size: 0.8rem;
     letter-spacing: 0.04em;
     white-space: nowrap;
@@ -902,7 +903,7 @@ h3 {
     left: 50%;
     width: 3rem;
     transform: translateX(-50%);
-    background: linear-gradient(90deg, transparent, rgba(60, 40, 20, 0.28), transparent);
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.18), transparent);
     pointer-events: none;
 }
 
@@ -1003,7 +1004,7 @@ h3 {
 
 .tm-item:hover,
 .tm-item:focus-visible {
-    background: rgba(184, 137, 47, 0.1);
+    background: color-mix(in srgb, var(--book-accent) 10%, transparent);
     outline: none;
 }
 
@@ -1017,7 +1018,7 @@ h3 {
     overflow: hidden;
     border-radius: 0.5rem;
     border: 1px solid var(--paper-edge);
-    background: #efe3c6;
+    background: var(--book-tint-strong);
     color: var(--gold);
 }
 
@@ -1055,7 +1056,7 @@ h3 {
 .tm-leader {
     flex: 1;
     min-width: 0.75rem;
-    border-bottom: 2px dotted rgba(109, 91, 69, 0.55);
+    border-bottom: 2px dotted color-mix(in srgb, var(--book-ink-soft) 55%, transparent);
     transform: translateY(-0.28rem);
 }
 
@@ -1112,7 +1113,7 @@ h3 {
 
 .tm-count {
     background: var(--gold);
-    color: #fff;
+    color: var(--color-success-foreground);
 }
 
 .tm-folio {
@@ -1134,7 +1135,7 @@ h3 {
     justify-content: space-between;
     gap: 0.6rem;
     padding: 0.7rem 0.9rem calc(0.7rem + env(safe-area-inset-bottom));
-    background: linear-gradient(0deg, rgba(28, 16, 9, 0.97) 70%, transparent);
+    background: linear-gradient(0deg, color-mix(in srgb, var(--book-cover-deep) 97%, transparent) 70%, transparent);
 }
 
 .tm-dock-nav {
@@ -1152,7 +1153,7 @@ h3 {
     border-radius: 9999px;
     border: 1px solid var(--gold);
     background: rgba(0, 0, 0, 0.35);
-    color: #f4ead2;
+    color: var(--book-cover-ink);
 }
 
 .tm-round:disabled {
@@ -1166,8 +1167,8 @@ h3 {
     gap: 0.4rem;
     padding: 0 0.9rem;
     border-radius: 9999px;
-    border: 1px solid rgba(184, 137, 47, 0.55);
-    color: #f4ead2;
+    border: 1px solid color-mix(in srgb, var(--book-accent) 55%, transparent);
+    color: var(--book-cover-ink);
     font-size: 0.8rem;
     white-space: nowrap;
 }
@@ -1180,7 +1181,7 @@ h3 {
     padding: 0 1.1rem;
     border-radius: 9999px;
     background: linear-gradient(180deg, var(--gold-light), var(--gold));
-    color: #2c1810;
+    color: var(--book-cover);
     font-weight: 700;
     box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
 }
@@ -1188,7 +1189,7 @@ h3 {
 .tm-cartbtn-idle {
     background: transparent;
     border: 1px solid var(--gold);
-    color: #f4ead2;
+    color: var(--book-cover-ink);
     box-shadow: none;
 }
 
@@ -1200,7 +1201,7 @@ h3 {
     justify-content: center;
     padding: 0 0.3rem;
     border-radius: 9999px;
-    background: #2c1810;
+    background: var(--book-cover);
     color: var(--gold-light);
     font-size: 0.75rem;
 }
@@ -1223,7 +1224,7 @@ h3 {
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    background: rgba(20, 10, 4, 0.7);
+    background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(3px);
     font-family: Georgia, 'Noto Serif Bengali', 'Times New Roman', serif;
 }
@@ -1251,9 +1252,9 @@ h3 {
 }
 
 .tm-sheet-paper {
-    background: var(--paper, #fbf6ea);
-    color: #2b2118;
-    box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #e4d6b3;
+    background: var(--paper, var(--book-paper));
+    color: var(--book-ink);
+    box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.5), inset 0 0 0 1px var(--book-paper-edge);
 }
 
 @keyframes sheet-up {
@@ -1290,8 +1291,8 @@ h3 {
     align-items: center;
     justify-content: center;
     border-radius: 9999px;
-    border: 1px solid #e4d6b3;
-    color: #6d5b45;
+    border: 1px solid var(--book-paper-edge);
+    color: var(--book-ink-soft);
 }
 
 .tm-sheet-body {
@@ -1308,8 +1309,8 @@ h3 {
     align-items: center;
     gap: 0.6rem;
     padding: 0.8rem 1.1rem calc(0.8rem + env(safe-area-inset-bottom));
-    border-top: 1px solid #e4d6b3;
-    background: #f6eedb;
+    border-top: 1px solid var(--book-paper-edge);
+    background: var(--book-tint-strong);
 }
 
 .tm-label {
@@ -1319,7 +1320,7 @@ h3 {
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #6d5b45;
+    color: var(--book-ink-soft);
 }
 
 .tm-choices {
@@ -1334,16 +1335,16 @@ h3 {
     gap: 0.5rem;
     padding: 0.65rem 0.8rem;
     border-radius: 0.6rem;
-    border: 1px solid #e4d6b3;
-    background: #fffdf7;
+    border: 1px solid var(--book-paper-edge);
+    background: var(--book-page);
     font-weight: 600;
     text-align: left;
 }
 
 .tm-choice-on {
-    border-color: #b8892f;
-    background: #f7ecd0;
-    box-shadow: inset 0 0 0 1px #b8892f;
+    border-color: var(--book-accent);
+    background: var(--book-tint);
+    box-shadow: inset 0 0 0 1px var(--book-accent);
 }
 
 .tm-addons {
@@ -1358,18 +1359,18 @@ h3 {
     gap: 0.6rem;
     padding: 0.5rem 0.7rem;
     border-radius: 0.6rem;
-    border: 1px solid #e4d6b3;
-    background: #fffdf7;
+    border: 1px solid var(--book-paper-edge);
+    background: var(--book-page);
 }
 
 .tm-addon-on {
-    border-color: #b8892f;
-    background: #f7ecd0;
+    border-color: var(--book-accent);
+    background: var(--book-tint);
 }
 
 .tm-addon-price {
     font-size: 0.85rem;
-    color: #6d5b45;
+    color: var(--book-ink-soft);
 }
 
 .tm-stepper {
@@ -1377,8 +1378,8 @@ h3 {
     align-items: center;
     overflow: hidden;
     border-radius: 9999px;
-    border: 1px solid #b8892f;
-    background: #fffdf7;
+    border: 1px solid var(--book-accent);
+    background: var(--book-page);
     font-weight: 700;
 }
 
@@ -1388,7 +1389,7 @@ h3 {
     height: 2rem;
     align-items: center;
     justify-content: center;
-    color: #8a6420;
+    color: var(--book-accent-dark);
 }
 
 .tm-stepper button:disabled {
@@ -1414,10 +1415,10 @@ h3 {
     gap: 0.6rem;
     padding: 0 1.1rem;
     border-radius: 9999px;
-    background: linear-gradient(180deg, #4a2c1c, #2c1810);
-    color: #f4ead2;
+    background: linear-gradient(180deg, var(--book-cover-soft), var(--book-cover));
+    color: var(--book-cover-ink);
     font-weight: 700;
-    box-shadow: 0 6px 16px rgba(44, 24, 16, 0.35);
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--book-cover) 35%, transparent);
 }
 
 .tm-primary:disabled {
@@ -1452,7 +1453,7 @@ h3 {
 }
 
 .tm-contents-row:hover {
-    background: rgba(184, 137, 47, 0.12);
+    background: color-mix(in srgb, var(--book-accent) 12%, transparent);
 }
 
 .tm-contents-current .tm-contents-name {
@@ -1461,14 +1462,14 @@ h3 {
 
 .tm-contents-page {
     font-variant-numeric: tabular-nums;
-    color: #6d5b45;
+    color: var(--book-ink-soft);
 }
 
 .tm-empty {
     padding: 1.5rem 0.5rem;
     text-align: center;
     font-style: italic;
-    color: #6d5b45;
+    color: var(--book-ink-soft);
 }
 
 .tm-lines {
@@ -1481,7 +1482,7 @@ h3 {
     align-items: center;
     gap: 0.75rem;
     padding: 0.7rem 0;
-    border-bottom: 1px dotted rgba(109, 91, 69, 0.5);
+    border-bottom: 1px dotted color-mix(in srgb, var(--book-ink-soft) 50%, transparent);
 }
 
 .tm-line-name {
@@ -1490,18 +1491,18 @@ h3 {
 
 .tm-line-variant {
     font-weight: 500;
-    color: #6d5b45;
+    color: var(--book-ink-soft);
 }
 
 .tm-line-extras {
     font-size: 0.8rem;
     font-style: italic;
-    color: #6d5b45;
+    color: var(--book-ink-soft);
 }
 
 .tm-line-price {
     font-size: 0.9rem;
-    color: #2b2118;
+    color: var(--book-ink);
 }
 
 .tm-field {
@@ -1514,18 +1515,18 @@ h3 {
     width: 100%;
     padding: 0.55rem 0.7rem;
     border-radius: 0.6rem;
-    border: 1px solid #d9c9a3;
-    background: #fffdf7;
+    border: 1px solid var(--book-paper-edge);
+    background: var(--book-page);
     font-family: inherit;
     font-size: 0.95rem;
-    color: #2b2118;
+    color: var(--book-ink);
 }
 
 .tm-field input:focus,
 .tm-field textarea:focus {
     outline: none;
-    border-color: #b8892f;
-    box-shadow: 0 0 0 2px rgba(184, 137, 47, 0.25);
+    border-color: var(--book-accent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--book-accent) 25%, transparent);
 }
 
 .tm-totals {
@@ -1533,7 +1534,7 @@ h3 {
     flex-direction: column;
     gap: 0.25rem;
     padding: 0.7rem 0.2rem 0;
-    border-top: 1px solid #e4d6b3;
+    border-top: 1px solid var(--book-paper-edge);
 }
 
 .tm-totals > div {
@@ -1544,7 +1545,7 @@ h3 {
 .tm-totals-grand {
     margin-top: 0.2rem;
     padding-top: 0.4rem;
-    border-top: 1px dotted rgba(109, 91, 69, 0.6);
+    border-top: 1px dotted color-mix(in srgb, var(--book-ink-soft) 60%, transparent);
     font-size: 1.15rem;
     font-weight: 700;
 }
@@ -1552,8 +1553,8 @@ h3 {
 .tm-error {
     padding: 0.6rem 0.8rem;
     border-radius: 0.6rem;
-    background: #fbe4e1;
-    color: #9b2318;
+    background: color-mix(in srgb, var(--book-red) 12%, var(--book-page));
+    color: color-mix(in srgb, var(--book-red) 85%, black);
     font-size: 0.9rem;
 }
 
@@ -1572,8 +1573,8 @@ h3 {
     align-items: center;
     justify-content: center;
     border-radius: 9999px;
-    background: rgba(47, 125, 79, 0.12);
-    color: #2f7d4f;
+    background: color-mix(in srgb, var(--book-green) 12%, transparent);
+    color: var(--book-green);
 }
 
 .tm-done-number {
@@ -1582,8 +1583,8 @@ h3 {
     align-items: center;
     padding: 0.5rem 1.2rem;
     border-radius: 0.7rem;
-    border: 1px dashed #b8892f;
-    background: #f7ecd0;
+    border: 1px dashed var(--book-accent);
+    background: var(--book-tint);
 }
 
 .tm-done-number strong {
@@ -1594,6 +1595,6 @@ h3 {
 .tm-link {
     font-size: 0.9rem;
     text-decoration: underline;
-    color: #8a6420;
+    color: var(--book-accent-dark);
 }
 </style>

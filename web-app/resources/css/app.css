@@ -104,6 +104,33 @@
     --color-accent-foreground: #ffffff;
 }
 
+
+/*
+ * The menu book, the table menu, the QR cards and the footer are built from the
+ * brand tokens above, so every customer gets its own colours with no extra work.
+ * Cover = primary, gold = accent, paper = background.
+ */
+:root {
+    --book-paper: var(--color-background);
+    --book-page: var(--color-surface);
+    --book-paper-edge: var(--color-border);
+    --book-ink: var(--color-foreground);
+    --book-ink-soft: var(--color-muted);
+    --book-accent: var(--color-accent);
+    --book-accent-light: color-mix(in srgb, var(--color-accent) 72%, white);
+    --book-accent-dark: color-mix(in srgb, var(--color-accent) 78%, black);
+    --book-accent-ink: var(--color-accent-foreground);
+    --book-cover: var(--color-primary);
+    --book-cover-soft: color-mix(in srgb, var(--color-primary) 86%, white);
+    --book-cover-deep: color-mix(in srgb, var(--color-primary) 78%, black);
+    --book-cover-ink: var(--color-primary-foreground);
+    --book-cover-ink-soft: color-mix(in srgb, var(--color-primary-foreground) 72%, transparent);
+    --book-tint: color-mix(in srgb, var(--color-accent) 9%, var(--color-surface));
+    --book-tint-strong: color-mix(in srgb, var(--color-accent) 14%, var(--color-background));
+    --book-green: var(--color-success);
+    --book-red: var(--color-danger);
+    --footer-bg: color-mix(in srgb, var(--color-primary) 55%, black);
+}
 html {
     background-color: var(--color-background);
 }

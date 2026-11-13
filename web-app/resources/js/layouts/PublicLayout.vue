@@ -237,8 +237,8 @@ onBeforeUnmount(() => {
             <slot />
         </main>
 
-        <footer class="bg-[#17120b] text-[#cdbfa6]">
-            <div class="h-px bg-gradient-to-r from-transparent via-[#c9a24a] to-transparent" aria-hidden="true" />
+        <footer class="bg-[var(--footer-bg)] text-white/70">
+            <div class="h-px bg-gradient-to-r from-transparent via-[var(--book-accent-light)] to-transparent" aria-hidden="true" />
 
             <div class="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-12">
                 <div class="sm:col-span-2 lg:col-span-4">
@@ -246,12 +246,12 @@ onBeforeUnmount(() => {
                         <img v-if="wordmark" :src="wordmark" :alt="page.props.appName" width="962" height="353" loading="lazy" decoding="async" class="h-16 w-auto">
                         <span v-else class="flex items-center gap-2.5">
                             <BrandMark :size="40" />
-                            <BrandName class="text-2xl font-bold text-[#f6efe0]" :name="page.props.appName" />
+                            <BrandName class="text-2xl font-bold text-white" :name="page.props.appName" />
                         </span>
                     </Link>
                     <p class="mt-4 max-w-sm text-sm leading-relaxed">{{ t('site.footer_text') }}</p>
 
-                    <p class="mt-6 text-xs font-semibold uppercase tracking-wider text-[#f6e7bd]">{{ t('site.footer_follow') }}</p>
+                    <p class="mt-6 text-xs font-semibold uppercase tracking-wider text-white">{{ t('site.footer_follow') }}</p>
                     <ul class="mt-3 flex flex-wrap gap-2.5">
                         <li v-for="network in socialLinks" :key="network.key">
                             <a
@@ -260,7 +260,7 @@ onBeforeUnmount(() => {
                                 :title="network.label"
                                 :target="network.live ? '_blank' : undefined"
                                 :rel="network.live ? 'noopener noreferrer' : undefined"
-                                class="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-[#e6d8bd] transition duration-200 hover:-translate-y-0.5 hover:border-[#c9a24a] hover:bg-[#c9a24a] hover:text-[#17120b]"
+                                class="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-white/80 transition duration-200 hover:-translate-y-0.5 hover:border-[var(--book-accent-light)] hover:bg-[var(--book-accent-light)] hover:text-[var(--footer-bg)]"
                             >
                                 <SocialIcon :network="network.key" :size="18" />
                             </a>
@@ -269,36 +269,36 @@ onBeforeUnmount(() => {
                 </div>
 
                 <div class="lg:col-span-2">
-                    <h2 class="text-xs font-semibold uppercase tracking-wider text-[#f6e7bd]">{{ t('site.footer_explore') }}</h2>
+                    <h2 class="text-xs font-semibold uppercase tracking-wider text-white">{{ t('site.footer_explore') }}</h2>
                     <ul class="mt-4 space-y-2.5 text-sm">
                         <li v-for="link in exploreLinks" :key="link.href">
-                            <Link :href="link.href" class="transition-colors hover:text-[#f6e7bd]">{{ link.label }}</Link>
+                            <Link :href="link.href" class="transition-colors hover:text-white">{{ link.label }}</Link>
                         </li>
                     </ul>
                 </div>
 
                 <div class="lg:col-span-3">
-                    <h2 class="text-xs font-semibold uppercase tracking-wider text-[#f6e7bd]">{{ t('site.footer_branches') }}</h2>
+                    <h2 class="text-xs font-semibold uppercase tracking-wider text-white">{{ t('site.footer_branches') }}</h2>
                     <ul class="mt-4 space-y-5 text-sm">
                         <li v-for="branch in branches" :key="branch.code">
-                            <Link :href="locationUrl(branch.slug)" class="font-semibold text-[#f6efe0] transition-colors hover:text-[#f6e7bd]">{{ branchName(branch) }}</Link>
+                            <Link :href="locationUrl(branch.slug)" class="font-semibold text-white transition-colors hover:text-white">{{ branchName(branch) }}</Link>
                             <p v-if="branchAddress(branch)" class="mt-2 flex gap-2.5 leading-relaxed">
-                                <AppIcon name="location-dot" size="13" class="mt-1 shrink-0 text-[#c9a24a]" />
+                                <AppIcon name="location-dot" size="13" class="mt-1 shrink-0 text-[var(--book-accent-light)]" />
                                 <span>{{ branchAddress(branch) }}</span>
                             </p>
                             <p v-if="branch.phone" class="mt-2 flex items-center gap-2.5">
-                                <AppIcon name="phone" size="13" class="shrink-0 text-[#c9a24a]" />
-                                <a :href="`tel:${branch.phone}`" class="transition-colors hover:text-[#f6e7bd]">{{ localDigits(branch.phone) }}</a>
+                                <AppIcon name="phone" size="13" class="shrink-0 text-[var(--book-accent-light)]" />
+                                <a :href="`tel:${branch.phone}`" class="transition-colors hover:text-white">{{ localDigits(branch.phone) }}</a>
                             </p>
                         </li>
                     </ul>
                 </div>
 
                 <div class="lg:col-span-3">
-                    <h2 class="text-xs font-semibold uppercase tracking-wider text-[#f6e7bd]">{{ t('site.footer_legal') }}</h2>
+                    <h2 class="text-xs font-semibold uppercase tracking-wider text-white">{{ t('site.footer_legal') }}</h2>
                     <ul class="mt-4 space-y-2.5 text-sm">
                         <li v-for="link in legalLinks" :key="link.href">
-                            <Link :href="link.href" class="transition-colors hover:text-[#f6e7bd]">{{ link.label }}</Link>
+                            <Link :href="link.href" class="transition-colors hover:text-white">{{ link.label }}</Link>
                         </li>
                     </ul>
                 </div>
@@ -306,11 +306,11 @@ onBeforeUnmount(() => {
 
             <div class="border-t border-white/10">
                 <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-5 text-sm">
-                    <div class="flex flex-col gap-1 text-[#a89b82]">
+                    <div class="flex flex-col gap-1 text-white/55">
                         <p>&copy; {{ localDigits(new Date().getFullYear()) }} {{ page.props.appName }}. {{ t('site.footer_rights') }}</p>
-                        <a href="https://datatechbd.com" target="_blank" rel="noopener" class="transition-colors hover:text-[#f6e7bd]">{{ t('site.footer_product') }}</a>
+                        <a href="https://datatechbd.com" target="_blank" rel="noopener" class="transition-colors hover:text-white">{{ t('site.footer_product') }}</a>
                     </div>
-                    <a href="#main" class="inline-flex items-center gap-2 rounded-lg border border-white/15 px-3 py-1.5 transition-colors hover:border-[#c9a24a] hover:text-[#f6e7bd]">
+                    <a href="#main" class="inline-flex items-center gap-2 rounded-lg border border-white/15 px-3 py-1.5 transition-colors hover:border-[var(--book-accent-light)] hover:text-white">
                         <AppIcon name="arrow-up" size="11" />
                         {{ t('site.back_to_top') }}
                     </a>

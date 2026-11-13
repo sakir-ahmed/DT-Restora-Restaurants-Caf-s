@@ -1,4 +1,5 @@
 import { qrMatrix } from './qr';
+import { book } from './bookColors.js';
 
 const SERIF = 'Georgia, "Noto Serif Bengali", "Times New Roman", serif';
 
@@ -92,16 +93,16 @@ function drawColumn(context, groups, left) {
 
     groups.forEach((group) => {
         context.textAlign = 'left';
-        context.fillStyle = '#2b2118';
+        context.fillStyle = book.ink;
         context.font = `700 34px ${SERIF}`;
         context.fillText(fit(context, group.title, COLUMN), left, y + 34);
-        context.fillStyle = '#b8892f';
+        context.fillStyle = book.accent;
         context.fillRect(left, y + 48, COLUMN, 3);
         y += HEAD_COST;
 
         group.items.forEach((item) => {
             context.font = `500 27px ${SERIF}`;
-            context.fillStyle = '#2b2118';
+            context.fillStyle = book.ink;
             context.textAlign = 'right';
             const priceText = String(item.price);
             const priceWidth = context.measureText(priceText).width;
@@ -113,7 +114,7 @@ function drawColumn(context, groups, left) {
 
             const start = left + context.measureText(label).width + 10;
             const end = left + COLUMN - priceWidth - 10;
-            context.fillStyle = '#c9b78e';
+            context.fillStyle = book.inkSoft;
 
             for (let x = start; x < end; x += 9) {
                 context.fillRect(x, y + 28, 3, 3);
@@ -150,29 +151,29 @@ export async function makeMenuImage({ branchName, tagline, scanText, url, catego
     }
 
     // Paper and leather cover band
-    context.fillStyle = '#fbf6ea';
+    context.fillStyle = book.paper;
     context.fillRect(0, 0, WIDTH, HEIGHT);
 
     const band = context.createLinearGradient(0, 0, 0, HEADER);
-    band.addColorStop(0, '#3b2418');
-    band.addColorStop(1, '#2c1810');
+    band.addColorStop(0, book.coverSoft);
+    band.addColorStop(1, book.cover);
     context.fillStyle = band;
     context.fillRect(0, 0, WIDTH, HEADER);
-    context.fillStyle = '#b8892f';
+    context.fillStyle = book.accent;
     context.fillRect(0, HEADER - 8, WIDTH, 8);
 
     context.textAlign = 'center';
-    context.fillStyle = '#d9b25a';
+    context.fillStyle = book.accentLight;
     context.font = `600 26px ${SERIF}`;
     context.fillText(tagline.toUpperCase(), WIDTH / 2, 70);
 
-    context.fillStyle = '#f4ead2';
+    context.fillStyle = book.coverInk;
     context.font = `700 62px ${SERIF}`;
     context.fillText(fit(context, branchName, WIDTH - PAD * 2), WIDTH / 2, 148);
 
-    context.fillStyle = '#d9b25a';
+    context.fillStyle = book.accentLight;
     context.fillRect(WIDTH / 2 - 60, 174, 120, 4);
-    context.fillStyle = '#f4ead2';
+    context.fillStyle = book.coverInk;
     context.font = `italic 400 36px ${SERIF}`;
     context.fillText('Menu', WIDTH / 2, 224);
 
@@ -182,9 +183,9 @@ export async function makeMenuImage({ branchName, tagline, scanText, url, catego
 
     // Footer with the QR code
     const footerTop = HEIGHT - FOOTER;
-    context.fillStyle = '#2c1810';
+    context.fillStyle = book.cover;
     context.fillRect(0, footerTop, WIDTH, FOOTER);
-    context.fillStyle = '#b8892f';
+    context.fillStyle = book.accent;
     context.fillRect(0, footerTop, WIDTH, 6);
 
     const { size, modules } = qrMatrix(url);
@@ -206,10 +207,10 @@ export async function makeMenuImage({ branchName, tagline, scanText, url, catego
     const textWidth = qrX - PAD - 40;
 
     context.textAlign = 'left';
-    context.fillStyle = '#f4ead2';
+    context.fillStyle = book.coverInk;
     context.font = `700 36px ${SERIF}`;
     wrap(context, scanText, PAD, footerTop + 96, textWidth, 48);
-    context.fillStyle = '#d9b25a';
+    context.fillStyle = book.accentLight;
     context.font = `400 23px ${SERIF}`;
     context.fillText(fit(context, url.replace(/^https?:\/\//, ''), textWidth), PAD, footerTop + FOOTER - 52);
 

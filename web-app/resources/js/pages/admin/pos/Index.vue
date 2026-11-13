@@ -3059,7 +3059,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                     :aria-label="t('orders.choose_size')"
                     class="grid max-h-[min(32rem,calc(100vh-1.5rem))] w-full max-w-xl overflow-hidden rounded-xl border border-border bg-surface sm:grid-cols-[11rem_minmax(0,1fr)]"
                 >
-                    <div class="relative h-36 overflow-hidden bg-[#f6efe4] dark:bg-background sm:h-auto sm:min-h-full">
+                    <div class="relative h-36 overflow-hidden bg-background sm:h-auto sm:min-h-full">
                         <img
                             v-if="itemPhotoSrc(variantPicker)"
                             :src="itemPhotoSrc(variantPicker)"
@@ -3128,7 +3128,7 @@ const changeDue = computed(() => Math.max(0, Number(tendered.value || 0) - order
                     :aria-label="t('orders.customize')"
                     class="grid max-h-[min(36rem,calc(100vh-1.5rem))] w-full max-w-xl overflow-hidden rounded-xl border border-border bg-surface sm:grid-cols-[11rem_minmax(0,1fr)]"
                 >
-                    <div class="relative h-24 overflow-hidden bg-[#f6efe4] dark:bg-background sm:h-auto sm:min-h-full">
+                    <div class="relative h-24 overflow-hidden bg-background sm:h-auto sm:min-h-full">
                         <img
                             v-if="itemPhotoSrc(optionsDialog.item)"
                             :src="itemPhotoSrc(optionsDialog.item)"

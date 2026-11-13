@@ -56,7 +56,7 @@ export default { layout: null };
 <style scoped>
 .sheet-page {
     min-height: 100vh;
-    background: #efe9dc;
+    background: var(--book-tint-strong);
     font-family: Georgia, 'Noto Serif Bengali', 'Times New Roman', serif;
 }
 
@@ -77,7 +77,7 @@ export default { layout: null };
 .sheet-empty {
     padding: 3rem 1rem;
     text-align: center;
-    color: #6d5b45;
+    color: var(--book-ink-soft);
 }
 
 .sheet-grid {
@@ -98,9 +98,9 @@ export default { layout: null };
     text-align: center;
     break-inside: avoid;
     border-radius: 1rem;
-    background: #fbf6ea;
-    color: #2b2118;
-    box-shadow: 0 10px 24px rgba(60, 40, 20, 0.18), inset 0 0 0 1px #e4d6b3, inset 0 0 0 6px #fbf6ea, inset 0 0 0 7px #b8892f;
+    background: var(--book-paper);
+    color: var(--book-ink);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14), inset 0 0 0 1px var(--book-paper-edge), inset 0 0 0 6px var(--book-paper), inset 0 0 0 7px var(--book-accent);
 }
 
 .card-brand {
@@ -112,7 +112,7 @@ export default { layout: null };
 .card-rule {
     width: 5rem;
     height: 1px;
-    background: linear-gradient(90deg, transparent, #b8892f, transparent);
+    background: linear-gradient(90deg, transparent, var(--book-accent), transparent);
 }
 
 .card-kicker {
@@ -120,14 +120,14 @@ export default { layout: null };
     font-size: 0.7rem;
     letter-spacing: 0.35em;
     text-transform: uppercase;
-    color: #8a6420;
+    color: var(--book-accent-dark);
 }
 
 .card-qr {
     padding: 0.5rem;
     border-radius: 0.8rem;
-    border: 1px solid #d9c9a3;
-    background: #fff;
+    border: 1px solid var(--book-paper-edge);
+    background: var(--book-page);
 }
 
 .card-table {
@@ -139,7 +139,7 @@ export default { layout: null };
 .card-area {
     font-size: 0.85rem;
     letter-spacing: 0.08em;
-    color: #6d5b45;
+    color: var(--book-ink-soft);
 }
 
 .card-line {
@@ -147,7 +147,7 @@ export default { layout: null };
     font-size: 0.78rem;
     font-style: italic;
     line-height: 1.4;
-    color: #6d5b45;
+    color: var(--book-ink-soft);
 }
 
 @media print {
@@ -156,7 +156,7 @@ export default { layout: null };
     }
 
     .sheet-page {
-        background: #fff;
+        background: var(--book-page);
     }
 
     .sheet-grid {
@@ -167,7 +167,7 @@ export default { layout: null };
     }
 
     .card {
-        box-shadow: inset 0 0 0 1px #b8892f;
+        box-shadow: inset 0 0 0 1px var(--book-accent);
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }

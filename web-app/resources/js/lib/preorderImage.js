@@ -1,3 +1,4 @@
+import { book } from './bookColors.js';
 const SERIF = 'Georgia, "Noto Serif Bengali", "Times New Roman", serif';
 const WIDTH = 1080;
 const PAD = 64;
@@ -66,23 +67,23 @@ export async function makePreorderImage(data) {
 
     const context = canvas.getContext('2d');
 
-    context.fillStyle = '#fbf6ea';
+    context.fillStyle = book.paper;
     context.fillRect(0, 0, WIDTH, height);
 
     // Leather header
     const band = context.createLinearGradient(0, 0, 0, 220);
-    band.addColorStop(0, '#3b2418');
-    band.addColorStop(1, '#2c1810');
+    band.addColorStop(0, book.coverSoft);
+    band.addColorStop(1, book.cover);
     context.fillStyle = band;
     context.fillRect(0, 0, WIDTH, 220);
-    context.fillStyle = '#b8892f';
+    context.fillStyle = book.accent;
     context.fillRect(0, 212, WIDTH, 8);
 
     context.textAlign = 'center';
-    context.fillStyle = '#d9b25a';
+    context.fillStyle = book.accentLight;
     context.font = `600 26px ${SERIF}`;
     context.fillText(data.labels.title.toUpperCase(), WIDTH / 2, 66);
-    context.fillStyle = '#f4ead2';
+    context.fillStyle = book.coverInk;
     context.font = `700 56px ${SERIF}`;
     let branch = data.branchName;
 
@@ -91,22 +92,22 @@ export async function makePreorderImage(data) {
     }
 
     context.fillText(branch === data.branchName ? branch : `${branch}...`, WIDTH / 2, 138);
-    context.fillStyle = '#d9b25a';
+    context.fillStyle = book.accentLight;
     context.font = `400 24px ${SERIF}`;
     context.fillText(data.branchLine.slice(0, 80), WIDTH / 2, 184);
 
     // Number box
     let y = 256;
-    context.fillStyle = '#fff7e0';
-    context.strokeStyle = '#b8892f';
+    context.fillStyle = book.tint;
+    context.strokeStyle = book.accent;
     context.lineWidth = 3;
     context.setLineDash([12, 8]);
     context.strokeRect(PAD, y, INNER, 150);
     context.setLineDash([]);
-    context.fillStyle = '#6d5b45';
+    context.fillStyle = book.inkSoft;
     context.font = `600 24px ${SERIF}`;
     context.fillText(data.labels.number.toUpperCase(), WIDTH / 2, y + 48);
-    context.fillStyle = '#2b2118';
+    context.fillStyle = book.ink;
     context.font = `700 64px ${SERIF}`;
     context.fillText(data.number, WIDTH / 2, y + 116);
 
@@ -116,10 +117,10 @@ export async function makePreorderImage(data) {
 
     detailLines.forEach((row) => {
         context.font = `400 28px ${SERIF}`;
-        context.fillStyle = '#6d5b45';
+        context.fillStyle = book.inkSoft;
         context.fillText(row.label, PAD, y);
         context.font = `600 30px ${SERIF}`;
-        context.fillStyle = '#2b2118';
+        context.fillStyle = book.ink;
         context.textAlign = 'right';
         (row.lines.length ? row.lines : ['']).forEach((text, index) => {
             context.fillText(text, WIDTH - PAD, y + index * 42);
@@ -130,20 +131,20 @@ export async function makePreorderImage(data) {
 
     // Items
     y += 18;
-    context.fillStyle = '#b8892f';
+    context.fillStyle = book.accent;
     context.fillRect(PAD, y, INNER, 3);
     y += 52;
 
     itemLines.forEach((item) => {
         context.font = `600 31px ${SERIF}`;
-        context.fillStyle = '#2b2118';
+        context.fillStyle = book.ink;
         context.textAlign = 'left';
         item.lines.forEach((text, index) => context.fillText(text, PAD, y + index * 40));
         context.textAlign = 'right';
         context.fillText(item.amount, WIDTH - PAD, y);
         const lastBaseline = y + (item.lines.length - 1) * 40;
 
-        context.fillStyle = '#e4d6b3';
+        context.fillStyle = book.edge;
         context.fillRect(PAD, lastBaseline + 18, INNER, 2);
         y = lastBaseline + 64;
     });
@@ -153,7 +154,7 @@ export async function makePreorderImage(data) {
 
     data.totals.forEach((row) => {
         context.font = `${row.strong ? '700' : '400'} ${row.strong ? 36 : 30}px ${SERIF}`;
-        context.fillStyle = row.strong ? '#2b2118' : '#6d5b45';
+        context.fillStyle = row.strong ? book.ink : book.inkSoft;
         context.textAlign = 'left';
         context.fillText(row.label, PAD, y);
         context.textAlign = 'right';
@@ -167,16 +168,16 @@ export async function makePreorderImage(data) {
     if (noteLines.length) {
         y += 6;
         context.font = `400 26px ${SERIF}`;
-        context.fillStyle = '#6d5b45';
+        context.fillStyle = book.inkSoft;
         noteLines.forEach((text, index) => context.fillText(text, PAD, y + index * 36));
         y += noteLines.length * 36 + 34;
     }
 
-    context.fillStyle = '#e4d6b3';
+    context.fillStyle = book.edge;
     context.fillRect(PAD, y - 10, INNER, 2);
     context.textAlign = 'center';
     context.font = `italic 400 26px ${SERIF}`;
-    context.fillStyle = '#6d5b45';
+    context.fillStyle = book.inkSoft;
     footerLines.forEach((text, index) => context.fillText(text, WIDTH / 2, y + 40 + index * 36));
 
     return new Promise((resolve, reject) => {
